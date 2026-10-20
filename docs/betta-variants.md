@@ -42,7 +42,7 @@ Bản mask trong repo đã được bổ sung vùng vây bằng chính `BettaMas
 
 ![Aqua Pearl Rosetail sau khi sửa mask](previews/BettaVariants/aqua-pearl.png)
 
-*Ảnh render ngoài Unity, nhìn ngang, vây phẳng, cùng công thức màu với `BettaVariant.hlsl`. Không có ánh sáng URP, ánh kim và nếp gợn sóng.*
+*Ảnh render ngoài Unity, nhìn ngang, vây phẳng, cùng công thức màu với `BettaVariant.hlsl` (Texture Detail 0.3). Không có ánh sáng URP, độ bóng và nếp gợn sóng.*
 
 Artist có thể vẽ đè mask này theo cùng quy ước kênh. Chạy lại **Bake Betta Variant Mask** sẽ ghi đè file.
 
@@ -105,7 +105,7 @@ Trường **Base Map** (texture cắt alpha từ `Tools/betta_fin_cuts.py`) vẫ
 
 Butterfly và Pearl có hai trường **Butterfly Band** (vị trí dải, 0 là gốc vây, 1 là mép) và **Butterfly Band Softness** (độ rộng vùng chuyển màu; 0.04 là đường cắt gọn, càng lớn càng loang mềm).
 
-Variant **Aqua Pearl Rosetail** (thân trắng sữa, vây trắng ở gốc và viền xanh ngọc ở nửa ngoài) dùng hoa văn Pearl trên đuôi Rosetail.
+Variant **Aqua Pearl Rosetail** (thân trắng sữa, vây trắng ở gốc và viền xanh ngọc ở nửa ngoài) dùng hoa văn Pearl trên đuôi Rosetail. Để ra trắng sữa chứ không phải trắng bạc, variant này để **Iridescence** thấp (0.25, chỉ bóng mờ chứ không phản chiếu như kim loại) và **Texture Detail** 0.3 (vân vảy và tia vây của texture gốc mờ hơn; mặc định 0.6).
 
 Độ hiếm của một variant = trọng số đuôi × trọng số hoa văn / 10000. Trên 8% là Common, trên 3% là Uncommon, trên 0.8% là Rare, còn lại là Legendary.
 

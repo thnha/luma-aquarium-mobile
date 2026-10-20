@@ -29,6 +29,7 @@ public class BettaAppearance : MonoBehaviour
     static readonly int PatternId = Shader.PropertyToID("_VariantPattern");
     static readonly int SeedId = Shader.PropertyToID("_VariantSeed");
     static readonly int IridescenceId = Shader.PropertyToID("_VariantIridescence");
+    static readonly int DetailId = Shader.PropertyToID("_VariantDetail");
     static readonly int SpotId = Shader.PropertyToID("_VariantSpot");
     static readonly int AccentSpotId = Shader.PropertyToID("_VariantAccentSpot");
     static readonly int BandId = Shader.PropertyToID("_VariantBand");
@@ -85,6 +86,7 @@ public class BettaAppearance : MonoBehaviour
             block.SetFloat(PatternId, p ? (float)p.kind : 0f);
             block.SetFloat(SeedId, variant.seed * 2.3999632f); // golden angle: neighbouring seeds look unrelated
             block.SetFloat(IridescenceId, variant.iridescence);
+            block.SetFloat(DetailId, variant.textureDetail);
             block.SetFloat(SpotId, p ? p.spotThreshold : 0.58f);
             block.SetFloat(AccentSpotId, p ? p.accentThreshold : 0.3f);
             block.SetFloat(BandId, p ? p.butterflyBand : 0.55f);
