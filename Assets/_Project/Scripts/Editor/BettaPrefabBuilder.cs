@@ -43,7 +43,10 @@ public static class BettaPrefabBuilder
     {
         string path = ArtDir + "/Betta.mat";
         var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
-        if (!mat) { mat = new Material(Shader.Find("Universal Render Pipeline/Lit")); AssetDatabase.CreateAsset(mat, path); }
+        // Betta Lit = URP Lit that also lights back faces correctly (see Shaders/BettaLit.shader).
+        var shader = Shader.Find("Lumaquarium/Betta Lit");
+        if (!mat) { mat = new Material(shader); AssetDatabase.CreateAsset(mat, path); }
+        mat.shader = shader;
         mat.SetTexture("_BaseMap", Tex("BETTA_BaseColor_Alpha"));
         mat.SetColor("_BaseColor", Color.white);
         mat.SetTexture("_MetallicGlossMap", Tex("BETTA_MetallicSmoothness"));

@@ -113,6 +113,12 @@ public static class AquariumSceneBuilder
         var fish = bettaRoot.AddComponent<BettaFishAI>();
         fish.swimBounds = boundsCollider;
         fish.animator = fishAnimator;
+        if (fishAnimator)
+        {
+            var swimMotion = bettaRoot.AddComponent<BettaSwimMotion>();
+            swimMotion.fish = fish;
+            swimMotion.skeletonRoot = fishAnimator.transform;
+        }
 
         // Feeding
         var feeding = new GameObject("FeedingManager").AddComponent<FeedingSystem>();

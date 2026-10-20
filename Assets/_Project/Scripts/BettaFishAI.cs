@@ -44,6 +44,8 @@ public class BettaFishAI : MonoBehaviour
     private float stateTimer;
     private float currentSpeed;
 
+    public float CurrentSpeed => currentSpeed;
+
     void Start() { EnterWander(); }
 
     void Update()
