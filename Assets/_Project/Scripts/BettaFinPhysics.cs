@@ -31,6 +31,8 @@ public class BettaFinPhysics : MonoBehaviour
     public FinSettings pectoral = new FinSettings { rootStiffness = 0.2f, tipStiffness = 0.1f, damping = 0.16f, maxAngle = 35f, ripple = 0.002f, speedStiffening = 1.5f };
     [Tooltip("Extra push of water against the swim direction; makes fins stream back more while moving.")]
     public float flowDrag = 0.5f;
+    [Tooltip("Degrees the dorsal fin rises when excited; it folds by the same amount at rest. Anal fin follows at half.")]
+    public float dorsalRaise = 12f;
 
     enum Group { Caudal, DorsalAnal, Pelvic, Pectoral }
 
@@ -73,12 +75,14 @@ public class BettaFinPhysics : MonoBehaviour
         public Vector3 p, pp;                // tip particle (current, previous)
         public Quaternion baseLocal, lastWritten;
         public float phase;
+        public float raise;                  // +1 dorsal root, -1 anal root (opposite side of the body), else 0
     }
 
     Node[] nodes;
     Vector3 lastRootPosition;
     bool initialized;
     float time;
+    float arousal;
 
     void Awake()
     {
@@ -105,6 +109,7 @@ public class BettaFinPhysics : MonoBehaviour
                     baseLocal = t.localRotation,
                     lastWritten = t.localRotation,
                     phase = list.Count * 1.37f,
+                    raise = i > 0 ? 0f : chain.bones[0].StartsWith("Dorsal") ? 1f : chain.bones[0].StartsWith("Anal") ? -0.5f : 0f,
                 });
             }
         }
@@ -141,6 +146,9 @@ public class BettaFinPhysics : MonoBehaviour
         float stepScale = dt * 60f / steps;  // 1 at 60 fps per step
         Vector3 flow = -rootVelocity * flowDrag * (dt / steps);
         float speed01 = fish ? Mathf.Clamp01(fish.CurrentSpeed / Mathf.Max(0.01f, fish.swimSpeed)) : 0f;
+        // Mood: fins rise when excited (food, air, flaring) and fold flat at rest.
+        arousal = Mathf.MoveTowards(arousal, fish ? fish.Arousal : 0f, 1.5f * dt);
+        Vector3 lateral = transform.right;
 
         foreach (Node n in nodes)
         {
@@ -148,6 +156,8 @@ public class BettaFinPhysics : MonoBehaviour
             // bones the clips don't key) before simulating on top of it.
             if (Quaternion.Angle(n.t.localRotation, n.lastWritten) > 0.01f) n.baseLocal = n.t.localRotation;
             n.t.localRotation = n.baseLocal;
+            // Rotating about the body's side axis tips a backward-pointing ray up (raise) or down (fold).
+            if (n.raise != 0f) n.t.rotation = Quaternion.AngleAxis(arousal * dorsalRaise * n.raise, lateral) * n.t.rotation;
 
             Vector3 origin = n.t.position;
             Vector3 target = n.t.TransformPoint(n.tipLocal);

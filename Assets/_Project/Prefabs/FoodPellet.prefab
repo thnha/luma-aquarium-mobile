@@ -103,6 +103,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f61c0ca28b5094bd39ddcc4492e4bb41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodPellet
-  fallSpeed: 0.08
+  fallSpeed: 0.04
   minY: 0.4
   lifetime: 25
+  minFloatTime: 4
+  maxFloatTime: 9
+  bobAmplitude: 0.004

@@ -42,7 +42,8 @@ public class BettaSwimMotion : MonoBehaviour
     public float pectoralFrequency = 3.2f;
     public float pectoralAmplitude = 18f;
     public float pectoralTurnBias = 0.5f;    // outer fin beats harder in a turn
-    public float gillFrequency = 1.1f;
+    public float gillRestFrequency = 0.7f;   // breathing slows when resting
+    public float gillActiveFrequency = 1.6f; // and speeds up after exertion
     public float gillAmplitude = 4f;
 
     struct Bone
@@ -67,6 +68,7 @@ public class BettaSwimMotion : MonoBehaviour
     float[] segmentHeading;                  // lagged world yaw per spine segment
     float[] jointBend;
     float bodyPhase, caudalPhase, finPhase, gillPhase, lastYaw, yawRate;
+    float exertion;                           // slow-moving average of effort: quick to rise, slow to recover
 
     void Awake()
     {
@@ -125,7 +127,9 @@ public class BettaSwimMotion : MonoBehaviour
         // mean stays 1 so average speed is unchanged.
         if (fish) fish.ThrustPulse = 1f + thrustPulse * effort * (Mathf.Abs(Mathf.Cos(caudalPhase)) * Mathf.PI * 0.5f - 1f);
         finPhase += pectoralFrequency * TwoPi * dt;
-        gillPhase += gillFrequency * TwoPi * dt;
+        float rest = fish && fish.IsResting ? 0f : effort;
+        exertion = Mathf.MoveTowards(exertion, rest, (rest > exertion ? 0.5f : 0.08f) * dt);
+        gillPhase += Mathf.Lerp(gillRestFrequency, gillActiveFrequency, exertion) * TwoPi * dt;
 
         float yaw = transform.eulerAngles.y;
         float rawYawRate = Mathf.DeltaAngle(lastYaw, yaw) / dt;
@@ -177,7 +181,7 @@ public class BettaSwimMotion : MonoBehaviour
             Apply(ref pectoralR[i], Quaternion.AngleAxis(-right * pectoralR[i].weight, up));
         }
 
-        float gill = (Mathf.Sin(gillPhase) * 0.5f + 0.5f) * gillAmplitude;
+        float gill = (Mathf.Sin(gillPhase) * 0.5f + 0.5f) * gillAmplitude * Mathf.Lerp(0.8f, 1.4f, exertion);
         Apply(ref gillL[0], Quaternion.AngleAxis(gill, up));
         Apply(ref gillR[0], Quaternion.AngleAxis(-gill, up));
     }

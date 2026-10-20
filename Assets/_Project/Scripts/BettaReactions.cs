@@ -38,7 +38,7 @@ public class BettaReactions : MonoBehaviour
     void Update()
     {
         if (animator == null) return;
-        animator.SetBool(RestingId, fish != null && fish.state == BettaFishAI.State.Rest);
+        animator.SetBool(RestingId, fish != null && fish.IsResting);
 
         if (TryGetTap(out Vector2 screenPosition) && Time.time >= nextFlareTime && IsOnFish(screenPosition))
             Flare();

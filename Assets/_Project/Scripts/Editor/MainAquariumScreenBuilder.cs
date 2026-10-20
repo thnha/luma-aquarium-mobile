@@ -68,11 +68,6 @@ public static class MainAquariumScreenBuilder
         BuildBackdrop(orbit.GetComponent<Camera>());
         BakePortrait(fish);
         var canvas = NewCanvas("MainAquariumHUD");
-        var hudCanvas = canvas.GetComponent<Canvas>();
-        hudCanvas.renderMode = RenderMode.ScreenSpaceCamera;
-        hudCanvas.worldCamera = orbit.GetComponent<Camera>();
-        hudCanvas.planeDistance = .3f;
-        hudCanvas.sortingOrder = 10;
         var controller = canvas.gameObject.AddComponent<MainAquariumScreen>();
         controller.fish = fish;
         controller.feeding = feeding;

@@ -23,6 +23,7 @@ namespace Lumaquarium.UI
         public TMP_Text feedback;
         public TMP_Text muteLabel;
         public CanvasGroup hud;
+        public AquariumDecoration decoration;
 
         private Vector3 defaultView;
         private float feedbackUntil;
@@ -63,6 +64,7 @@ namespace Lumaquarium.UI
 
         public void Feed()
         {
+            decoration?.Cancel();
             ClosePanels();
             if (feeding != null) feeding.Feed();
         }
@@ -73,6 +75,7 @@ namespace Lumaquarium.UI
 
         private void TogglePanel(GameObject panel)
         {
+            decoration?.Cancel();
             bool open = !panel.activeSelf;
             ClosePanels();
             panel.SetActive(open);
@@ -89,6 +92,7 @@ namespace Lumaquarium.UI
 
         public void ToggleHud()
         {
+            decoration?.Cancel();
             ClosePanels();
             hidden = !hidden;
             header.SetActive(!hidden);
@@ -117,6 +121,7 @@ namespace Lumaquarium.UI
         public void TakePhoto()
         {
             if (capturing) return;
+            decoration?.Cancel();
             ClosePanels();
             StartCoroutine(CapturePhoto());
         }

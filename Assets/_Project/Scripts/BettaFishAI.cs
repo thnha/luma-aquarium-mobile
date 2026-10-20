@@ -42,9 +42,19 @@ public class BettaFishAI : MonoBehaviour
     public float gulpDuration = 0.5f;
     public float surfaceReach = 0.1f;             // above the SwimBounds top (the water surface is 0.1 above it)
 
+    [Header("Resting")]
+    [Range(0f, 1f)] public float bottomRestChance = 0.6f; // otherwise rests just under the surface
+    public float restRoll = 12f;                  // bettas lie slightly tilted on the bottom
+    public float bottomRestY = 0.43f;             // pivot height when lying on the substrate (sand top + belly)
+
+    [Header("Feeding strike")]
+    public float strikeRadius = 0.3f;             // close and lined up: dart at the pellet
+    public float strikeSpeedMultiplier = 2.2f;
+
     [Header("Hovering")]
     public float hoverDrift = 0.012f;             // m/s of slow drift while hovering
     public float hoverYawDrift = 6f;              // deg/s of slow heading wander while hovering
+    public float verticalHoverSpeed = 0.1f;       // m/s straight up/down on the pectorals when a target is too steep
 
     [Header("Timing")]
     public float wanderMinTime = 3f;
@@ -76,7 +86,17 @@ public class BettaFishAI : MonoBehaviour
     private float breatheTimer;
     private bool gulping;
     private float ceiling;                        // top of the allowed space; lowers gently after a gulp
+    private float floor;                          // bottom of the allowed space; drops to the sand to rest
     private float noiseSeed;
+    private bool settled;                         // resting: reached the rest spot
+    private bool restOnBottom;
+    private float roll;
+
+    // True only once the fish has reached its rest spot and lies still.
+    public bool IsResting => state == State.Rest && settled;
+    // 0 calm .. 1 excited (feeding, breathing, flaring); -1 resting. Drives dorsal/anal fin posture.
+    public float Arousal => state == State.SeekFood || state == State.Eat || state == State.Breathe ? 1f
+        : state == State.Rest ? (settled ? -1f : -0.3f) : state == State.Idle ? 0.2f : 0.35f;
 
     public float CurrentSpeed => currentSpeed;
     // 0 = hovering/gliding, 1 = actively beating the tail. Drives the caudal fin.
@@ -91,6 +111,7 @@ public class BettaFishAI : MonoBehaviour
         breatheTimer = Random.Range(breatheMinInterval * 0.3f, breatheMaxInterval * 0.5f);
         noiseSeed = Random.Range(0f, 100f);
         ceiling = float.MaxValue;
+        floor = float.MinValue;
         EnterWander();
     }
 
@@ -112,8 +133,28 @@ public class BettaFishAI : MonoBehaviour
                 SwimTowards(destination, coasting ? swimSpeed * coastSpeedFactor : swimSpeed);
                 if (stateTimer <= 0f || Arrived(destination)) ChooseNextCalmState();
                 break;
-            case State.Idle:
             case State.Rest:
+                if (!settled)
+                {
+                    // Glide calmly to a rest spot on the bottom or just under the surface.
+                    targetEffort = 0.4f;
+                    SwimTowards(destination, swimSpeed * 0.5f);
+                    if (Arrived(destination) || stateTimer <= 0f)
+                    {
+                        restOnBottom &= Arrived(destination); // gave up mid-water: hang level instead of lying tilted
+                        settled = true;
+                        stateTimer = restDuration;
+                    }
+                    break;
+                }
+                targetEffort = 0.05f;
+                SwimTowards(transform.position + transform.forward, 0f);
+                // Settle the last few centimetres down onto the rest spot.
+                if (restOnBottom)
+                    transform.position = Vector3.MoveTowards(transform.position, destination, 0.03f * Time.deltaTime);
+                if (stateTimer <= 0f) EnterWander();
+                break;
+            case State.Idle:
                 targetEffort = 0.1f;
                 SwimTowards(transform.position + transform.forward, 0f);
                 if (stateTimer <= 0f) EnterWander();
@@ -121,8 +162,10 @@ public class BettaFishAI : MonoBehaviour
             case State.SeekFood:
                 if (food == null) { LookForFood(); if (food == null) EnterWander(); break; }
                 targetEffort = 1f;
-                Vector3 target = ClampToBounds(food.transform.position);
-                SwimTowards(target, swimSpeed * seekSpeedMultiplier);
+                Vector3 target = ClampToBounds(food.transform.position, SurfaceTop());
+                Vector3 toFood = target - transform.position;
+                bool strike = toFood.magnitude < strikeRadius && Vector3.Dot(transform.forward, toFood.normalized) > 0.85f;
+                SwimTowards(target, swimSpeed * (strike ? strikeSpeedMultiplier : seekSpeedMultiplier), strike);
                 if (Arrived(target)) EnterEat();
                 break;
             case State.Breathe:
@@ -159,12 +202,6 @@ public class BettaFishAI : MonoBehaviour
                 SwimTowards(transform.position + transform.forward, 0f);
                 if (stateTimer <= 0f)
                 {
-                    if (food != null)
-                    {
-                        food.Consume();
-                        hunger = Mathf.Clamp01(hunger - hungerPerPellet);
-                    }
-                    food = null;
                     LookForFood();
                     if (food == null) EnterIdle();
                 }
@@ -175,8 +212,11 @@ public class BettaFishAI : MonoBehaviour
         // While breathing the fish may reach the surface; afterwards the ceiling follows it
         // back down instead of snapping it under the normal limit.
         float normalTop = NormalTop();
-        ceiling = state == State.Breathe ? SurfaceTop() : Mathf.Max(normalTop, Mathf.Min(ceiling, transform.position.y));
-        transform.position = ClampToBounds(transform.position, ceiling);
+        bool surfaceAllowed = state == State.Breathe || state == State.SeekFood || state == State.Eat;
+        ceiling = surfaceAllowed ? SurfaceTop() : Mathf.Max(normalTop, Mathf.Min(ceiling, transform.position.y));
+        float normalBottom = NormalBottom();
+        floor = state == State.Rest && restOnBottom ? Mathf.Min(normalBottom, bottomRestY) : Mathf.Min(normalBottom, Mathf.Max(floor, transform.position.y));
+        transform.position = ClampToBounds(transform.position, ceiling, floor);
         if (animator) animator.SetFloat(SpeedId, currentSpeed);
     }
 
@@ -202,36 +242,53 @@ public class BettaFishAI : MonoBehaviour
         if (nearest != null) Seek(nearest);
     }
 
-    void SwimTowards(Vector3 target, float targetSpeed)
+    void SwimTowards(Vector3 target, float targetSpeed, bool strike = false)
     {
         Vector3 direction = target - transform.position;
+        // Heading the fish can actually swim: yaw toward the target, pitch within the
+        // limit for this state. Yaw and pitch are steered separately and rebuilt with zero
+        // roll; slerping the whole rotation takes a shortcut that banks the fish mid-turn.
+        float targetYaw = yaw, targetPitch = 0f;
+        bool tooSteep = false;
+        if (direction.sqrMagnitude > 0.0001f)
+        {
+            targetYaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+            float limit = state == State.SeekFood || state == State.Rest ? seekMaxPitch
+                : state == State.Breathe ? breatheMaxPitch : maxPitch;
+            float horizontal = new Vector2(direction.x, direction.z).magnitude;
+            if (targetSpeed > 0f || state == State.Breathe)
+            {
+                float rawPitch = -Mathf.Atan2(direction.y, horizontal) * Mathf.Rad2Deg;
+                targetPitch = Mathf.Clamp(rawPitch, -limit, limit);
+                tooSteep = Mathf.Abs(rawPitch) > limit && horizontal < 0.2f;
+            }
+        }
+
         // Pectoral braking: near the target, turning hard or stopping, shed speed quickly.
         // Only free gliding keeps the slow, drag-limited deceleration.
         bool braking = targetSpeed <= 0f;
-        if (targetSpeed > 0f)
+        if (targetSpeed > 0f && !strike)
         {
             // Slow down near the target and while turning, so the turn radius
             // stays smaller than arrivalRadius and the fish can't orbit forever.
-            float alignment = Vector3.Dot(transform.forward, direction.normalized) * 0.5f + 0.5f;
+            // Alignment is measured against the reachable heading, so a target straight
+            // above (steeper than the pitch limit) doesn't stall the fish.
+            Vector3 reachable = Quaternion.Euler(targetPitch, targetYaw, 0f) * Vector3.forward;
+            float alignment = Vector3.Dot(transform.forward, reachable) * 0.5f + 0.5f;
             float approach = Mathf.Clamp01(direction.magnitude / slowdownRadius);
             targetSpeed *= Mathf.Max(0.15f, alignment * alignment) * Mathf.Max(0.2f, approach);
             braking = approach < 1f || alignment < 0.6f;
         }
-        float rate = targetSpeed > currentSpeed ? acceleration : (braking ? acceleration : deceleration);
+        // A strike is a short dart; the fish then brakes hard with its pectorals.
+        float rate = targetSpeed > currentSpeed ? acceleration * (strike ? 4f : 1f)
+            : braking ? acceleration * (currentSpeed > swimSpeed * 1.2f ? 3f : 1f) : deceleration;
         currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, rate * Time.deltaTime);
-        // Yaw and pitch are steered separately and rebuilt with zero roll. Slerping the whole
-        // rotation (yaw + pitch at once) takes a shortcut that banks the fish mid-turn.
+
+        // Turn rate grows with swim speed and eases off as the heading lines up,
+        // so turns start and finish smoothly instead of snapping at a fixed rate.
         float desiredTurnSpeed = 0f;
-        float targetYaw = yaw, targetPitch = 0f;
         if (direction.sqrMagnitude > 0.0001f)
         {
-            targetYaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-            float limit = state == State.SeekFood ? seekMaxPitch : state == State.Breathe ? breatheMaxPitch : maxPitch;
-            float horizontal = new Vector2(direction.x, direction.z).magnitude;
-            if (targetSpeed > 0f || state == State.Breathe)
-                targetPitch = Mathf.Clamp(-Mathf.Atan2(direction.y, horizontal) * Mathf.Rad2Deg, -limit, limit);
-            // Turn rate grows with swim speed and eases off as the heading lines up,
-            // so turns start and finish smoothly instead of snapping at a fixed rate.
             float maxRate = Mathf.Lerp(hoverTurnDegreesPerSecond, turnDegreesPerSecond, Mathf.Clamp01(currentSpeed / swimSpeed));
             desiredTurnSpeed = Mathf.Min(maxRate, Mathf.Abs(Mathf.DeltaAngle(yaw, targetYaw)) * 2.5f);
         }
@@ -240,8 +297,14 @@ public class BettaFishAI : MonoBehaviour
         // Level out while hovering, and don't pitch steeply in the middle of a sharp turn.
         float turnFactor = Mathf.Clamp01(1f - Mathf.Abs(Mathf.DeltaAngle(yaw, targetYaw)) / 90f);
         pitch = Mathf.MoveTowards(pitch, targetPitch * turnFactor, pitchDegreesPerSecond * Time.deltaTime);
-        transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
+        // Lying on the bottom the fish settles onto one side a little.
+        float targetRoll = IsResting && restOnBottom ? restRoll : 0f;
+        roll = Mathf.MoveTowards(roll, targetRoll, 8f * Time.deltaTime);
+        transform.rotation = Quaternion.Euler(pitch, yaw, roll);
         transform.position += transform.forward * currentSpeed * ThrustPulse * Time.deltaTime;
+        // Target almost straight above/below: rise or sink on the pectorals instead of circling.
+        if (tooSteep)
+            transform.position += Vector3.up * Mathf.Clamp(direction.y, -verticalHoverSpeed * Time.deltaTime, verticalHoverSpeed * Time.deltaTime);
 
         // A hovering betta is never pinned in place: it drifts and bobs a few millimetres
         // and lets its heading wander while the pectorals keep correcting.
@@ -251,8 +314,9 @@ public class BettaFishAI : MonoBehaviour
             float t = Time.time * 0.25f;
             Vector3 drift = new Vector3(Mathf.PerlinNoise(t, noiseSeed) - 0.5f,
                 Mathf.PerlinNoise(noiseSeed, t) - 0.5f, Mathf.PerlinNoise(t + 31f, noiseSeed + 17f) - 0.5f) * 2f;
-            transform.position += drift * hoverDrift * hover * Time.deltaTime;
-            yaw += (Mathf.PerlinNoise(t * 0.7f, noiseSeed + 53f) - 0.5f) * 2f * hoverYawDrift * hover * Time.deltaTime;
+            float still = IsResting ? 0.3f : 1f;
+            transform.position += drift * hoverDrift * hover * still * Time.deltaTime;
+            yaw += still * (Mathf.PerlinNoise(t * 0.7f, noiseSeed + 53f) - 0.5f) * 2f * hoverYawDrift * hover * Time.deltaTime;
         }
     }
 
@@ -260,9 +324,9 @@ public class BettaFishAI : MonoBehaviour
 
     void ChooseNextCalmState()
     {
-        float roll = Random.value;
-        if (roll < restChance) { state = State.Rest; stateTimer = restDuration; }
-        else if (roll < restChance + idleChance) EnterIdle();
+        float dice = Random.value;
+        if (dice < restChance) EnterRest();
+        else if (dice < restChance + idleChance) EnterIdle();
         else EnterWander();
     }
 
@@ -297,7 +361,24 @@ public class BettaFishAI : MonoBehaviour
 
     float SurfaceTop() => swimBounds ? swimBounds.bounds.max.y + surfaceReach : float.MaxValue;
 
+    float NormalBottom() => swimBounds ? swimBounds.bounds.min.y + boundsInset : float.MinValue;
+
     float NormalTop() => swimBounds ? swimBounds.bounds.max.y - boundsInset : float.MaxValue;
+
+    // Bettas rest on the bottom (or on leaves) or hang just under the surface.
+    void EnterRest()
+    {
+        state = State.Rest;
+        settled = false;
+        restOnBottom = Random.value < bottomRestChance;
+        Bounds b = swimBounds ? swimBounds.bounds : new Bounds(transform.position, Vector3.one);
+        float y = restOnBottom ? Mathf.Min(NormalBottom(), bottomRestY) : NormalTop();
+        // On the bottom keep to the open front half; rocks and plants fill the back.
+        float zMax = restOnBottom ? Mathf.Min(b.max.z, b.center.z - 0.05f) : b.max.z;
+        destination = ClampToBounds(new Vector3(Random.Range(b.min.x, b.max.x), y, Random.Range(b.min.z, zMax)), NormalTop(), y);
+        // Give up travelling after this long and rest where it is.
+        stateTimer = 6f + Vector3.Distance(transform.position, destination) / 0.08f;
+    }
 
     void EnterIdle()
     {
@@ -307,19 +388,28 @@ public class BettaFishAI : MonoBehaviour
 
     void EnterEat()
     {
+        // Snap the pellet on arrival; the Eat state is the short pause to swallow.
         state = State.Eat;
         stateTimer = eatDuration;
         if (animator) animator.SetTrigger(NibbleId);
+        if (food != null)
+        {
+            food.Consume();
+            hunger = Mathf.Clamp01(hunger - hungerPerPellet);
+        }
+        food = null;
     }
 
-    Vector3 ClampToBounds(Vector3 position) => ClampToBounds(position, NormalTop());
+    Vector3 ClampToBounds(Vector3 position) => ClampToBounds(position, NormalTop(), NormalBottom());
 
-    Vector3 ClampToBounds(Vector3 position, float top)
+    Vector3 ClampToBounds(Vector3 position, float top) => ClampToBounds(position, top, NormalBottom());
+
+    Vector3 ClampToBounds(Vector3 position, float top, float bottom)
     {
         if (swimBounds == null) return position;
         Bounds b = swimBounds.bounds;
         return new Vector3(Mathf.Clamp(position.x, b.min.x + boundsInset, b.max.x - boundsInset),
-            Mathf.Clamp(position.y, b.min.y + boundsInset, top),
+            Mathf.Clamp(position.y, bottom, top),
             Mathf.Clamp(position.z, b.min.z + boundsInset, b.max.z - boundsInset));
     }
 }
