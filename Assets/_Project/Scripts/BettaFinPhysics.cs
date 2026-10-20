@@ -23,6 +23,8 @@ public class BettaFinPhysics : MonoBehaviour
         public float ripple = 0.004f;                             // metres of idle water ripple at the tip
         public float speedStiffening = 1.5f;                      // stiffness/damping multiplier at full swim speed
         public float sag = 0f;                                    // droop under its own weight when slow (share of bone length)
+
+        public FinSettings Clone() => (FinSettings)MemberwiseClone();
     }
 
     public FinSettings caudal = new FinSettings { rootStiffness = 0.1f, tipStiffness = 0.035f, damping = 0.18f, maxAngle = 22f, ripple = 0.005f, speedStiffening = 1.3f, sag = 0.15f };
@@ -33,6 +35,10 @@ public class BettaFinPhysics : MonoBehaviour
     public float flowDrag = 0.5f;
     [Tooltip("Degrees the dorsal fin rises when excited; it folds by the same amount at rest. Anal fin follows at half.")]
     public float dorsalRaise = 12f;
+    [Tooltip("Degrees the upper and lower caudal rays open (+) or close (-) relative to the model (tail form, set by BettaAppearance).")]
+    public float caudalSpread;
+    [Tooltip("Degrees the whole caudal fin hangs down (tail form, set by BettaAppearance).")]
+    public float caudalDroop;
 
     enum Group { Caudal, DorsalAnal, Pelvic, Pectoral }
 
@@ -76,7 +82,14 @@ public class BettaFinPhysics : MonoBehaviour
         public Quaternion baseLocal, lastWritten;
         public float phase;
         public float raise;                  // dorsal root -1, anal root +0.5 (sign measured on this rig), else 0
+        public float spread;                 // caudal roots: +1 top ray .. -1 bottom ray, else 0
+        public bool caudalRoot;
     }
+
+    // How far each caudal chain opens with caudalSpread, top to bottom.
+    static float SpreadWeight(string root) =>
+        root.StartsWith("Tail_Top_") ? 1f : root.StartsWith("Tail_UpMid_") ? 0.5f : root.StartsWith("Tail_LowMid_") ? -0.35f :
+        root.StartsWith("Tail_Low_") ? -0.7f : root.StartsWith("Tail_Bot_") ? -1f : 0f;
 
     Node[] nodes;
     Vector3 lastRootPosition;
@@ -84,7 +97,11 @@ public class BettaFinPhysics : MonoBehaviour
     float time;
     float arousal;
 
-    void Awake()
+    void Awake() { Rebind(); }
+
+    // Re-reads the fin chains. Call after changing fin bone scale (BettaAppearance), since
+    // bone lengths are measured here.
+    public void Rebind()
     {
         if (skeletonRoot == null) skeletonRoot = transform;
         if (fish == null) fish = GetComponentInParent<BettaFishAI>();
@@ -110,10 +127,13 @@ public class BettaFinPhysics : MonoBehaviour
                     lastWritten = t.localRotation,
                     phase = list.Count * 1.37f,
                     raise = i > 0 ? 0f : chain.bones[0].StartsWith("Dorsal") ? -1f : chain.bones[0].StartsWith("Anal") ? 0.5f : 0f,
+                    spread = i > 0 ? 0f : SpreadWeight(chain.bones[0]),
+                    caudalRoot = i == 0 && chain.group == Group.Caudal,
                 });
             }
         }
         nodes = list.ToArray();
+        initialized = false;
     }
 
     static Transform FindDeep(Transform parent, string boneName)
@@ -158,6 +178,9 @@ public class BettaFinPhysics : MonoBehaviour
             n.t.localRotation = n.baseLocal;
             // Rotating about the body's side axis tips the fin rays up (raise) or back flat (fold).
             if (n.raise != 0f) n.t.rotation = Quaternion.AngleAxis(arousal * dorsalRaise * n.raise, lateral) * n.t.rotation;
+            // Tail form, relative to the Halfmoon model: fan the rays wider (+) or narrower (-), hang the fin (Veiltail).
+            // On this rig a negative angle tips a ray up (same as the dorsal raise above).
+            if (n.caudalRoot) n.t.rotation = Quaternion.AngleAxis(caudalDroop - caudalSpread * n.spread, lateral) * n.t.rotation;
 
             Vector3 origin = n.t.position;
             Vector3 target = n.t.TransformPoint(n.tipLocal);
