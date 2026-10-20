@@ -105,7 +105,11 @@ Trường **Base Map** (texture cắt alpha từ `Tools/betta_fin_cuts.py`) vẫ
 
 Butterfly và Pearl có hai trường **Butterfly Band** (vị trí dải, 0 là gốc vây, 1 là mép) và **Butterfly Band Softness** (độ rộng vùng chuyển màu; 0.04 là đường cắt gọn, càng lớn càng loang mềm).
 
-Variant **Aqua Pearl Rosetail** (thân trắng sữa, vây trắng ở gốc và viền xanh ngọc ở nửa ngoài) dùng hoa văn Pearl trên đuôi Rosetail. Để ra trắng sữa chứ không phải trắng bạc, variant này để **Iridescence** thấp (0.25, chỉ bóng mờ chứ không phản chiếu như kim loại) và **Texture Detail** 0.3 (vân vảy và tia vây của texture gốc mờ hơn; mặc định 0.6).
+Variant **Aqua Pearl Rosetail** (thân trắng sữa, vây trắng ở gốc và viền xanh ngọc ở nửa ngoài) dùng hoa văn Pearl trên đuôi Rosetail. Để ra trắng sữa chứ không phải trắng bạc, variant này đặt:
+
+- **Silver Sheen** 0: bỏ độ kim loại (0.18) và độ bóng (0.77) mà `BETTA_MetallicSmoothness.png` cho cả thân lẫn vây, thay bằng bề mặt satin không kim loại (độ bóng 0.5). Mặc định 1, giữ như texture.
+- **Iridescence** 0.1: chỉ còn chút bóng trên thân.
+- **Texture Detail** 0.3: vân vảy và tia vây của texture gốc mờ hơn (mặc định 0.6).
 
 Độ hiếm của một variant = trọng số đuôi × trọng số hoa văn / 10000. Trên 8% là Common, trên 3% là Uncommon, trên 0.8% là Rare, còn lại là Legendary.
 

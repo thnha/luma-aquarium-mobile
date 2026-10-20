@@ -73,6 +73,7 @@ Shader "Lumaquarium/Betta Lit"
         _VariantPattern("Variant Pattern", Float) = 0.0
         _VariantSeed("Variant Seed", Float) = 0.0
         _VariantIridescence("Variant Iridescence", Range(0.0, 1.0)) = 0.0
+        _VariantSilver("Variant Silver Sheen", Range(0.0, 1.0)) = 1.0
         _VariantSpot("Variant Spot Threshold", Range(0.0, 1.0)) = 0.58
         _VariantAccentSpot("Variant Accent Spot Threshold", Range(0.0, 1.0)) = 0.3
         _VariantBand("Variant Butterfly Band", Range(0.0, 1.0)) = 0.55

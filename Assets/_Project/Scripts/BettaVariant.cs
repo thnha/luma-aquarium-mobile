@@ -19,6 +19,8 @@ public class BettaVariant : ScriptableObject
     [Range(0f, 1f)] public float iridescence = 0.6f;
     [Tooltip("How much of the painted texture's scales and fin rays darken the colours. Low = smooth, milky colour.")]
     [Range(0f, 1f)] public float textureDetail = 0.6f;
+    [Tooltip("Silvery shine of the painted metallic map on body and fins. 1 = as painted; 0 = satin, non-metal (milky white).")]
+    [Range(0f, 1f)] public float silverSheen = 1f;
 
     [Header("Proportions")]
     [Range(0.8f, 1.3f)] public float headScale = 1f;

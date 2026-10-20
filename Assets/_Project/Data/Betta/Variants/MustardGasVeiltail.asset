@@ -20,6 +20,7 @@ MonoBehaviour:
   accent: {r: 0.49803922, g: 0.72156864, b: 1, a: 1}
   iridescence: 0.55
   textureDetail: 0.6
+  silverSheen: 1
   headScale: 1
   finLength: 1.05
   seed: 5
