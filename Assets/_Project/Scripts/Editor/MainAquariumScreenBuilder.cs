@@ -168,6 +168,7 @@ public static class MainAquariumScreenBuilder
         controller.feedback = feedback;
         feedback.gameObject.SetActive(false);
         controller.ClosePanels();
+        FishShopScreenBuilder.Connect(controller);
 
         if (UnityEngine.Object.FindFirstObjectByType<EventSystem>() == null)
             Undo.RegisterCreatedObjectUndo(new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule)), "Create input");
