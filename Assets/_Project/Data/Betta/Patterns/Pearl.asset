@@ -16,6 +16,6 @@ MonoBehaviour:
   kind: 2
   spotThreshold: 0.58
   accentThreshold: 0.3
-  butterflyBand: 0.3
-  butterflyBandSoftness: 0.22
+  butterflyBand: 0.6
+  butterflyBandSoftness: 0.15
   rarityWeight: 4

@@ -125,6 +125,7 @@ Material:
     - _VariantDetail: 0.6
     - _VariantDetailGain: 2.5
     - _VariantIridescence: 0
+    - _VariantSilver: 1
     - _VariantOn: 0
     - _VariantPattern: 0
     - _VariantSeed: 0

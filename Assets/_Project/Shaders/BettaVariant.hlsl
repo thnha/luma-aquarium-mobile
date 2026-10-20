@@ -20,6 +20,7 @@ half4 _VariantAccent;
 half _VariantPattern;
 half _VariantSeed;
 half _VariantIridescence;
+half _VariantSilver;
 half _VariantSpot;
 half _VariantAccentSpot;
 half _VariantBand;
@@ -69,6 +70,11 @@ inline void BettaVariantSurfaceData(float2 uv, out SurfaceData outSurfaceData)
 {
     InitializeStandardLitSurfaceData(uv, outSurfaceData);
     outSurfaceData.albedo = BettaVariantAlbedo(outSurfaceData.albedo, uv);
+    // Silver: the painted metallic/smoothness map gives body and fins a silvery shine; 0 turns it into
+    // a satin, non-metal finish (milky white instead of silver).
+    half silver = lerp(1.0h, _VariantSilver, _VariantOn);
+    outSurfaceData.metallic *= silver;
+    outSurfaceData.smoothness = lerp(0.5h, outSurfaceData.smoothness, silver);
     // Iridescence: a metallic, glossy body tints its reflections with the fish colour.
     half body = SAMPLE_TEXTURE2D(_VariantMask, sampler_VariantMask, uv).r;
     half sheen = _VariantIridescence * _VariantOn;

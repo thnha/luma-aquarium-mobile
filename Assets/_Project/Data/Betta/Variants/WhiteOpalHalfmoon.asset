@@ -19,6 +19,9 @@ MonoBehaviour:
   secondary: {r: 0.96862745, g: 0.9529412, b: 0.98039216, a: 1}
   accent: {r: 0.7372549, g: 0.84313726, b: 1, a: 1}
   iridescence: 0.85
+  textureDetail: 0.6
+  silverSheen: 1
   headScale: 0.96
+  eyeScale: 1
   finLength: 1.1
   seed: 2

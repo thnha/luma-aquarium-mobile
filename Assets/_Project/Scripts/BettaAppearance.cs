@@ -29,6 +29,8 @@ public class BettaAppearance : MonoBehaviour
     static readonly int PatternId = Shader.PropertyToID("_VariantPattern");
     static readonly int SeedId = Shader.PropertyToID("_VariantSeed");
     static readonly int IridescenceId = Shader.PropertyToID("_VariantIridescence");
+    static readonly int DetailId = Shader.PropertyToID("_VariantDetail");
+    static readonly int SilverId = Shader.PropertyToID("_VariantSilver");
     static readonly int SpotId = Shader.PropertyToID("_VariantSpot");
     static readonly int AccentSpotId = Shader.PropertyToID("_VariantAccentSpot");
     static readonly int BandId = Shader.PropertyToID("_VariantBand");
@@ -85,6 +87,8 @@ public class BettaAppearance : MonoBehaviour
             block.SetFloat(PatternId, p ? (float)p.kind : 0f);
             block.SetFloat(SeedId, variant.seed * 2.3999632f); // golden angle: neighbouring seeds look unrelated
             block.SetFloat(IridescenceId, variant.iridescence);
+            block.SetFloat(DetailId, variant.textureDetail);
+            block.SetFloat(SilverId, variant.silverSheen);
             block.SetFloat(SpotId, p ? p.spotThreshold : 0.58f);
             block.SetFloat(AccentSpotId, p ? p.accentThreshold : 0.3f);
             block.SetFloat(BandId, p ? p.butterflyBand : 0.55f);
@@ -113,6 +117,8 @@ public class BettaAppearance : MonoBehaviour
         Scale("Head", variant.headScale);
         Scale("Gill_L_01", variant.headScale);
         Scale("Gill_R_01", variant.headScale);
+        Scale("Eye_L", variant.eyeScale);
+        Scale("Eye_R", variant.eyeScale);
         foreach (string b in CaudalRoots) Scale(b, fin * (tail ? tail.caudalLength : 1f));
         foreach (string b in new[] { "Dorsal_A_01", "Dorsal_B_01" }) Scale(b, fin * (tail ? tail.dorsalLength : 1f));
         foreach (string b in new[] { "Anal_A_01", "Anal_B_01" }) Scale(b, fin * (tail ? tail.analLength : 1f));

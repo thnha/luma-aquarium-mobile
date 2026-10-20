@@ -6,7 +6,8 @@ using UnityEditor;
 using UnityEngine;
 
 // Bakes the Betta variant mask (see Shaders/BettaVariant.hlsl) from the skin weights in Betta.fbx,
-// so variants work before an artist paints a mask:
+// so variants work before an artist paints a mask. BODY and every Fin_* mesh (one set per tail form,
+// own UV islands in the same atlas) are baked into the one texture:
 //   R = body (1) / fin (0), per UV island: a body island has vertices led by core bones (Head, Spine...),
 //       fin islands have none (per-vertex weights alone don't work: the body is partly skinned to Anal/Pelvic roots),
 //   G = fin root (0) -> fin edge (1), distance from the fin chain's root bone over the chain length,
@@ -37,13 +38,28 @@ public static class BettaMaskBaker
         // Mesh data has to be CPU-readable for the bake; restore the import setting afterwards.
         bool wasReadable = importer.isReadable;
         if (!wasReadable) { importer.isReadable = true; importer.SaveAndReimport(); }
-        Color32[] pixels;
+        var pixels = new Color32[Size * Size];
+        var filled = new bool[Size * Size];
         try
         {
             var fbx = AssetDatabase.LoadAssetAtPath<GameObject>(FbxPath);
-            var body = fbx.GetComponentsInChildren<SkinnedMeshRenderer>(true).FirstOrDefault(r => r.name == BodyMesh);
+            var renderers = fbx.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            var body = renderers.FirstOrDefault(r => r.name == BodyMesh);
             if (body == null || body.sharedMesh == null) { Debug.LogError("[Lumaquarium] No " + BodyMesh + " mesh in " + FbxPath); return null; }
-            pixels = Rasterize(body.sharedMesh, body.bones);
+            // Halfmoon fins last: where forms share UV space, the default form wins.
+            var fins = renderers.Where(r => r.name.StartsWith("Fin_") && r.sharedMesh != null).OrderBy(r => r.name.EndsWith("_Halfmoon") ? 1 : 0);
+            var meshes = new[] { body }.Concat(fins).ToArray();
+            // Every mesh shares one bind space; each lists only the bones it is skinned to, so chains
+            // (a fin mesh may skip a chain's _01 bone) are measured on the union of all of them.
+            var bindPositions = new Dictionary<string, Vector3>();
+            foreach (var r in meshes)
+            {
+                Matrix4x4[] bindposes = r.sharedMesh.bindposes;
+                for (int i = 0; i < r.bones.Length && i < bindposes.Length; i++)
+                    if (r.bones[i] != null) bindPositions[r.bones[i].name] = bindposes[i].inverse.MultiplyPoint3x4(Vector3.zero);
+            }
+            foreach (var r in meshes) Rasterize(r.sharedMesh, r.bones, bindPositions, body.sharedMesh.bounds, pixels, filled);
+            Dilate(pixels, filled, 8);
         }
         finally
         {
@@ -67,39 +83,40 @@ public static class BettaMaskBaker
     static readonly string[] CoreBones = { "Root", "Head", "Jaw_", "Eye_", "Spine_", "Gill_", "Belly" };
     static bool IsCoreBone(string name) => CoreBones.Any(prefix => name.StartsWith(prefix));
 
-    static Color32[] Rasterize(Mesh mesh, Transform[] bones)
+    static void Rasterize(Mesh mesh, Transform[] bones, Dictionary<string, Vector3> bindPositions, Bounds noiseBounds, Color32[] pixels, bool[] filled)
     {
         Vector3[] verts = mesh.vertices;
         Vector2[] uvs = mesh.uv;
         BoneWeight[] weights = mesh.boneWeights;
-        Matrix4x4[] bindposes = mesh.bindposes;
         int[] tris = mesh.triangles;
 
         // Fin chains (Tail_Top_01..05, Pectoral_L_01..03B ...): root position and length in mesh space.
-        var boneChain = new string[bones.Length];
         var chainRoot = new Dictionary<string, (Vector3 pos, int index)>();
-        var bonePos = new Vector3[bones.Length];
-        for (int i = 0; i < bones.Length; i++)
+        var chainLength = new Dictionary<string, float>();
+        var chainCount = new Dictionary<string, int>();
+        var chainBones = new List<(string chain, Vector3 pos, int index)>();
+        foreach (var bone in bindPositions)
         {
-            bonePos[i] = bindposes[i].inverse.MultiplyPoint3x4(Vector3.zero);
-            if (bones[i] == null || !IsFinBone(bones[i].name)) continue;
-            Match m = ChainBone.Match(bones[i].name);
+            if (!IsFinBone(bone.Key)) continue;
+            Match m = ChainBone.Match(bone.Key);
             if (!m.Success) continue;
             string chain = m.Groups["chain"].Value;
             int index = int.Parse(m.Groups["index"].Value);
-            boneChain[i] = chain;
-            if (!chainRoot.TryGetValue(chain, out var root) || index < root.index) chainRoot[chain] = (bonePos[i], index);
+            chainBones.Add((chain, bone.Value, index));
+            if (!chainRoot.TryGetValue(chain, out var root) || index < root.index) chainRoot[chain] = (bone.Value, index);
         }
-        var chainLength = new Dictionary<string, float>();
-        var chainCount = new Dictionary<string, int>();
+        foreach (var (chain, pos, index) in chainBones)
+        {
+            float d = Vector3.Distance(pos, chainRoot[chain].pos);
+            chainLength[chain] = Mathf.Max(chainLength.TryGetValue(chain, out float l) ? l : 0f, d);
+            chainCount[chain] = Mathf.Max(chainCount.TryGetValue(chain, out int c) ? c : 0, index);
+        }
+        var boneChain = new string[bones.Length];
         for (int i = 0; i < bones.Length; i++)
         {
-            if (boneChain[i] == null) continue;
-            string chain = boneChain[i];
-            float d = Vector3.Distance(bonePos[i], chainRoot[chain].pos);
-            chainLength[chain] = Mathf.Max(chainLength.TryGetValue(chain, out float l) ? l : 0f, d);
-            int index = int.Parse(ChainBone.Match(bones[i].name).Groups["index"].Value);
-            chainCount[chain] = Mathf.Max(chainCount.TryGetValue(chain, out int c) ? c : 0, index);
+            if (bones[i] == null || !IsFinBone(bones[i].name)) continue;
+            Match m = ChainBone.Match(bones[i].name);
+            if (m.Success) boneChain[i] = m.Groups["chain"].Value;
         }
         foreach (string chain in chainCount.Keys.ToList())
         {
@@ -165,13 +182,11 @@ public static class BettaMaskBaker
             depth[v] *= 1f - body[v];
         }
 
-        Bounds bounds = mesh.bounds;
+        Bounds bounds = noiseBounds; // the body's, so noise lines up across meshes
         float extent = Mathf.Max(bounds.size.x, Mathf.Max(bounds.size.y, bounds.size.z));
         var noiseOffsetB = new Vector3(13.7f, 4.1f, 27.3f);
         var noiseOffsetA = new Vector3(-31.2f, 19.9f, 8.6f);
 
-        var pixels = new Color32[Size * Size];
-        var filled = new bool[Size * Size];
         for (int t = 0; t < tris.Length; t += 3)
         {
             int i0 = tris[t], i1 = tris[t + 1], i2 = tris[t + 2];
@@ -199,8 +214,6 @@ public static class BettaMaskBaker
                 filled[y * Size + x] = true;
             }
         }
-        Dilate(pixels, filled, 8);
-        return pixels;
     }
 
     static float Cross(Vector2 a, Vector2 b) => a.x * b.y - a.y * b.x;
