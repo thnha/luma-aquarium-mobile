@@ -6,7 +6,7 @@ Trong `MainAquarium`, nhấn **Mua cá** dưới hai nút Cài đặt / Ẩn UI 
 - Mustard Gas Veiltail: **450 xu**.
 - Koi Galaxy Plakat: **650 xu**.
 - Black Orchid Crowntail: **900 xu**.
-- Aqua Pearl Rosetail: **1.200 xu** (mép vây gợn sóng, xem `docs/betta-variants.md`).
+- Aqua Pearl Rosetail: **miễn phí** (mép vây gợn sóng, xem `docs/betta-variants.md`). Giá 0 hiện là "Miễn phí", nút là **Nhận cá**, vẫn qua hộp xác nhận và chỉ nhận được một lần.
 
 Chọn thẻ cá để xem ảnh lớn, mô tả và giá. Chỉ khi nhấn **Xác nhận mua**, shop mới trừ xu, ghi quyền sở hữu và áp dụng biến thể lên cá trong hồ. **Chọn lại** hoặc quay về không trừ xu. Cá đã mua có nút **Dùng cá này** để đổi miễn phí; cá đang dùng hiển thị **Đang trong hồ**. Không đủ xu thì nút mua bị khóa. Phím Escape đóng hộp xác nhận trước, rồi mới đóng shop.
 

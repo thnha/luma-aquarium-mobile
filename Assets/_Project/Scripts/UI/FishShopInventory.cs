@@ -44,7 +44,7 @@ namespace Lumaquarium.UI
 
         public bool TryPurchase(string id, int price)
         {
-            if (string.IsNullOrWhiteSpace(id) || price <= 0 || Owns(id) || price > data.balance) return false;
+            if (string.IsNullOrWhiteSpace(id) || price < 0 || Owns(id) || price > data.balance) return false;
             var next = Copy();
             next.balance -= price;
             next.ownedIds.Add(id);

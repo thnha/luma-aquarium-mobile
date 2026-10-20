@@ -107,7 +107,7 @@ public static class FishShopScreenBuilder
         string[] assets = { "RoyalBlueHalfmoon", "MustardGasVeiltail", "KoiGalaxyPlakat", "BlackOrchidCrowntail", "AquaPearlRosetail" };
         string[] descriptions = { "Xanh hoàng gia · Đuôi xòe bán nguyệt", "Xanh sẫm, vây vàng · Đuôi rủ mềm", "Trắng, cam, đen · Hoa văn Koi", "Tím phong lan · Đuôi tưa cá tính",
             "Trắng ngọc, vây xanh ngọc · Mép vây gợn sóng" };
-        int[] prices = { 350, 450, 650, 900, 1200 };
+        int[] prices = { 350, 450, 650, 900, 0 }; // Aqua Pearl Rosetail is a free gift
         return ids.Select((id, i) => new FishShopOffer
         {
             id = id,
@@ -240,7 +240,7 @@ public static class FishShopScreenBuilder
                 var name = Label("Name", surface.transform, offer.variant.displayName, 40, Ink, true);
                 At(name.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 64), new Vector2(410, 92));
                 name.alignment = TextAlignmentOptions.MidlineLeft;
-                var price = Label("Price", surface.transform, offer.price + " xu", 38, Muted, true);
+                var price = Label("Price", surface.transform, offer.price == 0 ? "Miễn phí" : offer.price + " xu", 38, Muted, true);
                 At(price.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(27, 17), new Vector2(354, 47));
                 price.alignment = TextAlignmentOptions.MidlineLeft;
                 var coin = Coin(surface.transform, "Coin");

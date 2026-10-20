@@ -6,7 +6,7 @@ check(shop!=null,"Shop is integrated into MainAquarium");
 check(!shop.content.activeSelf,"Shop starts closed");
 check(shop.offers.Length==5 && shop.offers.All(o=>o.IsValid),"All five fish have real variants, portraits and valid prices");
 check(shop.offers.Select(o=>o.id).Distinct().Count()==5,"Offers have unique persistent IDs");
-check(shop.offers.Select(o=>o.price).SequenceEqual(new[]{350,450,650,900,1200}),"Approved fish prices are wired");
+check(shop.offers.Select(o=>o.price).SequenceEqual(new[]{350,450,650,900,0}),"Approved fish prices are wired");
 check(shop.optionButtons.Length==5 && shop.GetComponentInChildren<UnityEngine.UI.ScrollRect>(true)!=null,"Every offer has a card in the scrolling list");
 check(shop.aquarium!=null && shop.fish!=null && shop.aquariumFishName!=null && shop.aquariumPortrait!=null,"Shop is connected to the existing fish and HUD");
 var entry=shop.aquarium.header.transform.Find("FishShopButton").GetComponent<UnityEngine.UI.Button>();
