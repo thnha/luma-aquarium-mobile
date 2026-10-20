@@ -24,6 +24,8 @@ public class BettaVariant : ScriptableObject
 
     [Header("Proportions")]
     [Range(0.8f, 1.3f)] public float headScale = 1f;
+    [Tooltip("Eye size on top of the head scale (the eyes are children of Head).")]
+    [Range(0.8f, 1.6f)] public float eyeScale = 1f;
     [Range(0.6f, 1.4f)] public float finLength = 1f;
 
     [Tooltip("Moves the Marble/Koi spots; same seed = same spots.")]

@@ -70,12 +70,12 @@ public static class BettaVariantPresets
         var pearl = Pattern("Pearl", BettaPattern.Kind.Butterfly, 0.58f, 0.3f, 4f, 0.6f, 0.15f);
 
         BettaVariant Variant(string name, BettaTailType tail, BettaPattern pattern, string primary, string secondary, string accent,
-            float iridescence, float head, float fin, int seed, float detail = 0.6f, float silver = 1f)
+            float iridescence, float head, float fin, int seed, float detail = 0.6f, float silver = 1f, float eye = 1f)
         {
             var v = Load<BettaVariant>(Dir + "/Variants/" + name.Replace(" ", "") + ".asset");
             v.displayName = name; v.tail = tail; v.pattern = pattern;
             v.primary = Hex(primary); v.secondary = Hex(secondary); v.accent = Hex(accent);
-            v.iridescence = iridescence; v.textureDetail = detail; v.silverSheen = silver; v.headScale = head; v.finLength = fin; v.seed = seed;
+            v.iridescence = iridescence; v.textureDetail = detail; v.silverSheen = silver; v.eyeScale = eye; v.headScale = head; v.finLength = fin; v.seed = seed;
             EditorUtility.SetDirty(v);
             return v;
         }
@@ -91,7 +91,8 @@ public static class BettaVariantPresets
             Variant("Copper Dragon Double Tail", doubletail, dragon, "#8A2A1A", "#B5562C", "#E9C9A0", 0.9f, 1.12f, 0.95f, 14),
             Variant("Blue Marble Halfmoon", halfmoon, marble, "#2B3A8F", "#EDE6DA", "#C2185B", 0.5f, 1f, 1f, 33),
             // Milky white, not silver: no metallic shine from the painted map, a faint sheen, soft texture detail.
-            Variant("Aqua Pearl Rosetail", rosetail, pearl, "#F6F1E4", "#2EC4C6", "#BFF5F2", 0.1f, 0.98f, 1.12f, 7, 0.3f, 0f),
+            // Bigger head and clearer eyes, like the reference photo.
+            Variant("Aqua Pearl Rosetail", rosetail, pearl, "#F6F1E4", "#2EC4C6", "#BFF5F2", 0.1f, 1.3f, 1.12f, 7, 0.3f, 0f, 1.25f),
         };
 
         var library = Load<BettaVariantLibrary>(LibraryPath);

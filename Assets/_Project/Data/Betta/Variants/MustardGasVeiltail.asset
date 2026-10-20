@@ -22,5 +22,6 @@ MonoBehaviour:
   textureDetail: 0.6
   silverSheen: 1
   headScale: 1
+  eyeScale: 1
   finLength: 1.05
   seed: 5

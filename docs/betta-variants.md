@@ -25,7 +25,7 @@ Muốn mỗi lần chơi ra một con cá khác: để trống **Variant** và g
 | Lớp | Ở đâu | Cách hoạt động |
 |---|---|---|
 | Rig | `Betta.fbx` | 80 bone và 4 clip dùng chung. Không đổi tên bone, vì `BettaFinPhysics` và `BettaSwimMotion` tìm bone theo tên. |
-| Hình dáng | `BettaAppearance`, `BettaFinPhysics` | Scale bone `Head`, `Gill_*_01` và gốc các chuỗi vây, gán lại mỗi `LateUpdate` vì clip có key scale cho mọi bone. Độ xòe và độ rủ của đuôi xoay gốc các chuỗi `Tail_*`. Mỗi kiểu đuôi có preset fin physics riêng. |
+| Hình dáng | `BettaAppearance`, `BettaFinPhysics` | Scale bone `Head`, `Gill_*_01`, `Eye_*` (Eye Scale, nhân thêm trên Head Scale vì mắt là con của `Head`) và gốc các chuỗi vây, gán lại mỗi `LateUpdate` vì clip có key scale cho mọi bone. Độ xòe và độ rủ của đuôi xoay gốc các chuỗi `Tail_*`. Mỗi kiểu đuôi có preset fin physics riêng. |
 | Màu | `Shaders/BettaVariant.hlsl` | Texture gốc chỉ còn giữ độ sáng tối (vảy, tia vây, AO). Màu lấy từ 3 màu của variant, trộn theo mask. Truyền qua `MaterialPropertyBlock`, nên mọi con cá dùng chung một material. |
 
 ### Mask `BETTA_VariantMask.png`
@@ -110,6 +110,7 @@ Variant **Aqua Pearl Rosetail** (thân trắng sữa, vây trắng ở gốc và
 - **Silver Sheen** 0: bỏ độ kim loại (0.18) và độ bóng (0.77) mà `BETTA_MetallicSmoothness.png` cho cả thân lẫn vây, thay bằng bề mặt satin không kim loại (độ bóng 0.5). Mặc định 1, giữ như texture.
 - **Iridescence** 0.1: chỉ còn chút bóng trên thân.
 - **Texture Detail** 0.3: vân vảy và tia vây của texture gốc mờ hơn (mặc định 0.6).
+- **Head Scale** 1.3 và **Eye Scale** 1.25: đầu to hơn, mắt to và rõ hơn, gần với cá thật. Xương `Head` nằm ở cổ nên đầu dài ra phía trước; vùng đầu trong mesh chỉ chiếm khoảng 10% chiều dài cá, nên Head Scale tối đa 1.3 chỉ làm đầu to hơn vừa phải.
 
 Độ hiếm của một variant = trọng số đuôi × trọng số hoa văn / 10000. Trên 8% là Common, trên 3% là Uncommon, trên 0.8% là Rare, còn lại là Legendary.
 

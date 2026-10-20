@@ -117,6 +117,8 @@ public class BettaAppearance : MonoBehaviour
         Scale("Head", variant.headScale);
         Scale("Gill_L_01", variant.headScale);
         Scale("Gill_R_01", variant.headScale);
+        Scale("Eye_L", variant.eyeScale);
+        Scale("Eye_R", variant.eyeScale);
         foreach (string b in CaudalRoots) Scale(b, fin * (tail ? tail.caudalLength : 1f));
         foreach (string b in new[] { "Dorsal_A_01", "Dorsal_B_01" }) Scale(b, fin * (tail ? tail.dorsalLength : 1f));
         foreach (string b in new[] { "Anal_A_01", "Anal_B_01" }) Scale(b, fin * (tail ? tail.analLength : 1f));
