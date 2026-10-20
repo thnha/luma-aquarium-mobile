@@ -2,6 +2,22 @@
 
 Scene: `Assets/_Project/Scenes/Aquarium3DPreview.unity`.
 
+## Đã áp dụng asset vào hồ chính
+
+Bộ đã duyệt được lưu thành asset dùng chung `Assets/_Project/Art/Aquarium3D/AquariumEnvironment.prefab` và áp vào `Assets/_Project/Scenes/MainAquarium.unity`. Asset chứa cây, đá, lũa, cát, sỏi, nước, bọt, nền ngày/đêm và HUD tương tác. Scene chính giữ các đối tượng cá, rig, feeding manager, camera và EventSystem hiện có; camera và tỷ lệ trình bày lấy theo bản đã duyệt. Geometry/HUD cũ được giữ trong scene và ẩn đi.
+
+Công cụ `Scripts/Editor/AquariumAssetInstaller.cs`, menu **Lumaquarium → Assets → Apply Approved Aquarium to Main**, sao lưu scene đã lưu và trạng thái đang làm việc trước khi áp dụng. Khi cập nhật lại, công cụ nhận diện instance bằng đường dẫn prefab để tránh tạo môi trường thứ hai. Các tham chiếu cá, camera và đèn được gắn tại scene, không lưu tham chiếu chéo từ scene preview vào prefab. Khóa bố cục game là `Lumaquarium.Decoration.Main.v1`, tách khỏi `Lumaquarium.Decoration.Preview.v1`.
+
+MainAquarium hiện là scene đang mở và scene Play của Editor. Build Settings đang có MainAquarium làm scene game; cấu hình build không thay đổi trong lượt cập nhật này. Chưa tạo bản APK/iOS hoặc kiểm tra trên thiết bị thật.
+
+Kiểm tra tích hợp: **11 kiểm tra Edit Mode**, **27 kiểm tra đặt đồ/shader**, **12 kiểm tra ánh sáng** và **6 kiểm tra callback HUD/cho ăn** đều đạt (**56 tổng cộng**). Đã mở lại MainAquarium từ ổ đĩa, xác nhận frame counter tiến, thử áp lại không tạo môi trường trùng, và kiểm tra trực tiếp trong Device Simulator. Có một lỗi TMP_SubMeshUI OnValidate trong quá trình thao tác asset ở Edit Mode; không lặp lại trong phiên game sau khi nạp lại. Một số ảnh từ encoder xuất tức thời thiếu đá trong khi Game View vẫn hiện đủ; ảnh xác nhận cuối dùng ScreenCapture cuối khung hình. Ảnh hồ chính: `docs/previews/Aquarium3D/MainAquariumUpdated.png`. Khi chụp ScreenCapture, Metal báo hai cảnh báo memoryless depth load/store; ảnh cuối và Game View vẫn hiện đủ các vật thể.
+
+Kiểm tra đã lưu ở `docs/tests/approved-assets-editmode.cs` (ngoài Play), `main-aquarium-playmode.cs`, `decoration-playmode.cs` và `lighting-playmode.cs` (khi MainAquarium đang Play). Ví dụ:
+
+```sh
+unity command eval_file --caller plugin --skill unity-cli --project-path /Users/nha-tran/Data/projects/lumaquarium/mobile --format json -- --file /Users/nha-tran/Data/projects/lumaquarium/mobile/docs/tests/approved-assets-editmode.cs
+```
+
 ## Đá, cát, sỏi, lũa và ánh sáng v3
 
 - Đá dùng mesh mòn mượt và texture vân khoáng; lũa dùng 5 nhánh cong có UV chạy theo chiều thân, bề mặt thớ gỗ và hai đầu khép kín. Giữ chân đế đá 0,19 m, lũa 0,24 m và vị trí/góc xoay/tỷ lệ các món đã đặt.

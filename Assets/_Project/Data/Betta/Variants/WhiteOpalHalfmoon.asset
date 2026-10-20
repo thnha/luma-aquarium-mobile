@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f782e909e6f4416e97ca931601db3a05, type: 3}
+  m_Name: WhiteOpalHalfmoon
+  m_EditorClassIdentifier: Assembly-CSharp::BettaVariant
+  displayName: White Opal Halfmoon
+  tail: {fileID: 11400000, guid: ab069ddc1d67f446fb5d8a2a2e2a9495, type: 2}
+  pattern: {fileID: 11400000, guid: 2f17b3cb6629e4981bf03dd0ac306bfb, type: 2}
+  primary: {r: 0.92941177, g: 0.9098039, b: 0.9490196, a: 1}
+  secondary: {r: 0.96862745, g: 0.9529412, b: 0.98039216, a: 1}
+  accent: {r: 0.7372549, g: 0.84313726, b: 1, a: 1}
+  iridescence: 0.85
+  headScale: 0.96
+  finLength: 1.1
+  seed: 2

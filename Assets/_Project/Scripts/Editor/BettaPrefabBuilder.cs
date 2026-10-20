@@ -29,6 +29,9 @@ public static class BettaPrefabBuilder
         {
             r.sharedMaterial = mat;
             r.updateWhenOffscreen = false;
+            // Betta.fbx carries every tail form's Fin_* meshes; default to Halfmoon until
+            // BettaAppearance applies a BettaTailType's finMeshes.
+            if (r.name.StartsWith("Fin_")) r.enabled = r.name.EndsWith("_Halfmoon");
         }
         if (!go.TryGetComponent(out Animator animator)) animator = go.AddComponent<Animator>();
         animator.runtimeAnimatorController = controller;

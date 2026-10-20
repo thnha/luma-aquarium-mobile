@@ -1,4 +1,4 @@
-// Run in Aquarium3DPreview Play Mode using unity command eval_file.
+// Run in MainAquarium or Aquarium3DPreview Play Mode using unity command eval_file.
 var lighting=UnityEngine.Object.FindFirstObjectByType<AquariumLighting>();
 var d=UnityEngine.Object.FindFirstObjectByType<AquariumDecoration>();
 if(lighting==null || !UnityEngine.Application.isPlaying)throw new System.Exception("Play Aquarium3DPreview first.");

@@ -1,5 +1,5 @@
 // Run with `unity command eval_file --caller plugin --skill unity-cli --file docs/tests/decoration-playmode.cs`
-// while Aquarium3DPreview is playing. A temporary persistence key isolates user layouts.
+// while MainAquarium or Aquarium3DPreview is playing. A temporary persistence key isolates user layouts.
 var d = UnityEngine.Object.FindFirstObjectByType<AquariumDecoration>();
 if (d == null || !UnityEngine.Application.isPlaying) throw new System.Exception("Run Aquarium3DPreview in Play Mode first.");
 var results = new System.Collections.Generic.List<string>();

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f8b16b5c2fc4563bfa98718d9b3ad39, type: 3}
+  m_Name: Veiltail
+  m_EditorClassIdentifier: Assembly-CSharp::BettaTailType
+  displayName: Veiltail
+  caudalLength: 1.15
+  dorsalLength: 1.1
+  analLength: 1.1
+  pelvicLength: 1.1
+  caudalSpread: -12
+  caudalDroop: 14
+  finMeshes: []
+  caudal:
+    rootStiffness: 0.1
+    tipStiffness: 0.03
+    damping: 0.18
+    maxAngle: 25
+    ripple: 0.005
+    speedStiffening: 1.3
+    sag: 0.3
+  dorsalAnal:
+    rootStiffness: 0.14
+    tipStiffness: 0.051
+    damping: 0.24
+    maxAngle: 25
+    ripple: 0.002
+    speedStiffening: 2.5
+    sag: 0.15
+  rarityWeight: 25

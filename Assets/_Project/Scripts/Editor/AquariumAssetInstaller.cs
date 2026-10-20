@@ -80,9 +80,9 @@ public static class AquariumAssetInstaller
             BindScene(installed, fish, feeding, orbit, camera, sun);
             ConfigureFraming(source, fish, orbit);
             PreserveBlockout(main);
+            AssetDatabase.SaveAssets();
             EditorSceneManager.MarkSceneDirty(main);
             if (!EditorSceneManager.SaveScene(main)) throw new InvalidOperationException("Could not save MainAquarium.");
-            AssetDatabase.SaveAssets();
             SceneManager.SetActiveScene(main);
             Debug.Log("[Lumaquarium] Approved environment asset installed in MainAquarium. Backup: " + backup);
         }
