@@ -66,8 +66,8 @@ public static class BettaVariantPresets
         var marble = Pattern("Marble", BettaPattern.Kind.Marble, 0.5f, 0.36f, 12f);
         var koi = Pattern("Koi", BettaPattern.Kind.Koi, 0.58f, 0.3f, 8f);
         var dragon = Pattern("Dragon", BettaPattern.Kind.Dragon, 0.58f, 0.3f, 5f);
-        // Butterfly with an early, wide fade: body and fin roots in the primary, fins fade into the secondary.
-        var pearl = Pattern("Pearl", BettaPattern.Kind.Butterfly, 0.58f, 0.3f, 4f, 0.3f, 0.22f);
+        // Butterfly with a soft fade: body and inner fins in the primary, outer fins fade into the secondary.
+        var pearl = Pattern("Pearl", BettaPattern.Kind.Butterfly, 0.58f, 0.3f, 4f, 0.6f, 0.15f);
 
         BettaVariant Variant(string name, BettaTailType tail, BettaPattern pattern, string primary, string secondary, string accent,
             float iridescence, float head, float fin, int seed)
@@ -90,7 +90,7 @@ public static class BettaVariantPresets
             Variant("Butterfly Delta", delta, butterfly, "#D7263D", "#F2EDE4", "#FFB3BC", 0.4f, 1f, 1f, 9),
             Variant("Copper Dragon Double Tail", doubletail, dragon, "#8A2A1A", "#B5562C", "#E9C9A0", 0.9f, 1.12f, 0.95f, 14),
             Variant("Blue Marble Halfmoon", halfmoon, marble, "#2B3A8F", "#EDE6DA", "#C2185B", 0.5f, 1f, 1f, 33),
-            Variant("Aqua Pearl Rosetail", rosetail, pearl, "#F4F1EC", "#2EC4C6", "#BFF5F2", 0.9f, 0.98f, 1.12f, 7),
+            Variant("Aqua Pearl Rosetail", rosetail, pearl, "#FAF8F2", "#2EC4C6", "#BFF5F2", 0.9f, 0.98f, 1.12f, 7),
         };
 
         var library = Load<BettaVariantLibrary>(LibraryPath);
