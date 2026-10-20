@@ -1,5 +1,6 @@
 // Copy of URP 17 Lit whose ForwardLit pass flips the normal on back faces,
 // so single-plane fins light correctly from both sides with Render Face = Both.
+// ForwardLit and GBuffer also apply per-fish variant colours (BettaVariant.hlsl, set by BettaAppearance).
 Shader "Lumaquarium/Betta Lit"
 {
     Properties
@@ -62,6 +63,21 @@ Shader "Lumaquarium/Betta Lit"
         [HideInInspector] _XRMotionVectorsPass("_XRMotionVectorsPass", Float) = 1.0
 
         [ToggleUI] _ReceiveShadows("Receive Shadows", Float) = 1.0
+
+        // Variant colouring (per fish via MaterialPropertyBlock, see BettaAppearance)
+        [NoScaleOffset] _VariantMask("Variant Mask", 2D) = "black" {}
+        _VariantOn("Variant On", Float) = 0.0
+        _VariantPrimary("Variant Primary", Color) = (1,1,1,1)
+        _VariantSecondary("Variant Secondary", Color) = (1,1,1,1)
+        _VariantAccent("Variant Accent", Color) = (1,1,1,1)
+        _VariantPattern("Variant Pattern", Float) = 0.0
+        _VariantSeed("Variant Seed", Float) = 0.0
+        _VariantIridescence("Variant Iridescence", Range(0.0, 1.0)) = 0.0
+        _VariantSpot("Variant Spot Threshold", Range(0.0, 1.0)) = 0.58
+        _VariantAccentSpot("Variant Accent Spot Threshold", Range(0.0, 1.0)) = 0.3
+        _VariantBand("Variant Butterfly Band", Range(0.0, 1.0)) = 0.55
+        _VariantDetail("Variant Texture Detail", Range(0.0, 1.0)) = 0.6
+        _VariantDetailGain("Variant Texture Detail Gain", Float) = 2.5
         // Editmode props
         _QueueOffset("Queue offset", Float) = 0.0
 
@@ -177,6 +193,7 @@ Shader "Lumaquarium/Betta Lit"
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
 
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
+            #include "BettaVariant.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl"
 
             void BettaPassFragment(
@@ -338,6 +355,7 @@ Shader "Lumaquarium/Betta Lit"
             // -------------------------------------
             // Includes
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
+            #include "BettaVariant.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitGBufferPass.hlsl"
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/GBufferOutputFormat.hlsl"
             ENDHLSL
