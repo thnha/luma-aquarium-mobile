@@ -1,8 +1,10 @@
 {
-  "frames": 41,
-  "duration_ms": 4920,
-  "unique_frames": 41,
+  "frames": 60,
+  "firstFrame": 294,
+  "lastFrame": 509,
+  "seconds": 7.2064857090008445,
   "source": "Unity Game View",
   "width": 450,
-  "height": 974
+  "height": 974,
+  "unique_frames": 60
 }

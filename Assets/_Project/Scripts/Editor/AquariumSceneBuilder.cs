@@ -116,7 +116,8 @@ public static class AquariumSceneBuilder
         }
         var fish = bettaRoot.AddComponent<BettaFishAI>();
         fish.swimBounds = boundsCollider;
-        fish.bottomRestY = FloorY + 0.12f + 0.06f; // substrate top + belly clearance
+        fish.waterSurfaceY = waterTop;
+        fish.bottomRestY = FloorY + 0.12f + 0.25f; // substrate top + hanging anal/pelvic fins (~0.23 below pivot)
         fish.animator = fishAnimator;
         if (fishAnimator)
         {

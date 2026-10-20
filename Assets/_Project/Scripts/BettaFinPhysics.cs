@@ -75,7 +75,7 @@ public class BettaFinPhysics : MonoBehaviour
         public Vector3 p, pp;                // tip particle (current, previous)
         public Quaternion baseLocal, lastWritten;
         public float phase;
-        public float raise;                  // +1 dorsal root, -1 anal root (opposite side of the body), else 0
+        public float raise;                  // dorsal root -1, anal root +0.5 (sign measured on this rig), else 0
     }
 
     Node[] nodes;
@@ -109,7 +109,7 @@ public class BettaFinPhysics : MonoBehaviour
                     baseLocal = t.localRotation,
                     lastWritten = t.localRotation,
                     phase = list.Count * 1.37f,
-                    raise = i > 0 ? 0f : chain.bones[0].StartsWith("Dorsal") ? 1f : chain.bones[0].StartsWith("Anal") ? -0.5f : 0f,
+                    raise = i > 0 ? 0f : chain.bones[0].StartsWith("Dorsal") ? -1f : chain.bones[0].StartsWith("Anal") ? 0.5f : 0f,
                 });
             }
         }
@@ -156,7 +156,7 @@ public class BettaFinPhysics : MonoBehaviour
             // bones the clips don't key) before simulating on top of it.
             if (Quaternion.Angle(n.t.localRotation, n.lastWritten) > 0.01f) n.baseLocal = n.t.localRotation;
             n.t.localRotation = n.baseLocal;
-            // Rotating about the body's side axis tips a backward-pointing ray up (raise) or down (fold).
+            // Rotating about the body's side axis tips the fin rays up (raise) or back flat (fold).
             if (n.raise != 0f) n.t.rotation = Quaternion.AngleAxis(arousal * dorsalRaise * n.raise, lateral) * n.t.rotation;
 
             Vector3 origin = n.t.position;

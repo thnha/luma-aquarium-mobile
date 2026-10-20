@@ -35,6 +35,12 @@ Tạo lại preview: mở MainAquarium ngoài Play Mode rồi chọn **Lumaquari
 
 Đã chạy 25 kiểm tra trực tiếp trong Unity Play Mode: loại đồ không hợp lệ, vị trí ngoài biên, chồng đồ, tọa độ NaN, đặt ở nền trống, xoay, xác nhận, hủy, xóa, lưu, nạp lại, dữ liệu lỗi, giới hạn số lượng, gợn nước, hạt bọt khí và biên dịch ba shader. Đã xác nhận frame counter tiến.
 
+Kiểm tra tiếp bằng thao tác thật trong Device Simulator: mở Trang trí, chọn Cây, chạm giữ trên nền cát để đưa cây tới vòng xanh, xoay 30° rồi xác nhận. Số món tăng từ 5 lên 6; sau thoát và mở lại Play, cây vẫn ở đúng vị trí và góc xoay. Đã xóa đúng món thử để trả bố cục về 5 món và chạy lại đủ 25 kiểm tra, đều đạt. Một phiên chạy liên tục hơn 117 giây giữ đúng scene preview. Menu Play Preview khôi phục StartGame khi thoát Play.
+
+Gián đoạn lúc ghi preview trước đó có dấu vết điều khiển Editor đồng thời: `Library/Pipeline/eval-usage.jsonl` ghi các lời gọi `EditorSceneManager.LoadSceneInPlayMode` ngoài các lệnh của lượt triển khai này; một lời gọi xuất hiện khoảng 5 giây sau khi bắt đầu ghi hình. Các script cá cũng được cập nhật đồng thời. Nguồn phiên điều khiển còn lại chưa được định danh. Khi kiểm tra lại trong khoảng Editor ổn định, thao tác đặt/lưu/nạp và phiên chạy dài ở trên đều hoàn tất. Không sửa các script cá đang được công việc khác cập nhật.
+
+Ảnh thao tác thật: `docs/previews/Aquarium3D/Placement.png`. Preview động và thông tin số khung hình: cùng thư mục, file `water-preview.gif` và `capture.json`.
+
 Chạy lại khi preview đang Play:
 
 ```sh

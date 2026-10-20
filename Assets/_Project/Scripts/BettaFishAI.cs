@@ -21,7 +21,8 @@ public class BettaFishAI : MonoBehaviour
     public float hoverTurnDegreesPerSecond = 50f; // turn rate when nearly stopped
     public float turnAcceleration = 220f;         // deg/s^2, eases turns in and out
     public float maxPitch = 15f;                  // while wandering; bettas mostly swim level
-    public float seekMaxPitch = 35f;              // chasing food can climb/dive steeper
+    public float feedMaxPitch = 60f;              // darting up to floating food is steep
+    public float restMaxPitch = 35f;              // gliding down to a rest spot
     public float pitchDegreesPerSecond = 25f;
     public float wanderHeightRange = 0.35f;       // max height change per wander leg
     public float arrivalRadius = 0.12f;
@@ -40,16 +41,18 @@ public class BettaFishAI : MonoBehaviour
     public float breatheMaxInterval = 180f;
     public float breatheMaxPitch = 50f;
     public float gulpDuration = 0.5f;
-    public float surfaceReach = 0.1f;             // above the SwimBounds top (the water surface is 0.1 above it)
+    public float waterSurfaceY = 2.35f;           // world height of the water surface
+    public float gulpDepth = 0.04f;               // pivot depth below the surface when gulping or taking floating food
 
     [Header("Resting")]
     [Range(0f, 1f)] public float bottomRestChance = 0.6f; // otherwise rests just under the surface
     public float restRoll = 12f;                  // bettas lie slightly tilted on the bottom
-    public float bottomRestY = 0.43f;             // pivot height when lying on the substrate (sand top + belly)
+    public float bottomRestY = 0.62f;             // pivot height resting on the bottom: long anal/pelvic fins just touch the sand
 
     [Header("Feeding strike")]
     public float strikeRadius = 0.3f;             // close and lined up: dart at the pellet
     public float strikeSpeedMultiplier = 2.2f;
+    public float mouthOffset = 0.04f;             // mouth distance ahead of the pivot
 
     [Header("Hovering")]
     public float hoverDrift = 0.012f;             // m/s of slow drift while hovering
@@ -164,9 +167,11 @@ public class BettaFishAI : MonoBehaviour
                 targetEffort = 1f;
                 Vector3 target = ClampToBounds(food.transform.position, SurfaceTop());
                 Vector3 toFood = target - transform.position;
-                bool strike = toFood.magnitude < strikeRadius && Vector3.Dot(transform.forward, toFood.normalized) > 0.85f;
+                bool strike = toFood.magnitude < strikeRadius && Vector3.Dot(transform.forward, toFood.normalized) > 0.7f;
                 SwimTowards(target, swimSpeed * (strike ? strikeSpeedMultiplier : seekSpeedMultiplier), strike);
-                if (Arrived(target)) EnterEat();
+                // Measured from the mouth, a little ahead of the pivot (which sits at the gills).
+                Vector3 mouth = transform.position + transform.forward * mouthOffset;
+                if (Arrived(target) || (food.transform.position - mouth).sqrMagnitude <= arrivalRadius * arrivalRadius) EnterEat();
                 break;
             case State.Breathe:
                 if (!gulping)
@@ -250,12 +255,13 @@ public class BettaFishAI : MonoBehaviour
         // roll; slerping the whole rotation takes a shortcut that banks the fish mid-turn.
         float targetYaw = yaw, targetPitch = 0f;
         bool tooSteep = false;
+        float horizontal = new Vector2(direction.x, direction.z).magnitude;
         if (direction.sqrMagnitude > 0.0001f)
         {
-            targetYaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-            float limit = state == State.SeekFood || state == State.Rest ? seekMaxPitch
+            // Straight above/below the heading is meaningless; keep the current one.
+            if (horizontal > 0.03f) targetYaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+            float limit = state == State.SeekFood ? feedMaxPitch : state == State.Rest ? restMaxPitch
                 : state == State.Breathe ? breatheMaxPitch : maxPitch;
-            float horizontal = new Vector2(direction.x, direction.z).magnitude;
             if (targetSpeed > 0f || state == State.Breathe)
             {
                 float rawPitch = -Mathf.Atan2(direction.y, horizontal) * Mathf.Rad2Deg;
@@ -295,7 +301,8 @@ public class BettaFishAI : MonoBehaviour
         currentTurnSpeed = Mathf.MoveTowards(currentTurnSpeed, desiredTurnSpeed, turnAcceleration * Time.deltaTime);
         yaw = Mathf.MoveTowardsAngle(yaw, targetYaw, currentTurnSpeed * Time.deltaTime);
         // Level out while hovering, and don't pitch steeply in the middle of a sharp turn.
-        float turnFactor = Mathf.Clamp01(1f - Mathf.Abs(Mathf.DeltaAngle(yaw, targetYaw)) / 90f);
+        // (Unless the target is nearly overhead/below, where the yaw error barely matters.)
+        float turnFactor = horizontal < 0.15f ? 1f : Mathf.Clamp01(1f - Mathf.Abs(Mathf.DeltaAngle(yaw, targetYaw)) / 90f);
         pitch = Mathf.MoveTowards(pitch, targetPitch * turnFactor, pitchDegreesPerSecond * Time.deltaTime);
         // Lying on the bottom the fish settles onto one side a little.
         float targetRoll = IsResting && restOnBottom ? restRoll : 0f;
@@ -359,7 +366,7 @@ public class BettaFishAI : MonoBehaviour
         stateTimer = Random.Range(wanderMinTime, wanderMaxTime);
     }
 
-    float SurfaceTop() => swimBounds ? swimBounds.bounds.max.y + surfaceReach : float.MaxValue;
+    float SurfaceTop() => waterSurfaceY - gulpDepth;
 
     float NormalBottom() => swimBounds ? swimBounds.bounds.min.y + boundsInset : float.MinValue;
 
