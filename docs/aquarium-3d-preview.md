@@ -2,6 +2,24 @@
 
 Scene: `Assets/_Project/Scenes/Aquarium3DPreview.unity`.
 
+## Đá, cát, sỏi, lũa và ánh sáng v3
+
+- Đá dùng mesh mòn mượt và texture vân khoáng; lũa dùng 5 nhánh cong có UV chạy theo chiều thân, bề mặt thớ gỗ và hai đầu khép kín. Giữ chân đế đá 0,19 m, lũa 0,24 m và vị trí/góc xoay/tỷ lệ các món đã đặt.
+- Cát dùng texture hạt mịn; 190 viên sỏi nhỏ gộp thành một mesh nền, không thêm collider hoặc chặn thao tác đặt đồ. Sỏi là lớp nền trang trí, chưa có mục kho đồ riêng.
+- Nút **Ban ngày / Ban đêm** ở đầu HUD chuyển ánh sáng trong 1,5 giây. Đèn, ambient, nền xa và texture phản chiếu nước/bọt đổi cùng nhau. Ban đêm có ảnh môi trường riêng để loại các tia nắng vàng đã được vẽ vào ảnh ngày. Đây là chuyển chế độ thủ công, chưa chạy theo giờ thực.
+- `AquariumLighting.cs` điều khiển chuyển cảnh và khôi phục trạng thái ánh sáng/global shader khi bị tắt hoặc thoát Play. `Editor/AquariumHardscapeBuilder.cs` tạo và áp dụng asset, `Shaders/AquariumHardscape.shader` xử lý texture triplanar, thớ gỗ theo UV, bóng đổ và vệt sáng dưới nước. Các shader lá/thân/nước/bọt đã nhận trạng thái ánh sáng chung. Builder preview đầy đủ tự áp dụng v3 khi asset có sẵn.
+- Asset mới trong `Art/Aquarium3D/`: prefab đá/lũa có hậu tố Natural, mesh/material `v3`, ba texture `Textures/RiverStone-v3.png`, `RiverSand-v3.png`, `Driftwood-v3.png`. Nền đêm: `UI/Backgrounds/AquariumEnvironmentNight-v3.png`. Bốn ảnh được tạo bằng built-in ImageGen; prompt đầy đủ và ảnh gốc lưu trong `Art/Aquarium3D/Textures/Hardscape-v3.generation.json`.
+
+Áp dụng lại: thoát Play rồi chọn **Lumaquarium → Preview → Upgrade Hardscape and Day Night**. Công cụ tạo bản sao lưu scene trước khi sửa. Sau khi chạy riêng công cụ nâng cây v2, có thể chạy lại công cụ này để bảo đảm toàn bộ v3 được áp dụng.
+
+Đã biên dịch không lỗi/cảnh báo; **27 kiểm tra đặt đồ/shader + 12 kiểm tra ánh sáng = 39 đạt**. Đã chạm nút ngày/đêm thật trong Device Simulator và xác nhận trạng thái đổi. Console không có lỗi runtime. Đã ghi **90 khung hình thật**, frame counter 2960 → 3282 trong 10,95 giây; chuyển ngày → đêm → ngày. Ảnh `Day.png`, `Night.png`, `Hardscape.png`, ảnh động `day-night-preview.gif` và `lighting-capture.json` nằm trong `docs/previews/Aquarium3D/`. Trang preview cho chọn ảnh ngày/đêm, so sánh bằng thanh kéo và xem chuyển cảnh. Chưa build hoặc đo hiệu năng trên điện thoại thật; nền xa vẫn là ảnh.
+
+Chạy kiểm tra ánh sáng khi preview đang Play:
+
+```sh
+unity command eval_file --caller plugin --skill unity-cli --project-path /Users/nha-tran/Data/projects/lumaquarium/mobile --format json -- --file /Users/nha-tran/Data/projects/lumaquarium/mobile/docs/tests/lighting-playmode.cs
+```
+
 ## Nâng hình ảnh v2
 
 - Cây mới là cụm 19 lá Anubias với cuống uốn riêng, lá cong có UV và texture gân lá, ánh sáng hai mặt và bóng đổ cutout. Shader làm phần ngọn lá lay nhẹ; các cụm cây lệch pha theo vị trí. Chân đế đặt đồ vẫn là 0,14 m như bản trước.
@@ -59,7 +77,7 @@ Gián đoạn lúc ghi preview trước đó có dấu vết điều khiển Edi
 Chạy lại khi preview đang Play:
 
 ```sh
-unity command eval_file --caller plugin --skill unity-cli --project-path /Users/nha-tran/Data/projects/lumaquarium/mobile --file /Users/nha-tran/Data/projects/lumaquarium/mobile/docs/tests/decoration-playmode.cs --format json
+unity command eval_file --caller plugin --skill unity-cli --project-path /Users/nha-tran/Data/projects/lumaquarium/mobile --format json -- --file /Users/nha-tran/Data/projects/lumaquarium/mobile/docs/tests/decoration-playmode.cs
 ```
 
 Kiểm tra thủ công thêm trên Android/iPhone: thao tác một/hai ngón, đổi hướng ứng dụng, thoát/mở lại, ảnh chụp và hiệu năng sau đặt nhiều món. Chưa build hoặc đo FPS trên thiết bị thật.
