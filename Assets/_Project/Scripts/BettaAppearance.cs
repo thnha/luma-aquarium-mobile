@@ -7,7 +7,7 @@ using UnityEngine;
 // - head and fin size as bone scale, re-applied every LateUpdate because the clips key
 //   scale on every bone (assigned, never multiplied, so a culled Animator can't make it grow),
 // - tail form: caudal spread/droop and fin physics preset on BettaFinPhysics,
-// - tail form outline: the tail type's base map (fin edges cut in alpha), also through the property block.
+// - tail form outline: the tail type's Fin_* meshes, and its base map (fin edges cut in alpha) through the property block.
 // Runs before BettaSwimMotion and BettaFinPhysics so they see the scaled bones.
 [DefaultExecutionOrder(-50)]
 public class BettaAppearance : MonoBehaviour
@@ -113,6 +113,13 @@ public class BettaAppearance : MonoBehaviour
         foreach (string b in new[] { "Dorsal_A_01", "Dorsal_B_01" }) Scale(b, fin * (tail ? tail.dorsalLength : 1f));
         foreach (string b in new[] { "Anal_A_01", "Anal_B_01" }) Scale(b, fin * (tail ? tail.analLength : 1f));
         foreach (string b in new[] { "Pelvic_L_01", "Pelvic_R_01" }) Scale(b, fin * (tail ? tail.pelvicLength : 1f));
+
+        // Betta.fbx carries every form's Fin_* meshes; show this form's (Halfmoon when it names none).
+        string[] finMeshes = tail ? tail.finMeshes : null;
+        bool useHalfmoon = finMeshes == null || finMeshes.Length == 0;
+        foreach (var r in GetComponentsInChildren<SkinnedMeshRenderer>(true))
+            if (r.name.StartsWith("Fin_"))
+                r.enabled = useHalfmoon ? r.name.EndsWith("_Halfmoon") : System.Array.IndexOf(finMeshes, r.name) >= 0;
 
         if (finPhysics != null)
         {

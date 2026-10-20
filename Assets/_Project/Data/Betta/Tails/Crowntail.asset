@@ -19,7 +19,12 @@ MonoBehaviour:
   pelvicLength: 1
   caudalSpread: -4
   caudalDroop: 0
-  finMeshes: []
+  finMeshes:
+  - Fin_Caudal_Crowntail
+  - Fin_Dorsal_Crowntail
+  - Fin_Anal_Crowntail
+  baseMap: {fileID: 0}
+  skippedFinChains: []
   caudal:
     rootStiffness: 0.1
     tipStiffness: 0.04

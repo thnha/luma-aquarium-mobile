@@ -1,8 +1,8 @@
 using UnityEngine;
 
-// One tail form (Plakat, Halfmoon, ...). Shares the Betta rig and mesh: the shape comes from fin-root
-// bone scale and caudal spread applied by BettaAppearance, and fin outlines that differ (Crowntail
-// spikes, Double Tail slit) are cut into the alpha of a per-form base map (Tools/betta_fin_cuts.py).
+// One tail form (Plakat, Halfmoon, ...). Shares the Betta rig: the shape comes from fin-root bone scale
+// and caudal spread applied by BettaAppearance, and forms with their own fin outline (Crowntail, Double Tail)
+// switch to their Fin_* meshes in Betta.fbx.
 [CreateAssetMenu(menuName = "Lumaquarium/Betta Tail Type")]
 public class BettaTailType : ScriptableObject
 {
@@ -19,6 +19,8 @@ public class BettaTailType : ScriptableObject
     public float caudalDroop;
 
     [Header("Fin outline")]
+    [Tooltip("Fin_* meshes in Betta.fbx shown for this form (caudal, dorsal, anal). Empty = the Halfmoon ones.")]
+    public string[] finMeshes = new string[0];
     [Tooltip("Base colour + alpha used instead of the material's _BaseMap (same UVs, fin edges cut in alpha). Empty = the material's.")]
     public Texture2D baseMap;
     [Tooltip("Root bones of fin chains that sit in a transparent cut and are left to the animation (Double Tail: Tail_01).")]
