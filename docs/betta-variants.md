@@ -38,6 +38,19 @@ Muốn mỗi lần chơi ra một con cá khác: để trống **Variant** và g
 
 Artist có thể vẽ đè mask này theo cùng quy ước kênh. Chạy lại **Bake Betta Variant Mask** sẽ ghi đè file.
 
+## Viền vây Crowntail và Double Tail
+
+![Halfmoon gốc, Crowntail, Double Tail](previews/BettaVariants/fin-cuts.png)
+
+*Ảnh render ngoài Unity từ `Betta.fbx` ở tư thế bind pose. Từ trái sang: texture gốc, `BETTA_BaseColor_Crowntail`, `BETTA_BaseColor_DoubleTail`.*
+
+Hai kiểu đuôi này dùng chung mesh, xương và physics với Halfmoon. Chỉ có alpha của base map là khác: Tail Type có trường **Base Map**, `BettaAppearance` truyền texture này qua `MaterialPropertyBlock`, nên mọi con cá vẫn dùng chung `Betta.mat`.
+
+- **Crowntail:** mép vây đuôi, vây lưng và vây hậu môn được cắt thành gai. Gai vẫn uốn theo 6 tia đuôi, 4 xương vây lưng và 4 xương vây hậu môn hiện có. Nhìn gần thì gai không thẳng như tia thật, nhưng ở khoảng cách camera trong bể thì khó nhận ra.
+- **Double Tail:** đuôi có một khe hình chữ V quanh tia giữa. Thuỳ trên dùng `Tail_Top` và `Tail_UpMid`, thuỳ dưới dùng `Tail_LowMid`, `Tail_Low` và `Tail_Bot`. Chuỗi `Tail_` nằm trong khe trong suốt, nên được ghi trong **Skipped Fin Chains** (`Tail_01`). `BettaFinPhysics` không mô phỏng chuỗi này mà để nó chạy theo animation. Vây lưng to hơn đến từ Dorsal Length 1.25, tức là scale xương `Dorsal_*`, nên texture vây lưng bị kéo giãn một chút.
+
+Hai texture được sinh bằng `Tools/betta_fin_cuts.py` (cần Python 3, numpy và Pillow). Script đọc `Betta.fbx`, map từng texel của vây về vị trí bind pose, rồi cắt alpha theo góc quanh gốc vây và theo mép vây đã vẽ sẵn. Mật độ gai, độ sâu màng và độ rộng khe nằm ở đầu file. Chạy lại script sau khi sửa `BETTA_BaseColor_Alpha.png`. Kết quả thô hơn artist vẽ: thuỳ trên của Double Tail mỏng vì trên mesh Halfmoon, phần đuôi phía trên tia giữa phần lớn nằm sau vây lưng. Có thể sửa tay hai file PNG bằng Krita hoặc Photoshop, nhưng chạy lại script sẽ ghi đè các sửa đó.
+
 ## Bảng chuẩn
 
 | Kiểu đuôi | Dài đuôi | Dài vây lưng | Xòe | Rủ | Fin sag / tipStiffness / maxAngle | Trọng số |
@@ -62,6 +75,6 @@ Artist có thể vẽ đè mask này theo cùng quy ước kênh. Chạy lại *
 
 ## Giới hạn hiện tại
 
-- Các kiểu đuôi mới chỉ khác nhau về độ dài, độ xòe và độ rủ của cùng một bộ vây. Muốn có tia gai Crowntail hay hai thuỳ Double Tail thật thì cần mesh vây riêng: tách vây khỏi `BODY` thành `Fin_Caudal_<Loại>` và các mesh tương tự, skin vào cùng armature, rồi liệt kê tên mesh trong `Fin Meshes` của Tail Type.
+- Gai Crowntail và khe Double Tail chỉ là alpha cắt trên cùng một bộ vây Halfmoon, nên không có tia gai riêng hay thuỳ dày hơn. Muốn đúng hình như cá thật thì cần mesh vây riêng làm trong Blender.
 - Các giá trị độ xòe, độ rủ và fin physics là điểm khởi đầu. Cần chỉnh lại sau khi xem cá bơi trong Unity.
 - Thuộc tính variant nằm ngoài `UnityPerMaterial`, nên Betta Lit không dùng được SRP Batcher. Với số cá trong một bể thì không đáng kể.

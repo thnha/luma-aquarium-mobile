@@ -39,6 +39,8 @@ public class BettaFinPhysics : MonoBehaviour
     public float caudalSpread;
     [Tooltip("Degrees the whole caudal fin hangs down (tail form, set by BettaAppearance).")]
     public float caudalDroop;
+    [Tooltip("Root bones of chains not simulated (they follow the animation), e.g. Tail_01 hidden in the Double Tail slit (tail form, set by BettaAppearance).")]
+    public string[] skippedChains = new string[0];
 
     enum Group { Caudal, DorsalAnal, Pelvic, Pectoral }
 
@@ -108,6 +110,7 @@ public class BettaFinPhysics : MonoBehaviour
         var list = new System.Collections.Generic.List<Node>();
         foreach (var chain in Chains)
         {
+            if (skippedChains != null && System.Array.IndexOf(skippedChains, chain.bones[0]) >= 0) continue;
             for (int i = 0; i < chain.bones.Length; i++)
             {
                 Transform t = FindDeep(skeletonRoot, chain.bones[i]);

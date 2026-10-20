@@ -7,7 +7,7 @@ using UnityEngine;
 // - head and fin size as bone scale, re-applied every LateUpdate because the clips key
 //   scale on every bone (assigned, never multiplied, so a culled Animator can't make it grow),
 // - tail form: caudal spread/droop and fin physics preset on BettaFinPhysics,
-// - optional per-form fin meshes (renderers named Fin_*).
+// - tail form outline: the tail type's base map (fin edges cut in alpha), also through the property block.
 // Runs before BettaSwimMotion and BettaFinPhysics so they see the scaled bones.
 [DefaultExecutionOrder(-50)]
 public class BettaAppearance : MonoBehaviour
@@ -31,6 +31,7 @@ public class BettaAppearance : MonoBehaviour
     static readonly int SpotId = Shader.PropertyToID("_VariantSpot");
     static readonly int AccentSpotId = Shader.PropertyToID("_VariantAccentSpot");
     static readonly int BandId = Shader.PropertyToID("_VariantBand");
+    static readonly int BaseMapId = Shader.PropertyToID("_BaseMap");
 
     static readonly string[] CaudalRoots = { "Tail_Top_01", "Tail_UpMid_01", "Tail_01", "Tail_LowMid_01", "Tail_Low_01", "Tail_Bot_01" };
 
@@ -69,6 +70,7 @@ public class BettaAppearance : MonoBehaviour
     {
         block ??= new MaterialPropertyBlock();
         BettaPattern p = variant.pattern;
+        Texture2D baseMap = variant.tail ? variant.tail.baseMap : null;
         foreach (var r in GetComponentsInChildren<Renderer>(true))
         {
             if (System.Array.IndexOf(keepOriginalRenderers, r.name) >= 0) continue;
@@ -83,6 +85,9 @@ public class BettaAppearance : MonoBehaviour
             block.SetFloat(SpotId, p ? p.spotThreshold : 0.58f);
             block.SetFloat(AccentSpotId, p ? p.accentThreshold : 0.3f);
             block.SetFloat(BandId, p ? p.butterflyBand : 0.55f);
+            // Always set, so switching back to a form without its own map drops the previous one.
+            Texture fallback = r.sharedMaterial && r.sharedMaterial.HasProperty(BaseMapId) ? r.sharedMaterial.GetTexture(BaseMapId) : null;
+            if (baseMap || fallback) block.SetTexture(BaseMapId, baseMap ? baseMap : fallback);
             r.SetPropertyBlock(block);
         }
     }
@@ -109,15 +114,6 @@ public class BettaAppearance : MonoBehaviour
         foreach (string b in new[] { "Anal_A_01", "Anal_B_01" }) Scale(b, fin * (tail ? tail.analLength : 1f));
         foreach (string b in new[] { "Pelvic_L_01", "Pelvic_R_01" }) Scale(b, fin * (tail ? tail.pelvicLength : 1f));
 
-        if (tail != null)
-        {
-            var finRenderers = new List<SkinnedMeshRenderer>();
-            foreach (var r in GetComponentsInChildren<SkinnedMeshRenderer>(true))
-                if (r.name.StartsWith("Fin_")) finRenderers.Add(r);
-            if (finRenderers.Count > 0 && tail.finMeshes.Length > 0)
-                foreach (var r in finRenderers) r.enabled = System.Array.IndexOf(tail.finMeshes, r.name) >= 0;
-        }
-
         if (finPhysics != null)
         {
             if (tail != null)
@@ -127,6 +123,7 @@ public class BettaAppearance : MonoBehaviour
                 finPhysics.caudalSpread = tail.caudalSpread;
                 finPhysics.caudalDroop = tail.caudalDroop;
             }
+            finPhysics.skippedChains = tail ? tail.skippedFinChains : new string[0];
             finPhysics.Rebind(); // fin bone lengths changed
         }
     }
