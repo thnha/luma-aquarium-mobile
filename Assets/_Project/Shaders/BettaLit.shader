@@ -76,6 +76,7 @@ Shader "Lumaquarium/Betta Lit"
         _VariantSpot("Variant Spot Threshold", Range(0.0, 1.0)) = 0.58
         _VariantAccentSpot("Variant Accent Spot Threshold", Range(0.0, 1.0)) = 0.3
         _VariantBand("Variant Butterfly Band", Range(0.0, 1.0)) = 0.55
+        _VariantBandSoftness("Variant Butterfly Band Softness", Range(0.01, 0.5)) = 0.04
         _VariantDetail("Variant Texture Detail", Range(0.0, 1.0)) = 0.6
         _VariantDetailGain("Variant Texture Detail Gain", Float) = 2.5
         // Editmode props

@@ -25,6 +25,10 @@ MonoBehaviour:
   - Fin_Anal_Crowntail
   baseMap: {fileID: 0}
   skippedFinChains: []
+  ruffle:
+    depth: 0
+    wavelength: 0.2
+    start: 0.5
   caudal:
     rootStiffness: 0.1
     tipStiffness: 0.04

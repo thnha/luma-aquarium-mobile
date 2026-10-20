@@ -14,6 +14,8 @@ public class BettaPattern : ScriptableObject
     [Range(0f, 1f)] public float accentThreshold = 0.3f;
     [Tooltip("Butterfly: where along the fin (0 root, 1 edge) the secondary band starts.")]
     [Range(0f, 1f)] public float butterflyBand = 0.55f;
+    [Tooltip("Butterfly: half-width of the blend into the band (small = hard line, large = soft fade like Pearl).")]
+    [Range(0.01f, 0.5f)] public float butterflyBandSoftness = 0.04f;
 
     [Header("Spawning")]
     public float rarityWeight = 10f;

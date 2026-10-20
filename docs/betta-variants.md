@@ -9,7 +9,7 @@ Mọi con cá dùng chung một rig (`Art/Betta/Betta.fbx`). Mỗi loại cá l�
 ## Cài đặt lần đầu
 
 1. **Lumaquarium → Build Betta Prefab.** Lệnh này bake `Art/Betta/Textures/BETTA_VariantMask.png` nếu chưa có, rồi gán mask vào `Betta.mat`.
-2. **Lumaquarium → Build Betta Variant Presets.** Lệnh này tạo 6 kiểu đuôi, 6 hoa văn, 9 variant mẫu và `Data/Betta/BettaLibrary.asset`.
+2. **Lumaquarium → Build Betta Variant Presets.** Lệnh này tạo 7 kiểu đuôi, 7 hoa văn, 10 variant mẫu và `Data/Betta/BettaLibrary.asset`.
 3. Trong `MainAquarium`, thêm component **Betta Appearance** vào `BettaRoot`, rồi chọn **Variant** (ví dụ `Data/Betta/Variants/KoiGalaxyPlakat`). Skeleton Root và Fin Physics có thể để trống, component tự tìm. Lệnh **Build Main Aquarium Scene** cũng tự thêm component này.
 
 Muốn mỗi lần chơi ra một con cá khác: để trống **Variant** và gán **Library**. Khi đó `Generate Random` tắt thì component chọn một variant mẫu theo độ hiếm; bật thì nó sinh tổ hợp mới từ danh sách kiểu đuôi, hoa văn và bảng màu trong library.
@@ -51,6 +51,26 @@ Artist có thể vẽ đè mask này theo cùng quy ước kênh. Chạy lại *
 - **Crowntail:** gai có xương riêng (`Tail_Crown_01..12`, `Dorsal_Crown_01..09`, `Anal_Crown_01..11`, mỗi chuỗi 3 xương), treo trên xương tia vây. Clip không key các xương này, `BettaFinPhysics` mô phỏng chúng như chuỗi vây ngắn: gai nhận độ dựng vây lưng, độ xòe và độ rủ từ tia vây cha. Các kiểu đuôi khác ghi các chuỗi gai trong **Skipped Fin Chains** để không tốn CPU cho xương không có mesh.
 - **Double Tail:** mesh vây lưng đã to sẵn, nên Dorsal Length để 1 (để 1.25 thì sẽ phóng to hai lần). Chuỗi `Tail_` nằm trong khe giữa hai thuỳ, nên vẫn được ghi trong **Skipped Fin Chains** (`Tail_01`).
 
+## Mép vây gợn sóng (Rosetail)
+
+![Halfmoon và Rosetail](previews/BettaVariants/rosetail.png)
+
+*Ảnh render ngoài Unity: mesh vây Halfmoon trong `Betta.fbx` đi qua chính `BettaFinRuffle.cs` (biên dịch bằng .NET với stub UnityEngine), cắt theo alpha của base map. Ảnh này không có ánh sáng URP.*
+
+Rosetail dùng bộ mesh Halfmoon. Tail Type có nhóm **Ruffle**, và khi **Depth** lớn hơn 0 thì `BettaFinRuffle` tạo bản sao gợn sóng của các mesh `Fin_*` đang hiện:
+
+- **Mép tự do** là đoạn dài nhất trên viền mesh không bị skin vào xương gốc (`*_Base`, `*_01`). Phần viền còn lại là gốc vây, chỗ dính vào thân, nên không gợn.
+- Mesh được chia nhỏ 2 lần (mesh gốc chỉ có khoảng 20 đỉnh dọc mép). Mỗi đỉnh dịch ra khỏi mặt phẳng vây theo hình sin của quãng đường dọc mép. Hai trường điều hoà, giải trên mesh gốc, cho biết vị trí dọc mép và độ xa từ gốc ra mép, nên nếp gấp chạy liền tới gốc mà không bị gãy.
+- Mesh được dịch ở bind pose, nên skin và `BettaFinPhysics` vẫn uốn vây như bình thường. Mỗi mesh nguồn và mỗi bộ thông số chỉ tạo một lần, mọi con cá cùng kiểu đuôi dùng chung.
+
+| Trường | Ý nghĩa | Rosetail |
+|---|---|---|
+| Depth | Độ cao nếp gấp, tính theo kích thước vây. 0 là vây phẳng | 0.04 |
+| Wavelength | Độ dài một nếp (lên và xuống) dọc mép, tính theo kích thước vây | 0.2 |
+| Start | Nếp bắt đầu từ đâu, 0 là gốc vây, 1 là mép | 0.5 |
+
+Vì đọc dữ liệu mesh lúc chạy, `Betta.fbx` cần bật **Read/Write** (`isReadable: 1` trong file `.meta`).
+
 Trường **Base Map** (texture cắt alpha từ `Tools/betta_fin_cuts.py`) vẫn còn, nhưng các preset không dùng nữa: cắt alpha trên mesh thật sẽ cắt chồng lên viền của mesh.
 
 ## Bảng chuẩn
@@ -63,6 +83,7 @@ Trường **Base Map** (texture cắt alpha từ `Tools/betta_fin_cuts.py`) vẫ
 | Halfmoon | 1 | 1 | 0° | 0° | 0.15 / 0.035 / 22° | 12 |
 | Crowntail | 1 | 1 | −4° | 0° | 0.12 / 0.04 / 22° | 10 |
 | Double Tail | 0.95 | 1 | 4° | 0° | 0.15 / 0.035 / 22° | 5 |
+| Rosetail | 1.05 | 1.05 | 6° | 0° | 0.18 / 0.035 / 22° | 4 |
 
 | Hoa văn | Kênh mask | 3 màu dùng thế nào | Trọng số |
 |---|---|---|---|
@@ -72,11 +93,17 @@ Trường **Base Map** (texture cắt alpha từ `Tools/betta_fin_cuts.py`) vẫ
 | Marble | R, B, A | Phụ làm nền, Chính và Nhấn làm vệt loang | 12 |
 | Koi | R, B, A | Phụ làm nền trắng, Chính làm đốm màu, Nhấn làm đốm đen | 8 |
 | Dragon | R | Chính cho thân, Nhấn tô lên các vảy sáng | 5 |
+| Pearl | R, G | Kiểu Butterfly với dải bắt đầu sớm (0.3) và chuyển màu mềm (0.22): thân và gốc vây màu Chính, vây loang dần sang Phụ | 4 |
+
+Butterfly và Pearl có hai trường **Butterfly Band** (vị trí dải, 0 là gốc vây, 1 là mép) và **Butterfly Band Softness** (độ rộng vùng chuyển màu; 0.04 là đường cắt gọn, càng lớn càng loang mềm).
+
+Variant **Aqua Pearl Rosetail** (thân trắng ngọc, vây xanh ngọc loang từ gốc trắng) dùng hoa văn Pearl trên đuôi Rosetail.
 
 Độ hiếm của một variant = trọng số đuôi × trọng số hoa văn / 10000. Trên 8% là Common, trên 3% là Uncommon, trên 0.8% là Rare, còn lại là Legendary.
 
 ## Giới hạn hiện tại
 
 - Mesh Double Tail và Crowntail mới được xem trong Blender, chưa kiểm tra khi chạy trong Unity, và chưa thử đổi kiểu đuôi lúc đang chạy game.
+- Mép gợn sóng Rosetail mới được kiểm tra ngoài Unity, chưa chạy trong Unity.
 - Các giá trị độ xòe, độ rủ và fin physics là điểm khởi đầu. Cần chỉnh lại sau khi xem cá bơi trong Unity.
 - Thuộc tính variant nằm ngoài `UnityPerMaterial`, nên Betta Lit không dùng được SRP Batcher. Với số cá trong một bể thì không đáng kể.
