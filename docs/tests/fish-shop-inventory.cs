@@ -15,7 +15,8 @@ try
 {
     var inventory=load();
     check(balance(inventory)==1250, "New local wallet starts with 1250 xu");
-    check(!buy(inventory,"royal",0) && !buy(inventory,"royal",-10) && !buy(inventory," ",350), "Invalid purchases do not spend xu");
+    check(!buy(inventory,"royal",-10) && !buy(inventory," ",350), "Invalid purchases do not spend xu");
+    check(buy(inventory,"pearl",0) && balance(inventory)==1250 && owns(inventory,"pearl") && active(inventory)=="pearl" && !buy(inventory,"pearl",0), "A free fish is granted once without spending xu");
     check(!equip(inventory,"orchid"), "Unowned fish cannot be equipped");
     check(buy(inventory,"royal",350), "Buy first fish");
     check(balance(inventory)==900 && owns(inventory,"royal") && active(inventory)=="royal", "Purchase spends xu, grants and equips fish");
@@ -24,7 +25,7 @@ try
     check(!buy(inventory,"orchid",900) && balance(inventory)==250 && !owns(inventory,"orchid"), "Insufficient funds cannot grant fish or change balance");
     check(equip(inventory,"royal") && balance(inventory)==250, "Switching an owned fish is free");
     var reloaded=load();
-    check(balance(reloaded)==250 && owns(reloaded,"royal") && owns(reloaded,"koi") && active(reloaded)=="royal", "Wallet, ownership and equipped fish survive reload");
+    check(balance(reloaded)==250 && owns(reloaded,"royal") && owns(reloaded,"koi") && owns(reloaded,"pearl") && active(reloaded)=="royal", "Wallet, ownership and equipped fish survive reload");
     UnityEngine.PlayerPrefs.DeleteKey(key);
     var exact=load();
     check(buy(exact,"royal",350) && buy(exact,"orchid",900) && balance(exact)==0,"A purchase can spend exactly the available balance");

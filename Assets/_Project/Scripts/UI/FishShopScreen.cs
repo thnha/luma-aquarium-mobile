@@ -15,7 +15,7 @@ namespace Lumaquarium.UI
         public Sprite portrait;
         public string description;
         public int price;
-        public bool IsValid => !string.IsNullOrWhiteSpace(id) && variant != null && portrait != null && price > 0;
+        public bool IsValid => !string.IsNullOrWhiteSpace(id) && variant != null && portrait != null && price >= 0; // 0 = free gift
     }
 
     public sealed class FishShopScreen : MonoBehaviour
@@ -149,7 +149,7 @@ namespace Lumaquarium.UI
             }
             if (inventory.Balance < offer.price) return;
             pendingIndex = selectedIndex;
-            confirmationText.text = offer.variant.displayName + "\n" + Money(offer.price) + " xu";
+            confirmationText.text = offer.variant.displayName + "\n" + PriceText(offer.price);
             confirmation.SetActive(true);
             Focus(confirmButton.gameObject);
         }
@@ -197,17 +197,17 @@ namespace Lumaquarium.UI
                 optionSurfaces[i].sprite = selected ? selectedSurface : normalSurface;
                 optionChecks[i].SetActive(selected);
                 optionButtons[i].interactable = offers[i].IsValid;
-                optionPrices[i].text = inventory.Owns(offers[i].id) ? "Đã sở hữu" : Money(offers[i].price) + " xu";
+                optionPrices[i].text = inventory.Owns(offers[i].id) ? "Đã sở hữu" : PriceText(offers[i].price);
             }
             var offer = offers[selectedIndex];
             heroPortrait.sprite = offer.portrait;
             heroName.text = offer.variant != null ? offer.variant.displayName : "Cá chưa sẵn sàng";
             description.text = offer.description;
-            priceLabel.text = inventory.Owns(offer.id) ? "Đã sở hữu" : Money(offer.price) + " xu";
+            priceLabel.text = inventory.Owns(offer.id) ? "Đã sở hữu" : PriceText(offer.price);
             bool active = inventory.ActiveId == offer.id;
             bool canAfford = inventory.Balance >= offer.price;
             buyButton.interactable = offer.IsValid && !active && (inventory.Owns(offer.id) || canAfford);
-            buyLabel.text = active ? "Đang trong hồ" : inventory.Owns(offer.id) ? "Dùng cá này" : canAfford ? "Mua cá" : "Chưa đủ xu";
+            buyLabel.text = active ? "Đang trong hồ" : inventory.Owns(offer.id) ? "Dùng cá này" : offer.price == 0 ? "Nhận cá" : canAfford ? "Mua cá" : "Chưa đủ xu";
         }
 
         private void SaveFailed(Exception exception)
@@ -217,6 +217,7 @@ namespace Lumaquarium.UI
         }
 
         private static string Money(int amount) => amount.ToString("N0", Vietnamese);
+        private static string PriceText(int price) => price == 0 ? "Miễn phí" : Money(price) + " xu";
         private static void Focus(GameObject target)
         {
             if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(target);

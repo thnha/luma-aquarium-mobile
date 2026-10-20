@@ -39,17 +39,21 @@ public static class FishShopScreenBuilder
         int undoGroup = Undo.GetCurrentGroup();
         Undo.SetCurrentGroupName("Add fish shop");
 
+        // The prefab is rebuilt only when it is missing or its fish list differs from LoadOffers;
+        // otherwise hand edits to it are kept. Rebuilding keeps the prefab GUID, so the scene instance follows.
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
+        var built = prefab != null ? prefab.GetComponent<FishShopScreen>() : null;
+        if (built == null || built.offers == null || !built.offers.Select(o => o.id).SequenceEqual(offers.Select(o => o.id)))
+        {
+            BakePortraits(aquarium.fish.gameObject, offers);
+            var screen = CreateScreen(offers);
+            PrefabUtility.SaveAsPrefabAsset(screen.gameObject, PrefabPath);
+            UnityEngine.Object.DestroyImmediate(screen.gameObject);
+        }
         var shop = UnityEngine.Object.FindFirstObjectByType<FishShopScreen>(FindObjectsInactive.Include);
         if (shop == null)
         {
-            if (AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath) != null)
-                shop = ((GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath), scene)).GetComponent<FishShopScreen>();
-            else
-            {
-                BakePortraits(aquarium.fish.gameObject, offers);
-                shop = CreateScreen(offers);
-                PrefabUtility.SaveAsPrefabAssetAndConnect(shop.gameObject, PrefabPath, InteractionMode.AutomatedAction);
-            }
+            shop = ((GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath), scene)).GetComponent<FishShopScreen>();
             Undo.RegisterCreatedObjectUndo(shop.gameObject, "Add fish shop canvas");
         }
         Connect(aquarium);
@@ -88,7 +92,8 @@ public static class FishShopScreenBuilder
         }
         Undo.RecordObject(entry, "Wire fish shop entry");
         for (int i = entry.onClick.GetPersistentEventCount() - 1; i >= 0; i--)
-            if (entry.onClick.GetPersistentTarget(i) is FishShopScreen && entry.onClick.GetPersistentMethodName(i) == "Open")
+            if ((entry.onClick.GetPersistentTarget(i) is FishShopScreen || entry.onClick.GetPersistentTarget(i) == null)
+                && entry.onClick.GetPersistentMethodName(i) == "Open") // null: a target lost when the prefab was rebuilt
                 UnityEventTools.RemovePersistentListener(entry.onClick, i);
         UnityEventTools.AddPersistentListener(entry.onClick, shop.Open);
         EditorUtility.SetDirty(shop);
@@ -98,10 +103,11 @@ public static class FishShopScreenBuilder
 
     private static FishShopOffer[] LoadOffers()
     {
-        string[] ids = { "royal", "mustard", "koi", "orchid" };
-        string[] assets = { "RoyalBlueHalfmoon", "MustardGasVeiltail", "KoiGalaxyPlakat", "BlackOrchidCrowntail" };
-        string[] descriptions = { "Xanh hoàng gia · Đuôi xòe bán nguyệt", "Xanh sẫm, vây vàng · Đuôi rủ mềm", "Trắng, cam, đen · Hoa văn Koi", "Tím phong lan · Đuôi tưa cá tính" };
-        int[] prices = { 350, 450, 650, 900 };
+        string[] ids = { "royal", "mustard", "koi", "orchid", "pearl" };
+        string[] assets = { "RoyalBlueHalfmoon", "MustardGasVeiltail", "KoiGalaxyPlakat", "BlackOrchidCrowntail", "AquaPearlRosetail" };
+        string[] descriptions = { "Xanh hoàng gia · Đuôi xòe bán nguyệt", "Xanh sẫm, vây vàng · Đuôi rủ mềm", "Trắng, cam, đen · Hoa văn Koi", "Tím phong lan · Đuôi tưa cá tính",
+            "Trắng ngọc, vây xanh ngọc · Mép vây gợn sóng" };
+        int[] prices = { 350, 450, 650, 900, 0 }; // Aqua Pearl Rosetail is a free gift
         return ids.Select((id, i) => new FishShopOffer
         {
             id = id,
@@ -180,22 +186,36 @@ public static class FishShopScreenBuilder
         var heading = Label("Heading", sheet.transform, "Chọn cá của bạn", 48, Ink, true);
         At(heading.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(55, -48), new Vector2(590, 70));
         heading.alignment = TextAlignmentOptions.MidlineLeft;
-        var count = Label("FishCount", sheet.transform, "4 người bạn đang chờ", 30, Muted);
+        var count = Label("FishCount", sheet.transform, offers.Length + " người bạn đang chờ", 30, Muted);
         At(count.rectTransform, Vector2.one, Vector2.one, new Vector2(-55, -48), new Vector2(385, 70));
         count.alignment = TextAlignmentOptions.MidlineRight;
-        var grid = Rect("FishOptions", sheet.transform);
-        AnchorEdges(grid, new Vector2(0, 1), Vector2.one, new Vector2(52, -824), new Vector2(-52, -145));
+        // Two cards per row at the approved size; past two rows the list scrolls inside the same area.
+        var viewport = Rect("FishOptions", sheet.transform);
+        AnchorEdges(viewport, new Vector2(0, 1), Vector2.one, new Vector2(52, -824), new Vector2(-52, -145));
+        viewport.gameObject.AddComponent<UnityEngine.UI.RectMask2D>();
+        var grid = Rect("Content", viewport);
+        AnchorEdges(grid, new Vector2(0, 1), Vector2.one, Vector2.zero, Vector2.zero);
+        grid.pivot = new Vector2(.5f, 1);
         var columns = grid.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>();
         columns.spacing = 24;
         columns.childControlHeight = columns.childControlWidth = true;
-        columns.childForceExpandWidth = columns.childForceExpandHeight = true;
+        columns.childForceExpandWidth = true;
+        columns.childForceExpandHeight = false;
+        grid.gameObject.AddComponent<UnityEngine.UI.ContentSizeFitter>().verticalFit = UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize;
+        var scroll = viewport.gameObject.AddComponent<UnityEngine.UI.ScrollRect>();
+        scroll.content = grid;
+        scroll.viewport = viewport;
+        scroll.horizontal = false;
+        scroll.movementType = UnityEngine.UI.ScrollRect.MovementType.Clamped;
+        const float rowHeight = (679f - 24f) / 2f;
         shop.optionButtons = new UnityEngine.UI.Button[offers.Length];
         shop.optionSurfaces = new UnityEngine.UI.Image[offers.Length];
         shop.optionChecks = new GameObject[offers.Length];
         shop.optionPrices = new TMP_Text[offers.Length];
-        for (int row = 0; row < 2; row++)
+        for (int row = 0; row < (offers.Length + 1) / 2; row++)
         {
             var rowRect = Rect("Row" + row, grid);
+            rowRect.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredHeight = rowHeight;
             var horizontal = rowRect.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>();
             horizontal.spacing = 24;
             horizontal.childControlHeight = horizontal.childControlWidth = true;
@@ -203,6 +223,11 @@ public static class FishShopScreenBuilder
             for (int col = 0; col < 2; col++)
             {
                 int i = row * 2 + col;
+                if (i >= offers.Length)
+                {
+                    Rect("Empty", rowRect); // keeps a lone last card at half width
+                    continue;
+                }
                 var offer = offers[i];
                 var surface = Picture("FishOption_" + offer.id, rowRect, i == 0 ? shop.selectedSurface : shop.normalSurface, true);
                 surface.raycastTarget = true;
@@ -215,7 +240,7 @@ public static class FishShopScreenBuilder
                 var name = Label("Name", surface.transform, offer.variant.displayName, 40, Ink, true);
                 At(name.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 64), new Vector2(410, 92));
                 name.alignment = TextAlignmentOptions.MidlineLeft;
-                var price = Label("Price", surface.transform, offer.price + " xu", 38, Muted, true);
+                var price = Label("Price", surface.transform, offer.price == 0 ? "Miễn phí" : offer.price + " xu", 38, Muted, true);
                 At(price.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(27, 17), new Vector2(354, 47));
                 price.alignment = TextAlignmentOptions.MidlineLeft;
                 var coin = Coin(surface.transform, "Coin");

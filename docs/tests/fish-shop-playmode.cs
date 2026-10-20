@@ -52,8 +52,8 @@ try
     typeof(Lumaquarium.UI.FishShopScreen).GetMethod("Start",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).Invoke(s,null);
     check(s.fish.Variant==s.offers[0].variant && s.aquariumFishName.text=="Royal Blue Halfmoon","Startup restores the saved equipped fish and header");
     check(UnityEngine.Object.FindObjectsByType<BettaFishAI>(UnityEngine.FindObjectsSortMode.None).Length==1,"No extra aquarium fish is spawned");
-    // Each thumbnail's variant is also exercised on the live rig, including Crowntail mesh switching.
-    for(int i=0;i<4;i++)
+    // Each thumbnail's variant is also exercised on the live rig, including Crowntail mesh switching and Rosetail ruffles.
+    for(int i=0;i<s.offers.Length;i++)
     {
         s.Close();UnityEngine.PlayerPrefs.DeleteKey(key);
         inventory=new Lumaquarium.UI.FishShopInventory(key);field.SetValue(s,inventory);
@@ -61,6 +61,8 @@ try
         var expected=s.offers[i].variant;
         var enabled=s.fish.GetComponentsInChildren<UnityEngine.SkinnedMeshRenderer>(true).Where(r=>r.enabled&&r.name.StartsWith("Fin_")).Select(r=>r.name).OrderBy(n=>n);
         check(s.fish.Variant==expected && enabled.SequenceEqual(expected.tail.finMeshes.OrderBy(n=>n)),"Apply actual variant and correct fin meshes: "+expected.displayName);
+        bool ruffled=s.fish.GetComponentsInChildren<UnityEngine.SkinnedMeshRenderer>(true).Where(r=>r.enabled&&r.name.StartsWith("Fin_")).All(r=>r.sharedMesh.name.EndsWith("_Ruffled"));
+        check(ruffled==expected.tail.ruffle.Enabled,"Fin edges ruffled only for Rosetail: "+expected.displayName);
     }
 }
 finally
