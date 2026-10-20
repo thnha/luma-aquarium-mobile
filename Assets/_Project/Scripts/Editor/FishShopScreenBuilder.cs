@@ -212,10 +212,10 @@ public static class FishShopScreenBuilder
                 var image = Picture("Portrait", surface.transform, offer.portrait);
                 image.preserveAspect = true;
                 AnchorEdges(image.rectTransform, new Vector2(0, .37f), Vector2.one, new Vector2(12, 0), new Vector2(-12, -14));
-                var name = Label("Name", surface.transform, offer.variant.displayName, 35, Ink, true);
-                At(name.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 66), new Vector2(410, 67));
+                var name = Label("Name", surface.transform, offer.variant.displayName, 40, Ink, true);
+                At(name.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 64), new Vector2(410, 92));
                 name.alignment = TextAlignmentOptions.MidlineLeft;
-                var price = Label("Price", surface.transform, offer.price + " xu", 34, Muted, true);
+                var price = Label("Price", surface.transform, offer.price + " xu", 38, Muted, true);
                 At(price.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(27, 17), new Vector2(354, 47));
                 price.alignment = TextAlignmentOptions.MidlineLeft;
                 var coin = Coin(surface.transform, "Coin");

@@ -2011,6 +2011,10 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 923892115985862706, guid: 0372620bfcdd84019b7ffffff835e56e, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2240077689928130848, guid: 0372620bfcdd84019b7ffffff835e56e, type: 3}
       propertyPath: fish
       value: 
@@ -2185,6 +2189,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7835134006650321254, guid: 0372620bfcdd84019b7ffffff835e56e, type: 3}
       propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7835134006650321254, guid: 0372620bfcdd84019b7ffffff835e56e, type: 3}
+      propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
