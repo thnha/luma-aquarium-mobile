@@ -15,10 +15,12 @@ public static class BettaPrefabBuilder
     [MenuItem("Lumaquarium/Build Betta Prefab")]
     public static GameObject Build()
     {
+        // Bake first: it may reimport the FBX, which would invalidate a model loaded before it.
+        Texture2D variantMask = BettaMaskBaker.LoadOrBake();
         var fbx = AssetDatabase.LoadAssetAtPath<GameObject>(FbxPath);
         if (!fbx) { Debug.LogError("[Lumaquarium] Missing " + FbxPath); return null; }
 
-        Material mat = FishMaterial();
+        Material mat = FishMaterial(variantMask);
         AnimatorController controller = Controller();
 
         var go = (GameObject)PrefabUtility.InstantiatePrefab(fbx);
@@ -39,7 +41,7 @@ public static class BettaPrefabBuilder
         return prefab;
     }
 
-    static Material FishMaterial()
+    static Material FishMaterial(Texture2D variantMask)
     {
         string path = ArtDir + "/Betta.mat";
         var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
@@ -56,6 +58,8 @@ public static class BettaPrefabBuilder
         mat.EnableKeyword("_NORMALMAP");
         mat.SetTexture("_OcclusionMap", Tex("BETTA_Mixed_AO"));
         mat.EnableKeyword("_OCCLUSIONMAP");
+        // Per-fish colours come from BettaAppearance (MaterialPropertyBlock), not this material.
+        mat.SetTexture("_VariantMask", variantMask);
         // Fins are single planes: cut out by alpha and render both faces.
         mat.SetFloat("_AlphaClip", 1f);
         mat.SetFloat("_Cutoff", 0.5f);

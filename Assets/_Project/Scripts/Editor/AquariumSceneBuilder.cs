@@ -130,6 +130,11 @@ public static class AquariumSceneBuilder
             var reactions = bettaRoot.AddComponent<BettaReactions>();
             reactions.fish = fish;
             reactions.animator = fishAnimator;
+            var appearance = bettaRoot.AddComponent<BettaAppearance>();
+            appearance.skeletonRoot = fishAnimator.transform;
+            appearance.finPhysics = finPhysics;
+            appearance.library = BettaVariantPresets.Build();
+            appearance.variant = appearance.library.variants[0];
         }
 
         // Feeding
