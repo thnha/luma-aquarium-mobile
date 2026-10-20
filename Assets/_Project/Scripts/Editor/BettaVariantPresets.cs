@@ -22,7 +22,7 @@ public static class BettaVariantPresets
             t.displayName = name;
             t.caudalLength = caudal; t.dorsalLength = dorsal; t.analLength = anal; t.pelvicLength = pelvic;
             t.caudalSpread = spread; t.caudalDroop = droop;
-            t.baseMap = null; t.skippedFinChains = new string[0];
+            t.finMeshes = HalfmoonFins; t.baseMap = null; t.skippedFinChains = BettaFinPhysics.CrownChainRoots;
             // Betta.fbx is a Halfmoon, so it is the baseline (scale 1, spread 0); other forms are relative to it.
             // Fin physics starts from the BettaFinPhysics defaults, which were tuned on that model.
             t.caudal = new BettaFinPhysics.FinSettings { rootStiffness = 0.1f, tipStiffness = tipStiffness, damping = 0.18f, maxAngle = maxAngle, ripple = 0.005f, speedStiffening = 1.3f, sag = sag };
@@ -36,12 +36,14 @@ public static class BettaVariantPresets
         var delta = Tail("Delta", "Delta", 0.9f, 0.95f, 0.95f, 1f, -10f, 0f, 0.12f, 0.045f, 22f, 18f);
         var halfmoon = Tail("Halfmoon", "Halfmoon", 1f, 1f, 1f, 1f, 0f, 0f, 0.15f, 0.035f, 22f, 12f);
         var crowntail = Tail("Crowntail", "Crowntail", 1f, 1f, 1f, 1f, -4f, 0f, 0.12f, 0.04f, 22f, 10f);
-        var doubletail = Tail("DoubleTail", "Double Tail", 0.95f, 1.25f, 1f, 1f, 4f, 0f, 0.15f, 0.035f, 22f, 5f);
-        // Same mesh, fin outline cut in the base map alpha (Tools/betta_fin_cuts.py). The Double Tail slit
-        // hides the middle Tail_ ray: the lobes keep their own rays (Top/UpMid, LowMid/Low/Bot).
-        crowntail.baseMap = FinCut("BETTA_BaseColor_Crowntail");
-        doubletail.baseMap = FinCut("BETTA_BaseColor_DoubleTail");
-        doubletail.skippedFinChains = new[] { "Tail_01" };
+        var doubletail = Tail("DoubleTail", "Double Tail", 0.95f, 1f, 1f, 1f, 4f, 0f, 0.15f, 0.035f, 22f, 5f);
+        // Own fin meshes in Betta.fbx, so no alpha-cut base map. The Double Tail dorsal mesh is already
+        // the long one, so dorsalLength stays 1. Only the Crowntail meshes use the *_Crown_* spike bones.
+        // The Double Tail slit hides the middle Tail_ ray: the lobes keep their own rays (Top/UpMid, LowMid/Low/Bot).
+        crowntail.finMeshes = new[] { "Fin_Caudal_Crowntail", "Fin_Dorsal_Crowntail", "Fin_Anal_Crowntail" };
+        doubletail.finMeshes = new[] { "Fin_Caudal_DoubleTail", "Fin_Dorsal_DoubleTail", "Fin_Anal_Halfmoon" };
+        crowntail.skippedFinChains = new string[0];
+        doubletail.skippedFinChains = BettaFinPhysics.CrownChainRoots.Append("Tail_01").ToArray();
 
         BettaPattern Pattern(string id, BettaPattern.Kind kind, float spot, float accentSpot, float weight)
         {
@@ -94,13 +96,7 @@ public static class BettaVariantPresets
         return library;
     }
 
-    static Texture2D FinCut(string name)
-    {
-        string path = "Assets/_Project/Art/Betta/Textures/" + name + ".png";
-        var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-        if (!tex) Debug.LogWarning("[Lumaquarium] Missing " + path + " (run Tools/betta_fin_cuts.py); using the Halfmoon outline.");
-        return tex;
-    }
+    static readonly string[] HalfmoonFins = { "Fin_Caudal_Halfmoon", "Fin_Dorsal_Halfmoon", "Fin_Anal_Halfmoon" };
 
     static T Load<T>(string path) where T : ScriptableObject
     {

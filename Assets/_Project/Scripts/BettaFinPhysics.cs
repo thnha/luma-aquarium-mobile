@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 // Soft-body fins ("dynamic bones"). The tip of every fin ray is a point mass on a soft spring
@@ -45,7 +47,8 @@ public class BettaFinPhysics : MonoBehaviour
     enum Group { Caudal, DorsalAnal, Pelvic, Pectoral }
 
     // Chains listed root -> tip so parents are solved before children.
-    static readonly (Group group, string[] bones)[] Chains =
+    // Crowntail spikes hang off the ray bones, so they come after the ray chains.
+    static readonly (Group group, string[] bones)[] Chains = new (Group, string[])[]
     {
         (Group.Caudal, Chain("Tail_Top_", 5)),
         (Group.Caudal, Chain("Tail_UpMid_", 5)),
@@ -63,7 +66,23 @@ public class BettaFinPhysics : MonoBehaviour
         (Group.Pectoral, new[] { "Pectoral_L_03B" }),
         (Group.Pectoral, new[] { "Pectoral_R_02", "Pectoral_R_03A" }),
         (Group.Pectoral, new[] { "Pectoral_R_03B" }),
-    };
+    }
+        .Concat(Crown(Group.Caudal, "Tail_Crown_", 12))
+        .Concat(Crown(Group.DorsalAnal, "Dorsal_Crown_", 9))
+        .Concat(Crown(Group.DorsalAnal, "Anal_Crown_", 11))
+        .ToArray();
+
+    // Root bones of the Crowntail spike chains; tail types without the Crowntail meshes skip them.
+    public static readonly string[] CrownChainRoots =
+        Chains.Select(c => c.bones[0]).Where(IsCrown).ToArray();
+
+    static bool IsCrown(string bone) => bone.Contains("_Crown_");
+
+    // "Tail_Crown_", 12 -> Tail_Crown_01_01 .. _03, ..., Tail_Crown_12_01 .. _03
+    static IEnumerable<(Group, string[])> Crown(Group group, string prefix, int spikes)
+    {
+        for (int i = 1; i <= spikes; i++) yield return (group, Chain(prefix + i.ToString("00") + "_", 3));
+    }
 
     // "Tail_", 5 -> Tail_01 .. Tail_05
     static string[] Chain(string prefix, int count)
@@ -107,10 +126,11 @@ public class BettaFinPhysics : MonoBehaviour
     {
         if (skeletonRoot == null) skeletonRoot = transform;
         if (fish == null) fish = GetComponentInParent<BettaFishAI>();
-        var list = new System.Collections.Generic.List<Node>();
+        var list = new List<Node>();
         foreach (var chain in Chains)
         {
             if (skippedChains != null && System.Array.IndexOf(skippedChains, chain.bones[0]) >= 0) continue;
+            bool crown = IsCrown(chain.bones[0]);
             for (int i = 0; i < chain.bones.Length; i++)
             {
                 Transform t = FindDeep(skeletonRoot, chain.bones[i]);
@@ -129,9 +149,10 @@ public class BettaFinPhysics : MonoBehaviour
                     baseLocal = t.localRotation,
                     lastWritten = t.localRotation,
                     phase = list.Count * 1.37f,
-                    raise = i > 0 ? 0f : chain.bones[0].StartsWith("Dorsal") ? -1f : chain.bones[0].StartsWith("Anal") ? 0.5f : 0f,
+                    // Spikes inherit raise/spread/droop from the ray they hang off.
+                    raise = i > 0 || crown ? 0f : chain.bones[0].StartsWith("Dorsal") ? -1f : chain.bones[0].StartsWith("Anal") ? 0.5f : 0f,
                     spread = i > 0 ? 0f : SpreadWeight(chain.bones[0]),
-                    caudalRoot = i == 0 && chain.group == Group.Caudal,
+                    caudalRoot = i == 0 && !crown && chain.group == Group.Caudal,
                 });
             }
         }
