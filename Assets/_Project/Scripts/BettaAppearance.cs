@@ -7,7 +7,8 @@ using UnityEngine;
 // - head and fin size as bone scale, re-applied every LateUpdate because the clips key
 //   scale on every bone (assigned, never multiplied, so a culled Animator can't make it grow),
 // - tail form: caudal spread/droop and fin physics preset on BettaFinPhysics,
-// - tail form outline: the tail type's Fin_* meshes, and its base map (fin edges cut in alpha) through the property block.
+// - tail form outline: the tail type's Fin_* meshes, and its base map (fin edges cut in alpha) through the property block,
+//   with the fin edges folded when the tail type has a ruffle (Rosetail, see BettaFinRuffle).
 // Runs before BettaSwimMotion and BettaFinPhysics so they see the scaled bones.
 [DefaultExecutionOrder(-50)]
 public class BettaAppearance : MonoBehaviour
@@ -37,6 +38,7 @@ public class BettaAppearance : MonoBehaviour
     static readonly string[] CaudalRoots = { "Tail_Top_01", "Tail_UpMid_01", "Tail_01", "Tail_LowMid_01", "Tail_Low_01", "Tail_Bot_01" };
 
     readonly List<(Transform bone, float scale)> scaled = new List<(Transform, float)>();
+    readonly Dictionary<SkinnedMeshRenderer, Mesh> flatFins = new Dictionary<SkinnedMeshRenderer, Mesh>();
     MaterialPropertyBlock block;
 
     public BettaVariant Variant => variant;
@@ -119,9 +121,15 @@ public class BettaAppearance : MonoBehaviour
         // Betta.fbx carries every form's Fin_* meshes; show this form's (Halfmoon when it names none).
         string[] finMeshes = tail ? tail.finMeshes : null;
         bool useHalfmoon = finMeshes == null || finMeshes.Length == 0;
+        BettaFinRuffle.Settings ruffle = tail ? tail.ruffle : null;
         foreach (var r in GetComponentsInChildren<SkinnedMeshRenderer>(true))
-            if (r.name.StartsWith("Fin_"))
-                r.enabled = useHalfmoon ? r.name.EndsWith("_Halfmoon") : System.Array.IndexOf(finMeshes, r.name) >= 0;
+        {
+            if (!r.name.StartsWith("Fin_")) continue;
+            r.enabled = useHalfmoon ? r.name.EndsWith("_Halfmoon") : System.Array.IndexOf(finMeshes, r.name) >= 0;
+            if (!flatFins.TryGetValue(r, out Mesh flat)) flatFins[r] = flat = r.sharedMesh;
+            if (flat == null) continue;
+            r.sharedMesh = r.enabled && ruffle != null && ruffle.Enabled ? BettaFinRuffle.Get(flat, r.bones, ruffle) : flat;
+        }
 
         if (finPhysics != null)
         {

@@ -2,7 +2,7 @@ using UnityEngine;
 
 // One tail form (Plakat, Halfmoon, ...). Shares the Betta rig: the shape comes from fin-root bone scale
 // and caudal spread applied by BettaAppearance, and forms with their own fin outline (Crowntail, Double Tail)
-// switch to their Fin_* meshes in Betta.fbx.
+// switch to their Fin_* meshes in Betta.fbx; Rosetail folds the fin edges (BettaFinRuffle).
 [CreateAssetMenu(menuName = "Lumaquarium/Betta Tail Type")]
 public class BettaTailType : ScriptableObject
 {
@@ -25,6 +25,8 @@ public class BettaTailType : ScriptableObject
     public Texture2D baseMap;
     [Tooltip("Root bones of fin chains that sit in a transparent cut and are left to the animation (Double Tail: Tail_01).")]
     public string[] skippedFinChains = new string[0];
+    [Tooltip("Rosetail: folds the outer edge of the shown Fin_* meshes in waves. Depth 0 = flat fins.")]
+    public BettaFinRuffle.Settings ruffle = new BettaFinRuffle.Settings();
 
     [Header("Fin physics")]
     public BettaFinPhysics.FinSettings caudal = new BettaFinPhysics.FinSettings();

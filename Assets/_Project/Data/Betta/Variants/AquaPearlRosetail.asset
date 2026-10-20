@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f782e909e6f4416e97ca931601db3a05, type: 3}
-  m_Name: AquaPearlHalfmoon
+  m_Name: AquaPearlRosetail
   m_EditorClassIdentifier: Assembly-CSharp::BettaVariant
-  displayName: Aqua Pearl Halfmoon
-  tail: {fileID: 11400000, guid: ab069ddc1d67f446fb5d8a2a2e2a9495, type: 2}
+  displayName: Aqua Pearl Rosetail
+  tail: {fileID: 11400000, guid: ff1f672d09374cd28d103373a4963e33, type: 2}
   pattern: {fileID: 11400000, guid: c9f36cd54a3f4f5ab02d3cea8d2b530c, type: 2}
   primary: {r: 0.95686275, g: 0.94509804, b: 0.9254902, a: 1}
   secondary: {r: 0.18039216, g: 0.76862745, b: 0.77647059, a: 1}
