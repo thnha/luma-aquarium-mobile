@@ -17,6 +17,9 @@ public static class AquariumSceneBuilder
     const string PrefabDir = Root + "/Prefabs";
 
     const float TankWidth = 1.6f, TankHeight = 2.2f, TankDepth = 1.0f, FloorY = 0.25f;
+    // The Blender model rests nose-up (snout -> caudal peduncle slopes ~19 deg, spine ~25 deg).
+    // Pitch it nose-down inside BettaRoot so the fish looks level when it swims level.
+    const float FishModelPitchCorrection = 20f;
 
     [MenuItem("Lumaquarium/Build Main Aquarium Scene")]
     public static void Build()
@@ -99,6 +102,7 @@ public static class AquariumSceneBuilder
         {
             var model = (GameObject)PrefabUtility.InstantiatePrefab(bettaPrefab, bettaRoot.transform);
             model.name = "FishModel";
+            model.transform.localRotation = Quaternion.Euler(FishModelPitchCorrection, 0f, 0f);
             fishAnimator = model.GetComponent<Animator>();
         }
         else
@@ -118,6 +122,12 @@ public static class AquariumSceneBuilder
             var swimMotion = bettaRoot.AddComponent<BettaSwimMotion>();
             swimMotion.fish = fish;
             swimMotion.skeletonRoot = fishAnimator.transform;
+            var finPhysics = bettaRoot.AddComponent<BettaFinPhysics>();
+            finPhysics.skeletonRoot = fishAnimator.transform;
+            finPhysics.fish = fish;
+            var reactions = bettaRoot.AddComponent<BettaReactions>();
+            reactions.fish = fish;
+            reactions.animator = fishAnimator;
         }
 
         // Feeding

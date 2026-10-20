@@ -1,0 +1,7 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "source": "AquariumFrontEnd.png",
+  "output": "AquariumEnvironment.png",
+  "usage": "2.5D environment plate behind the existing animated 3D Betta",
+  "prompt": "Use case: precise-object-edit. Asset type: clean aquarium environment background plate for a portrait Unity game with a real animated 3D fish rendered on top. Edit target: provided aquarium image. Remove the single large blue/red betta fish completely, including all its fins, and inpaint that exact region as empty teal aquarium water with softly blurred distant plants, matching surrounding light rays and depth. Preserve the entire rest of the image as closely as possible: exact portrait composition, top rippling water surface, sun rays, left driftwood, plants along both edges, rocks and sandy foreground. The central middle water must be EMPTY of fish or animals. NO fish anywhere, NO text, NO HUD, NO buttons, NO logos. Keep original 9:16 aspect ratio. Output just the clean environment image."
+}

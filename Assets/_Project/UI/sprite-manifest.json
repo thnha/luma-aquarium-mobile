@@ -1,0 +1,456 @@
+{
+  "version": 1,
+  "status": "Imported Unity sprites; StartGame, LoginGame, LoadingGame",
+  "reference": "../../../../medias/concepts/lumaquarium-hud-approved-v1.png",
+  "colorSpace": "sRGB",
+  "alpha": "straight",
+  "pixelsPerUnit": 100,
+  "unityImport": {
+    "textureType": "Sprite",
+    "spriteMode": "Single",
+    "mipmaps": false,
+    "wrap": "Clamp",
+    "filter": "Bilinear"
+  },
+  "palette": {
+    "ink": "#343C2D",
+    "cream": "#F1E6C8",
+    "sage": "#CFDDBB",
+    "forest": "#455D3F"
+  },
+  "sprites": [
+    {
+      "name": "button_normal",
+      "file": "Surfaces/button_normal.png",
+      "width": 512,
+      "height": 512,
+      "role": "surface",
+      "borderLTRB": [
+        104,
+        104,
+        104,
+        104
+      ]
+    },
+    {
+      "name": "button_selected",
+      "file": "Surfaces/button_selected.png",
+      "width": 512,
+      "height": 512,
+      "role": "surface",
+      "borderLTRB": [
+        104,
+        104,
+        104,
+        104
+      ]
+    },
+    {
+      "name": "button_pressed",
+      "file": "Surfaces/button_pressed.png",
+      "width": 512,
+      "height": 512,
+      "role": "surface",
+      "borderLTRB": [
+        104,
+        104,
+        104,
+        104
+      ]
+    },
+    {
+      "name": "button_disabled",
+      "file": "Surfaces/button_disabled.png",
+      "width": 512,
+      "height": 512,
+      "role": "surface",
+      "borderLTRB": [
+        104,
+        104,
+        104,
+        104
+      ]
+    },
+    {
+      "name": "button_primary",
+      "file": "Surfaces/button_primary.png",
+      "width": 512,
+      "height": 160,
+      "role": "surface",
+      "borderLTRB": [
+        72,
+        64,
+        72,
+        64
+      ]
+    },
+    {
+      "name": "panel_care",
+      "file": "Surfaces/panel_care.png",
+      "width": 512,
+      "height": 512,
+      "role": "surface",
+      "borderLTRB": [
+        56,
+        56,
+        56,
+        56
+      ]
+    },
+    {
+      "name": "panel_decorate",
+      "file": "Surfaces/panel_decorate.png",
+      "width": 512,
+      "height": 512,
+      "role": "surface",
+      "borderLTRB": [
+        56,
+        56,
+        56,
+        56
+      ]
+    },
+    {
+      "name": "fish_nameplate",
+      "file": "Surfaces/fish_nameplate.png",
+      "width": 512,
+      "height": 160,
+      "role": "surface",
+      "borderLTRB": [
+        82,
+        64,
+        82,
+        64
+      ]
+    },
+    {
+      "name": "fish_portrait_frame",
+      "file": "Surfaces/fish_portrait_frame.png",
+      "width": 256,
+      "height": 256,
+      "role": "overlay frame",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "utility_badge",
+      "file": "Surfaces/utility_badge.png",
+      "width": 256,
+      "height": 256,
+      "role": "surface",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "inventory_slot",
+      "file": "Surfaces/inventory_slot.png",
+      "width": 256,
+      "height": 256,
+      "role": "surface",
+      "borderLTRB": [
+        52,
+        52,
+        52,
+        52
+      ]
+    },
+    {
+      "name": "inventory_slot_selected",
+      "file": "Surfaces/inventory_slot_selected.png",
+      "width": 256,
+      "height": 256,
+      "role": "surface",
+      "borderLTRB": [
+        52,
+        52,
+        52,
+        52
+      ]
+    },
+    {
+      "name": "tab_normal",
+      "file": "Surfaces/tab_normal.png",
+      "width": 256,
+      "height": 112,
+      "role": "surface",
+      "borderLTRB": [
+        42,
+        40,
+        42,
+        40
+      ]
+    },
+    {
+      "name": "tab_selected",
+      "file": "Surfaces/tab_selected.png",
+      "width": 256,
+      "height": 112,
+      "role": "surface",
+      "borderLTRB": [
+        42,
+        40,
+        42,
+        40
+      ]
+    },
+    {
+      "name": "progress_track",
+      "file": "Surfaces/progress_track.png",
+      "width": 512,
+      "height": 48,
+      "role": "surface",
+      "borderLTRB": [
+        24,
+        22,
+        24,
+        22
+      ]
+    },
+    {
+      "name": "progress_fill",
+      "file": "Surfaces/progress_fill.png",
+      "width": 512,
+      "height": 48,
+      "role": "surface",
+      "borderLTRB": [
+        24,
+        22,
+        24,
+        22
+      ]
+    },
+    {
+      "name": "utility_settings",
+      "file": "Icons/utility_settings.png",
+      "width": 256,
+      "height": 256,
+      "role": "utility icon",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "utility_hide",
+      "file": "Icons/utility_hide.png",
+      "width": 256,
+      "height": 256,
+      "role": "utility icon",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "utility_back",
+      "file": "Icons/utility_back.png",
+      "width": 256,
+      "height": 256,
+      "role": "utility icon",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "utility_close",
+      "file": "Icons/utility_close.png",
+      "width": 256,
+      "height": 256,
+      "role": "utility icon",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "utility_confirm",
+      "file": "Icons/utility_confirm.png",
+      "width": 256,
+      "height": 256,
+      "role": "utility icon",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "utility_leaf",
+      "file": "Icons/utility_leaf.png",
+      "width": 256,
+      "height": 256,
+      "role": "utility icon",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "utility_rock",
+      "file": "Icons/utility_rock.png",
+      "width": 256,
+      "height": 256,
+      "role": "utility icon",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "utility_driftwood",
+      "file": "Icons/utility_driftwood.png",
+      "width": 256,
+      "height": 256,
+      "role": "utility icon",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "utility_drop",
+      "file": "Icons/utility_drop.png",
+      "width": 256,
+      "height": 256,
+      "role": "utility icon",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "action_feed",
+      "file": "Icons/action_feed.png",
+      "width": 1254,
+      "height": 1254,
+      "role": "illustrated action icon",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "preserveAspect": true
+    },
+    {
+      "name": "action_care",
+      "file": "Icons/action_care.png",
+      "width": 1254,
+      "height": 1254,
+      "role": "illustrated action icon",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "preserveAspect": true
+    },
+    {
+      "name": "action_decorate",
+      "file": "Icons/action_decorate.png",
+      "width": 1254,
+      "height": 1254,
+      "role": "illustrated action icon",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "preserveAspect": true
+    },
+    {
+      "name": "action_photo",
+      "file": "Icons/action_photo.png",
+      "width": 1254,
+      "height": 1254,
+      "role": "illustrated action icon",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "preserveAspect": true
+    },
+    {
+      "name": "button_normal_wide",
+      "file": "Surfaces/button_normal_wide.png",
+      "width": 512,
+      "height": 128,
+      "role": "surface",
+      "borderLTRB": [
+        48,
+        48,
+        48,
+        48
+      ]
+    },
+    {
+      "name": "button_selected_wide",
+      "file": "Surfaces/button_selected_wide.png",
+      "width": 512,
+      "height": 128,
+      "role": "surface",
+      "borderLTRB": [
+        48,
+        48,
+        48,
+        48
+      ]
+    },
+    {
+      "name": "button_pressed_wide",
+      "file": "Surfaces/button_pressed_wide.png",
+      "width": 512,
+      "height": 128,
+      "role": "surface",
+      "borderLTRB": [
+        48,
+        48,
+        48,
+        48
+      ]
+    },
+    {
+      "name": "button_disabled_wide",
+      "file": "Surfaces/button_disabled_wide.png",
+      "width": 512,
+      "height": 128,
+      "role": "surface",
+      "borderLTRB": [
+        48,
+        48,
+        48,
+        48
+      ]
+    }
+  ]
+}

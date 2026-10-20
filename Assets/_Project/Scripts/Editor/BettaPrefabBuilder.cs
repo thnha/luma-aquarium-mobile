@@ -74,8 +74,13 @@ public static class BettaPrefabBuilder
     static AnimatorController Controller()
     {
         string path = ArtDir + "/Betta.controller";
-        AssetDatabase.DeleteAsset(path);
-        var controller = AnimatorController.CreateAnimatorControllerAtPath(path);
+        // Reuse the asset (keeps its GUID and loaded references) and rebuild its contents.
+        var controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(path);
+        if (!controller) controller = AnimatorController.CreateAnimatorControllerAtPath(path);
+        while (controller.parameters.Length > 0) controller.RemoveParameter(0);
+        var oldStates = controller.layers[0].stateMachine;
+        foreach (var t in oldStates.anyStateTransitions) oldStates.RemoveAnyStateTransition(t);
+        foreach (var s in oldStates.states) oldStates.RemoveState(s.state);
         controller.AddParameter("Speed", AnimatorControllerParameterType.Float);
         controller.AddParameter("Nibble", AnimatorControllerParameterType.Trigger);
 
@@ -97,6 +102,26 @@ public static class BettaPrefabBuilder
             var nibble = sm.AddState("Nibble"); nibble.motion = nibbleClip;
             var toNibble = sm.AddAnyStateTransition(nibble); toNibble.AddCondition(AnimatorConditionMode.If, 0, "Nibble"); toNibble.duration = 0.1f;
             var back = nibble.AddTransition(idle); back.hasExitTime = true; back.exitTime = 0.9f; back.duration = 0.15f;
+        }
+
+        // Rest loops while BettaReactions holds Resting (AI State.Rest).
+        controller.AddParameter("Resting", AnimatorControllerParameterType.Bool);
+        var restClip = clips.FirstOrDefault(c => c.name == "Rest");
+        if (restClip)
+        {
+            var rest = sm.AddState("Rest"); rest.motion = restClip;
+            var toRest = idle.AddTransition(rest); toRest.AddCondition(AnimatorConditionMode.If, 0, "Resting"); toRest.hasExitTime = false; toRest.duration = 0.6f;
+            var fromRest = rest.AddTransition(idle); fromRest.AddCondition(AnimatorConditionMode.IfNot, 0, "Resting"); fromRest.hasExitTime = false; fromRest.duration = 0.4f;
+        }
+
+        // Flare plays once from any state when the fish is tapped (BettaReactions).
+        controller.AddParameter("Flare", AnimatorControllerParameterType.Trigger);
+        var flareClip = clips.FirstOrDefault(c => c.name == "Flare");
+        if (flareClip)
+        {
+            var flare = sm.AddState("Flare"); flare.motion = flareClip;
+            var toFlare = sm.AddAnyStateTransition(flare); toFlare.AddCondition(AnimatorConditionMode.If, 0, "Flare"); toFlare.duration = 0.1f; toFlare.canTransitionToSelf = false;
+            var back = flare.AddTransition(idle); back.hasExitTime = true; back.exitTime = 0.95f; back.duration = 0.2f;
         }
         return controller;
     }
