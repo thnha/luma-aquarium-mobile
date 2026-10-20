@@ -2,6 +2,21 @@
 
 Scene: `Assets/_Project/Scenes/Aquarium3DPreview.unity`.
 
+## Nâng hình ảnh v2
+
+- Cây mới là cụm 19 lá Anubias với cuống uốn riêng, lá cong có UV và texture gân lá, ánh sáng hai mặt và bóng đổ cutout. Shader làm phần ngọn lá lay nhẹ; các cụm cây lệch pha theo vị trí. Chân đế đặt đồ vẫn là 0,14 m như bản trước.
+- Nước chuyển sang bốn hướng sóng có chu kỳ khác nhau, tính pháp tuyến và Fresnel để trộn phản chiếu nhẹ từ ảnh môi trường. Gợn do chạm/cá vẫn dùng tối đa bốn xung. Đây là phản chiếu giả lập từ texture, chưa phải phản chiếu hoặc khúc xạ toàn bộ scene theo độ sâu.
+- Bọt dùng bề mặt cầu tính từ billboard: tâm trong, viền tối/sáng và chấm phản chiếu nhỏ. Kích thước, tuổi thọ và tốc độ nổi khác nhau; thêm dao động nhẹ và tăng kích thước khi nổi. Giới hạn 55 hạt.
+- Giữ ảnh trước ở `BeforeNatural.png` và chuyển động cũ ở `water-preview-v1.gif`. Trang preview có thanh so sánh trước/sau; `AfterNatural.png` và `water-preview.gif` ghi lại bản mới từ Unity.
+
+Mã và asset bổ sung: `Editor/AquariumNaturalVisualsBuilder.cs`, `Shaders/AquariumLeaf.shader`, `Art/Aquarium3D/AquaticPlantNatural.prefab`, các mesh/material có hậu tố `v2`, và `Art/Aquarium3D/Textures/AnubiasLeaf-v2.png`. Đã chỉnh `AquariumWater.shader`, `AquariumBubble.shader`, chuyển động trong `AquariumDecorItem.cs` và cho builder preview áp dụng hình ảnh mới khi tạo lại scene. Các thao tác đặt/xóa/lưu bố cục giữ nguyên.
+
+Texture lá được tạo bằng built-in ImageGen, alpha trong suốt; ảnh gốc được giữ và bản sử dụng đã chép vào dự án. Prompt đầy đủ và đường dẫn gốc nằm trong `Art/Aquarium3D/Textures/AnubiasLeaf-v2.generation.json`.
+
+Đã biên dịch không lỗi/cảnh báo, render trong Play Mode và chạy lại **26 kiểm tra đạt** (thêm shader lá). Đã xác nhận bọt hoạt động với 25 hạt ở thời điểm chụp, và ghi 60 khung hình chuyển động cho bản mới. Chưa đo hiệu năng trên Android/iPhone.
+
+Muốn áp dụng lại trên preview hiện có: thoát Play rồi chọn **Lumaquarium → Preview → Upgrade Natural Plants Water and Bubbles**. Công cụ sao lưu scene, thay model cây nhưng giữ vị trí/góc xoay/tỷ lệ, rồi cập nhật vật liệu và hệ hạt. MainAquarium và Build Settings không bị chỉnh bởi công cụ này.
+
 Mở Unity rồi chọn **Lumaquarium → Preview → Play 3D Preview**. Công cụ mở scene preview riêng, cho phép thử trước khi tích hợp vào luồng chơi chính. Khi thoát Play Mode, công cụ khôi phục scene khởi đầu trước đó. Build Settings và MainAquarium được giữ nguyên.
 
 ## Cách thử
@@ -17,7 +32,7 @@ Mở Unity rồi chọn **Lumaquarium → Preview → Play 3D Preview**. Công c
 
 Đây là bản tương tác với model dựng bằng mesh cơ bản: cây có thân/lá cong, đá có bề mặt biến dạng và lũa phân nhánh. Các món mới và nền cát là geometry 3D; nền ảnh xa vẫn giữ mẫu đã duyệt. Chưa phải toàn bộ môi trường 3D hoàn chỉnh hoặc bộ asset mỹ thuật cuối cùng.
 
-Nước dùng shader gợn động với tối đa bốn xung tương tác, vệt sáng chuyển động trên bề mặt và một hệ hạt bọt khí giới hạn 70 hạt. Đây là mô phỏng thị giác nhẹ; chưa gồm mô phỏng chất lỏng vật lý, khúc xạ theo độ sâu, hóa học nước hoặc điều hướng cá tránh đồ trang trí. Kiểm tra đặt đồ dựa trên chân đế tròn, nên một số lá có thể giao nhau ở phía trên.
+Nước dùng shader gợn động với tối đa bốn xung tương tác, vệt sáng chuyển động trên bề mặt và một hệ hạt bọt khí giới hạn 55 hạt. Đây là mô phỏng thị giác nhẹ; chưa gồm mô phỏng chất lỏng vật lý, khúc xạ theo độ sâu, hóa học nước hoặc điều hướng cá tránh đồ trang trí. Kiểm tra đặt đồ dựa trên chân đế tròn, nên một số lá có thể giao nhau ở phía trên.
 
 ## Mã chính
 

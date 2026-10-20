@@ -14,7 +14,9 @@ Shader "Lumaquarium/Aquarium Leaf"
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
         TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
-        CBUFFER_START(UnityPerMaterial)
+        float _AquariumLightingActive;
+            half4 _AquariumAmbientColor;
+            CBUFFER_START(UnityPerMaterial)
         float4 _BaseMap_ST;
         half4 _BaseColor;
         float _Cutoff;
@@ -60,7 +62,7 @@ Shader "Lumaquarium/Aquarium Leaf"
                 float transmission=pow(saturate(dot(view,-light.direction)),3)*.2;
                 float gloss=pow(saturate(dot(normal,normalize(light.direction+view))),64)*.16;
                 half3 pigment=tex.rgb*_BaseColor.rgb*i.color.rgb;
-                half3 lighting=half3(.32,.4,.26)+light.color*(diffuse*.85*light.shadowAttenuation+transmission);
+                half3 lighting=lerp(half3(.32,.4,.26),_AquariumAmbientColor.rgb,_AquariumLightingActive)+light.color*(diffuse*.85*light.shadowAttenuation+transmission);
                 float fresnel=pow(1-saturate(dot(normal,view)),4);
                 return half4(pigment*lighting+light.color*gloss+pigment*fresnel*.12,1);
             }

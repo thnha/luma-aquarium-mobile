@@ -1,0 +1,30 @@
+[
+  {
+    "key": "stone",
+    "prompt": "Use case: photorealistic-natural. Asset type: seamless tileable albedo texture for natural submerged river rocks in a Unity aquarium. Create a square orthographic macro material scan, edge-to-edge stone surface only, cool medium gray slate and weathered river stone with fine cream mineral veins and sparse warm brown flecks, naturally eroded smooth pores with subtle fine granular details. Neutral even diffuse illumination, no baked directional shadow or highlights, no perspective, no individual rocks, no ground, no border, no text, no watermark. Texture must tile seamlessly on all four edges. Natural irregular mineral patterns at several scales, no checkerboard and no regular repeating geometric pattern.",
+    "source": "/Users/nha-tran/.codex/generated_images/01a159f6-18ef-7c73-b65b-d47656bfa759/exec-18bf217e-8b3e-48ae-8fc8-c327f2b020bd.png",
+    "destination": "Assets/_Project/Art/Aquarium3D/Textures/RiverStone-v3.png",
+    "tool": "built-in image_gen"
+  },
+  {
+    "key": "sand",
+    "prompt": "Use case: photorealistic-natural. Asset type: square seamless tileable albedo material texture for an aquarium sand bed. Orthographic overhead macro scan, edge-to-edge fine pale buff and beige river sand with varied tiny translucent quartz grains, subtle cream, warm gray and pale honey grains; mostly fine sand with a few millimeter flecks, no large stones. Restrained natural warm color, not vivid yellow. Entire surface in focus with even diffuse neutral lighting, no shadows, no specular highlights, no deep grooves, no footprints, no objects, no directional lighting, no perspective, no text, no border, no watermark. Seamless tiling all four edges, small-scale texture variation.",
+    "source": "/Users/nha-tran/.codex/generated_images/01a159f6-18ef-7c73-b65b-d47656bfa759/exec-2b032add-655b-4b6e-9424-1a8e982e7195.png",
+    "destination": "Assets/_Project/Art/Aquarium3D/Textures/RiverSand-v3.png",
+    "tool": "built-in image_gen"
+  },
+  {
+    "key": "wood",
+    "prompt": "Use case: photorealistic-natural. Asset type: square seamless tileable albedo material texture for aged submerged aquarium driftwood branches. Macro surface scan of water-worn dark chestnut and gray-brown hardwood, fine long irregular wood fibers and narrow fissures running VERTICALLY from bottom to top, small subtle knots, worn smooth ridges, dark crevices, warm brown inner wood hints. Edge-to-edge material only, no branch silhouette, no trees, no surrounding scene. Seamless tiling on all four edges. Flat even neutral diffuse light, no baked directional shadows or bright highlights, no perspective, no text, no border, no watermark.",
+    "source": "/Users/nha-tran/.codex/generated_images/01a159f6-18ef-7c73-b65b-d47656bfa759/exec-4d0a5834-da54-4571-96ee-b23a7924f5ad.png",
+    "destination": "Assets/_Project/Art/Aquarium3D/Textures/Driftwood-v3.png",
+    "tool": "built-in image_gen"
+  },
+  {
+    "key": "night",
+    "prompt": "Edit this aquarium environment image into the exact same scene at NIGHT. Preserve exact composition, positions, outlines, camera framing, branches, plant leaves, rocks, sand path, water surface and all depth layers. Change ONLY lighting and color grading: calm very dim underwater blue moonlight and a soft cool aquarium lamp from above, dark teal water, deep green plants, faint silver-blue rims on wet wood, stones and leaves, subdued soft water reflections. Remove the bright sunlight and golden sunbeams; replace them with very faint broad cool blue illumination. Make the overall image considerably darker than daytime but still readable in a mobile game, with a gently illuminated sand path and no crushed black areas. No sun, no visible moon disk, no stars underwater, no added fish, no added objects, no text, no HUD, no watermark. Preserve original portrait aspect ratio and geometry.",
+    "source": "/Users/nha-tran/.codex/generated_images/01a159f6-18ef-7c73-b65b-d47656bfa759/exec-c240fb07-27f3-4e42-9916-f7b120790db8.png",
+    "destination": "Assets/_Project/UI/Backgrounds/AquariumEnvironmentNight-v3.png",
+    "tool": "built-in image_gen"
+  }
+]

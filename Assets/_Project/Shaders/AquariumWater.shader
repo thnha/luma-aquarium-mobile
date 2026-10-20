@@ -3,6 +3,7 @@ Shader "Lumaquarium/Aquarium Water"
     Properties
     {
         _Strength("Wave strength", Range(0,2)) = 1
+        _NightEnvironmentTex("Night environment", 2D) = "gray" {}
         _EnvironmentTex("Aquarium reflection", 2D) = "gray" {}
     }
     SubShader
@@ -18,6 +19,8 @@ Shader "Lumaquarium/Aquarium Water"
             #pragma fragment Frag
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             TEXTURE2D(_EnvironmentTex); SAMPLER(sampler_EnvironmentTex);
+            TEXTURE2D(_NightEnvironmentTex); SAMPLER(sampler_NightEnvironmentTex);
+            float _AquariumNight;
             CBUFFER_START(UnityPerMaterial)
             float _Strength;
             float4 _Ripples[4];
@@ -64,9 +67,10 @@ Shader "Lumaquarium/Aquarium Water"
                 float fresnel=.0204+.9796*pow(1-abs(dot(normal,view)),5);
                 float2 uv=float2(.5+p.x*.16+slope.x*.16,.88+p.y*.025+slope.y*.11);
                 half3 reflected=SAMPLE_TEXTURE2D(_EnvironmentTex,sampler_EnvironmentTex,saturate(uv)).rgb;
+                reflected=lerp(reflected,SAMPLE_TEXTURE2D(_NightEnvironmentTex,sampler_NightEnvironmentTex,saturate(uv)).rgb,_AquariumNight);
                 Light sun=GetMainLight();
                 float sparkle=pow(saturate(dot(reflect(-normalize(sun.direction),normal),view)),110);
-                half3 color=lerp(half3(.06,.3,.31),reflected,fresnel*.7+.3)+sun.color*sparkle*.5;
+                half3 color=lerp(lerp(half3(.06,.3,.31),half3(.015,.055,.12),_AquariumNight),reflected,fresnel*.7+.3)+sun.color*sparkle*.5;
                 float fade=1-smoothstep(.2,2.6,p.y);
                 float alpha=(.045+fresnel*.26+sparkle*.18+impulse*.035)*fade*_Strength;
                 return half4(color,saturate(alpha));

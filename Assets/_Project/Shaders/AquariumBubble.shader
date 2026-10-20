@@ -1,6 +1,7 @@
 Shader "Lumaquarium/Aquarium Bubble"
 {
-    Properties { _EnvironmentTex("Aquarium environment", 2D) = "gray" {} }
+    Properties { _NightEnvironmentTex("Night environment", 2D) = "gray" {}
+        _EnvironmentTex("Aquarium environment", 2D) = "gray" {} }
     SubShader
     {
         Tags { "RenderPipeline"="UniversalPipeline" "Queue"="Transparent+10" "RenderType"="Transparent" }
@@ -14,6 +15,8 @@ Shader "Lumaquarium/Aquarium Bubble"
             #pragma fragment Frag
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             TEXTURE2D(_EnvironmentTex); SAMPLER(sampler_EnvironmentTex);
+            TEXTURE2D(_NightEnvironmentTex); SAMPLER(sampler_NightEnvironmentTex);
+            float _AquariumNight;
             struct Attributes { float4 positionOS:POSITION; float2 uv:TEXCOORD0; float4 color:COLOR; };
             struct Varyings { float4 positionCS:SV_POSITION; float2 uv:TEXCOORD0; float4 color:COLOR; float4 screen:TEXCOORD1; };
             Varyings Vert(Attributes i)
@@ -32,13 +35,14 @@ Shader "Lumaquarium/Aquarium Bubble"
                 float fresnel=pow(1-normal.z,3);
                 float2 uv=i.screen.xy/i.screen.w;
                 half3 environment=SAMPLE_TEXTURE2D(_EnvironmentTex,sampler_EnvironmentTex,saturate(uv+normal.xy*.018)).rgb;
+                environment=lerp(environment,SAMPLE_TEXTURE2D(_NightEnvironmentTex,sampler_NightEnvironmentTex,saturate(uv+normal.xy*.018)).rgb,_AquariumNight);
                 float2 h=p-float2(-.29,.4);
                 float highlight=exp(-dot(h,h)*145);
                 float crescent=pow(saturate(dot(normal,normalize(float3(-.5,.75,.42)))),20);
                 float rim=exp(-abs(sqrt(r2)-.94)*65);
                 float edge=1-smoothstep(.94,.99,r2);
-                half3 color=lerp(environment*.45,half3(.72,.88,.86),fresnel*.7);
-                color+=half3(1,.99,.88)*(highlight*.9+crescent*.6);
+                half3 color=lerp(environment*.45,lerp(half3(.72,.88,.86),half3(.27,.48,.75),_AquariumNight),fresnel*.7);
+                color+=lerp(half3(1,.99,.88),half3(.38,.65,1),_AquariumNight)*(highlight*.9+crescent*.6);
                 color*=1-saturate(-p.y)*rim*.48;
                 float alpha=(.035+fresnel*.38+rim*.18+highlight*.62+crescent*.25)*edge*i.color.a;
                 return half4(color,saturate(alpha));

@@ -19,6 +19,8 @@ Shader "Lumaquarium/Aquarium Nature"
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            float _AquariumLightingActive;
+            half4 _AquariumAmbientColor;
             CBUFFER_START(UnityPerMaterial)
             half4 _BaseColor;
             float _Detail;
@@ -48,7 +50,7 @@ Shader "Lumaquarium/Aquarium Nature"
                 float ca = sin(p.x * 24 + sin(p.z * 19 + _Time.y * .65) * 2 + p.y * 7);
                 float cb = cos(p.z * 25 - _Time.y * .5 + sin(p.x * 14));
                 float caustic = pow(saturate(1 - abs(ca + cb) * .7), 10) * .3;
-                float3 lighting = float3(.23,.38,.33) + light.color * (.25 + lambert * .65) * light.shadowAttenuation;
+                float3 lighting = lerp(float3(.23,.38,.33),_AquariumAmbientColor.rgb,_AquariumLightingActive) + light.color * (.25 + lambert * .65) * light.shadowAttenuation;
                 float3 result = base * (lighting + caustic * float3(.9,1,.68));
                 // Gentle distance absorption keeps the foreground legible under water.
                 float fog = saturate((distance(p, _WorldSpaceCameraPos) - 3) * .1);

@@ -2,22 +2,41 @@
 <html lang="vi">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lumaquarium · Preview đồ 3D & nước</title>
+<title>Lumaquarium · Đá, cát, lũa và ngày đêm</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#102c28;color:#fff5dd;font:16px system-ui,sans-serif}main{max-width:1250px;margin:auto;padding:32px 24px}h1{font-size:clamp(25px,4vw,38px);margin:12px 0}p{color:#cbdbc9;line-height:1.7;max-width:800px}small,.tag{color:#b5c9a7}.tag{font-size:12px;letter-spacing:2px;text-transform:uppercase}section{display:grid;grid-template-columns:minmax(0,450px) minmax(0,1fr);align-items:start;gap:28px;margin-top:28px}figure{margin:0}img{display:block;width:100%;border-radius:22px;border:1px solid #647e64;box-shadow:0 12px 36px #0004}figcaption{margin:0 0 12px;font-weight:650}a{color:#e5e4ba}code{color:#eee8ce}footer{margin:28px 0 12px;line-height:1.8;color:#b5c9a7}@media(max-width:800px){section{grid-template-columns:1fr}figure{max-width:430px;width:100%;margin:auto}main{padding:24px 18px}}
+*{box-sizing:border-box}body{margin:0;background:#102c28;color:#fff5dd;font:16px system-ui,sans-serif}main{max-width:1180px;margin:auto;padding:30px 24px}h1{font-size:clamp(25px,4vw,38px);margin:12px 0}p{color:#cbdbc9;line-height:1.7;max-width:880px}.tag,small{color:#b5c9a7}.tag{font-size:12px;letter-spacing:2px;text-transform:uppercase}section{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:28px;align-items:start}figure{margin:0;min-width:0}img{display:block;width:100%;height:auto;border-radius:22px;border:1px solid #647e64;box-shadow:0 12px 36px #0004}figcaption{margin:0 0 12px;font-weight:650}a{color:#e5e4ba}.compare{--split:50%;position:relative;aspect-ratio:1170/2532;overflow:hidden;border-radius:22px;border:1px solid #647e64}.compare img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0;border-radius:0;box-shadow:none}.compare .after{clip-path:inset(0 0 0 var(--split))}.divider{position:absolute;inset:0 auto 0 var(--split);width:2px;background:#fff5ddcc;pointer-events:none}.badge{position:absolute;top:12px;background:#102c28d9;padding:6px 10px;border-radius:30px;font-size:12px}.before-label{left:12px}.after-label{right:12px}.slider-label{display:block;font-size:14px;color:#cbdbc9;margin:16px 0 8px}input{width:100%;accent-color:#b7cb80;cursor:ew-resize}footer{margin:30px 0 12px;color:#b5c9a7;line-height:1.8}button{font:inherit;color:#fff5dd;background:#254a40;border:1px solid #7d9679;padding:10px 20px;border-radius:30px;cursor:pointer}button[aria-pressed=true]{background:#d9e0b7;color:#193c2e}.controls{display:flex;gap:10px;margin:12px 0 18px}figure>p{font-size:14px}@media(max-width:720px){main{padding:24px 18px}section{grid-template-columns:1fr;gap:32px}figure{max-width:440px;margin:auto;width:100%}}
 </style>
 <main>
-<span class="tag">Lumaquarium / Unity preview</span>
-<h1>Đặt đồ 3D. Mặt nước chuyển động.</h1>
-<p>Bản tương tác đầu tiên: cây, đá và lũa có thể đặt, xoay và xóa. Cây đung đưa, bọt khí nổi lên, gợn nước phản hồi khi chạm. Ảnh và chuyển động được ghi trực tiếp từ Unity.</p>
+<span class="tag">Lumaquarium / Natural visuals v3</span>
+<h1>Đá mòn, cát mịn, lũa có thớ. Hồ đổi ngày và đêm.</h1>
+<p>Đá có vân khoáng, sỏi rải trên nền cát hạt nhỏ, lũa uốn nhánh với thớ chạy dọc thân. Ánh sáng ngày ấm chuyển dần sang đêm xanh dịu, đồng bộ với cây, nước và bọt khí. Ảnh và chuyển động bên dưới được ghi trực tiếp từ Unity.</p>
 <section>
-<figure><figcaption>01 · Cá, nước & dòng chảy</figcaption><img src="water-preview.gif" alt="Preview động ghi từ Unity với cá Betta, cây và gợn nước"><p><small>Chuyển động thực trong Game View.</small></p></figure>
-<div><figcaption>Thử đặt đồ trong Unity</figcaption><p>Mở <strong>Lumaquarium → Preview → Play 3D Preview</strong>.</p><p>Chọn <strong>Trang trí → Cây / Đá / Lũa</strong>, kéo món trên nền cát, chọn <strong>Xoay</strong> rồi <strong>Đặt</strong>. Vòng xanh cho phép đặt; vòng đỏ báo ra ngoài hồ hoặc chồng chân đế.</p><p><strong>Hủy</strong> khôi phục thao tác đang sửa. <strong>Sửa đồ trong hồ</strong> cho phép chọn món cũ để di chuyển hoặc xóa. Bố cục được lưu cục bộ sau xác nhận.</p><p><small>25 kiểm tra tương tác, lưu/nạp, giới hạn và shader đã qua trong Play Mode.</small></p></div>
+<figure>
+<figcaption>01 · Xem ánh sáng</figcaption>
+<div class="controls" role="group" aria-label="Chọn ánh sáng preview"><button id="day" aria-pressed="true">Ban ngày</button><button id="night" aria-pressed="false">Ban đêm</button></div>
+<a id="lighting-link" href="Day.png"><img id="lighting-preview" src="Day.png" alt="Hồ ban ngày với đá, sỏi, cát và lũa 3D"></a>
+<p>Trong Unity, chạm nút <strong>Ban ngày / Ban đêm</strong> ở đầu màn hình để đổi ánh sáng trong khoảng 1,5 giây.</p>
+</figure>
+<figure><figcaption>02 · Chuyển ngày → đêm → ngày</figcaption><img src="day-night-preview.gif?v=3" alt="90 khung hình Unity ghi chuyển ánh sáng ngày đêm cùng cá, cây và bọt khí"><p>90 khung hình Game View trong gần 11 giây. <strong>39 kiểm tra đạt</strong>: đặt đồ, lưu/nạp, shader, trạng thái ngày/đêm và phản chiếu.</p></figure>
 </section>
 <section>
-<figure><figcaption>02 · Kho đồ trang trí</figcaption><a href="Inventory.png"><img src="Inventory.png" alt="Kho đồ Cây, Đá, Lũa trong Unity"></a></figure>
-<figure><figcaption>03 · Đặt cây tại vị trí hợp lệ</figcaption><a href="Placement.png"><img src="Placement.png" alt="Cây 3D với vòng xanh và các nút Xoay, Xóa, Hủy, Đặt"></a><p><small>Đã thử bằng thao tác thật: xoay 30°, xác nhận và mở lại preview để kiểm tra bố cục đã lưu.</small></p></figure>
+<figure><figcaption>03 · Góc đặt đồ: đá, sỏi, cát và lũa</figcaption><a href="Hardscape.png"><img src="Hardscape.png" alt="Góc nhìn xuống nền cát với sỏi, đá mòn và lũa có thớ" loading="lazy"></a><p>Sỏi là lớp nền trang trí. Đá và lũa vẫn chọn, di chuyển, xoay và lưu được như trước.</p></figure>
+<figure><figcaption>04 · So sánh ánh sáng ngày và đêm</figcaption>
+<div class="compare" id="comparison"><img src="Day.png" alt="Ánh sáng ngày"><img class="after" src="Night.png" alt="Ánh sáng đêm" loading="lazy"><div class="divider"></div><span class="badge before-label">NGÀY</span><span class="badge after-label">ĐÊM</span></div>
+<label class="slider-label" for="split">Kéo thanh để so sánh ánh sáng</label><input id="split" type="range" min="0" max="100" value="50" aria-label="So sánh ánh sáng ngày và đêm">
+</figure>
 </section>
-<footer>Thử trực tiếp trong Unity: <strong>Lumaquarium → Preview → Play 3D Preview</strong>.<br>Model trang trí ở mức cơ bản; nền xa vẫn dùng ảnh đã duyệt. Chưa kiểm tra hiệu năng và cảm ứng trên điện thoại thật.</footer>
+<footer>Thử trực tiếp: <strong>Lumaquarium → Preview → Play 3D Preview</strong>.<br>Vật thể tiền cảnh là mesh 3D; nền xa dùng ảnh môi trường. Nước và phản chiếu dùng shader. Chưa đo hiệu năng trên điện thoại thật.</footer>
 </main>
+<script>
+const split=document.querySelector('#split'),comparison=document.querySelector('#comparison');
+split.addEventListener('input',()=>comparison.style.setProperty('--split',split.value+'%'));
+for(const mode of ['day','night'])document.querySelector('#'+mode).addEventListener('click',()=>{
+ const night=mode==='night',file=night?'Night.png':'Day.png';
+ document.querySelector('#lighting-preview').src=file;
+ document.querySelector('#lighting-preview').alt=night?'Hồ ban đêm với ánh sáng xanh dịu':'Hồ ban ngày với đá, sỏi, cát và lũa 3D';
+ document.querySelector('#lighting-link').href=file;
+ for(const id of ['day','night'])document.querySelector('#'+id).setAttribute('aria-pressed',String(id===mode));
+});
+</script>
 </html>

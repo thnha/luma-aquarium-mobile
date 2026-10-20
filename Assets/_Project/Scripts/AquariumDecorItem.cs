@@ -10,7 +10,10 @@ public sealed class AquariumDecorItem : MonoBehaviour
     private void LateUpdate()
     {
         if (foliage != null)
-            foliage.localRotation = Quaternion.Euler(Mathf.Sin(Time.time * .8f + phase) * 2,
-                0, Mathf.Sin(Time.time * 1.1f + phase) * 3);
+        {
+            float flow = Time.time * .65f + phase + transform.position.x * 2 + transform.position.z * 3;
+            foliage.localRotation = Quaternion.Euler(Mathf.Sin(flow) * 1.2f,
+                0, Mathf.Sin(flow * 1.17f + .8f) * 1.8f);
+        }
     }
 }

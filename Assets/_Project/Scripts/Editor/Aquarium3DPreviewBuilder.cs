@@ -101,6 +101,10 @@ public static class Aquarium3DPreviewBuilder
         water.surface = waterMesh.GetComponent<Renderer>();
         water.bubbles = BuildBubbles(root, Material("Bubbles", "Lumaquarium/Aquarium Bubble"));
         BuildControls(placement, screen);
+        if (File.Exists("Assets/_Project/Art/Aquarium3D/Textures/AnubiasLeaf-v2.png"))
+            AquariumNaturalVisualsBuilder.ApplyToScene(false);
+        if (File.Exists("Assets/_Project/Art/Aquarium3D/Textures/Hardscape-v3.generation.json"))
+            AquariumHardscapeBuilder.ApplyToScene(false);
         EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
         EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
         AssetDatabase.SaveAssets();
