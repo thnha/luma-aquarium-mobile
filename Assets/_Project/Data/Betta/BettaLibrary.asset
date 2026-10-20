@@ -22,6 +22,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 080e097544bf149fa96086f000f157fc, type: 2}
   - {fileID: 11400000, guid: a6634d553dbc943bab3c182e817c8c7c, type: 2}
   - {fileID: 11400000, guid: 391f76ee48f4549b2b11a171fbbf20b6, type: 2}
+  - {fileID: 11400000, guid: 175e83588c9241b39f8e0d36199771de, type: 2}
   tails:
   - {fileID: 11400000, guid: 4732a8b46c45a4deebaaf6d416b2e9fc, type: 2}
   - {fileID: 11400000, guid: 2c0a5982ac094489a9820afda50d4ac2, type: 2}
@@ -36,6 +37,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ba11799c2a08043ad8b9faddfa2c10a5, type: 2}
   - {fileID: 11400000, guid: 737877a7fe28740c4b7618b6fdd694cc, type: 2}
   - {fileID: 11400000, guid: 245abe49fcb224fdca80a2ad5e8d01a2, type: 2}
+  - {fileID: 11400000, guid: c9f36cd54a3f4f5ab02d3cea8d2b530c, type: 2}
   palette:
   - {r: 0.78431374, g: 0.0627451, b: 0.18039216, a: 1}
   - {r: 0.12156863, g: 0.30980393, b: 0.81960785, a: 1}

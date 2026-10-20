@@ -121,6 +121,7 @@ Material:
     - _Surface: 0
     - _VariantAccentSpot: 0.3
     - _VariantBand: 0.55
+    - _VariantBandSoftness: 0.04
     - _VariantDetail: 0.6
     - _VariantDetailGain: 2.5
     - _VariantIridescence: 0

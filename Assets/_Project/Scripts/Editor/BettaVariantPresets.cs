@@ -45,11 +45,13 @@ public static class BettaVariantPresets
         crowntail.skippedFinChains = new string[0];
         doubletail.skippedFinChains = BettaFinPhysics.CrownChainRoots.Append("Tail_01").ToArray();
 
-        BettaPattern Pattern(string id, BettaPattern.Kind kind, float spot, float accentSpot, float weight)
+        BettaPattern Pattern(string id, BettaPattern.Kind kind, float spot, float accentSpot, float weight,
+            float band = 0.55f, float bandSoftness = 0.04f)
         {
             var p = Load<BettaPattern>(Dir + "/Patterns/" + id + ".asset");
             p.displayName = id; p.kind = kind;
-            p.spotThreshold = spot; p.accentThreshold = accentSpot; p.butterflyBand = 0.55f;
+            p.spotThreshold = spot; p.accentThreshold = accentSpot;
+            p.butterflyBand = band; p.butterflyBandSoftness = bandSoftness;
             p.rarityWeight = weight;
             EditorUtility.SetDirty(p);
             return p;
@@ -60,6 +62,8 @@ public static class BettaVariantPresets
         var marble = Pattern("Marble", BettaPattern.Kind.Marble, 0.5f, 0.36f, 12f);
         var koi = Pattern("Koi", BettaPattern.Kind.Koi, 0.58f, 0.3f, 8f);
         var dragon = Pattern("Dragon", BettaPattern.Kind.Dragon, 0.58f, 0.3f, 5f);
+        // Butterfly with an early, wide fade: body and fin roots in the primary, fins fade into the secondary.
+        var pearl = Pattern("Pearl", BettaPattern.Kind.Butterfly, 0.58f, 0.3f, 4f, 0.3f, 0.22f);
 
         BettaVariant Variant(string name, BettaTailType tail, BettaPattern pattern, string primary, string secondary, string accent,
             float iridescence, float head, float fin, int seed)
@@ -82,12 +86,13 @@ public static class BettaVariantPresets
             Variant("Butterfly Delta", delta, butterfly, "#D7263D", "#F2EDE4", "#FFB3BC", 0.4f, 1f, 1f, 9),
             Variant("Copper Dragon Double Tail", doubletail, dragon, "#8A2A1A", "#B5562C", "#E9C9A0", 0.9f, 1.12f, 0.95f, 14),
             Variant("Blue Marble Halfmoon", halfmoon, marble, "#2B3A8F", "#EDE6DA", "#C2185B", 0.5f, 1f, 1f, 33),
+            Variant("Aqua Pearl Halfmoon", halfmoon, pearl, "#F4F1EC", "#2EC4C6", "#BFF5F2", 0.9f, 0.98f, 1.12f, 7),
         };
 
         var library = Load<BettaVariantLibrary>(LibraryPath);
         library.variants = variants;
         library.tails = new[] { plakat, veiltail, delta, halfmoon, crowntail, doubletail };
-        library.patterns = new[] { solid, bicolor, butterfly, marble, koi, dragon };
+        library.patterns = new[] { solid, bicolor, butterfly, marble, koi, dragon, pearl };
         library.palette = new[] { "#C8102E", "#1F4FD1", "#E8562A", "#2A9D8F", "#6B3FA0", "#E8B32A", "#1B1530", "#D7263D", "#3D7BFF", "#8A2A1A", "#EDE8F2", "#0F766E" }
             .Select(Hex).ToArray();
         EditorUtility.SetDirty(library);

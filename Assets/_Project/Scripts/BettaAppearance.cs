@@ -31,6 +31,7 @@ public class BettaAppearance : MonoBehaviour
     static readonly int SpotId = Shader.PropertyToID("_VariantSpot");
     static readonly int AccentSpotId = Shader.PropertyToID("_VariantAccentSpot");
     static readonly int BandId = Shader.PropertyToID("_VariantBand");
+    static readonly int BandSoftnessId = Shader.PropertyToID("_VariantBandSoftness");
     static readonly int BaseMapId = Shader.PropertyToID("_BaseMap");
 
     static readonly string[] CaudalRoots = { "Tail_Top_01", "Tail_UpMid_01", "Tail_01", "Tail_LowMid_01", "Tail_Low_01", "Tail_Bot_01" };
@@ -85,6 +86,7 @@ public class BettaAppearance : MonoBehaviour
             block.SetFloat(SpotId, p ? p.spotThreshold : 0.58f);
             block.SetFloat(AccentSpotId, p ? p.accentThreshold : 0.3f);
             block.SetFloat(BandId, p ? p.butterflyBand : 0.55f);
+            block.SetFloat(BandSoftnessId, p ? p.butterflyBandSoftness : 0.04f);
             // Always set, so switching back to a form without its own map drops the previous one.
             Texture fallback = r.sharedMaterial && r.sharedMaterial.HasProperty(BaseMapId) ? r.sharedMaterial.GetTexture(BaseMapId) : null;
             if (baseMap || fallback) block.SetTexture(BaseMapId, baseMap ? baseMap : fallback);

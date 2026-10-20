@@ -23,6 +23,7 @@ half _VariantIridescence;
 half _VariantSpot;
 half _VariantAccentSpot;
 half _VariantBand;
+half _VariantBandSoftness;
 half _VariantDetail;
 half _VariantDetailGain;
 
@@ -49,7 +50,7 @@ half3 BettaVariantAlbedo(half3 original, float2 uv)
     if (_VariantPattern > 0.5h && _VariantPattern < 1.5h)                               // Bicolor
         finColor = lerp(lerp(P, S, 0.65h), S, saturate(edge * 3.0h));
     else if (_VariantPattern > 1.5h && _VariantPattern < 2.5h)                          // Butterfly
-        finColor = lerp(P, S, smoothstep(_VariantBand - 0.04h, _VariantBand + 0.04h, edge));
+        finColor = lerp(P, S, smoothstep(_VariantBand - _VariantBandSoftness, _VariantBand + _VariantBandSoftness, edge));
     else if (_VariantPattern > 2.5h && _VariantPattern < 4.5h)                          // Marble, Koi
     {
         half3 spots = lerp(lerp(S, P, spot), A, accentSpot);

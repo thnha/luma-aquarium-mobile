@@ -9,7 +9,7 @@ Mọi con cá dùng chung một rig (`Art/Betta/Betta.fbx`). Mỗi loại cá l�
 ## Cài đặt lần đầu
 
 1. **Lumaquarium → Build Betta Prefab.** Lệnh này bake `Art/Betta/Textures/BETTA_VariantMask.png` nếu chưa có, rồi gán mask vào `Betta.mat`.
-2. **Lumaquarium → Build Betta Variant Presets.** Lệnh này tạo 6 kiểu đuôi, 6 hoa văn, 9 variant mẫu và `Data/Betta/BettaLibrary.asset`.
+2. **Lumaquarium → Build Betta Variant Presets.** Lệnh này tạo 6 kiểu đuôi, 7 hoa văn, 10 variant mẫu và `Data/Betta/BettaLibrary.asset`.
 3. Trong `MainAquarium`, thêm component **Betta Appearance** vào `BettaRoot`, rồi chọn **Variant** (ví dụ `Data/Betta/Variants/KoiGalaxyPlakat`). Skeleton Root và Fin Physics có thể để trống, component tự tìm. Lệnh **Build Main Aquarium Scene** cũng tự thêm component này.
 
 Muốn mỗi lần chơi ra một con cá khác: để trống **Variant** và gán **Library**. Khi đó `Generate Random` tắt thì component chọn một variant mẫu theo độ hiếm; bật thì nó sinh tổ hợp mới từ danh sách kiểu đuôi, hoa văn và bảng màu trong library.
@@ -72,6 +72,11 @@ Trường **Base Map** (texture cắt alpha từ `Tools/betta_fin_cuts.py`) vẫ
 | Marble | R, B, A | Phụ làm nền, Chính và Nhấn làm vệt loang | 12 |
 | Koi | R, B, A | Phụ làm nền trắng, Chính làm đốm màu, Nhấn làm đốm đen | 8 |
 | Dragon | R | Chính cho thân, Nhấn tô lên các vảy sáng | 5 |
+| Pearl | R, G | Kiểu Butterfly với dải bắt đầu sớm (0.3) và chuyển màu mềm (0.22): thân và gốc vây màu Chính, vây loang dần sang Phụ | 4 |
+
+Butterfly và Pearl có hai trường **Butterfly Band** (vị trí dải, 0 là gốc vây, 1 là mép) và **Butterfly Band Softness** (độ rộng vùng chuyển màu; 0.04 là đường cắt gọn, càng lớn càng loang mềm).
+
+Variant **Aqua Pearl Halfmoon** (thân trắng ngọc, vây xanh ngọc loang từ gốc trắng) dùng hoa văn Pearl trên đuôi Halfmoon.
 
 Độ hiếm của một variant = trọng số đuôi × trọng số hoa văn / 10000. Trên 8% là Common, trên 3% là Uncommon, trên 0.8% là Rare, còn lại là Legendary.
 
