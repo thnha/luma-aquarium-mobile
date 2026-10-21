@@ -6,7 +6,7 @@ Trong **MainAquarium**, nhấn **Cây · Lũa · Đá** dưới nút Mua cá, ho
 
 Chọn thẻ để xem ảnh 3D, mô tả, giá, số trong kho và số đang đặt. Nhấn **Mua 1 món → Xác nhận mua** để cộng kho. **Chọn lại** không trừ xu. Chọn **Đặt vào hồ**, kéo tới vị trí, xoay rồi **Đặt**. Chỉ xác nhận đặt mới sử dụng một món trong kho. Hủy đặt giữ nguyên số lượng. **Cất** trả món về kho, không hoàn xu. Hết xu vẫn có thể đặt các món đã mua còn trong kho.
 
-Bộ mới có 24 món và 8 loại lũa theo giống gỗ; 3 mẫu ban đầu cũng đã được đưa vào shop, tổng cộng **35 lựa chọn**:
+Bộ mới có 24 món, 8 loại lũa theo giống gỗ, 6 loại đá và 6 loại san hô; 3 mẫu ban đầu cũng đã được đưa vào shop, tổng cộng **47 lựa chọn**. Đá và san hô nằm chung tab **Đá**:
 
 | Nhóm | Món | Xu/món |
 |---|---|---:|
@@ -42,6 +42,18 @@ Bộ mới có 24 món và 8 loại lũa theo giống gỗ; 3 mẫu ban đầu c
 | Lũa theo loại | Lũa Mopani (dáng nằm) | 260 |
 | Lũa theo loại | Lũa Trà Gừng (dáng đứng) | 120 |
 | Lũa theo loại | Lũa Bonsai (dáng đứng) | 320 |
+| Đá theo loại | Đá da voi | 180 |
+| Đá theo loại | Đá san hô | 150 |
+| Đá theo loại | Đá nham thạch đỏ | 110 |
+| Đá theo loại | Đá cuội biển | 80 |
+| Đá theo loại | Đá cổ thạch | 260 |
+| Đá theo loại | Đá tuyết sơn | 280 |
+| San hô | San hô vụn (san hô thật) | 90 |
+| San hô | San hô khối (san hô thật) | 190 |
+| San hô | San hô nấm (san hô sống) | 240 |
+| San hô | San hô đồng tiền (san hô sống) | 220 |
+| San hô | San hô nhân tạo nhánh | 120 |
+| San hô | San hô nhân tạo quạt | 130 |
 | Mẫu ban đầu | Ráy Anubias | 140 |
 | Mẫu ban đầu | Đá suối tròn | 80 |
 | Mẫu ban đầu | Lũa nhánh cổ thụ | 200 |
@@ -62,10 +74,11 @@ Bèo luôn đặt ở độ cao mặt nước, có rễ rủ xuống. Camera chu
 - `Scripts/UI/DecorShopScreen.cs`, `UI/Prefabs/DecorShop.prefab`: shop, xác nhận mua, kho và chuyển sang đặt đồ.
 - `Scripts/Editor/AquariumDecorCatalogBuilder.cs`: dựng mesh riêng cho cây/rêu/bèo, các kiểu lũa và đá, dùng lại shader/texture sẵn có; render ảnh từ prefab thật. Không thêm dependency.
 - `Scripts/Editor/DriftwoodSpeciesBuilder.cs`: bộ sinh lũa theo giống gỗ, mỗi loại là một bộ thông số (độ dài, độ phân nhánh, gân, u bướu, màu, dáng) cho cùng một thuật toán mọc cành. Cùng loại và seed luôn cho cùng mesh. Màu gỗ nằm ở vertex color trên texture vỏ cây trung tính `Textures/DriftwoodGrey-v3.png` (vật liệu `DecorShop/DriftwoodSpecies.mat`). Mỗi loại có 3 điểm gắn cây cách nhau ít nhất 6 cm và dưới 10.000 tam giác.
+- `Scripts/Editor/StoneCoralBuilder.cs`: bộ sinh đá và san hô theo loại từ hai khối cơ bản (khối cầu biến dạng và ống phân nhánh). Đá da voi có nếp nhăn, đá san hô/nham thạch có lỗ xốp, cổ thạch/tuyết sơn được cắt mặt phẳng góc cạnh và có vân; san hô vụn, khối vân não, san hô nấm, đồng tiền trên đá sống, san hô nhân tạo nhánh và quạt. Cùng loại và seed luôn cho cùng mesh, mỗi món dưới 10.000 tam giác. Màu nằm ở vertex color: đá và san hô thật dùng `DecorShop/StoneSpecies.mat` (texture `RiverStone-v3` chỉnh về xám trung tính), san hô sống/nhân tạo dùng `DecorShop/CoralSmooth.mat` (không texture, bóng nhẹ).
 - `Scripts/Editor/DecorShopScreenBuilder.cs`: menu **Lumaquarium → UI → Build Decoration Shop**. Chạy ở Edit Mode trong MainAquarium. Lưu bản sao scene trên đĩa và bản đang chỉnh trong `Scenes/Backups/` trước khi tích hợp. Cập nhật environment prefab dùng chung và scene; không dựng lại hồ starter.
 - `Scripts/Editor/FishShopScreenBuilder.cs`: nối lại cửa hàng trang trí khi nối HUD/shop cá.
 
-Builder giữ nguyên ba kind cũ 0/1/2; 24 món mới dùng kind 3–26; 8 loại lũa dùng kind 27–34. Trong catalog, 24 món mới đứng trước, tiếp theo là 8 loại lũa, ba mẫu ban đầu đứng cuối. Sau khi đổi catalog, chạy **Lumaquarium → UI → Build Decoration Shop** rồi **Lumaquarium → UI → Build Main Aquarium Screen** để shop và bảng Trang trí có thẻ cho món mới. Không đổi kind hoặc ID của món đã phát hành.
+Builder giữ nguyên ba kind cũ 0/1/2; 24 món mới dùng kind 3–26; 8 loại lũa dùng kind 27–34; 12 loại đá và san hô dùng kind 35–46. Trong catalog, 24 món mới đứng trước, tiếp theo là 8 loại lũa, rồi đá và san hô, ba mẫu ban đầu đứng cuối. Sau khi đổi catalog, chạy **Lumaquarium → UI → Build Decoration Shop** rồi **Lumaquarium → UI → Build Main Aquarium Screen** để shop và bảng Trang trí có thẻ cho món mới. Không đổi kind hoặc ID của món đã phát hành.
 
 ## Kiểm thử và ảnh
 
@@ -77,6 +90,7 @@ unity command eval_file --caller plugin --skill unity-cli -- --file docs/tests/d
 unity command eval_file --caller plugin --skill unity-cli -- --file docs/tests/decor-shop-inventory.cs --timeout 120000
 unity command eval_file --caller plugin --skill unity-cli -- --file docs/tests/decor-catalog-scene.cs --timeout 120000
 unity command eval_file --caller plugin --skill unity-cli -- --file docs/tests/decor-driftwood-species.cs --timeout 120000
+unity command eval_file --caller plugin --skill unity-cli -- --file docs/tests/decor-stone-coral.cs --timeout 120000
 # Play MainAquarium
 unity command eval_file --caller plugin --skill unity-cli -- --file docs/tests/decor-shop-playmode.cs --timeout 120000
 unity command eval_file --caller plugin --skill unity-cli -- --file docs/tests/decor-placement-input.cs --timeout 120000

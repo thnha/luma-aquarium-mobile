@@ -81,6 +81,29 @@ public static class AquariumDecorCatalogBuilder
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }
+        // Named stones and corals follow the driftwood species on kinds 35+ and share the Đá tab.
+        var speciesStone = SpeciesStone(); var smoothCoral = SmoothCoral();
+        int firstStoneKind = Ids.Length + 3 + DriftwoodSpeciesBuilder.All.Length;
+        for (int i = 0; i < StoneCoralBuilder.All.Length; i++)
+        {
+            var piece = StoneCoralBuilder.All[i];
+            var root = new GameObject(piece.id);
+            try
+            {
+                root.layer = 8;
+                var item = root.AddComponent<AquariumDecorItem>();
+                item.kind = firstStoneKind + i;
+                var mesh = Store(StoneCoralBuilder.Build(piece,1,out item.footprint),piece.id);
+                Model("Stone",root.transform,mesh,piece.smooth?smoothCoral:speciesStone);
+                var bounds = mesh.bounds;
+                var collider = root.AddComponent<BoxCollider>(); collider.isTrigger=true;
+                collider.center=bounds.center; collider.size=bounds.size + Vector3.one*.025f;
+                var prefab = PrefabUtility.SaveAsPrefabAsset(root, Root + "/" + piece.id + ".prefab").GetComponent<AquariumDecorItem>();
+                offers.Add(new AquariumDecorOffer { id=piece.id, displayName=piece.name, price=piece.price, prefab=prefab,
+                    category=AquariumDecorCategory.Rocks, description=piece.description, portrait=Portrait(prefab.gameObject,piece.id) });
+            }
+            finally { UnityEngine.Object.DestroyImmediate(root); }
+        }
         string[] starterIds = { "starter-anubias", "starter-stone", "starter-wood" };
         string[] starterNames = { "Ráy Anubias", "Đá suối tròn", "Lũa nhánh cổ thụ" };
         int[] starterPrices = { 140, 80, 200 };
@@ -276,6 +299,24 @@ public static class AquariumDecorCatalogBuilder
         if(material==null){material=new Material(Shader.Find("Lumaquarium/Aquarium Hardscape"));AssetDatabase.CreateAsset(material,path);}
         material.SetTexture("_BaseMap",AssetDatabase.LoadAssetAtPath<Texture2D>(texture));material.SetColor("_BaseColor",Color.white);
         material.SetFloat("_Tiling",2);material.SetFloat("_UVMode",1);material.SetFloat("_Roughness",.6f);
+        EditorUtility.SetDirty(material);return material;
+    }
+
+    // RiverStone-v3 grain tinted back to neutral grey (its mean is a warm .47), so vertex colours read true.
+    private static Material SpeciesStone()
+    {
+        string path=Root+"/StoneSpecies.mat";var material=AssetDatabase.LoadAssetAtPath<Material>(path);
+        if(material==null){material=new Material(AssetDatabase.LoadAssetAtPath<Material>(Art+"RiverStone-v3.mat"));AssetDatabase.CreateAsset(material,path);}
+        material.SetColor("_BaseColor",new Color(1.5f,1.56f,1.69f));material.SetFloat("_Tiling",4);material.SetFloat("_UVMode",0);material.SetFloat("_Roughness",.75f);
+        EditorUtility.SetDirty(material);return material;
+    }
+
+    // Live and silicone corals: no grain, a little gloss; colour comes from vertex colours only.
+    private static Material SmoothCoral()
+    {
+        string path=Root+"/CoralSmooth.mat";var material=AssetDatabase.LoadAssetAtPath<Material>(path);
+        if(material==null){material=new Material(Shader.Find("Lumaquarium/Aquarium Hardscape"));AssetDatabase.CreateAsset(material,path);}
+        material.SetTexture("_BaseMap",null);material.SetColor("_BaseColor",Color.white);material.SetFloat("_UVMode",0);material.SetFloat("_Roughness",.35f);
         EditorUtility.SetDirty(material);return material;
     }
 

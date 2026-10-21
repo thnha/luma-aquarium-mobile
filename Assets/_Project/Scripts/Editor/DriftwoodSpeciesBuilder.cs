@@ -86,6 +86,26 @@ public static class DriftwoodSpeciesBuilder
         return g.Finish(out plantMounts,out footprint);
     }
 
+    private static float Hash(int x,int y,int z)
+    {
+        unchecked
+        {
+            int h = x*374761393 + y*668265263 + z*1274126177;
+            h = (h ^ (int)((uint)h >> 13)) * 1274126177;
+            return (float)((uint)(h ^ (int)((uint)h >> 16)) / 4294967295.0);
+        }
+    }
+
+    // Smooth value noise in 0..1; the stone and coral builder shares it.
+    public static float Noise(float x,float y,float z)
+    {
+        int X = Mathf.FloorToInt(x), Y = Mathf.FloorToInt(y), Z = Mathf.FloorToInt(z);
+        float fx = x-X, fy = y-Y, fz = z-Z;
+        fx = fx*fx*(3-2*fx); fy = fy*fy*(3-2*fy); fz = fz*fz*(3-2*fz);
+        return Mathf.Lerp(Mathf.Lerp(Mathf.Lerp(Hash(X,Y,Z),Hash(X+1,Y,Z),fx),Mathf.Lerp(Hash(X,Y+1,Z),Hash(X+1,Y+1,Z),fx),fy),
+            Mathf.Lerp(Mathf.Lerp(Hash(X,Y,Z+1),Hash(X+1,Y,Z+1),fx),Mathf.Lerp(Hash(X,Y+1,Z+1),Hash(X+1,Y+1,Z+1),fx),fy),fz);
+    }
+
     private sealed class Grower
     {
         private readonly Species sp;
@@ -109,25 +129,6 @@ public static class DriftwoodSpeciesBuilder
                 t ^= t + (t ^ (t >> 7)) * (t | 61);
                 return (float)((t ^ (t >> 14)) / 4294967296.0);
             }
-        }
-
-        private static float Hash(int x,int y,int z)
-        {
-            unchecked
-            {
-                int h = x*374761393 + y*668265263 + z*1274126177;
-                h = (h ^ (int)((uint)h >> 13)) * 1274126177;
-                return (float)((uint)(h ^ (int)((uint)h >> 16)) / 4294967295.0);
-            }
-        }
-
-        private static float Noise(float x,float y,float z)
-        {
-            int X = Mathf.FloorToInt(x), Y = Mathf.FloorToInt(y), Z = Mathf.FloorToInt(z);
-            float fx = x-X, fy = y-Y, fz = z-Z;
-            fx = fx*fx*(3-2*fx); fy = fy*fy*(3-2*fy); fz = fz*fz*(3-2*fz);
-            return Mathf.Lerp(Mathf.Lerp(Mathf.Lerp(Hash(X,Y,Z),Hash(X+1,Y,Z),fx),Mathf.Lerp(Hash(X,Y+1,Z),Hash(X+1,Y+1,Z),fx),fy),
-                Mathf.Lerp(Mathf.Lerp(Hash(X,Y,Z+1),Hash(X+1,Y,Z+1),fx),Mathf.Lerp(Hash(X,Y+1,Z+1),Hash(X+1,Y+1,Z+1),fx),fy),fz);
         }
 
         private static Vector3 Perpendicular(Vector3 t) => Vector3.Cross(t,Mathf.Abs(t.y)<.9f?Vector3.up:Vector3.right).normalized;
