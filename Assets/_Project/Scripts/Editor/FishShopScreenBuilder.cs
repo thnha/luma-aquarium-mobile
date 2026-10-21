@@ -115,7 +115,8 @@ public static class FishShopScreenBuilder
         return offers;
     }
 
-    public const int LayoutVersion = 3; // 2 = shared 2.5D shop with Cá/Cây/Lũa/Đá tabs, 3 = adds the San hô tab
+    // 2 = shared 2.5D shop with Cá/Cây/Lũa/Đá tabs, 3 = adds the San hô tab, 4 = larger cards with a price pill
+    public const int LayoutVersion = 4;
 
     private static FishShopScreen CreateScreen(FishShopOffer[] offers)
     {
@@ -167,10 +168,14 @@ public static class FishShopScreenBuilder
         shop.optionSurfaces = new UnityEngine.UI.Image[offers.Length];
         shop.optionChecks = new GameObject[offers.Length];
         shop.optionPrices = new TMP_Text[offers.Length];
+        shop.optionPricePills = new UnityEngine.UI.Image[offers.Length];
+        shop.optionPriceCoins = new GameObject[offers.Length];
+        shop.priceSprite = Ui3D.Require("ui3d_price");
+        shop.freePriceSprite = Ui3D.Require("ui3d_price_free");
         for (int row = 0; row < (offers.Length + 1) / 2; row++)
         {
             var rowRect = Ui3D.Rect("Row" + row, grid);
-            rowRect.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 340;
+            rowRect.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 420;
             var horizontal = rowRect.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>();
             horizontal.spacing = 24;
             horizontal.childControlHeight = horizontal.childControlWidth = true;
@@ -193,13 +198,13 @@ public static class FishShopScreenBuilder
                 var image = Ui3D.Image("Portrait", surface.transform, null, false);
                 image.sprite = offer.portrait;
                 image.preserveAspect = true;
-                Ui3D.Edges(image.rectTransform, new Vector2(0, .4f), Vector2.one, new Vector2(16, 0), new Vector2(-16, -14));
-                var name = Ui3D.Text("Name", surface.transform, offer.variant.displayName, 38, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
-                Ui3D.Edges(name.rectTransform, new Vector2(0, .2f), new Vector2(1, .42f), new Vector2(28, 0), new Vector2(-24, 0));
-                var coin = Ui3D.Icon("Coin", surface.transform, "utility_coin");
-                Ui3D.At(coin.rectTransform, Vector2.zero, Vector2.zero, new Vector2(26, 26), new Vector2(42, 42));
-                var price = Ui3D.Text("Price", surface.transform, offer.price == 0 ? "Miễn phí" : offer.price + " xu", 34, Ui3D.Forest, true, TextAlignmentOptions.MidlineLeft);
-                Ui3D.At(price.rectTransform, Vector2.zero, Vector2.zero, new Vector2(76, 20), new Vector2(380, 54));
+                Ui3D.Edges(image.rectTransform, new Vector2(0, .45f), Vector2.one, new Vector2(12, 0), new Vector2(-12, -12));
+                var name = Ui3D.Text("Name", surface.transform, offer.variant.displayName, 46, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+                Ui3D.Edges(name.rectTransform, new Vector2(0, .25f), new Vector2(1, .45f), new Vector2(28, 0), new Vector2(-24, 0));
+                var pill = Ui3D.PricePill("PricePill", surface.transform, out var price, out var coin);
+                price.text = offer.price == 0 ? "Miễn phí" : offer.price.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"));
+                shop.optionPricePills[i] = pill;
+                shop.optionPriceCoins[i] = coin;
                 var check = Ui3D.Image("Selected", surface.transform, "ui3d_badge");
                 var tick = Ui3D.Icon("Tick", check.transform, "utility_confirm");
                 Ui3D.Stretch(tick.rectTransform, 10);
@@ -218,9 +223,10 @@ public static class FishShopScreenBuilder
         var caption = Ui3D.Text("PriceCaption", footer, "GIÁ", 30, Ui3D.Muted, true, TextAlignmentOptions.MidlineLeft);
         Ui3D.At(caption.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(54, -40), new Vector2(420, 44));
         var totalCoin = Ui3D.Icon("TotalCoin", footer, "utility_coin");
-        Ui3D.At(totalCoin.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(50, -94), new Vector2(60, 60));
-        shop.priceLabel = Ui3D.Text("SelectedPrice", footer, "350 xu", 52, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
-        Ui3D.At(shop.priceLabel.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(120, -88), new Vector2(420, 72));
+        Ui3D.At(totalCoin.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(48, -90), new Vector2(84, 84));
+        shop.priceCoin = totalCoin.gameObject;
+        shop.priceLabel = Ui3D.Text("SelectedPrice", footer, "350", 72, Ui3D.PriceInk, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.At(shop.priceLabel.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(144, -84), new Vector2(420, 96));
         shop.buyButton = Ui3D.Button("BuyButton", footer, "Mua cá", Ui3D.Style.Primary, 48);
         Ui3D.At((RectTransform)shop.buyButton.transform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-48, -36), new Vector2(440, 150));
         shop.buyLabel = shop.buyButton.GetComponentInChildren<TMP_Text>();

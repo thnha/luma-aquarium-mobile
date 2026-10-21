@@ -158,6 +158,32 @@ public static class Ui3D
         return button;
     }
 
+    public static readonly Color PriceInk = Hex("5A3A12");
+
+    // Compact price pill for shop cards, anchored bottom-right and sized to its content:
+    // a coin and the number only (gold), or a short status on the green ui3d_price_free.
+    public static Image PricePill(string name, Transform parent, out TMP_Text label, out GameObject coin)
+    {
+        var pill = Image(name, parent, "ui3d_price");
+        pill.pixelsPerUnitMultiplier = 96f / 84; // keep both rounded ends on an 84 px pill
+        At(pill.rectTransform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-14, 22), new Vector2(200, 84));
+        var row = pill.gameObject.AddComponent<HorizontalLayoutGroup>();
+        row.padding = new RectOffset(10, 26, 8, 14);
+        row.spacing = 8;
+        row.childAlignment = TextAnchor.MiddleLeft;
+        row.childControlWidth = row.childControlHeight = true;
+        row.childForceExpandWidth = row.childForceExpandHeight = false;
+        pill.gameObject.AddComponent<ContentSizeFitter>().horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+        var icon = Icon("Coin", pill.transform, "utility_coin");
+        var size = icon.gameObject.AddComponent<LayoutElement>();
+        size.preferredWidth = size.preferredHeight = 62;
+        coin = icon.gameObject;
+        label = Text("Price", pill.transform, "", 50, PriceInk, true, TextAlignmentOptions.MidlineLeft);
+        label.enableAutoSizing = false; // the pill grows with the text instead
+        label.textWrappingMode = TextWrappingModes.NoWrap;
+        return pill;
+    }
+
     public static Image Panel(string name, Transform parent)
     {
         var panel = Image(name, parent, "ui3d_panel");
@@ -265,11 +291,11 @@ public static class Ui3D
         }
 
         var hero = Rect("Selected", safe);
-        Edges(hero, new Vector2(0, 1), Vector2.one, new Vector2(44, -870), new Vector2(-44, -350));
+        Edges(hero, new Vector2(0, 1), Vector2.one, new Vector2(44, -760), new Vector2(-44, -350));
         frame.hero = hero;
 
         var sheet = Panel("SelectionSheet", content);
-        Edges(sheet.rectTransform, Vector2.zero, new Vector2(1, .5f), new Vector2(-14, -90), new Vector2(14, 90));
+        Edges(sheet.rectTransform, Vector2.zero, new Vector2(1, .5f), new Vector2(-14, -90), new Vector2(14, 200));
         frame.sheet = sheet.rectTransform;
         var footer = Solid("Footer", content, Hex("FFFAEC"));
         footer.raycastTarget = true;

@@ -4,7 +4,7 @@ Màn `Assets/_Project/Scenes/MainAquarium.unity` dùng HUD theo mẫu `../medias
 
 ## Phần đã dựng
 
-- HUD theo [redesign 2.5D](ui-redesign.md): chip cá (chân dung render từ model, tên, độ no), ví xu, nút Cài đặt và Ẩn UI, dock 5 nút Cho ăn · Chăm sóc · Trang trí · Cửa hàng · Ảnh.
+- HUD theo [redesign 2.5D](ui-redesign.md): chip cá (chân dung render từ model, tên, độ no), ví xu, nút Cài đặt và Ẩn UI, dock 5 icon không chữ đứng trên tảng đá rêu: Cho ăn · Chăm sóc · Trang trí · Cửa hàng · Ảnh.
 - Canvas tham chiếu 1080 × 1920, co theo chiều rộng, toolbar dùng HorizontalLayoutGroup và SafeArea hiện có.
 - Cho ăn gọi FeedingSystem, giữ cooldown và giới hạn viên thức ăn. Panel Chăm sóc đọc độ no và trạng thái thật từ BettaFishAI.
 - Ẩn UI giữ nút hiện lại. Sheet Cài đặt có Âm thanh, Ánh sáng ngày/đêm, Góc nhìn, Ẩn giao diện và Hồ sơ khách. Camera bị khóa khi mở sheet.

@@ -76,8 +76,6 @@ public static class MainAquariumScreenBuilder
         controller.orbit = orbit;
         controller.decoration = decoration;
         controller.hud = canvas.gameObject.AddComponent<CanvasGroup>();
-        controller.tileNormal = Ui3D.Require("ui3d_tile");
-        controller.tileActive = Ui3D.Require("ui3d_tile_selected");
         var safe = Ui3D.Rect("SafeArea", canvas);
         Ui3D.Stretch(safe);
         safe.gameObject.AddComponent<SafeArea>();
@@ -132,7 +130,7 @@ public static class MainAquariumScreenBuilder
     private static void BuildHeader(MainAquariumScreen controller, RectTransform safe)
     {
         var header = Ui3D.Rect("Header", safe);
-        Ui3D.TopStrip(header, 44, 44, 40, 290);
+        Ui3D.TopStrip(header, 44, 44, 40, 330);
         controller.header = header.gameObject;
 
         var chip = Ui3D.Image("FishNameplate", header, "ui3d_chip");
@@ -149,7 +147,7 @@ public static class MainAquariumScreenBuilder
         var track = Ui3D.Image("FullnessTrack", chip.transform, "ui3d_track");
         track.pixelsPerUnitMultiplier = 1.6f; // keep the rounded ends on a short bar
         Ui3D.At(track.rectTransform, Vector2.zero, Vector2.zero, new Vector2(224, 34), new Vector2(170, 34));
-        var fill = Filled("FullnessFill", track.transform, 5);
+        var fill = Filled("FullnessFill", track.transform, 5, 24);
         controller.hudFullnessFill = fill;
         var percent = Ui3D.Text("FullnessPercent", chip.transform, "100%", 30, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
         Ui3D.At(percent.rectTransform, Vector2.zero, Vector2.zero, new Vector2(404, 28), new Vector2(80, 44));
@@ -161,12 +159,12 @@ public static class MainAquariumScreenBuilder
         Ui3D.Stretch(ring.rectTransform, -10);
         controller.fishPortrait = portrait;
 
-        var settings = Ui3D.RoundButton("SettingsButton", header, "utility_settings");
-        Ui3D.At((RectTransform)settings.transform, Vector2.one, Vector2.one, new Vector2(0, -10), new Vector2(122, 122));
+        var settings = HeaderButton("SettingsButton", header, "utility_settings");
+        Ui3D.At((RectTransform)settings.transform, Vector2.one, Vector2.one, new Vector2(0, -2), new Vector2(150, 150));
         Wire(settings, controller.ToggleSettings);
         var wallet = Ui3D.Image("WalletButton", header, "ui3d_chip");
         wallet.raycastTarget = true;
-        Ui3D.At(wallet.rectTransform, Vector2.one, Vector2.one, new Vector2(-140, -10), new Vector2(290, 122));
+        Ui3D.At(wallet.rectTransform, Vector2.one, Vector2.one, new Vector2(-170, -16), new Vector2(290, 122));
         var walletButton = wallet.gameObject.AddComponent<UnityEngine.UI.Button>();
         walletButton.targetGraphic = wallet;
         Wire(walletButton, controller.OpenShop);
@@ -174,31 +172,42 @@ public static class MainAquariumScreenBuilder
         Ui3D.At(coin.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(16, 3), new Vector2(84, 84));
         controller.walletLabel = Ui3D.Text("Balance", wallet.transform, "1.250", 46, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
         Ui3D.Edges(controller.walletLabel.rectTransform, Vector2.zero, Vector2.one, new Vector2(106, 12), new Vector2(-22, -6));
-        var hide = Ui3D.RoundButton("HideButton", header, "utility_hide");
-        Ui3D.At((RectTransform)hide.transform, Vector2.one, Vector2.one, new Vector2(0, -150), new Vector2(122, 122));
+        var hide = HeaderButton("HideButton", header, "utility_hide");
+        Ui3D.At((RectTransform)hide.transform, Vector2.one, Vector2.one, new Vector2(0, -172), new Vector2(150, 150));
         Wire(hide, controller.ToggleHud);
     }
 
+    // Settings and hide: larger than the shared 44-point round button, with a dark edge on the
+    // glyph so it reads over the bright water surface.
+    private static UnityEngine.UI.Button HeaderButton(string name, RectTransform header, string icon)
+    {
+        var button = Ui3D.RoundButton(name, header, icon);
+        var glyph = button.transform.Find("Icon").GetComponent<UnityEngine.UI.Image>();
+        Ui3D.Edges(glyph.rectTransform, Vector2.zero, Vector2.one, new Vector2(24, 30), new Vector2(-24, -20));
+        var edge = glyph.gameObject.AddComponent<UnityEngine.UI.Outline>();
+        edge.effectColor = new Color32(35, 64, 28, 230);
+        edge.effectDistance = new Vector2(2, -2);
+        var drop = glyph.gameObject.AddComponent<UnityEngine.UI.Shadow>();
+        drop.effectColor = new Color32(35, 64, 28, 200);
+        drop.effectDistance = new Vector2(0, -5);
+        return button;
+    }
+
+    // Icon-only dock: each action stands on its own mossy stone over the gravel, no tray or labels.
     private static void BuildDock(MainAquariumScreen controller, RectTransform safe)
     {
-        var dock = Ui3D.Image("BottomBar", safe, "ui3d_dock");
-        dock.raycastTarget = true;
-        Ui3D.BottomStrip(dock.rectTransform, Side, Side, DockBottom, DockHeight);
+        var dock = Ui3D.Rect("BottomBar", safe);
+        Ui3D.BottomStrip(dock, Side - 12, Side - 12, DockBottom - 20, DockHeight);
         var layout = dock.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>();
-        layout.padding = new RectOffset(22, 22, 20, 34);
-        layout.spacing = 14;
+        layout.spacing = 8;
         layout.childControlWidth = layout.childControlHeight = true;
         layout.childForceExpandWidth = layout.childForceExpandHeight = true;
         controller.toolbar = dock.gameObject;
-        Wire(Tile("FeedButton", dock.transform, "Cho ăn", "action_feed"), controller.Feed);
-        var care = Tile("CareButton", dock.transform, "Chăm sóc", "action_care");
-        Wire(care, controller.ToggleCare);
-        controller.careTile = (UnityEngine.UI.Image)care.targetGraphic;
-        var decorate = Tile("DecorateButton", dock.transform, "Trang trí", "action_decorate");
-        Wire(decorate, controller.ToggleDecorate);
-        controller.decorateTile = (UnityEngine.UI.Image)decorate.targetGraphic;
-        Wire(Tile("ShopButton", dock.transform, "Cửa hàng", "action_shop"), controller.OpenShop);
-        Wire(Tile("PhotoButton", dock.transform, "Ảnh", "action_photo"), controller.TakePhoto);
+        Wire(Stone("FeedButton", dock, "action_feed", out _, out _), controller.Feed);
+        Wire(Stone("CareButton", dock, "action_care", out controller.careGlow, out controller.careLift), controller.ToggleCare);
+        Wire(Stone("DecorateButton", dock, "action_decorate", out controller.decorateGlow, out controller.decorateLift), controller.ToggleDecorate);
+        Wire(Stone("ShopButton", dock, "action_shop", out _, out _), controller.OpenShop);
+        Wire(Stone("PhotoButton", dock, "action_photo", out _, out _), controller.TakePhoto);
     }
 
     private static void BuildCare(MainAquariumScreen controller, RectTransform safe)
@@ -222,7 +231,7 @@ public static class MainAquariumScreenBuilder
         Ui3D.Edges(controller.hungerPercent.rectTransform, new Vector2(.6f, .5f), Vector2.one, Vector2.zero, new Vector2(-36, -12));
         var track = Ui3D.Image("HungerTrack", card.transform, "ui3d_track");
         Ui3D.Edges(track.rectTransform, Vector2.zero, new Vector2(1, .5f), new Vector2(36, 34), new Vector2(-36, -8));
-        controller.hungerFill = Filled("HungerFill", track.transform, 6);
+        controller.hungerFill = Filled("HungerFill", track.transform, 6, 36);
 
         var water = Ui3D.Text("WaterAvailability", panel, "Nước & thiết bị", 36, Ui3D.Muted, true, TextAlignmentOptions.MidlineLeft);
         Ui3D.TopStrip(water.rectTransform, 56, 300, 550, 70);
@@ -377,18 +386,29 @@ public static class MainAquariumScreenBuilder
         dock.gameObject.SetActive(false);
     }
 
-    private static UnityEngine.UI.Button Tile(string name, Transform parent, string label, string icon)
+    private static UnityEngine.UI.Button Stone(string name, Transform parent, string icon, out GameObject glow, out RectTransform lift)
     {
-        var surface = Ui3D.Image(name, parent, "ui3d_tile");
-        surface.raycastTarget = true;
-        var button = surface.gameObject.AddComponent<UnityEngine.UI.Button>();
-        button.targetGraphic = surface;
-        button.transition = UnityEngine.UI.Selectable.Transition.SpriteSwap;
-        button.spriteState = new UnityEngine.UI.SpriteState { pressedSprite = Ui3D.Require("ui3d_tile_pressed") };
-        var artwork = Ui3D.Icon("Icon", surface.transform, icon);
-        Ui3D.Edges(artwork.rectTransform, new Vector2(0, .3f), Vector2.one, new Vector2(12, 0), new Vector2(-12, -14));
-        var text = Ui3D.Text("Label", surface.transform, label, 32, Ui3D.Ink, true);
-        Ui3D.Edges(text.rectTransform, Vector2.zero, new Vector2(1, .32f), new Vector2(4, 14), new Vector2(-4, 0));
+        var hit = Ui3D.Solid(name, parent, Color.clear);
+        hit.raycastTarget = true;
+        var halo = Ui3D.Image("Glow", hit.transform, "ui3d_glow", false);
+        Ui3D.At(halo.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, -14), new Vector2(250, 96));
+        halo.gameObject.SetActive(false);
+        glow = halo.gameObject;
+        var stone = Ui3D.Image("Stone", hit.transform, "ui3d_rock", false);
+        stone.preserveAspect = true;
+        Ui3D.Edges(stone.rectTransform, Vector2.zero, new Vector2(1, 0), new Vector2(-8, 0), new Vector2(8, 64));
+        lift = Ui3D.Rect("Lift", hit.transform);
+        Ui3D.Stretch(lift);
+        var artwork = Ui3D.Icon("Icon", lift, icon);
+        Ui3D.At(artwork.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 30), new Vector2(178, 178));
+        var drop = artwork.gameObject.AddComponent<UnityEngine.UI.Shadow>();
+        drop.effectColor = new Color(0, 0, 0, .3f);
+        drop.effectDistance = new Vector2(0, -8);
+        var button = hit.gameObject.AddComponent<UnityEngine.UI.Button>();
+        button.targetGraphic = artwork;
+        var colors = button.colors;
+        colors.pressedColor = new Color(.78f, .78f, .78f);
+        button.colors = colors;
         return button;
     }
 
@@ -424,13 +444,15 @@ public static class MainAquariumScreenBuilder
         return control;
     }
 
-    private static UnityEngine.UI.Image Filled(string name, Transform track, float inset)
+    // A sliced pill whose width follows the value (MainAquariumScreen.SetFill). A Filled image
+    // would stretch the whole rounded sprite and pinch both ends on a short bar.
+    private static UnityEngine.UI.Image Filled(string name, Transform track, float inset, float height)
     {
-        var fill = Ui3D.Image(name, track, "ui3d_fill", false);
-        Ui3D.Stretch(fill.rectTransform, inset);
-        fill.type = UnityEngine.UI.Image.Type.Filled;
-        fill.fillMethod = UnityEngine.UI.Image.FillMethod.Horizontal;
-        fill.fillOrigin = 0;
+        var area = Ui3D.Rect(name + "Area", track);
+        Ui3D.Stretch(area, inset);
+        var fill = Ui3D.Image(name, area, "ui3d_fill");
+        Ui3D.Stretch(fill.rectTransform);
+        fill.pixelsPerUnitMultiplier = 40f / height; // 20 px caps = half the bar height
         return fill;
     }
 

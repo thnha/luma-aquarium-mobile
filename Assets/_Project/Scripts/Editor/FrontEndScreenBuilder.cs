@@ -115,8 +115,13 @@ public static class FrontEndScreenBuilder
         Ui3D.TopStrip((RectTransform)account.transform, 60, 60, 400, 150);
         var accountLabel = account.GetComponentInChildren<TMP_Text>();
         accountLabel.rectTransform.offsetMax = new Vector2(-200, -6);
-        var soon = Ui3D.Badge("Soon", account.transform, "Sắp có", true, out _);
+        var soon = Ui3D.Badge("Soon", account.transform, "Sắp có", true, out var soonLabel);
         Ui3D.At(soon.rectTransform, new Vector2(1, .5f), new Vector2(1, .5f), new Vector2(-34, 4), new Vector2(180, 66));
+        // Accounts are not built yet: the button stays on the grey locked surface and cannot be tapped.
+        account.interactable = false;
+        account.GetComponent<UnityEngine.UI.Image>().sprite = Ui3D.Require("ui3d_button_disabled");
+        soon.color = new Color(.86f, .84f, .8f);
+        soonLabel.color = Ui3D.Disabled;
         var note = Ui3D.Text("LocalSaveNote", card.transform, "Tiến trình chơi khách lưu trên thiết bị này", 34, Ui3D.Muted);
         Ui3D.TopStrip(note.rectTransform, 50, 50, 575, 56);
         var feedback = Text("Feedback", safe, "", 31, Cream);

@@ -713,6 +713,58 @@
       ]
     },
     {
+      "name": "ui3d_price",
+      "file": "Surfaces/ui3d_price.png",
+      "width": 128,
+      "height": 96,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        44,
+        44,
+        44,
+        49
+      ]
+    },
+    {
+      "name": "ui3d_price_free",
+      "file": "Surfaces/ui3d_price_free.png",
+      "width": 128,
+      "height": 96,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        44,
+        44,
+        44,
+        49
+      ]
+    },
+    {
+      "name": "ui3d_rock",
+      "file": "Surfaces/ui3d_rock.png",
+      "width": 640,
+      "height": 170,
+      "role": "dock pedestal",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "ui3d_glow",
+      "file": "Surfaces/ui3d_glow.png",
+      "width": 320,
+      "height": 120,
+      "role": "dock highlight",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
       "name": "ui3d_round",
       "file": "Surfaces/ui3d_round.png",
       "width": 128,

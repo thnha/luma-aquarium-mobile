@@ -19,7 +19,7 @@ Bản này dùng lại artwork, icon, font Nunito và bảng màu đã duyệt t
 |---|---|
 | Thanh trên | Trái: chip cá (chân dung, tên, thanh độ no) hoặc nút ← tròn 44 px. Phải: chip xu và nút Cài đặt. |
 | Ví xu | Luôn ở góc phải trên, trong hồ và trong cửa hàng, cùng một kiểu chip. |
-| Dock | 5 nút: Cho ăn · Chăm sóc · Trang trí · Cửa hàng · Ảnh. Nút đang mở được tô sage. |
+| Dock | 5 nút chỉ có icon, không chữ: Cho ăn · Chăm sóc · Trang trí · Cửa hàng · Ảnh. Mỗi icon đứng trên một tảng đá rêu (`ui3d_rock`), không có khay. Nút đang mở được nhấc lên trên quầng sáng sage (`ui3d_glow`). |
 | Sheet | Nền cream, bo 26 px, nổi trên dock, tiêu đề 22 px với nút ✕ ở bên phải. Chạm ✕ hoặc chạm lại nút dock thì đóng. |
 | Nút | Chính: forest, chữ cream, cao 52–54 px. Phụ: cream đậm có viền. Nút khóa: xám be. Mỗi vùng chỉ có một nút chính. |
 | Khối 2.5D | Mọi chip, nút, khay dock, sheet và hộp thoại: viền xanh rêu `#4A7A3A` dày 2–3 px, mép dưới đặc 2–3.5 px cùng màu, vệt sáng trắng 2 px ở mép trên và nền chuyển màu nhẹ. Nút chính chuyển `#5E8F4A` → `#45703A`; nút phụ nền kem, viền và mép dưới `#BFA978`. Khi nhấn, nút lún 2 px. |
@@ -64,7 +64,17 @@ Logic ví, kho và đặt đồ (`FishShopInventory`, `AquariumDecoration`) gi�
 
 - Kho Trang trí chia 3 tab Cây · Lũa · Đá, khớp với `AquariumDecorCategory` và tab cửa hàng. Preview tách riêng Rêu và Bèo, nhưng dữ liệu catalog hiện chưa có nhóm đó.
 - Ánh sáng ngày/đêm trong Cài đặt là một nút chuyển, để `AquariumLighting.label` và test cũ vẫn dùng được.
-- Icon dock Cửa hàng `action_shop.png` được vẽ bằng `Tools/UI/make_shop_icon.py`, ghép từ ảnh render cá Royal Blue và dương xỉ Java trong game.
+- Icon dock Cửa hàng `action_shop.png` là căn nhà shop mái xanh, mái hiên sọc và biển xu, vẽ bằng `Tools/UI/make_shop_icon.py` (dùng ảnh render dương xỉ Java trong game). Tảng đá và quầng sáng dưới icon dock vẽ bằng `Tools/UI/make_dock_rock.py`.
+
+### Chỉnh HUD và cửa hàng (layout 4)
+
+- Thanh độ no (chip cá và panel Chăm sóc) dùng `ui3d_fill` dạng 9-slice và đổi chiều rộng theo %, thay cho Image Filled. Filled kéo giãn cả sprite bo tròn nên hai đầu thanh bị bóp nhọn.
+- Nút Cài đặt và Ẩn UI lớn hơn (122 → 150 px, icon khoảng 100 px) và có viền tối quanh icon.
+- Thẻ cửa hàng cao hơn (340 → 420 px), ảnh chiếm nửa trên, tên 46 px. Giá nằm trong viên gọn ở góc phải dưới: viên vàng `ui3d_price` chỉ có icon xu và số, không ghi chữ "xu". Viên xanh `ui3d_price_free` dùng cho Miễn phí, Đã có và Trong hồ. Thanh dưới hiện icon xu và số 72 px. Khung chọn được nâng lên để thấy một hàng thẻ và một phần hàng sau.
+- Nút *Đăng nhập tài khoản* ở màn Khởi động dùng nền khóa `ui3d_button_disabled`, không bấm được cho tới khi có tài khoản.
+- `FishShopScreenBuilder.LayoutVersion` = 4, nên Build Fish Shop Screen và Build Decoration Shop dựng lại prefab cũ. Cảnh cũ vẫn chạy: field mới đều tùy chọn và thanh no Filled vẫn được hỗ trợ.
+
+Thứ tự dựng lại: chạy `python3 Tools/UI/make_ui3d_sprites.py`, `python3 Tools/UI/make_dock_rock.py` và `python3 Tools/UI/make_shop_icon.py` (ảnh đã có sẵn trong repo, chỉ cần chạy khi sửa script), rồi Prepare Sprite Assets → Build Front End Screens → Build Main Aquarium Screen → Build Fish Shop Screen → Build Decoration Shop.
 
 ### Đã dựng và kiểm tra (21/10/2026)
 

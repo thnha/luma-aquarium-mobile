@@ -38,6 +38,12 @@ namespace Lumaquarium.UI
         public UnityEngine.UI.Image decorateTile;
         public Sprite tileNormal;
         public Sprite tileActive;
+        // Icon-on-stone dock: the open sheet's icon lifts over a sage glow instead of swapping tiles.
+        public GameObject careGlow;
+        public GameObject decorateGlow;
+        public RectTransform careLift;
+        public RectTransform decorateLift;
+        public float activeLift = 18;
 
         private Vector3 defaultView;
         private float feedbackUntil;
@@ -63,14 +69,14 @@ namespace Lumaquarium.UI
             {
                 float fullness = 1f - Mathf.Clamp01(fish.hunger);
                 int percent = Mathf.RoundToInt(fullness * 100);
-                hungerFill.fillAmount = fullness;
+                SetFill(hungerFill, fullness);
                 if (hungerPercent != null)
                 {
                     hungerLabel.text = "Độ no";
                     hungerPercent.text = percent + "%";
                 }
                 else hungerLabel.text = $"Độ no     {percent}%";
-                if (hudFullnessFill != null) hudFullnessFill.fillAmount = fullness;
+                if (hudFullnessFill != null) SetFill(hudFullnessFill, fullness);
                 if (hudFullnessLabel != null) hudFullnessLabel.text = percent + "%";
                 behaviourLabel.text = fish.state switch
                 {
@@ -89,6 +95,19 @@ namespace Lumaquarium.UI
             if (carePortrait != null && fishPortrait != null && carePortrait.sprite != fishPortrait.sprite)
                 carePortrait.sprite = fishPortrait.sprite;
             if (walletLabel != null && Time.unscaledTime >= walletRefreshAt) RefreshWallet();
+        }
+
+        // Sliced fills keep their rounded ends by resizing; older scenes still use Filled images.
+        private static void SetFill(UnityEngine.UI.Image fill, float amount)
+        {
+            if (fill.type == UnityEngine.UI.Image.Type.Filled)
+            {
+                fill.fillAmount = amount;
+                return;
+            }
+            var rect = fill.rectTransform;
+            if (!Mathf.Approximately(rect.anchorMax.x, amount)) rect.anchorMax = new Vector2(amount, rect.anchorMax.y);
+            fill.enabled = amount > .005f;
         }
 
         // The wallet is shared with both shops and saved in PlayerPrefs; poll it cheaply.
@@ -138,9 +157,17 @@ namespace Lumaquarium.UI
         // The dock tile of an open sheet turns sage, as in the approved preview.
         private void UpdateTiles()
         {
+            Highlight(careGlow, careLift, carePanel.activeSelf);
+            Highlight(decorateGlow, decorateLift, decoratePanel.activeSelf);
             if (tileNormal == null || tileActive == null) return;
             if (careTile != null) careTile.sprite = carePanel.activeSelf ? tileActive : tileNormal;
             if (decorateTile != null) decorateTile.sprite = decoratePanel.activeSelf ? tileActive : tileNormal;
+        }
+
+        private void Highlight(GameObject glow, RectTransform lift, bool active)
+        {
+            if (glow != null) glow.SetActive(active);
+            if (lift != null) lift.anchoredPosition = new Vector2(0, active ? activeLift : 0);
         }
 
         public void ToggleHud()

@@ -141,24 +141,27 @@ public static class DecorShopScreenBuilder
         scrollRoot.gameObject.AddComponent<UnityEngine.UI.RectMask2D>();
         var scroll=scrollRoot.gameObject.AddComponent<UnityEngine.UI.ScrollRect>();scroll.horizontal=false;scroll.movementType=UnityEngine.UI.ScrollRect.MovementType.Clamped;
         var grid=Ui3D.Rect("Content",scrollRoot);Ui3D.Edges(grid,new Vector2(0,1),Vector2.one,Vector2.zero,Vector2.zero);grid.pivot=new Vector2(.5f,1);
-        var layout=grid.gameObject.AddComponent<UnityEngine.UI.GridLayoutGroup>();layout.cellSize=new Vector2(474,330);layout.spacing=new Vector2(24,24);layout.constraint=UnityEngine.UI.GridLayoutGroup.Constraint.FixedColumnCount;layout.constraintCount=2;
+        var layout=grid.gameObject.AddComponent<UnityEngine.UI.GridLayoutGroup>();layout.cellSize=new Vector2(474,420);layout.spacing=new Vector2(24,24);layout.constraint=UnityEngine.UI.GridLayoutGroup.Constraint.FixedColumnCount;layout.constraintCount=2;
         grid.gameObject.AddComponent<UnityEngine.UI.ContentSizeFitter>().verticalFit=UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize;
         scroll.viewport=scrollRoot;scroll.content=grid;
         int count=catalog.offers.Length;
         shop.optionButtons=new UnityEngine.UI.Button[count];shop.cards=new GameObject[count];shop.cardSurfaces=new UnityEngine.UI.Image[count];shop.stockLabels=new TMP_Text[count];
+        shop.priceLabels=new TMP_Text[count];
         for(int i=0;i<count;i++)
         {
             var offer=catalog.offers[i];var card=Ui3D.Image("Item_"+offer.id,grid,"ui3d_tile");card.raycastTarget=true;
             shop.cards[i]=card.gameObject;shop.cardSurfaces[i]=card;var button=card.gameObject.AddComponent<UnityEngine.UI.Button>();button.targetGraphic=card;button.transition=UnityEngine.UI.Selectable.Transition.None;shop.optionButtons[i]=button;
-            var portrait=Ui3D.Image("Portrait",card.transform,null,false);portrait.sprite=offer.portrait;portrait.preserveAspect=true;Ui3D.Edges(portrait.rectTransform,new Vector2(0,.42f),Vector2.one,new Vector2(16,0),new Vector2(-16,-14));
-            var name=Ui3D.Text("Name",card.transform,offer.displayName,38,Ui3D.Ink,true,TextAlignmentOptions.MidlineLeft);Ui3D.Edges(name.rectTransform,new Vector2(0,.22f),new Vector2(1,.42f),new Vector2(28,0),new Vector2(-24,0));
-            shop.stockLabels[i]=Ui3D.Text("Stock",card.transform,"",30,Ui3D.Forest,true,TextAlignmentOptions.MidlineLeft);Ui3D.Edges(shop.stockLabels[i].rectTransform,Vector2.zero,new Vector2(1,.22f),new Vector2(28,18),new Vector2(-20,0));
+            var portrait=Ui3D.Image("Portrait",card.transform,null,false);portrait.sprite=offer.portrait;portrait.preserveAspect=true;Ui3D.Edges(portrait.rectTransform,new Vector2(0,.45f),Vector2.one,new Vector2(12,0),new Vector2(-12,-12));
+            var name=Ui3D.Text("Name",card.transform,offer.displayName,46,Ui3D.Ink,true,TextAlignmentOptions.MidlineLeft);Ui3D.Edges(name.rectTransform,new Vector2(0,.25f),new Vector2(1,.45f),new Vector2(28,0),new Vector2(-24,0));
+            shop.stockLabels[i]=Ui3D.Text("Stock",card.transform,"",30,Ui3D.Forest,true,TextAlignmentOptions.MidlineLeft);Ui3D.Edges(shop.stockLabels[i].rectTransform,Vector2.zero,new Vector2(1,.25f),new Vector2(28,22),new Vector2(-220,0));
+            Ui3D.PricePill("PricePill",card.transform,out shop.priceLabels[i],out _);shop.priceLabels[i].text=offer.price.ToString();
         }
         shop.feedback=Ui3D.Text("Feedback",sheet,"",32,Ui3D.Ink);Ui3D.Edges(shop.feedback.rectTransform,Vector2.zero,new Vector2(1,0),new Vector2(54,390),new Vector2(-54,460));
 
         var footer=frame.footer;
         var caption=Ui3D.Text("PriceCaption",footer,"GIÁ / MÓN",30,Ui3D.Muted,true,TextAlignmentOptions.MidlineLeft);Ui3D.At(caption.rectTransform,new Vector2(0,1),new Vector2(0,1),new Vector2(54,-40),new Vector2(300,44));
-        shop.priceLabel=Ui3D.Text("Price",footer,"",52,Ui3D.Ink,true,TextAlignmentOptions.MidlineLeft);Ui3D.At(shop.priceLabel.rectTransform,new Vector2(0,1),new Vector2(0,1),new Vector2(54,-88),new Vector2(300,72));
+        var totalCoin=Ui3D.Icon("TotalCoin",footer,"utility_coin");Ui3D.At(totalCoin.rectTransform,new Vector2(0,1),new Vector2(0,1),new Vector2(48,-90),new Vector2(84,84));
+        shop.priceLabel=Ui3D.Text("Price",footer,"",72,Ui3D.PriceInk,true,TextAlignmentOptions.MidlineLeft);Ui3D.At(shop.priceLabel.rectTransform,new Vector2(0,1),new Vector2(0,1),new Vector2(144,-84),new Vector2(230,96));
         shop.placeButton=Ui3D.Button("Place",footer,"Đặt vào hồ",Ui3D.Style.Secondary,42);Ui3D.At((RectTransform)shop.placeButton.transform,Vector2.one,Vector2.one,new Vector2(-376,-36),new Vector2(300,150));
         shop.buyButton=Ui3D.Button("BuyOne",footer,"Mua 1",Ui3D.Style.Primary,46);Ui3D.At((RectTransform)shop.buyButton.transform,Vector2.one,Vector2.one,new Vector2(-48,-36),new Vector2(312,150));
 

@@ -106,6 +106,9 @@ def main():
     borders["ui3d_badge"] = surface("ui3d_badge", 64, 52, 24, 0, 0, None, "#4F7C3E", "#45703A")
     borders["ui3d_badge_light"] = surface("ui3d_badge_light", 64, 52, 24, 0, 0, None, "#E9DDBC", "#E9DDBC")
     borders["ui3d_hint"] = surface("ui3d_hint", 96, 96, 34, 0, 0, None, "#2E4A27", "#2E4A27")
+    # Price pills on shop cards: gold for a price in xu, green for free or already owned.
+    borders["ui3d_price"] = surface("ui3d_price", 128, 96, 42, 4, 5, "#C99A35", "#FFF1C2", "#F3CF6E", 4, 255)
+    borders["ui3d_price_free"] = surface("ui3d_price_free", 128, 96, 42, 4, 5, "#5E8F4A", "#EEF7E2", "#C9E0A8", 4, 255)
     # Circles are drawn whole, not sliced.
     surface("ui3d_round", 128, 128, 64, 7, 7, MOSS, "#86B86A", "#558A43", 6, 255, highlight_color="#A9D490")
     surface("ui3d_round_pressed", 128, 128, 64, 7, 7, MOSS, "#76A65C", "#4B7C3B", 4, 255, pressed=True, highlight_color="#93C27A")
