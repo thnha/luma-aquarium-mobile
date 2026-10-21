@@ -69,3 +69,6 @@ crashlytics-build.properties
 
 # macOS
 .DS_Store
+
+# Python bytecode from Tools scripts
+__pycache__/
