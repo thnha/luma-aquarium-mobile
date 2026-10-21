@@ -371,13 +371,10 @@ public static class MainAquariumScreenBuilder
             button.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = i == 3 ? 1.6f : 1;
             Wire(button, actions[i]);
         }
-        // Nghiêng sits beside Xoay and shows only while a piece of driftwood is selected.
-        var tilt = Ui3D.Button("PlacementTilt", dock.transform, "Nghiêng", Ui3D.Style.Secondary, 44);
-        tilt.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
-        tilt.transform.SetSiblingIndex(1);
-        Wire(tilt, decoration.Tilt);
-        decoration.tiltButton = tilt.gameObject;
-        tilt.gameObject.SetActive(false);
+        // Nghiêng (driftwood) and Tỉa / Mọc (rooted plants) sit after Xoay and show only for those pieces.
+        decoration.tiltButton = ContextButton(dock.transform, "PlacementTilt", "Nghiêng", decoration.Tilt, 1);
+        decoration.trimButton = ContextButton(dock.transform, "PlacementTrim", "Tỉa", decoration.Trim, 2);
+        decoration.growButton = ContextButton(dock.transform, "PlacementGrow", "Mọc", decoration.Grow, 3);
         var chip = Ui3D.Image("InstructionChip", dock.transform, "ui3d_hint");
         chip.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().ignoreLayout = true;
         Ui3D.At(chip.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 0), new Vector2(0, 24), new Vector2(940, 104));
@@ -386,6 +383,16 @@ public static class MainAquariumScreenBuilder
         decoration.dock = dock.gameObject;
         decoration.instruction = hint;
         dock.gameObject.SetActive(false);
+    }
+
+    private static GameObject ContextButton(Transform dock, string name, string label, UnityAction action, int slot)
+    {
+        var button = Ui3D.Button(name, dock, label, Ui3D.Style.Secondary, 44);
+        button.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
+        button.transform.SetSiblingIndex(slot);
+        Wire(button, action);
+        button.gameObject.SetActive(false);
+        return button.gameObject;
     }
 
     private static UnityEngine.UI.Button Stone(string name, Transform parent, string icon, out GameObject glow, out RectTransform lift)

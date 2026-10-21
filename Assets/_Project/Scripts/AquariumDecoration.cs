@@ -16,7 +16,7 @@ public sealed class AquariumDecoration : MonoBehaviour
     public OrbitTouchCamera orbit;
     public Lumaquarium.UI.MainAquariumScreen screen;
     public GameObject dock;
-    public GameObject tiltButton;
+    public GameObject tiltButton, trimButton, growButton;
     public TMP_Text instruction;
     public LineRenderer selectionRing;
     public AquariumWaterEffects water;
@@ -37,8 +37,17 @@ public sealed class AquariumDecoration : MonoBehaviour
     public AquariumDecorItem Selected { get; private set; }
     private bool isNew;
     private bool returnToInventory;
+    private AquariumCarpet carpet;
+    // Carpet brush: the species being painted (0 when not brushing), its shop kind, erase mode and the
+    // carpet as it was when the brush opened, for Hủy.
+    private int brushSpecies, brushKind;
+    private bool erasing;
+    private byte[] carpetBefore;
+    private readonly Dictionary<GameObject, string> dockLabels = new Dictionary<GameObject, string>();
+    public bool Brushing => brushSpecies > 0;
     private Vector3 originalPosition;
     private Quaternion originalRotation;
+    private Vector3 originalScale;
     private Transform originalParent;
     private Vector3 cameraPosition;
     private Quaternion cameraRotation;
@@ -61,13 +70,14 @@ public sealed class AquariumDecoration : MonoBehaviour
     }
 
     public bool HasRoomFor(int kind) =>
-        kind >= 0 && kind < prefabs.Length && prefabs[kind] != null && Points + Mathf.Max(1, prefabs[kind].points) <= capacity;
+        kind >= 0 && kind < prefabs.Length && prefabs[kind] != null &&
+        (prefabs[kind].carpet > 0 || Points + Mathf.Max(1, prefabs[kind].points) <= capacity);
 
     [Serializable] private class Layout { public List<Entry> items = new List<Entry>(); }
     [Serializable] private class Entry
     {
         public int kind;
-        public float x, y, z, yaw, tilt;
+        public float x, y, z, yaw, tilt, height;
         public string id, parentId;
     }
 
@@ -82,7 +92,7 @@ public sealed class AquariumDecoration : MonoBehaviour
     // Height of the sand at a point; the sand bed mesh is shaped with the same curve.
     public float SandAt(Vector3 p) => floorY + sandRise * Mathf.SmoothStep(0, 1, Mathf.InverseLerp(sandRiseFrom, sandRiseTo, p.z));
 
-    private float Height(AquariumDecorItem item, Vector3 p) => item.floats && water != null ? water.surfaceY - .012f : SandAt(p);
+    private float Height(AquariumDecorItem item, Vector3 p) => item != null && item.floats && water != null ? water.surfaceY - .012f : SandAt(p);
     // The back glass is the far edge of the placement area; moss walls cover it up to below the surface.
     private float WallZ => max.y;
     private float WallTop => water != null ? water.surfaceY - .08f : floorY + 1.8f;
@@ -168,28 +178,35 @@ public sealed class AquariumDecoration : MonoBehaviour
             }
             new Lumaquarium.UI.FishShopInventory(inventoryStorageKey).ImportStarterDecor(starter);
         }
-        EnsureTiltButton();
+        carpet = GetComponent<AquariumCarpet>();
+        if (carpet == null) carpet = gameObject.AddComponent<AquariumCarpet>();
+        carpet.Init(this);
+        if (GetComponent<AquariumDepthOfField>() == null) gameObject.AddComponent<AquariumDepthOfField>();
+        tiltButton = DockButton(tiltButton, "PlacementTilt", "Nghiêng", Tilt, 1);
+        trimButton = DockButton(trimButton, "PlacementTrim", "Tỉa", Trim, 2);
+        growButton = DockButton(growButton, "PlacementGrow", "Mọc", Grow, 3);
         dock.SetActive(false);
         selectionRing.gameObject.SetActive(false);
     }
 
-    // Docks built before the Nghiêng button get one copied from Xoay.
-    private void EnsureTiltButton()
+    // Docks built before a button existed get one copied from Xoay, placed the given number of slots after it.
+    private GameObject DockButton(GameObject button, string name, string label, UnityEngine.Events.UnityAction action, int after)
     {
-        if (tiltButton == null)
+        if (button == null)
         {
             var rotate = dock.transform.Find("PlacementAction0");
-            if (rotate == null) return;
-            tiltButton = Instantiate(rotate.gameObject, rotate.parent);
-            tiltButton.name = "PlacementTilt";
-            tiltButton.transform.SetSiblingIndex(rotate.GetSiblingIndex() + 1);
-            var label = tiltButton.GetComponentInChildren<TMP_Text>();
-            if (label != null) label.text = "Nghiêng";
-            var button = tiltButton.GetComponent<UnityEngine.UI.Button>();
-            button.onClick = new UnityEngine.UI.Button.ButtonClickedEvent();
-            button.onClick.AddListener(Tilt);
+            if (rotate == null) return null;
+            button = Instantiate(rotate.gameObject, rotate.parent);
+            button.name = name;
+            button.transform.SetSiblingIndex(rotate.GetSiblingIndex() + after);
+            var text = button.GetComponentInChildren<TMP_Text>();
+            if (text != null) text.text = label;
+            var control = button.GetComponent<UnityEngine.UI.Button>();
+            control.onClick = new UnityEngine.UI.Button.ButtonClickedEvent();
+            control.onClick.AddListener(action);
         }
-        tiltButton.SetActive(false);
+        button.SetActive(false);
+        return button;
     }
 
     public void BeginPlant() => OpenShop(0);
@@ -213,6 +230,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         OpenEditor();
         // Placing from the Trang trí sheet returns to it, so the next item is one tap away.
         returnToInventory = true;
+        if (prefabs[kind].carpet > 0) { BeginBrush(kind); return true; }
         if (!HasRoomFor(kind))
         {
             instruction.text = $"Hồ đã dùng {Points}/{capacity} điểm, món này cần {Mathf.Max(1, prefabs[kind].points)}. Cất bớt đồ để đặt.";
@@ -226,6 +244,53 @@ public sealed class AquariumDecoration : MonoBehaviour
         isNew = true;
         RefreshSelection();
         return true;
+    }
+
+    // The dock becomes the brush's: Tẩy/Trải switches erasing, Hủy undoes the session, Xong keeps it.
+    private void BeginBrush(int kind)
+    {
+        brushKind = kind;
+        brushSpecies = prefabs[kind].carpet;
+        erasing = false;
+        carpetBefore = carpet.Snapshot();
+        Relabel("PlacementAction1", "Tẩy");
+        Relabel("PlacementAction3", "Xong");
+        var rotate = dock.transform.Find("PlacementAction0");
+        if (rotate != null) rotate.gameObject.SetActive(false);
+        BrushHint();
+    }
+
+    private int BrushAllowance => Available(brushKind) * AquariumCarpet.PackCells;
+
+    private void BrushHint()
+    {
+        int left = Mathf.Max(0, BrushAllowance - carpet.Count(brushSpecies));
+        instruction.text = erasing ? "Kéo trên cát để xoá thảm • Chọn Trải để trải tiếp" :
+            left > 0 ? $"Kéo trên cát để trải thảm • Còn {left} ô • Chọn Xong để lưu" : "Đã trải hết số ô đã mua • Mua thêm gói trong cửa hàng";
+    }
+
+    private void Relabel(string name, string label)
+    {
+        var button = dock.transform.Find(name);
+        var text = button != null ? button.GetComponentInChildren<TMP_Text>() : null;
+        if (text == null) return;
+        if (!dockLabels.ContainsKey(button.gameObject)) dockLabels[button.gameObject] = text.text;
+        text.text = label;
+    }
+
+    private void EndBrush()
+    {
+        if (!Brushing) return;
+        brushSpecies = 0;
+        carpetBefore = null;
+        foreach (var entry in dockLabels)
+        {
+            var text = entry.Key.GetComponentInChildren<TMP_Text>();
+            if (text != null) text.text = entry.Value;
+        }
+        dockLabels.Clear();
+        var rotate = dock.transform.Find("PlacementAction0");
+        if (rotate != null) rotate.gameObject.SetActive(true);
     }
 
     public void EditExisting()
@@ -259,6 +324,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         originalParent = item.transform.parent;
         originalPosition = item.transform.position;
         originalRotation = item.transform.rotation;
+        originalScale = item.transform.localScale;
         isNew = false;
         FrameSelection();
         RefreshSelection();
@@ -324,20 +390,20 @@ public sealed class AquariumDecoration : MonoBehaviour
             var wood = WoodAlongRay(ray, out var hitPoint);
             if (wood != null) return AttachTo(wood, hitPoint);
         }
-        return SurfaceHit(ray, out var point) && MoveTo(point);
+        return SurfaceHit(ray, Selected, out var point) && MoveTo(point);
     }
 
     // Where the ray meets the sand (or the water surface for floating plants). The sloped sand is
     // found by meeting the flat height first, then refining at the sand height found there.
-    private bool SurfaceHit(Ray ray, out Vector3 point)
+    private bool SurfaceHit(Ray ray, AquariumDecorItem item, out Vector3 point)
     {
         point = default;
-        float height = Height(Selected, new Vector3(0, 0, min.y));
+        float height = Height(item, new Vector3(0, 0, min.y));
         for (int step = 0; step < 3; step++)
         {
             if (!new Plane(Vector3.up, new Vector3(0, height, 0)).Raycast(ray, out float distance)) return false;
             point = ray.GetPoint(distance);
-            height = Height(Selected, point);
+            height = Height(item, point);
         }
         return true;
     }
@@ -424,8 +490,36 @@ public sealed class AquariumDecoration : MonoBehaviour
         RefreshSelection();
     }
 
+    // Rooted plants can be trimmed to 0.6× or grown to 1.6× their height, in steps of 0.2.
+    private static bool Trimmable(AquariumDecorItem item) => item != null && item.foliage != null && !item.floats && !item.wallMounted;
+    public void Trim() => Resize(-.2f);
+    public void Grow() => Resize(.2f);
+
+    private void Resize(float step)
+    {
+        if (!Trimmable(Selected)) return;
+        float height = Mathf.Clamp(Mathf.Round((Selected.transform.localScale.y + step) * 10) / 10, .6f, 1.6f);
+        SetHeight(Selected, height);
+        RefreshSelection();
+        instruction.text = $"Chiều cao ×{height:0.0} • Tỉa hoặc Mọc tiếp, rồi chọn Đặt";
+    }
+
+    // Taller plants also spread a little, so the leaves don't look stretched.
+    private static void SetHeight(AquariumDecorItem item, float height)
+    {
+        float spread = Mathf.Pow(height, .3f);
+        item.transform.localScale = new Vector3(spread, height, spread);
+    }
+
     public bool ConfirmPlacement()
     {
+        if (Brushing)
+        {
+            carpet.Save();
+            EndBrush();
+            CloseEditor();
+            return true;
+        }
         if (Selected == null || !CanPlace(Selected, Selected.transform.position)) return false;
         if (isNew && (Points + Mathf.Max(1, Selected.points) > capacity || Available(Selected.kind) <= 0)) return false;
         if (isNew) items.Add(Selected);
@@ -442,6 +536,13 @@ public sealed class AquariumDecoration : MonoBehaviour
 
     public void Delete()
     {
+        if (Brushing)
+        {
+            erasing = !erasing;
+            Relabel("PlacementAction1", erasing ? "Trải" : "Tẩy");
+            BrushHint();
+            return;
+        }
         if (Selected == null) return;
         if (!isNew)
             items.RemoveAll(x => x == Selected || (x != null && x.transform.IsChildOf(Selected.transform)));
@@ -455,6 +556,8 @@ public sealed class AquariumDecoration : MonoBehaviour
 
     public void Cancel()
     {
+        if (Brushing) carpet.Restore(carpetBefore);
+        EndBrush();
         RestoreSelection();
         CloseEditor();
     }
@@ -467,6 +570,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         {
             Selected.transform.SetParent(originalParent, true);
             Selected.transform.SetPositionAndRotation(originalPosition, originalRotation);
+            Selected.transform.localScale = originalScale;
         }
         Selected = null;
         isNew = false;
@@ -477,7 +581,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         if (!Editing) return;
         Editing = false;
         dock.SetActive(false);
-        if (tiltButton != null) tiltButton.SetActive(false);
+        foreach (var button in new[] { tiltButton, trimButton, growButton }) if (button != null) button.SetActive(false);
         selectionRing.gameObject.SetActive(false);
         screen.toolbar.SetActive(true);
         viewCamera.transform.SetPositionAndRotation(cameraPosition, cameraRotation);
@@ -505,6 +609,11 @@ public sealed class AquariumDecoration : MonoBehaviour
             if (pressed > 1) return;
         }
         Ray ray = viewCamera.ScreenPointToRay(position);
+        if (Brushing)
+        {
+            if (SurfaceHit(ray, null, out var sand) && carpet.Paint(sand, .1f, erasing ? 0 : brushSpecies, BrushAllowance)) BrushHint();
+            return;
+        }
         if (Selected != null && Selected.attachable && WoodAlongRay(ray, out _) != null)
         { MoveAlongRay(ray); return; }
         if (Physics.Raycast(ray, out var hit, 30, 1 << 8, QueryTriggerInteraction.Collide))
@@ -538,6 +647,8 @@ public sealed class AquariumDecoration : MonoBehaviour
         bool valid = CanPlace(Selected, Selected.transform.position);
         bool attached = Selected.transform.parent != itemsRoot;
         if (tiltButton != null) tiltButton.SetActive(Selected.tiltable && !attached);
+        if (trimButton != null) trimButton.SetActive(Trimmable(Selected));
+        if (growButton != null) growButton.SetActive(Trimmable(Selected));
         instruction.text = !valid ? "Vòng đỏ: ra ngoài hồ hoặc chồng đồ. Kéo sang chỗ trống." :
             attached ? "Đã gắn lên lũa/đá • Xoay rồi chọn Đặt" :
             Selected.wallMounted ? "Kéo trên kính sau hồ • Ghép nhiều tấm thành tường rêu • Chọn Đặt" :
@@ -583,7 +694,8 @@ public sealed class AquariumDecoration : MonoBehaviour
             layout.items.Add(new Entry { kind = item.kind, id = item.instanceId, parentId = host != null ? host.instanceId : "",
                 x = position.x, y = position.y, z = position.z,
                 yaw = host != null ? item.transform.localEulerAngles.y : item.transform.eulerAngles.y,
-                tilt = host != null || !item.tiltable ? 0 : Mathf.DeltaAngle(0, item.transform.eulerAngles.z) });
+                tilt = host != null || !item.tiltable ? 0 : Mathf.DeltaAngle(0, item.transform.eulerAngles.z),
+                height = Trimmable(item) ? item.transform.localScale.y : 1 });
         }
         PlayerPrefs.SetString(storageKey, JsonUtility.ToJson(layout));
         PlayerPrefs.Save();
@@ -601,12 +713,14 @@ public sealed class AquariumDecoration : MonoBehaviour
         {
             if (entry == null || entry.kind < 0 || entry.kind >= prefabs.Length || prefabs[entry.kind] == null ||
                 !float.IsFinite(entry.x) || !float.IsFinite(entry.y) || !float.IsFinite(entry.z) || !float.IsFinite(entry.yaw) ||
-                !float.IsFinite(entry.tilt))
+                !float.IsFinite(entry.tilt) || !float.IsFinite(entry.height))
             { Discard(loaded); return; }
             string id = string.IsNullOrEmpty(entry.id) ? Guid.NewGuid().ToString("N") : entry.id;
             if (byId.ContainsKey(id)) { Discard(loaded); return; }
             var item = Instantiate(prefabs[entry.kind], itemsRoot);
             item.instanceId = id;
+            // Saves from before trimming have no height (0).
+            if (Trimmable(item) && entry.height > 0) SetHeight(item, Mathf.Clamp(entry.height, .6f, 1.6f));
             byId.Add(id, item);
             loaded.Add(item);
         }

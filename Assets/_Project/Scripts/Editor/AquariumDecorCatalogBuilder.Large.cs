@@ -94,6 +94,54 @@ public static partial class AquariumDecorCatalogBuilder
         AddPiece(offers,"rotala-tall","Hồng liễu Rotala cao",200,AquariumDecorCategory.Plants,
             "Bụi thân đứng cao, ngọn đỏ cam · Trồng hậu cảnh · 1 điểm",kind++,1,item =>
             { item.footprint=.16f;BuildPlant(item,3,3f,"rotala-tall"); });
+        AddPiece(offers,"amazon-sword","Kiếm Amazon",220,AquariumDecorCategory.Plants,
+            "Bụi lá to hình lưỡi kiếm, làm điểm nhấn trung cảnh · Tỉa hoặc cho mọc cao · 2 điểm",kind++,2,item =>
+            { item.footprint=.22f;BuildSword(item); });
+        AddPiece(offers,"stone-cliff","Đá vách núi",800,AquariumDecorCategory.Rocks,
+            "Khối đá dài nhiều tầng dựng sát kính sau, che phần hồ phía sau và tạo chiều sâu · 3 điểm",kind++,3,item =>
+            {
+                Model("Stone",item.transform,Fitted(Piece("stone-elephant-skin"),new Vector3(.95f,1.3f,.34f),"stone-cliff"),speciesStone);
+                item.footprint=.3f;item.supportsPlants=true;item.plantMounts=TopMounts(item.gameObject);
+            });
+        // Carpets are painted with the brush; the prefab is a patch for the shop portrait.
+        string[] carpetIds={"carpet-hairgrass","carpet-monte-carlo"};
+        string[] carpetNames={"Thảm Ngưu mao chiên","Thảm Trân châu Nhật"};
+        int[] carpetPrices={60,70};
+        for(int i=0;i<carpetIds.Length;i++)
+        {
+            int species=i+1;string id=carpetIds[i];
+            AddPiece(offers,id,carpetNames[i],carpetPrices[i],AquariumDecorCategory.Plants,
+                $"Gói {AquariumCarpet.PackCells} ô thảm tiền cảnh · Chọn rồi kéo trên cát để trải, Tẩy để xoá · Không tính điểm",kind++,0,item =>
+                {
+                    item.carpet=species;item.footprint=.1f;
+                    var vertices=new List<Vector3>();var colors=new List<Color>();var triangles=new List<int>();
+                    var random=new System.Random(species);
+                    for(int x=-2;x<=2;x++)for(int z=-1;z<=1;z++)
+                        AquariumCarpet.AddTuft(vertices,colors,triangles,species,new Vector3(x*.035f,0,z*.035f),random);
+                    var mesh=new Mesh();mesh.SetVertices(vertices);mesh.SetColors(colors);mesh.SetTriangles(triangles,0);
+                    mesh.RecalculateNormals();mesh.RecalculateBounds();
+                    Model("Leaves",item.transform,Store(mesh,id),Nature("Carpet",Color.white));
+                });
+        }
+    }
+
+    // A rosette of broad blades: inner leaves stand upright, outer ones arch outward.
+    private static void BuildSword(AquariumDecorItem item)
+    {
+        item.foliage=new GameObject("SwayingFoliage").transform;item.foliage.SetParent(item.transform,false);
+        item.phase=2.1f;
+        var leaves=new Geometry();var stems=new Geometry();var random=new System.Random(907);
+        for(int n=0;n<16;n++)
+        {
+            float a=n*2.39996f,r=(float)random.NextDouble(),lean=.25f+.45f*(n%4)/3f;
+            var radial=new Vector3(Mathf.Cos(a),0,Mathf.Sin(a));
+            Vector3 petiole=radial*(.02f+lean*.06f)+Vector3.up*(.08f+r*.06f);
+            stems.Tube(Vector3.zero,petiole*.5f+Vector3.up*.02f,petiole,.004f,.003f,5,5);
+            Vector3 tip=petiole+(radial*lean+Vector3.up*(1-lean*.5f)).normalized*(.32f+r*.26f);
+            leaves.Blade(petiole,tip,.07f+r*.03f,radial,12);
+        }
+        Model("Leaves",item.foliage,leaves.Save("amazon-sword-leaves"),Nature("amazon-sword-leaf",new Color(.33f,.62f,.16f)));
+        Model("Stems",item.foliage,stems.Save("amazon-sword-stems"),Nature("PlantStem",new Color(.19f,.30f,.07f)));
     }
 
     // The wanted scale, reduced so the piece stays under the surface and inside the tank.

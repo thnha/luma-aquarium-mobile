@@ -18,6 +18,8 @@ public sealed class AquariumDecorItem : MonoBehaviour
     public int points = 1;
     // Driftwood can lean sideways with the Nghiêng button.
     public bool tiltable;
+    // A carpet species painted with the brush (AquariumCarpet) instead of placed; 0 for everything else.
+    public int carpet;
 
     // Stones, wood and corals: they can rest on top of one another.
     public bool Stacks => !floats && !wallMounted && !attachable && foliage == null;
