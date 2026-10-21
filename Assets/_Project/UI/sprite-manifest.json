@@ -451,6 +451,318 @@
         48,
         48
       ]
+    },
+    {
+      "name": "ui3d_panel",
+      "file": "Surfaces/ui3d_panel.png",
+      "width": 240,
+      "height": 240,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        74,
+        74,
+        74,
+        84
+      ]
+    },
+    {
+      "name": "ui3d_dock",
+      "file": "Surfaces/ui3d_dock.png",
+      "width": 240,
+      "height": 240,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        74,
+        74,
+        74,
+        84
+      ]
+    },
+    {
+      "name": "ui3d_chip",
+      "file": "Surfaces/ui3d_chip.png",
+      "width": 160,
+      "height": 156,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        72,
+        72,
+        72,
+        79
+      ]
+    },
+    {
+      "name": "ui3d_button_primary",
+      "file": "Surfaces/ui3d_button_primary.png",
+      "width": 160,
+      "height": 160,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        46,
+        46,
+        46,
+        53
+      ]
+    },
+    {
+      "name": "ui3d_button_primary_pressed",
+      "file": "Surfaces/ui3d_button_primary_pressed.png",
+      "width": 160,
+      "height": 160,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        46,
+        46,
+        46,
+        53
+      ]
+    },
+    {
+      "name": "ui3d_button_secondary",
+      "file": "Surfaces/ui3d_button_secondary.png",
+      "width": 160,
+      "height": 160,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        46,
+        46,
+        46,
+        52
+      ]
+    },
+    {
+      "name": "ui3d_button_secondary_pressed",
+      "file": "Surfaces/ui3d_button_secondary_pressed.png",
+      "width": 160,
+      "height": 160,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        46,
+        46,
+        46,
+        52
+      ]
+    },
+    {
+      "name": "ui3d_button_disabled",
+      "file": "Surfaces/ui3d_button_disabled.png",
+      "width": 160,
+      "height": 160,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        46,
+        46,
+        46,
+        52
+      ]
+    },
+    {
+      "name": "ui3d_tile",
+      "file": "Surfaces/ui3d_tile.png",
+      "width": 160,
+      "height": 160,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        46,
+        46,
+        46,
+        52
+      ]
+    },
+    {
+      "name": "ui3d_tile_pressed",
+      "file": "Surfaces/ui3d_tile_pressed.png",
+      "width": 160,
+      "height": 160,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        46,
+        46,
+        46,
+        52
+      ]
+    },
+    {
+      "name": "ui3d_tile_selected",
+      "file": "Surfaces/ui3d_tile_selected.png",
+      "width": 160,
+      "height": 160,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        46,
+        46,
+        46,
+        52
+      ]
+    },
+    {
+      "name": "ui3d_tile_empty",
+      "file": "Surfaces/ui3d_tile_empty.png",
+      "width": 160,
+      "height": 160,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        46,
+        46,
+        46,
+        52
+      ]
+    },
+    {
+      "name": "ui3d_tab_tray",
+      "file": "Surfaces/ui3d_tab_tray.png",
+      "width": 128,
+      "height": 128,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        42,
+        42,
+        42,
+        49
+      ]
+    },
+    {
+      "name": "ui3d_tab_tray_light",
+      "file": "Surfaces/ui3d_tab_tray_light.png",
+      "width": 128,
+      "height": 128,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        42,
+        42,
+        42,
+        46
+      ]
+    },
+    {
+      "name": "ui3d_tab_on",
+      "file": "Surfaces/ui3d_tab_on.png",
+      "width": 128,
+      "height": 128,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        34,
+        34,
+        34,
+        39
+      ]
+    },
+    {
+      "name": "ui3d_track",
+      "file": "Surfaces/ui3d_track.png",
+      "width": 64,
+      "height": 48,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        24,
+        24,
+        24,
+        24
+      ]
+    },
+    {
+      "name": "ui3d_fill",
+      "file": "Surfaces/ui3d_fill.png",
+      "width": 64,
+      "height": 40,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        20,
+        20,
+        20,
+        20
+      ]
+    },
+    {
+      "name": "ui3d_badge",
+      "file": "Surfaces/ui3d_badge.png",
+      "width": 64,
+      "height": 52,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        26,
+        26,
+        26,
+        26
+      ]
+    },
+    {
+      "name": "ui3d_badge_light",
+      "file": "Surfaces/ui3d_badge_light.png",
+      "width": 64,
+      "height": 52,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        26,
+        26,
+        26,
+        26
+      ]
+    },
+    {
+      "name": "ui3d_hint",
+      "file": "Surfaces/ui3d_hint.png",
+      "width": 96,
+      "height": 96,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        36,
+        36,
+        36,
+        36
+      ]
+    },
+    {
+      "name": "ui3d_round",
+      "file": "Surfaces/ui3d_round.png",
+      "width": 128,
+      "height": 128,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "ui3d_round_pressed",
+      "file": "Surfaces/ui3d_round_pressed.png",
+      "width": 128,
+      "height": 128,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "ui3d_round_light",
+      "file": "Surfaces/ui3d_round_light.png",
+      "width": 128,
+      "height": 128,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "ui3d_ring",
+      "file": "Surfaces/ui3d_ring.png",
+      "width": 160,
+      "height": 160,
+      "role": "surface-2.5d",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ]
     }
   ]
 }

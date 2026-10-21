@@ -20,6 +20,12 @@ namespace Lumaquarium.UI
         public UnityEngine.UI.Image portrait;
         public TMP_Text title, description, balanceLabel, priceLabel, feedback, confirmationText, stockButtonLabel;
         public Sprite normalSurface, selectedSurface;
+        // Shared shop tabs: categoryButtons are Cây/Lũa/Đá, fishButton is the Cá tab.
+        public UnityEngine.UI.Image[] categorySurfaces;
+        public TMP_Text[] categoryLabels;
+        public Color tabLabelOn = new Color32(52, 60, 45, 255);
+        public Color tabLabelOff = new Color32(255, 248, 230, 255);
+        public int layoutVersion;
         private FishShopInventory inventory;
         private AquariumDecorCategory category;
         private int selectedIndex, pendingIndex = -1;
@@ -158,8 +164,8 @@ namespace Lumaquarium.UI
         public void Refresh()
         {
             RefreshInventory();
-            balanceLabel.text = inventory.Balance.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) + " xu";
-            stockButtonLabel.text = stockOnly ? "Kho của bạn ✓" : "Xem kho của bạn";
+            balanceLabel.text = inventory.Balance.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) + (layoutVersion >= 2 ? "" : " xu");
+            stockButtonLabel.text = stockOnly ? "Hiện tất cả" : "Chỉ món trong kho";
             for (int i = 0; i < catalog.offers.Length; i++)
             {
                 var offer = catalog.offers[i];
@@ -167,21 +173,33 @@ namespace Lumaquarium.UI
                 int available = aquarium.decoration.Available(offer.prefab.kind);
                 cards[i].SetActive(offer.category == category && (!stockOnly || total > 0));
                 cardSurfaces[i].sprite = i == selectedIndex ? selectedSurface : normalSurface;
-                stockLabels[i].text = $"{offer.price} xu / món\nKho: {available} · Trong hồ: {total - available}";
+                stockLabels[i].text = layoutVersion >= 2
+                    ? $"{offer.price} xu · Kho {available} · Hồ {total - available}"
+                    : $"{offer.price} xu / món\nKho: {available} · Trong hồ: {total - available}";
             }
             for (int i = 0; i < categoryButtons.Length; i++)
-                categoryButtons[i].GetComponent<UnityEngine.UI.Image>().sprite = i == (int)category ? selectedSurface : normalSurface;
+            {
+                bool on = i == (int)category;
+                if (categorySurfaces != null && i < categorySurfaces.Length)
+                {
+                    categorySurfaces[i].color = on ? Color.white : Color.clear;
+                    if (categoryLabels != null && i < categoryLabels.Length) categoryLabels[i].color = on ? tabLabelOn : tabLabelOff;
+                }
+                else categoryButtons[i].GetComponent<UnityEngine.UI.Image>().sprite = on ? selectedSurface : normalSurface;
+            }
             if (selectedIndex < 0) return;
             var selected = catalog.offers[selectedIndex];
             portrait.sprite = selected.portrait;
             title.text = selected.displayName;
             description.text = selected.description;
             int remaining = aquarium.decoration.Available(selected.prefab.kind);
-            priceLabel.text = $"{selected.price} xu / món · Kho: {remaining}";
+            priceLabel.text = layoutVersion >= 2 ? $"{selected.price} xu" : $"{selected.price} xu / món · Kho: {remaining}";
             buyButton.interactable = selected.IsValid && inventory.Balance >= selected.price;
-            buyButton.GetComponentInChildren<TMP_Text>().text = buyButton.interactable ? "Mua 1 món" : "Chưa đủ xu";
+            buyButton.GetComponentInChildren<TMP_Text>().text = buyButton.interactable ? (layoutVersion >= 2 ? "Mua 1" : "Mua 1 món") : "Chưa đủ xu";
             placeButton.interactable = remaining > 0;
-            placeButton.GetComponentInChildren<TMP_Text>().text = remaining > 0 ? "Đặt vào hồ" : "Chưa có trong kho";
+            placeButton.GetComponentInChildren<TMP_Text>().text = layoutVersion >= 2
+                ? (remaining > 0 ? $"Đặt ({remaining})" : "Kho trống")
+                : (remaining > 0 ? "Đặt vào hồ" : "Chưa có trong kho");
         }
 
         private void OnDisable() { if (IsOpen) Close(); }

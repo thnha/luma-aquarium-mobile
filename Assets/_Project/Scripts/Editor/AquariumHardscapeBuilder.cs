@@ -175,7 +175,8 @@ public static class AquariumHardscapeBuilder
         Undo.RecordObject(lighting,"Configure aquarium lighting");
         lighting.sun=UnityEngine.Object.FindObjectsByType<Light>(FindObjectsSortMode.None).First(x=>x.type==LightType.Directional);
         lighting.nightBackdrop=image;
-        var header=d.screen.header.transform;var button=header.Find("DayNightButton");
+        // The redesigned HUD keeps this switch in Cài đặt; only older HUDs get one in the header.
+        var header=d.screen.header.transform;var button=d.screen.GetComponentsInChildren<Transform>(true).FirstOrDefault(t=>t.name=="DayNightButton");
         if(button==null)
         {
             var go=new GameObject("DayNightButton",typeof(RectTransform),typeof(Image),typeof(Button));go.transform.SetParent(header,false);button=go.transform;

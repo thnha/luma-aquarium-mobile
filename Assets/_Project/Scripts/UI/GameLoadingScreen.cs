@@ -91,12 +91,13 @@ namespace Lumaquarium.UI
 
         public void Back()
         {
-            if (!loading && Application.CanStreamedLevelBeLoaded(FrontEndScenes.Login))
+            // Back returns to the merged start screen, where guest play and the account form live.
+            if (!loading && Application.CanStreamedLevelBeLoaded(FrontEndScenes.Start))
             {
                 loading = true;
                 retryButton.interactable = false;
                 backButton.interactable = false;
-                SceneManager.LoadSceneAsync(FrontEndScenes.Login);
+                SceneManager.LoadSceneAsync(FrontEndScenes.Start);
             }
         }
     }

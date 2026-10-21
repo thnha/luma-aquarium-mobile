@@ -359,6 +359,8 @@ public static class Aquarium3DPreviewBuilder
 
     private static void BuildControls(AquariumDecoration placement,Lumaquarium.UI.MainAquariumScreen screen)
     {
+        // The redesigned HUD builds its own inventory sheet and placement dock.
+        if(screen.decoratePanel.GetComponent<Lumaquarium.UI.DecorInventoryPanel>()!=null) return;
         var panel=screen.decoratePanel.transform;
         for(int i=0;i<3;i++)
         {

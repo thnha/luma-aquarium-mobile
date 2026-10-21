@@ -1,6 +1,6 @@
 # Lumaquarium — giao diện mở đầu
 
-Luồng: **StartGame → LoginGame → LoadingGame → MainAquarium**.
+Luồng: **StartGame → LoadingGame → MainAquarium**. StartGame gộp màn bắt đầu với chơi khách; nút *Đăng nhập tài khoản* mở LoginGame, nơi chỉ còn form Sắp có và nút *Chơi với tư cách khách*. Xem [redesign](ui-redesign.md).
 
 Mở `Assets/_Project/Scenes/StartGame.unity` rồi nhấn Play. StartGame cũng được đặt làm cảnh bắt đầu khi Play trong Editor, để vẫn giữ cảnh hồ cá đang mở. Build Settings cần bật cả bốn cảnh theo thứ tự trên.
 
