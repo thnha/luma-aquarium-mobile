@@ -224,7 +224,8 @@ public static class DriftwoodSpeciesBuilder
                     if (i < n-1 && j < sides)
                     {
                         int v = baseIndex+i*(sides+1)+j;
-                        triangles.AddRange(new[]{v,v+sides+1,v+1,v+1,v+sides+1,v+sides+2});
+                        // Rings turn from normal toward binormal = tangent × normal, so this order faces outward.
+                        triangles.AddRange(new[]{v,v+1,v+sides+1,v+1,v+sides+2,v+sides+1});
                     }
                 }
             }
@@ -232,7 +233,7 @@ public static class DriftwoodSpeciesBuilder
             int center = vertices.Count;
             vertices.Add(points[0] - (points[1]-points[0]).normalized*radii[0]*.15f); uvs.Add(new Vector2(.5f,0));
             colors.Add(sp.colB*.9f);
-            for (int j = 0; j < sides; j++) triangles.AddRange(new[]{center,baseIndex+j,baseIndex+j+1});
+            for (int j = 0; j < sides; j++) triangles.AddRange(new[]{center,baseIndex+j+1,baseIndex+j});
         }
 
         public Mesh Finish(out Vector3[] plantMounts,out float footprint)
