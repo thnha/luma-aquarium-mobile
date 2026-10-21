@@ -14,11 +14,6 @@ public static class FishShopScreenBuilder
 {
     private const string Root = "Assets/_Project/UI";
     private const string PrefabPath = Root + "/Prefabs/FishShop.prefab";
-    private static readonly Color Ink = new Color32(52, 60, 45, 255);
-    private static readonly Color Cream = new Color32(255, 245, 221, 255);
-    private static readonly Color Muted = new Color32(101, 113, 90, 255);
-    private static TMP_FontAsset bodyFont;
-    private static TMP_FontAsset titleFont;
 
     [MenuItem("Lumaquarium/UI/Build Fish Shop Screen")]
     public static void Build()
@@ -28,7 +23,7 @@ public static class FishShopScreenBuilder
         if (scene.path != "Assets/_Project/Scenes/MainAquarium.unity") throw new InvalidOperationException("Open MainAquarium first.");
         var aquarium = UnityEngine.Object.FindFirstObjectByType<MainAquariumScreen>();
         if (aquarium == null || aquarium.fish == null) throw new InvalidOperationException("The existing aquarium HUD and fish are required.");
-        LoadFonts();
+        Ui3D.LoadFonts();
         var offers = LoadOffers();
         string backupDir = "Assets/_Project/Scenes/Backups";
         Directory.CreateDirectory(backupDir);
@@ -43,7 +38,8 @@ public static class FishShopScreenBuilder
         // otherwise hand edits to it are kept. Rebuilding keeps the prefab GUID, so the scene instance follows.
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
         var built = prefab != null ? prefab.GetComponent<FishShopScreen>() : null;
-        if (built == null || built.offers == null || !built.offers.Select(o => o.id).SequenceEqual(offers.Select(o => o.id)))
+        if (built == null || built.layoutVersion < LayoutVersion || built.offers == null
+            || !built.offers.Select(o => o.id).SequenceEqual(offers.Select(o => o.id)))
         {
             BakePortraits(aquarium.fish.gameObject, offers);
             var screen = CreateScreen(offers);
@@ -62,7 +58,7 @@ public static class FishShopScreenBuilder
         EditorSceneManager.SaveScene(scene);
         AssetDatabase.SaveAssets();
         Selection.activeGameObject = shop.gameObject;
-        Debug.Log("[Lumaquarium] Fish shop integrated. Open it with Mua cá in the aquarium header.");
+        Debug.Log("[Lumaquarium] Fish shop integrated. Open it with Cửa hàng in the dock or the wallet chip.");
     }
 
     // Called by the HUD builder too, so rebuilding that HUD reconnects the existing shop.
@@ -70,7 +66,7 @@ public static class FishShopScreenBuilder
     {
         var shop = UnityEngine.Object.FindFirstObjectByType<FishShopScreen>(FindObjectsInactive.Include);
         if (shop == null) return;
-        LoadFonts();
+        Ui3D.LoadFonts();
         Undo.RecordObject(shop, "Connect fish shop");
         shop.aquarium = aquarium;
         shop.fish = aquarium.fish.GetComponent<BettaAppearance>();
@@ -80,25 +76,17 @@ public static class FishShopScreenBuilder
         Undo.RecordObject(shop.aquariumFishName, "Fit fish name");
         shop.aquariumFishName.enableAutoSizing = true;
         shop.aquariumFishName.fontSizeMin = 20;
-        shop.aquariumFishName.fontSizeMax = 39;
-        var existing = aquarium.header.transform.Find("FishShopButton");
-        UnityEngine.UI.Button entry;
-        if (existing != null) entry = existing.GetComponent<UnityEngine.UI.Button>();
-        else
-        {
-            entry = Button("FishShopButton", aquarium.header.transform, "Mua cá", "button_normal_wide", Ink, 34);
-            At((RectTransform)entry.transform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(0, -122), new Vector2(248, 88));
-            Undo.RegisterCreatedObjectUndo(entry.gameObject, "Add fish shop entry");
-        }
-        Undo.RecordObject(entry, "Wire fish shop entry");
-        for (int i = entry.onClick.GetPersistentEventCount() - 1; i >= 0; i--)
-            if ((entry.onClick.GetPersistentTarget(i) is FishShopScreen || entry.onClick.GetPersistentTarget(i) == null)
-                && entry.onClick.GetPersistentMethodName(i) == "Open") // null: a target lost when the prefab was rebuilt
-                UnityEventTools.RemovePersistentListener(entry.onClick, i);
-        UnityEventTools.AddPersistentListener(entry.onClick, shop.Open);
+        shop.aquariumFishName.fontSizeMax = 42;
+        // The redesigned HUD opens the shop from the dock, wallet chip and Đổi cá through OpenShop.
+        Undo.RecordObject(aquarium, "Connect fish shop");
+        aquarium.fishShop = shop;
+        aquarium.fishNameLabel = shop.aquariumFishName;
+        aquarium.fishPortrait = shop.aquariumPortrait;
+        EditorUtility.SetDirty(aquarium);
+        var legacy = aquarium.header.transform.Find("FishShopButton");
+        if (legacy != null) Undo.DestroyObjectImmediate(legacy.gameObject);
         DecorShopScreenBuilder.Connect(aquarium);
         EditorUtility.SetDirty(shop);
-        EditorUtility.SetDirty(entry);
         if (PrefabUtility.IsPartOfPrefabInstance(shop)) PrefabUtility.RecordPrefabInstancePropertyModifications(shop);
     }
 
@@ -118,84 +106,42 @@ public static class FishShopScreenBuilder
         }).ToArray();
     }
 
+    public const int LayoutVersion = 2; // 2 = shared 2.5D shop with Cá/Cây/Lũa/Đá tabs
+
     private static FishShopScreen CreateScreen(FishShopOffer[] offers)
     {
-        var root = Rect("FishShopHUD", null);
-        var canvas = root.gameObject.AddComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 30;
-        var scaler = root.gameObject.AddComponent<UnityEngine.UI.CanvasScaler>();
-        scaler.uiScaleMode = UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1080, 1920);
-        scaler.matchWidthOrHeight = 0;
-        root.gameObject.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+        var root = Ui3D.Canvas("FishShopHUD", 30);
         var shop = root.gameObject.AddComponent<FishShopScreen>();
+        shop.layoutVersion = LayoutVersion;
         shop.offers = offers;
-        shop.normalSurface = Sprite("Surfaces/inventory_slot");
-        shop.selectedSurface = Sprite("Surfaces/inventory_slot_selected");
-        var content = Rect("ShopScreen", root);
-        Stretch(content);
-        shop.content = content.gameObject;
-        var environment = Picture("Environment", content, Sprite("Backgrounds/AquariumEnvironment"));
-        Stretch(environment.rectTransform);
-        var fitter = environment.gameObject.AddComponent<UnityEngine.UI.AspectRatioFitter>();
-        fitter.aspectMode = UnityEngine.UI.AspectRatioFitter.AspectMode.EnvelopeParent;
-        fitter.aspectRatio = environment.sprite.rect.width / environment.sprite.rect.height;
-        var scrim = Picture("Scrim", content, null);
-        scrim.color = new Color(.025f, .13f, .13f, .35f);
-        scrim.raycastTarget = true;
-        Stretch(scrim.rectTransform);
-        var bottomFill = Picture("BottomFill", content, null);
-        bottomFill.color = new Color32(238, 228, 200, 255);
-        AnchorEdges(bottomFill.rectTransform, Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 400));
-        var safe = Rect("SafeArea", content);
-        Stretch(safe);
-        safe.gameObject.AddComponent<SafeArea>();
+        shop.normalSurface = Ui3D.Require("ui3d_tile");
+        shop.selectedSurface = Ui3D.Require("ui3d_tile_selected");
+        var frame = Ui3D.BuildShopFrame(root, 0, "Cửa hàng");
+        shop.content = frame.content.gameObject;
+        shop.backButton = frame.back;
+        shop.balanceLabel = frame.balance;
+        shop.decorTabs = new[] { frame.tabs[1], frame.tabs[2], frame.tabs[3] };
 
-        var header = Rect("Header", safe);
-        AnchorEdges(header, new Vector2(0, 1), Vector2.one, new Vector2(52, -180), new Vector2(-52, -38));
-        shop.backButton = Button("BackButton", header, "", "utility_badge", Ink);
-        At((RectTransform)shop.backButton.transform, new Vector2(0, .5f), new Vector2(0, .5f), Vector2.zero, new Vector2(112, 112));
-        var backIcon = Picture("Icon", shop.backButton.transform, Sprite("Icons/utility_back"));
-        Stretch(backIcon.rectTransform, 27);
-        var title = Label("Title", header, "Tiệm cá nhỏ", 57, Cream, true);
-        AnchorEdges(title.rectTransform, Vector2.zero, Vector2.one, new Vector2(146, 0), new Vector2(-310, 0));
-        title.alignment = TextAlignmentOptions.MidlineLeft;
-        var wallet = Picture("Wallet", header, Sprite("Surfaces/button_normal_wide"), true);
-        At(wallet.rectTransform, new Vector2(1, .5f), new Vector2(1, .5f), Vector2.zero, new Vector2(282, 102));
-        var walletCoin = Coin(wallet.transform, "Coin");
-        At(walletCoin, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(24, 0), new Vector2(52, 52));
-        shop.balanceLabel = Label("Balance", wallet.transform, "1.250", 45, Ink, true);
-        AnchorEdges(shop.balanceLabel.rectTransform, Vector2.zero, Vector2.one, new Vector2(83, 10), new Vector2(-16, -10));
-
-        var hero = Rect("SelectedFish", safe);
-        AnchorEdges(hero, Vector2.zero, Vector2.one, new Vector2(45, 1160), new Vector2(-45, -198));
-        var overline = Label("Overline", hero, "MỘT NGƯỜI BẠN MỚI CHO HỒ", 30, Cream, true);
-        At(overline.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), Vector2.zero, new Vector2(960, 55));
-        shop.heroPortrait = Picture("Portrait", hero, offers[0].portrait);
+        shop.heroPortrait = Ui3D.Image("Portrait", frame.hero, null, false);
+        shop.heroPortrait.sprite = offers[0].portrait;
         shop.heroPortrait.preserveAspect = true;
-        AnchorEdges(shop.heroPortrait.rectTransform, Vector2.zero, Vector2.one, new Vector2(40, 224), new Vector2(-40, -58));
-        shop.heroName = Label("FishName", hero, offers[0].variant.displayName, 65, Cream, true);
-        At(shop.heroName.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 110), new Vector2(970, 98));
-        shop.description = Label("Description", hero, offers[0].description, 34, Cream);
-        At(shop.description.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 35), new Vector2(940, 70));
+        Ui3D.Edges(shop.heroPortrait.rectTransform, Vector2.zero, Vector2.one, new Vector2(60, 170), new Vector2(-60, -20));
+        shop.heroName = Ui3D.Text("FishName", frame.hero, offers[0].variant.displayName, 62, Ui3D.Cream, true);
+        Ui3D.At(shop.heroName.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 80), new Vector2(980, 90));
+        shop.description = Ui3D.Text("Description", frame.hero, offers[0].description, 38, Ui3D.Cream);
+        Ui3D.At(shop.description.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 10), new Vector2(980, 64));
 
-        var sheet = Picture("SelectionSheet", safe, Sprite("Surfaces/panel_care"), true);
-        sheet.color = new Color32(255, 250, 235, 255);
-        sheet.raycastTarget = true;
-        AnchorEdges(sheet.rectTransform, Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 1175));
-        var heading = Label("Heading", sheet.transform, "Chọn cá của bạn", 48, Ink, true);
-        At(heading.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(55, -48), new Vector2(590, 70));
-        heading.alignment = TextAlignmentOptions.MidlineLeft;
-        var count = Label("FishCount", sheet.transform, offers.Length + " người bạn đang chờ", 30, Muted);
-        At(count.rectTransform, Vector2.one, Vector2.one, new Vector2(-55, -48), new Vector2(385, 70));
-        count.alignment = TextAlignmentOptions.MidlineRight;
-        // Two cards per row at the approved size; past two rows the list scrolls inside the same area.
-        var viewport = Rect("FishOptions", sheet.transform);
-        AnchorEdges(viewport, new Vector2(0, 1), Vector2.one, new Vector2(52, -824), new Vector2(-52, -145));
+        var sheet = frame.sheet;
+        var heading = Ui3D.Text("Heading", sheet, "Chọn cá cho hồ", 50, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.TopStrip(heading.rectTransform, 64, 420, 44, 76);
+        var hint = Ui3D.Text("FishCount", sheet, "Mỗi loại mua 1 lần", 34, Ui3D.Muted, false, TextAlignmentOptions.MidlineRight);
+        Ui3D.TopStrip(hint.rectTransform, 600, 64, 44, 76);
+        // Two cards per row; past two rows the list scrolls inside the same area.
+        var viewport = Ui3D.Rect("FishOptions", sheet);
+        Ui3D.Edges(viewport, Vector2.zero, Vector2.one, new Vector2(54, 470), new Vector2(-54, -140));
         viewport.gameObject.AddComponent<UnityEngine.UI.RectMask2D>();
-        var grid = Rect("Content", viewport);
-        AnchorEdges(grid, new Vector2(0, 1), Vector2.one, Vector2.zero, Vector2.zero);
+        var grid = Ui3D.Rect("Content", viewport);
+        Ui3D.Edges(grid, new Vector2(0, 1), Vector2.one, Vector2.zero, Vector2.zero);
         grid.pivot = new Vector2(.5f, 1);
         var columns = grid.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>();
         columns.spacing = 24;
@@ -208,15 +154,14 @@ public static class FishShopScreenBuilder
         scroll.viewport = viewport;
         scroll.horizontal = false;
         scroll.movementType = UnityEngine.UI.ScrollRect.MovementType.Clamped;
-        const float rowHeight = (679f - 24f) / 2f;
         shop.optionButtons = new UnityEngine.UI.Button[offers.Length];
         shop.optionSurfaces = new UnityEngine.UI.Image[offers.Length];
         shop.optionChecks = new GameObject[offers.Length];
         shop.optionPrices = new TMP_Text[offers.Length];
         for (int row = 0; row < (offers.Length + 1) / 2; row++)
         {
-            var rowRect = Rect("Row" + row, grid);
-            rowRect.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredHeight = rowHeight;
+            var rowRect = Ui3D.Rect("Row" + row, grid);
+            rowRect.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 340;
             var horizontal = rowRect.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>();
             horizontal.spacing = 24;
             horizontal.childControlHeight = horizontal.childControlWidth = true;
@@ -226,30 +171,30 @@ public static class FishShopScreenBuilder
                 int i = row * 2 + col;
                 if (i >= offers.Length)
                 {
-                    Rect("Empty", rowRect); // keeps a lone last card at half width
+                    Ui3D.Rect("Empty", rowRect); // keeps a lone last card at half width
                     continue;
                 }
                 var offer = offers[i];
-                var surface = Picture("FishOption_" + offer.id, rowRect, i == 0 ? shop.selectedSurface : shop.normalSurface, true);
+                var surface = Ui3D.Image("FishOption_" + offer.id, rowRect, "ui3d_tile");
+                surface.sprite = i == 0 ? shop.selectedSurface : shop.normalSurface;
                 surface.raycastTarget = true;
                 var option = surface.gameObject.AddComponent<UnityEngine.UI.Button>();
                 option.transition = UnityEngine.UI.Selectable.Transition.None;
                 option.targetGraphic = surface;
-                var image = Picture("Portrait", surface.transform, offer.portrait);
+                var image = Ui3D.Image("Portrait", surface.transform, null, false);
+                image.sprite = offer.portrait;
                 image.preserveAspect = true;
-                AnchorEdges(image.rectTransform, new Vector2(0, .37f), Vector2.one, new Vector2(12, 0), new Vector2(-12, -14));
-                var name = Label("Name", surface.transform, offer.variant.displayName, 40, Ink, true);
-                At(name.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 64), new Vector2(410, 92));
-                name.alignment = TextAlignmentOptions.MidlineLeft;
-                var price = Label("Price", surface.transform, offer.price == 0 ? "Miễn phí" : offer.price + " xu", 38, Muted, true);
-                At(price.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(27, 17), new Vector2(354, 47));
-                price.alignment = TextAlignmentOptions.MidlineLeft;
-                var coin = Coin(surface.transform, "Coin");
-                At(coin, Vector2.zero, Vector2.zero, new Vector2(29, 23), new Vector2(36, 36));
-                var check = Picture("Selected", surface.transform, Sprite("Surfaces/utility_badge"));
-                var tick = Picture("Tick", check.transform, Sprite("Icons/utility_confirm"));
-                Stretch(tick.rectTransform, 12);
-                At(check.rectTransform, Vector2.one, Vector2.one, new Vector2(-20, -20), new Vector2(56, 56));
+                Ui3D.Edges(image.rectTransform, new Vector2(0, .4f), Vector2.one, new Vector2(16, 0), new Vector2(-16, -14));
+                var name = Ui3D.Text("Name", surface.transform, offer.variant.displayName, 38, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+                Ui3D.Edges(name.rectTransform, new Vector2(0, .2f), new Vector2(1, .42f), new Vector2(28, 0), new Vector2(-24, 0));
+                var coin = Ui3D.Icon("Coin", surface.transform, "utility_coin");
+                Ui3D.At(coin.rectTransform, Vector2.zero, Vector2.zero, new Vector2(26, 26), new Vector2(42, 42));
+                var price = Ui3D.Text("Price", surface.transform, offer.price == 0 ? "Miễn phí" : offer.price + " xu", 34, Ui3D.Forest, true, TextAlignmentOptions.MidlineLeft);
+                Ui3D.At(price.rectTransform, Vector2.zero, Vector2.zero, new Vector2(76, 20), new Vector2(380, 54));
+                var check = Ui3D.Image("Selected", surface.transform, "ui3d_badge");
+                var tick = Ui3D.Icon("Tick", check.transform, "utility_confirm");
+                Ui3D.Stretch(tick.rectTransform, 10);
+                Ui3D.At(check.rectTransform, Vector2.one, Vector2.one, new Vector2(-16, -16), new Vector2(60, 52));
                 check.gameObject.SetActive(i == 0);
                 shop.optionButtons[i] = option;
                 shop.optionSurfaces[i] = surface;
@@ -257,46 +202,31 @@ public static class FishShopScreenBuilder
                 shop.optionPrices[i] = price;
             }
         }
-        var line = Picture("Divider", sheet.transform, null);
-        line.color = new Color32(186, 189, 151, 255);
-        AnchorEdges(line.rectTransform, Vector2.zero, new Vector2(1, 0), new Vector2(55, 303), new Vector2(-55, 306));
-        var caption = Label("PriceCaption", sheet.transform, "Giá cá đã chọn", 32, Muted);
-        At(caption.rectTransform, Vector2.zero, Vector2.zero, new Vector2(55, 231), new Vector2(420, 56));
-        caption.alignment = TextAlignmentOptions.MidlineLeft;
-        shop.priceLabel = Label("SelectedPrice", sheet.transform, "350 xu", 56, Ink, true);
-        At(shop.priceLabel.rectTransform, Vector2.zero, Vector2.zero, new Vector2(116, 153), new Vector2(412, 83));
-        shop.priceLabel.alignment = TextAlignmentOptions.MidlineLeft;
-        var totalCoin = Coin(sheet.transform, "TotalCoin");
-        At(totalCoin, Vector2.zero, Vector2.zero, new Vector2(55, 171), new Vector2(49, 49));
-        shop.buyButton = Button("BuyButton", sheet.transform, "Mua cá", "button_selected_wide", Ink, 47);
-        At((RectTransform)shop.buyButton.transform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-55, 166), new Vector2(450, 137));
-        shop.buyLabel = shop.buyButton.GetComponentInChildren<TMP_Text>();
-        var note = Label("LocalSaveNote", sheet.transform, "Xu trong game · Cá đã mua được lưu trên thiết bị", 28, Muted);
-        At(note.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 99), new Vector2(960, 52));
-        shop.feedback = Label("Feedback", sheet.transform, "", 31, Ink);
-        At(shop.feedback.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 16), new Vector2(940, 77));
+        shop.feedback = Ui3D.Text("Feedback", sheet, "", 32, Ui3D.Ink);
+        Ui3D.Edges(shop.feedback.rectTransform, Vector2.zero, new Vector2(1, 0), new Vector2(54, 390), new Vector2(-54, 460));
 
-        var modal = Picture("PurchaseConfirmation", content, null);
-        modal.color = new Color(.035f, .13f, .11f, .78f);
-        modal.raycastTarget = true;
-        Stretch(modal.rectTransform);
-        shop.confirmation = modal.gameObject;
-        var modalSafe = Rect("SafeArea", modal.transform);
-        Stretch(modalSafe);
-        modalSafe.gameObject.AddComponent<SafeArea>();
-        var dialog = Picture("Dialog", modalSafe, Sprite("Surfaces/panel_care"), true);
-        dialog.raycastTarget = true;
-        At(dialog.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(960, 650));
-        var dialogTitle = Label("Title", dialog.transform, "Đón bạn mới về hồ?", 57, Ink, true);
-        At(dialogTitle.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -66), new Vector2(850, 96));
-        shop.confirmationText = Label("Summary", dialog.transform, "", 44, Ink);
-        At(shop.confirmationText.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -195), new Vector2(850, 190));
-        shop.cancelButton = Button("CancelButton", dialog.transform, "Chọn lại", "button_normal_wide", Ink, 40);
-        At((RectTransform)shop.cancelButton.transform, Vector2.zero, Vector2.zero, new Vector2(58, 76), new Vector2(390, 136));
-        shop.confirmButton = Button("ConfirmButton", dialog.transform, "Xác nhận mua", "button_selected_wide", Ink, 40);
-        At((RectTransform)shop.confirmButton.transform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-58, 76), new Vector2(414, 136));
-        modal.gameObject.SetActive(false);
-        content.gameObject.SetActive(false);
+        var footer = frame.footer;
+        var caption = Ui3D.Text("PriceCaption", footer, "GIÁ", 30, Ui3D.Muted, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.At(caption.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(54, -40), new Vector2(420, 44));
+        var totalCoin = Ui3D.Icon("TotalCoin", footer, "utility_coin");
+        Ui3D.At(totalCoin.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(50, -94), new Vector2(60, 60));
+        shop.priceLabel = Ui3D.Text("SelectedPrice", footer, "350 xu", 52, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.At(shop.priceLabel.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(120, -88), new Vector2(420, 72));
+        shop.buyButton = Ui3D.Button("BuyButton", footer, "Mua cá", Ui3D.Style.Primary, 48);
+        Ui3D.At((RectTransform)shop.buyButton.transform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-48, -36), new Vector2(440, 150));
+        shop.buyLabel = shop.buyButton.GetComponentInChildren<TMP_Text>();
+
+        shop.confirmation = frame.modal.gameObject;
+        var dialog = frame.dialog;
+        var dialogTitle = Ui3D.Text("Title", dialog, "Đón bạn mới về hồ?", 56, Ui3D.Ink, true);
+        Ui3D.TopStrip(dialogTitle.rectTransform, 50, 50, 60, 90);
+        shop.confirmationText = Ui3D.Text("Summary", dialog, "", 44, Ui3D.Ink);
+        Ui3D.TopStrip(shop.confirmationText.rectTransform, 50, 50, 170, 230);
+        shop.cancelButton = Ui3D.Button("CancelButton", dialog, "Chọn lại", Ui3D.Style.Secondary);
+        Ui3D.Edges((RectTransform)shop.cancelButton.transform, Vector2.zero, new Vector2(.42f, 0), new Vector2(56, 60), new Vector2(-8, 210));
+        shop.confirmButton = Ui3D.Button("ConfirmButton", dialog, "Xác nhận mua", Ui3D.Style.Primary);
+        Ui3D.Edges((RectTransform)shop.confirmButton.transform, new Vector2(.42f, 0), new Vector2(1, 0), new Vector2(8, 60), new Vector2(-56, 210));
+        frame.content.gameObject.SetActive(false);
         return shop;
     }
 
@@ -403,85 +333,4 @@ public static class FishShopScreenBuilder
         }
     }
 
-    private static void LoadFonts()
-    {
-        bodyFont = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(Root + "/Fonts/Nunito-SemiBold SDF.asset");
-        titleFont = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(Root + "/Fonts/Nunito-ExtraBold SDF.asset");
-        if (bodyFont == null || titleFont == null) throw new InvalidOperationException("Prepare the existing Nunito UI fonts first.");
-    }
-
-    private static Sprite Sprite(string path) => AssetDatabase.LoadAssetAtPath<Sprite>(Root + "/" + path + ".png")
-        ?? throw new InvalidOperationException("Missing UI sprite: " + path);
-
-    private static RectTransform Rect(string name, Transform parent)
-    {
-        var rect = (RectTransform)new GameObject(name, typeof(RectTransform)).transform;
-        if (parent != null) rect.SetParent(parent, false);
-        return rect;
-    }
-
-    private static UnityEngine.UI.Image Picture(string name, Transform parent, Sprite sprite, bool sliced = false)
-    {
-        var image = Rect(name, parent).gameObject.AddComponent<UnityEngine.UI.Image>();
-        image.sprite = sprite;
-        image.raycastTarget = false;
-        if (sliced)
-        {
-            image.type = UnityEngine.UI.Image.Type.Sliced;
-            // Preserve the supplied surface corner radii at the 1080px canvas reference width.
-            image.pixelsPerUnitMultiplier = 1f;
-        }
-        return image;
-    }
-
-    private static TMP_Text Label(string name, Transform parent, string value, float size, Color color, bool title = false)
-    {
-        var label = Rect(name, parent).gameObject.AddComponent<TextMeshProUGUI>();
-        label.font = title ? titleFont : bodyFont;
-        label.text = value;
-        label.fontSize = size;
-        label.enableAutoSizing = true;
-        label.fontSizeMin = size * .8f;
-        label.fontSizeMax = size;
-        label.color = color;
-        label.alignment = TextAlignmentOptions.Center;
-        label.raycastTarget = false;
-        return label;
-    }
-
-    private static UnityEngine.UI.Button Button(string name, Transform parent, string text, string sprite, Color color, float fontSize = 40)
-    {
-        var surface = Picture(name, parent, Sprite("Surfaces/" + sprite), true);
-        surface.raycastTarget = true;
-        var button = surface.gameObject.AddComponent<UnityEngine.UI.Button>();
-        button.targetGraphic = surface;
-        var colors = button.colors;
-        colors.disabledColor = new Color(.65f, .65f, .65f, .8f);
-        button.colors = colors;
-        var label = Label("Label", surface.transform, text, fontSize, color, true);
-        Stretch(label.rectTransform, 15);
-        return button;
-    }
-
-    private static RectTransform Coin(Transform parent, string name)
-    {
-        return Picture(name, parent, Sprite("Icons/utility_coin")).rectTransform;
-    }
-
-    private static void At(RectTransform rect, Vector2 anchor, Vector2 pivot, Vector2 position, Vector2 size)
-    {
-        rect.anchorMin = rect.anchorMax = anchor;
-        rect.pivot = pivot;
-        rect.anchoredPosition = position;
-        rect.sizeDelta = size;
-    }
-
-    private static void Stretch(RectTransform rect, float inset = 0) => AnchorEdges(rect, Vector2.zero, Vector2.one, new Vector2(inset, inset), new Vector2(-inset, -inset));
-    private static void AnchorEdges(RectTransform rect, Vector2 min, Vector2 max, Vector2 offsetMin, Vector2 offsetMax)
-    {
-        rect.anchorMin = min;
-        rect.anchorMax = max;
-        rect.offsetMin = offsetMin;
-        rect.offsetMax = offsetMax;
-    }
 }

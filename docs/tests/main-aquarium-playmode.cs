@@ -7,17 +7,18 @@ var d=UnityEngine.Object.FindFirstObjectByType<AquariumDecoration>();
 check(UnityEngine.Object.FindObjectsByType<BettaFishAI>(UnityEngine.FindObjectsSortMode.None).Length==1,"Existing fish reused without duplication");
 try
 {
+    // Trang trí is an inventory sheet: Mua thêm opens the shop on the selected group.
+    var inventory=d.screen.decoratePanel.GetComponent<Lumaquarium.UI.DecorInventoryPanel>();
+    check(inventory!=null,"Decorate sheet lists the inventory");
+    d.screen.ToggleDecorate();
     for(int i=0;i<3;i++)
     {
-        d.screen.decoratePanel.transform.Find("Inventory"+i).GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+        inventory.tabButtons[i].onClick.Invoke();
+        inventory.shopButton.onClick.Invoke();
         var shop=UnityEngine.Object.FindFirstObjectByType<Lumaquarium.UI.DecorShopScreen>();
-        if(shop!=null)
-        {
-            var expected=i==0?AquariumDecorCategory.Plants:i==1?AquariumDecorCategory.Rocks:AquariumDecorCategory.Wood;
-            check(shop.IsOpen && !d.Editing && shop.catalog.offers[shop.SelectedIndex].category==expected,"Inventory callback opens shop category "+i);
-            shop.Close();
-        }
-        else { check(d.Editing && d.Selected!=null && d.Selected.kind==i,"Inventory callback selects installed kind "+i); d.Cancel(); }
+        check(shop.IsOpen && !d.Editing && shop.catalog.offers[shop.SelectedIndex].category==(AquariumDecorCategory)i,"Inventory tab opens shop category "+i);
+        shop.Close();
+        d.screen.ToggleDecorate();
     }
     int pellets=UnityEngine.Object.FindObjectsByType<FoodPellet>(UnityEngine.FindObjectsSortMode.None).Length;
     d.screen.toolbar.transform.Find("FeedButton").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();

@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -17,27 +16,30 @@ namespace Lumaquarium.UI
         [SerializeField] private TMP_Text feedback;
         private bool transitioning;
 
+        // The redesigned LoginGame only holds the account form; guest play starts from StartGame.
+        // guestPanel/guestButton/accountButton stay optional for scenes built before the redesign.
         private void Awake()
         {
-            guestButton.onClick.AddListener(PlayAsGuest);
-            accountButton.onClick.AddListener(ShowAccount);
-            returnToGuestButton.onClick.AddListener(ShowGuest);
+            if (guestButton != null) guestButton.onClick.AddListener(PlayAsGuest);
+            if (accountButton != null) accountButton.onClick.AddListener(ShowAccount);
+            returnToGuestButton.onClick.AddListener(guestPanel != null ? (UnityEngine.Events.UnityAction)ShowGuest : PlayAsGuest);
             backButton.onClick.AddListener(Back);
-            ShowGuest();
+            if (guestPanel != null) ShowGuest();
+            else ShowAccount();
         }
 
         private void OnDestroy()
         {
-            guestButton.onClick.RemoveListener(PlayAsGuest);
-            accountButton.onClick.RemoveListener(ShowAccount);
-            returnToGuestButton.onClick.RemoveListener(ShowGuest);
+            if (guestButton != null) guestButton.onClick.RemoveAllListeners();
+            if (accountButton != null) accountButton.onClick.RemoveAllListeners();
+            returnToGuestButton.onClick.RemoveAllListeners();
             backButton.onClick.RemoveListener(Back);
         }
 
         public void ShowAccount()
         {
             if (transitioning) return;
-            guestPanel.SetActive(false);
+            if (guestPanel != null) guestPanel.SetActive(false);
             accountPanel.SetActive(true);
         }
 
@@ -45,6 +47,7 @@ namespace Lumaquarium.UI
         {
             if (transitioning) return;
             password.text = string.Empty;
+            if (guestPanel == null) return;
             accountPanel.SetActive(false);
             guestPanel.SetActive(true);
         }
@@ -58,16 +61,12 @@ namespace Lumaquarium.UI
                 return;
             }
 
-            // This ID is a local guest profile, not an authenticated account.
-            if (string.IsNullOrEmpty(PlayerPrefs.GetString(FrontEndScenes.GuestIdKey)))
-            {
-                PlayerPrefs.SetString(FrontEndScenes.GuestIdKey, Guid.NewGuid().ToString("N"));
-                PlayerPrefs.Save();
-            }
-
+            FrontEndScenes.EnsureGuestProfile();
+            password.text = string.Empty;
             transitioning = true;
-            guestButton.interactable = false;
-            accountButton.interactable = false;
+            if (guestButton != null) guestButton.interactable = false;
+            if (accountButton != null) accountButton.interactable = false;
+            returnToGuestButton.interactable = false;
             backButton.interactable = false;
             SceneManager.LoadSceneAsync(FrontEndScenes.Loading);
         }

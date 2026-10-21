@@ -24,11 +24,26 @@ namespace Lumaquarium.UI
         public TMP_Text muteLabel;
         public CanvasGroup hud;
         public AquariumDecoration decoration;
+        // Redesigned HUD (docs/ui-redesign.md). All optional so older scenes keep working.
+        public FishShopScreen fishShop;
+        public TMP_Text walletLabel;
+        public UnityEngine.UI.Image hudFullnessFill;
+        public TMP_Text hudFullnessLabel;
+        public TMP_Text hungerPercent;
+        public TMP_Text fishNameLabel;
+        public UnityEngine.UI.Image fishPortrait;
+        public TMP_Text careFishName;
+        public UnityEngine.UI.Image carePortrait;
+        public UnityEngine.UI.Image careTile;
+        public UnityEngine.UI.Image decorateTile;
+        public Sprite tileNormal;
+        public Sprite tileActive;
 
         private Vector3 defaultView;
         private float feedbackUntil;
         private bool hidden;
         private bool capturing;
+        private float walletRefreshAt;
 
         private void Start()
         {
@@ -39,6 +54,7 @@ namespace Lumaquarium.UI
                 defaultView = new Vector3(orbit.yaw, orbit.pitch, orbit.distance);
             }
             UpdateMuteLabel();
+            UpdateTiles();
         }
 
         private void Update()
@@ -46,8 +62,16 @@ namespace Lumaquarium.UI
             if (fish != null)
             {
                 float fullness = 1f - Mathf.Clamp01(fish.hunger);
+                int percent = Mathf.RoundToInt(fullness * 100);
                 hungerFill.fillAmount = fullness;
-                hungerLabel.text = $"Độ no     {Mathf.RoundToInt(fullness * 100)}%";
+                if (hungerPercent != null)
+                {
+                    hungerLabel.text = "Độ no";
+                    hungerPercent.text = percent + "%";
+                }
+                else hungerLabel.text = $"Độ no     {percent}%";
+                if (hudFullnessFill != null) hudFullnessFill.fillAmount = fullness;
+                if (hudFullnessLabel != null) hudFullnessLabel.text = percent + "%";
                 behaviourLabel.text = fish.state switch
                 {
                     BettaFishAI.State.SeekFood => "Đang tìm thức ăn",
@@ -60,6 +84,25 @@ namespace Lumaquarium.UI
             }
             if (feedback.gameObject.activeSelf && Time.unscaledTime >= feedbackUntil)
                 feedback.gameObject.SetActive(false);
+            if (careFishName != null && fishNameLabel != null && careFishName.text != fishNameLabel.text)
+                careFishName.text = fishNameLabel.text;
+            if (carePortrait != null && fishPortrait != null && carePortrait.sprite != fishPortrait.sprite)
+                carePortrait.sprite = fishPortrait.sprite;
+            if (walletLabel != null && Time.unscaledTime >= walletRefreshAt) RefreshWallet();
+        }
+
+        // The wallet is shared with both shops and saved in PlayerPrefs; poll it cheaply.
+        public void RefreshWallet()
+        {
+            walletRefreshAt = Time.unscaledTime + .5f;
+            if (walletLabel == null) return;
+            string key = decoration != null ? decoration.inventoryStorageKey : FishShopInventory.DefaultStorageKey;
+            walletLabel.text = new FishShopInventory(key).Balance.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"));
+        }
+
+        public void OpenShop()
+        {
+            if (fishShop != null) fishShop.Open();
         }
 
         public void Feed()
@@ -80,6 +123,7 @@ namespace Lumaquarium.UI
             ClosePanels();
             panel.SetActive(open);
             if (orbit != null) orbit.enabled = !open;
+            UpdateTiles();
         }
 
         public void ClosePanels()
@@ -88,6 +132,15 @@ namespace Lumaquarium.UI
             decoratePanel.SetActive(false);
             settingsPanel.SetActive(false);
             if (orbit != null) orbit.enabled = true;
+            UpdateTiles();
+        }
+
+        // The dock tile of an open sheet turns sage, as in the approved preview.
+        private void UpdateTiles()
+        {
+            if (tileNormal == null || tileActive == null) return;
+            if (careTile != null) careTile.sprite = carePanel.activeSelf ? tileActive : tileNormal;
+            if (decorateTile != null) decorateTile.sprite = decoratePanel.activeSelf ? tileActive : tileNormal;
         }
 
         public void ToggleHud()
@@ -107,7 +160,7 @@ namespace Lumaquarium.UI
             UpdateMuteLabel();
         }
 
-        private void UpdateMuteLabel() => muteLabel.text = AudioListener.volume > 0 ? "Âm thanh: Bật" : "Âm thanh: Tắt";
+        private void UpdateMuteLabel() => muteLabel.text = AudioListener.volume > 0 ? "Đang bật" : "Đang tắt";
 
         public void ResetView()
         {
