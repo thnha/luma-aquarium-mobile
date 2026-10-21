@@ -7,7 +7,8 @@ using UnityEngine;
 
 // Turns every PipelineFish under Art/Fish into a playable fish. The Blender pipeline already fitted the
 // template rig, skinned the mesh and baked the template clips onto it, so nothing is fitted here:
-//   <Name>.mat              Betta Lit with the fish's variant mask (colours come from BettaAppearance)
+//   <Name>.mat              Betta Lit with the fish's variant mask and optional pattern mask
+//                           (colours come from BettaAppearance)
 //   <Name>.overrideController  the shared Betta.controller playing this fish's own clips
 //   <Name>.prefab           FBX + swim/fin/reaction components, as BettaVariant.modelPrefab
 //   Data/Betta/Variants/<Name>.asset   the shop's variant (FishShopScreenBuilder lists every inShop fish)
@@ -43,9 +44,10 @@ public static class PipelineFishImporter
         var mask = AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_VariantMask.png");
         var baseColor = AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_BaseColor.png");
         if (!model || !mask || !baseColor)
-            throw new InvalidOperationException("Copy " + fish.name + ".fbx, _VariantMask.png and _BaseColor.png from betta-splendens/work into " + dir);
+            throw new InvalidOperationException("Copy " + fish.name + ".fbx, _VariantMask.png, _BaseColor.png (and _PatternMask.png) from betta-splendens/work into " + dir);
 
-        var material = FishMaterial(source, mask, baseColor);
+        var material = FishMaterial(source, mask, baseColor,
+            AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_PatternMask.png"));
         var controller = Controller(source, model);
 
         var root = new GameObject(fish.name);
@@ -104,7 +106,7 @@ public static class PipelineFishImporter
         return variant;
     }
 
-    static Material FishMaterial(string source, Texture2D mask, Texture2D baseColor)
+    static Material FishMaterial(string source, Texture2D mask, Texture2D baseColor, Texture2D pattern)
     {
         string path = source + ".mat";
         var shader = Shader.Find("Lumaquarium/Betta Lit");
@@ -116,6 +118,8 @@ public static class PipelineFishImporter
         material.SetFloat("_Metallic", 0f);
         material.SetFloat("_Smoothness", .5f);
         material.SetTexture("_VariantMask", mask);
+        // Optional: head, fin-ray streaks and height for patterns such as Galaxy.
+        material.SetTexture("_PatternMask", pattern);
         // The ordered scale atlas follows the shared Betta's UVs; a transparent map turns it off.
         material.SetTexture("_ScaleMap", NoScales());
         // Meshy fins are thin shells: draw both faces.

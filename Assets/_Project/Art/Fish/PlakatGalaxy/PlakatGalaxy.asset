@@ -15,14 +15,15 @@ MonoBehaviour:
   displayName: Plakat Galaxy
   inShop: 1
   shopId: plakat-galaxy
-  description: "Đỏ cam, đen, đốm xanh \xB7 Galaxy đu\xF4i tr\xF2n to"
+  description: "Koi Galaxy: th\xE2n tr\u1EAFng ng\u1ECDc m\u1EA3ng cam \u0111\u1ECF,
+    v\u1EA3y xanh \u0111en, v\xE2y xanh nh\u1EA1t vi\u1EC1n xanh \u0111\u1EADm"
   price: 0
   size: 2
-  pattern: {fileID: 11400000, guid: 033004b91971f4dd9818a435933096cf, type: 2}
-  primary: {r: 0.91, g: 0.25, b: 0.08, a: 1}
-  secondary: {r: 0.06, g: 0.06, b: 0.07, a: 1}
-  accent: {r: 0.25, g: 0.45, b: 1, a: 1}
-  finEdge: {r: 1, g: 0.8, b: 0.2, a: 1}
+  pattern: {fileID: 11400000, guid: 9c31507e348de46669991b4d0d773ea2, type: 2}
+  primary: {r: 0.95, g: 0.93, b: 0.9, a: 1}
+  secondary: {r: 0.04, g: 0.07, b: 0.22, a: 1}
+  accent: {r: 0.95, g: 0.28, b: 0.06, a: 1}
+  finEdge: {r: 0.62, g: 0.85, b: 1, a: 1}
   iridescence: 0.7
   seed: 3
   bodySwimAmplitude: 3

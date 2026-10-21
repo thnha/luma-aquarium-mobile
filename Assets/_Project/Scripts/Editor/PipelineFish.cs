@@ -22,7 +22,7 @@ public class PipelineFish : ScriptableObject
     public Color primary = new Color(0.12f, 0.31f, 0.82f);
     public Color secondary = new Color(0.95f, 0.95f, 0.95f);
     public Color accent = new Color(0.09f, 0.09f, 0.09f);
-    [Tooltip("Galaxy pattern: fin edge colour.")]
+    [Tooltip("Galaxy: yellow patches on the body and the lower fins' rim. Koi Galaxy: fin colour.")]
     public Color finEdge = new Color(1f, 0.82f, 0.2f);
     [Range(0f, 1f)] public float iridescence = 0.4f;
     public int seed;

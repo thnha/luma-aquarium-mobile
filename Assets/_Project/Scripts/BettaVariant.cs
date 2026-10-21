@@ -15,7 +15,7 @@ public class BettaVariant : ScriptableObject
     public Color secondary = new Color(0.24f, 0.48f, 1f);
     [Tooltip("Iridescent sheen, Koi black spots, Dragon scales.")]
     public Color accent = new Color(0.62f, 0.83f, 1f);
-    [Tooltip("Galaxy pattern: fin edge colour.")]
+    [Tooltip("Galaxy: yellow patches on the body and the lower fins' rim. Koi Galaxy: fin colour.")]
     public Color finEdge = new Color(1f, 0.82f, 0.2f);
     [Tooltip("Metallic sheen on the body. High reads as silver/chrome; low keeps a soft satin (milky, pearl).")]
     [Range(0f, 1f)] public float iridescence = 0.6f;

@@ -2654,8 +2654,8 @@ MonoBehaviour:
   - id: plakat-galaxy
     variant: {fileID: 11400000, guid: 6c339132a70a748ab9e999cc22658f90, type: 2}
     portrait: {fileID: 21300000, guid: e4437c31d784e44ca9649d74221cd7f0, type: 3}
-    description: "\u0110\u1ECF cam, \u0111en, \u0111\u1ED1m xanh \xB7 Galaxy \u0111u\xF4i
-      tr\xF2n to"
+    description: "Koi Galaxy: th\xE2n tr\u1EAFng ng\u1ECDc m\u1EA3ng cam \u0111\u1ECF,
+      v\u1EA3y xanh \u0111en, v\xE2y xanh nh\u1EA1t vi\u1EC1n xanh \u0111\u1EADm"
     price: 0
   optionButtons:
   - {fileID: 2043562045526822268}
