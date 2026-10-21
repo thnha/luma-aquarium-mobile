@@ -8,7 +8,7 @@ Mọi con cá dùng chung một rig (`Art/Betta/Betta.fbx`). Mỗi loại cá l�
 
 ## Cài đặt lần đầu
 
-1. **Lumaquarium → Build Betta Prefab.** Lệnh này bake `Art/Betta/Textures/BETTA_VariantMask.png` nếu chưa có, rồi gán mask vào `Betta.mat`.
+1. **Lumaquarium → Build Betta Prefab.** Lệnh này bake `Art/Betta/Textures/BETTA_VariantMask.png` nếu chưa có và lớp vảy `BETTA_OrderedScales.png` nếu thiếu hoặc khác phiên bản/source mesh, rồi gán vào `Betta.mat`.
 2. **Lumaquarium → Build Betta Variant Presets.** Lệnh này tạo 7 kiểu đuôi, 7 hoa văn, 10 variant mẫu và `Data/Betta/BettaLibrary.asset`.
 3. Trong `MainAquarium`, thêm component **Betta Appearance** vào `BettaRoot`, rồi chọn **Variant** (ví dụ `Data/Betta/Variants/KoiGalaxyPlakat`). Skeleton Root và Fin Physics có thể để trống, component tự tìm. Lệnh **Build Main Aquarium Scene** cũng tự thêm component này.
 
@@ -26,7 +26,7 @@ Muốn mỗi lần chơi ra một con cá khác: để trống **Variant** và g
 |---|---|---|
 | Rig | `Betta.fbx` | 80 bone và 4 clip dùng chung. Không đổi tên bone, vì `BettaFinPhysics` và `BettaSwimMotion` tìm bone theo tên. |
 | Hình dáng | `BettaBodyProfile`, `BettaHeadShape`, `BettaAppearance`, `BettaFinPhysics` | Các tiết diện thân–đầu dùng chung đường bao cong liên tục: đầy phía trước, thu nhỏ về cuống đuôi và miệng. Má/cằm được làm tròn; mang khép theo má khi nghỉ và vẫn mở có giới hạn trong Flare. Tâm mắt và gốc vây đi theo hình mới; mép vây tự do giữ nguyên. Xương đầu/mang giữ scale 1, mắt chỉ scale đều theo Eye Scale. Vị trí mắt và tư thế mang được gán lại mỗi `LateUpdate` vì clip có key cho mọi bone. Độ xòe, độ rủ và physics giữ theo kiểu đuôi. |
-| Màu | `Shaders/BettaVariant.hlsl` | Texture gốc chỉ còn giữ độ sáng tối (vảy, tia vây, AO). Màu lấy từ 3 màu của variant, trộn theo mask. Truyền qua `MaterialPropertyBlock`, nên mọi con cá dùng chung một material. |
+| Màu | `Shaders/BettaVariant.hlsl` | Màu lấy từ 3 màu của variant, trộn theo mask. Da dùng lớp vảy sạch riêng; tia vây vẫn dùng texture gốc. Truyền qua `MaterialPropertyBlock`, nên mọi con cá dùng chung một material. |
 
 ### Mask `BETTA_VariantMask.png`
 
@@ -114,7 +114,7 @@ Variant **Aqua Pearl Rosetail** (thân trắng sữa, vây trắng ở gốc và
 
 ## Da và màng vây dùng chung
 
-`Betta.mat` dùng normal strength 0.22 và AO strength 0.35 để vảy còn rõ nhưng bớt sần. `BettaPrefabBuilder` giữ các giá trị này khi build lại.
+`Betta.mat` hiện dùng normal strength 0.065 và AO strength 0.18 để vảy dịu hơn. `BettaPrefabBuilder` đã đồng bộ hai giá trị này để build lại không trả da về cấu hình 0.22/0.35 trước đây.
 
 `BettaFinSurface` tách tam giác BODY thành hai submesh theo UV island: da đục và màng vây ngực/bụng có alpha blend. Các mesh `Fin_*` cũng dùng màng vây với normal strength 0.12, alpha cut 0.08, không ghi depth và không dùng alpha-to-coverage. Cách phân vùng được dùng chung với `BettaMaskBaker`; các mảng bụng do xương gốc vây dẫn vẫn là da đục. `Resources/BettaMembrane.mat` giữ shader variant trong bản player build. Ảnh tiệm cá được bake lại với alpha thẳng để UI không làm vây tối thêm lần nữa.
 
@@ -134,12 +134,65 @@ Các file của lần chỉnh theo mẫu video: `BettaHeadShape.cs`, `BettaAppea
 
 Ảnh kiểm tra hình khối: [nhìn ngang](previews/BettaOvalProfile/side.png), [góc chéo](previews/BettaOvalProfile/three-quarter.png), [vật liệu xám](previews/BettaOvalProfile/clay.png), [tư thế bơi](previews/BettaOvalProfile/swimming.png).
 
+### Thân thấp và bầu tròn hơn theo ảnh mẫu
+
+![Form thân sau khi hạ lưng và tăng độ đầy ngang](previews/BettaRoundedBody/side.png)
+
+`BettaBodyProfile.cs` hạ và trải đỉnh lưng, bổ sung đường bao chiều rộng riêng, vuốt bụng và phần sau về cuống đuôi. Tại cùng tiết diện thân trước, tỉ lệ rộng/cao tăng từ khoảng 0.39 lên 0.55. `BettaHeadShape.cs` làm mềm các gờ trên đảo UV da thân bằng phép thư giãn đã dùng cho má; các đỉnh nối chung với mesh vây riêng và các tam giác nối rất mảnh được giữ cố định để không hở hoặc lật mặt. Mắt, miệng, mesh nguồn, topology và trọng số skin được giữ nguyên. Năm ảnh tiệm cá đã được cập nhật lại.
+
+Ảnh kiểm tra: [góc chéo](previews/BettaRoundedBody/three-quarter.png), [thân xám nhìn ngang](previews/BettaRoundedBody/clay-side.png), [nhìn từ trên](previews/BettaRoundedBody/clay-top.png), [chính diện](previews/BettaRoundedBody/clay-front.png), [đang bơi](previews/BettaRoundedBody/swimming.png). [Số đo tiết diện](previews/BettaRoundedBody/measurements.json) lấy từ mesh bind pose, chuẩn hóa theo khoảng Head–Tail_Base. Độ dày ngang là lựa chọn tạo hình có kiểm tra ba góc; ảnh mẫu chỉ có góc ngang nên không cung cấp số đo 3D chính xác.
+
+### Lưng–bụng theo mẫu tượng cá xám
+
+![Khối thân sau khi sửa ảnh hưởng xương vây](previews/BettaReferenceBody/clay-side.png)
+
+Da lưng/bụng trong FBX có nhiều đỉnh chịu ảnh hưởng của xương tia vây. Ở bản trước, xoay/phóng `Dorsal_A_01` kéo da thân tới khoảng 18 mm dù đường bao bind pose đã mềm. `BettaBodySkinning.cs` chuyển ảnh hưởng này sang hai xương thân lân cận trên bản sao BODY; vùng gốc màng vây pha vào cùng xương thân, mép tự do giữ trọng số gốc. `BettaHeadShape.cs` áp trọng số mới cho các mesh đã fit. FBX và trọng số nguồn không bị ghi đè.
+
+`BettaBodyProfile.cs` dùng đường bao ngoài da thân đo mỗi 5 mm để nắn cả các thùy nhỏ ở gốc vây, đồng thời thu nhỏ cuống đuôi. `BettaFinRuffle.cs` vẫn nhận diện gốc bằng trọng số tác giả và giữ cả các điểm nối nằm trong màng vây cố định khi tạo nếp Rosetail. Năm ảnh tiệm cá đã bake lại.
+
+Ảnh kiểm tra: [góc chéo xám](previews/BettaReferenceBody/clay-quarter.png), [góc trên](previews/BettaReferenceBody/clay-top.png), [màu thật](previews/BettaReferenceBody/color-side.png), [đang bơi](previews/BettaReferenceBody/swimming.png). `docs/tests/betta-body-fin-isolation.cs` và `docs/tests/betta-ruffled-attachments.cs` lần lượt kiểm tra vây thường và Rosetail thật: xoay/phóng 15 xương vây, mỗi phép kiểm có 735 mẫu điểm nối, thân không bị kéo và không mở khe nối. `betta-head-shape.cs` kiểm tra trọng số bản sao được chuẩn hóa, trọng số nguồn và mép vây xa vẫn nguyên.
+
+Hiệu chỉnh tiếp theo mẫu nhìn chéo: `BettaBodyProfile.cs` tăng khối thân sau và chiều rộng, giữ chiều cao thân trước. Tại tiết diện thân trước, rộng/cao tăng khoảng 0.55 → 0.64; phần sau tăng 0.34 → 0.42. Gần cuống đuôi, chiều cao tăng khoảng 33% và chiều rộng khoảng 49% so với bản vừa thu nhỏ. Vùng chuyển tiếp hình học được nới để phần rộng hơn không gập lại ở gốc vây; không đổi skinning hay rig. Năm ảnh tiệm cá đã cập nhật. Ảnh mới: [ngang](previews/BettaFullerRear/clay-side.png), [nhìn chéo](previews/BettaFullerRear/clay-quarter.png), [nhìn từ trên](previews/BettaFullerRear/clay-top.png), [đang bơi](previews/BettaFullerRear/swimming.png); [số đo](previews/BettaFullerRear/measurements.json). Các tỉ lệ là số đo model, không phải số đo suy ra chính xác từ ảnh mẫu nhìn chéo.
+
+### Độ cong bề mặt và da dịu hơn
+
+`BettaBodyProfile.cs` bổ sung phép làm tròn tiết diện vào cùng trường biến dạng dùng cho thân và gốc vây. Phép chỉnh pha 72% về tiết diện bầu dục, giữ độ sâu tương đối giữa các lớp mang, giảm tác động ở miệng và ngoài vùng da. Chiều rộng/cao mục tiêu không đổi; lần này xử lý các mảng phẳng ở má và gờ bụng/cuống đuôi thay vì tiếp tục tăng kích thước. `BettaVariant.hlsl` giảm tương phản bóng tối có sẵn trong màu da, hạ smoothness nền 0.58 → 0.40 và giới hạn ánh ngọc ở 0.58. `Betta.mat` giảm normal strength 0.22 → 0.065 và occlusion 0.35 → 0.18.
+
+Ảnh cùng điều kiện kiểm tra: [xám trước](previews/BettaSmoothSurface/before-clay.png), [xám sau](previews/BettaSmoothSurface/clay-quarter.png), [chính diện](previews/BettaSmoothSurface/clay-front.png), [từ trên](previews/BettaSmoothSurface/clay-top.png), [da trước](previews/BettaSmoothSurface/before-skin.png), [da sau](previews/BettaSmoothSurface/skin-quarter.png), [cá đủ vây](previews/BettaSmoothSurface/fish-quarter.png), [tư thế bơi](previews/BettaSmoothSurface/swimming.png). Các ảnh xám ẩn màng/vây để lộ thân; mắt giữ vật liệu gốc.
+
+`docs/tests/betta-surface-curvature.cs` cắt trực tiếp tam giác da tại 10 vị trí và ba mức Head Scale. Sai lệch bán kính RMS so với ellipse đã chuẩn hóa giảm ở thân khoảng 0.0474 → 0.0152, má/vai 0.0810 → 0.0235. Đây là chỉ số độ đều tiết diện, không phải phần trăm giống cá thật. Test tái hiện lỗi trước khi sửa và qua sau khi sửa; [số đo](previews/BettaSmoothSurface/measurements.json) lưu 30 tiết diện. Các kiểm tra đầu, silhouette, độ đầy thân, mặt lưới, Jacobian, nối vây thường/Rosetail và 10 variant × 5 clip đều qua. Shader không có thông báo lỗi. Năm ảnh tiệm cá được bake lại. Chưa build hay kiểm tra trên điện thoại.
+
 Độ hiếm của một variant = trọng số đuôi × trọng số hoa văn / 10000. Trên 8% là Common, trên 3% là Uncommon, trên 0.8% là Rare, còn lại là Legendary.
+
+### Đầu–mang và phân bố thân theo clip Candy Nemo Halfmoon
+
+Tham khảo clip Tropicflow Aquatic `https://www.tiktok.com/@tropicflowsd/video/7698678295705029918`. `BettaBodyProfile.cs` đưa khối đầy ngang về vai ngay sau mang, bổ sung cung bụng trước và nâng bụng sau dần về cuống đuôi. Phần trán thấp và má/cằm đầy hơn, mõm rút 1.8 mm trong không gian bind chuẩn của model. Miệng và vùng quanh mắt dùng cùng trường biến dạng để không tách khỏi đầu. Mép mang, jaw rig và các lớp da nguồn được giữ; không đổi kiểu vây, texture hay thông số vật liệu của lượt này. Đây là diễn giải hình khối theo clip, không phải số đo giải phẫu chính xác lấy từ video.
+
+Ảnh: [trước](previews/BettaClipForm/before-clay.png), [xám mới](previews/BettaClipForm/clay-quarter.png), [ngang](previews/BettaClipForm/clay-side.png), [từ trên](previews/BettaClipForm/clay-top.png), [chính diện](previews/BettaClipForm/clay-front.png), [đủ vây](previews/BettaClipForm/fish-quarter.png), [tư thế bơi](previews/BettaClipForm/swimming.png). [Số đo trước](previews/BettaClipForm/measurements-before.json) và [sau](previews/BettaClipForm/measurements.json) lưu theo chiều dài Head–Tail_Base; tọa độ mõm lưu bằng mét.
+
+`docs/tests/betta-clip-head-body.cs` tái hiện các điểm cần chỉnh trên model thật trước khi sửa; 12 kiểm tra vai/bụng/mõm ở ba Head Scale qua sau sửa. Kiểm tra 30 tiết diện tròn, 60 điều kiện tỉ lệ, 66 kiểm tra đầu, 122 kiểm tra silhouette, 21.204 mẫu Jacobian (định thức nhỏ nhất 0.129779), mặt thân và 49 điểm nối chung đều qua. Prefab được build lại bằng builder đã đồng bộ da mới; năm ảnh tiệm cá được cập nhật. File scene và số lượng 597 đối tượng giữ nguyên.
+
+### Vảy xếp hàng theo clip
+
+`Editor/BettaScaleBaker.cs` tạo atlas 2048 × 2048 bằng tọa độ bề mặt bind của BODY, dùng các tiết diện thật để hàng vảy quấn quanh thân. Các vảy bầu dục xếp chồng, hàng so le nửa bước; 32 hàng quanh thân, thu nhỏ về đầu và cuống đuôi. Đây là họa tiết tạo bằng code, không phải bản sao chính xác của cá trong clip. UV và mesh nguồn không bị chỉnh sửa. Atlas `BETTA_OrderedScales.png` chứa R = chi tiết màu nhẹ, GB = normal tangent XY, A = vùng da đục. Texture dùng dữ liệu linear và mipmap; metadata lưu phiên bản bake cùng hash nguồn FBX để builder không dùng lại lớp vảy cũ khi nguồn thay đổi.
+
+`BettaVariant.hlsl` thay normal/AO nhăn trên da bằng chi tiết vảy nông, giảm mạnh bóng tối có sẵn trong màu da nguồn và dùng phản sáng dịu hơn. Màu/pattern variant vẫn được giữ; mắt và tia vây tiếp tục dùng texture cũ. `BettaPrefabBuilder` gán atlas mới vào cả asset material và template màng vây, nhưng mask không cho vảy xuất hiện trên màng. `BettaMaskBaker.Dilate` được dùng chung để chống viền UV.
+
+Ảnh: [trước](previews/BettaOrderedScales/before-fish.png), [vảy mới cận cảnh](previews/BettaOrderedScales/skin-quarter.png), [ngang](previews/BettaOrderedScales/skin-side.png), [từ trên](previews/BettaOrderedScales/skin-top.png), [đang bơi](previews/BettaOrderedScales/swimming-skin.png), [cá đủ vây](previews/BettaOrderedScales/fish-quarter.png), [mẫu Koi](previews/BettaOrderedScales/koi-skin.png). Ảnh render cùng quy trình, không chỉnh sửa hậu kỳ.
+
+`docs/tests/betta-ordered-scales.cs` kiểm tra atlas trên mesh thật: 8.488 mẫu da, 4.130 mẫu màng/vây; không có vảy lan lên vây. Test builder hiện có 10 điều kiện qua hai lần chạy, bao gồm giữ tham chiếu atlas mới. Shader biên dịch không báo lỗi; 12 kiểm tra form theo clip và 66 kiểm tra đầu/variant qua sau rebuild. Năm chân dung tiệm cá được cập nhật. Scene hồ giữ nguyên.
+
+## Build lại trong Unity
+
+Thoát Play Mode rồi dùng `Lumaquarium > Build Betta Prefab`. Builder lưu prefab, controller và hai vật liệu liên quan; lệnh bị vô hiệu khi đang Play để không thay dữ liệu giữa lượt chạy. Form mới vẫn được tạo từ code hiện tại khi `BettaAppearance` áp variant, không có mesh tạo hình cũ được bake vào FBX.
+
+Lệnh `Build Main Aquarium Scene` của generator starter đã gỡ khỏi menu vì nó ghi đè hồ, HUD và cấu hình cá hiện tại. Code starter được giữ cho thiết lập ban đầu; các bản sao lưu scene không bị xóa. Lượt rebuild này giữ nguyên file scene và 597 đối tượng trong scene, không reset variant presets. `docs/tests/betta-builder-current-skin.cs` kiểm tra hai lần chạy builder vật liệu liên tiếp, 10 điều kiện đều qua; kiểm tra form đầu/variant và điểm nối cũng qua sau rebuild. Đây là rebuild asset trong Editor, không phải APK hay bản iOS.
 
 ## Giới hạn hiện tại
 
 - Dáng đầu chung đã được kiểm tra trên 10 biến thể trong Unity, đổi qua lại không tăng biến dạng. Năm clip được lấy mẫu trong Play Mode để kiểm tra mắt và đường nối da; đây chưa phải đánh giá mỹ thuật cho mọi khung hình chuyển động.
 - Chạy các phép kiểm bằng `unity command eval_file --caller plugin --skill unity-cli --format json -- --file <file> --timeout 15000`: Edit Mode có `docs/tests/betta-head-shape.cs` (66 checks) và `docs/tests/betta-natural-model.cs`; Play Mode có `docs/tests/betta-head-animation.cs` (150 checks) và `docs/tests/betta-fin-continuity.cs` (48 đường xương gồm cả các nhánh).
-- Form mới có thêm `docs/tests/betta-oval-silhouette.cs` (122 kiểm tra trên 10 biến thể: đường bao, độ đầy thân, mang nghỉ/Flare) và `docs/tests/betta-profile-jacobian.cs` (21.204 mẫu trên BODY và vây ở ba mức Head Scale; định thức nhỏ nhất 0.4518, không lật tiết diện).
+- Form mới có thêm `docs/tests/betta-oval-silhouette.cs` (122 kiểm tra trên 10 biến thể: đường bao, độ đầy thân, mang nghỉ/Flare) và `docs/tests/betta-profile-jacobian.cs` (21.204 mẫu trên BODY và vây ở ba mức Head Scale; định thức nhỏ nhất 0.1003, không lật tiết diện).
+- `docs/tests/betta-rounded-body.cs` kiểm tra 60 điều kiện về độ cao lưng, độ đầy ngang và độ thuôn trên 10 biến thể. `docs/tests/betta-body-integrity.cs` kiểm tra 4.700 mặt da thân và 49 đỉnh nối chung thân–vây ở ba mức Head Scale, kể cả prefab chưa kích hoạt: không có mặt thân quay ngược hoặc đỉnh nối bị tách. Các mesh không có đỉnh trùng nguồn được kiểm tra bằng ảnh render thay vì phép đo đỉnh nối này.
 - Đã đối chiếu ba góc của model và các tư thế đang bơi trong Unity. Chưa kiểm tra bản player trên điện thoại. Alpha blend có thể khác đôi chút khi nhiều màng vây chồng lên nhau hoặc với cấu hình renderer khác.
 - Thuộc tính variant nằm ngoài `UnityPerMaterial`, nên Betta Lit không dùng được SRP Batcher. Với số cá trong một bể thì không đáng kể.

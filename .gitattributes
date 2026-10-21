@@ -1,0 +1,2 @@
+Assets/_Project/Art/AquaFireBetta/AquaFireBetta_Skinned.asset filter=lfs diff=lfs merge=lfs -text
+Assets/_Project/Art/AquaFireBetta/Source/*.fbx filter=lfs diff=lfs merge=lfs -text

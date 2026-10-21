@@ -1,0 +1,182 @@
+[
+  {
+    "proportion": 0.8,
+    "station": -0.16,
+    "rms": 0.0165127739,
+    "widthHeight": 0.4529227
+  },
+  {
+    "proportion": 0.8,
+    "station": -0.14,
+    "rms": 0.0212770663,
+    "widthHeight": 0.4283633
+  },
+  {
+    "proportion": 0.8,
+    "station": -0.12,
+    "rms": 0.0189180318,
+    "widthHeight": 0.452204317
+  },
+  {
+    "proportion": 0.8,
+    "station": -0.1,
+    "rms": 0.012132341,
+    "widthHeight": 0.4910134
+  },
+  {
+    "proportion": 0.8,
+    "station": -0.08,
+    "rms": 0.0139682852,
+    "widthHeight": 0.553689
+  },
+  {
+    "proportion": 0.8,
+    "station": -0.06,
+    "rms": 0.0145313377,
+    "widthHeight": 0.587654
+  },
+  {
+    "proportion": 0.8,
+    "station": -0.04,
+    "rms": 0.00929363,
+    "widthHeight": 0.5776521
+  },
+  {
+    "proportion": 0.8,
+    "station": -0.02,
+    "rms": 0.01766449,
+    "widthHeight": 0.5365502
+  },
+  {
+    "proportion": 0.8,
+    "station": -0.01,
+    "rms": 0.026218351,
+    "widthHeight": 0.5361749
+  },
+  {
+    "proportion": 0.8,
+    "station": 0.0,
+    "rms": 0.02667237,
+    "widthHeight": 0.583298
+  },
+  {
+    "proportion": 1.0,
+    "station": -0.16,
+    "rms": 0.016512746,
+    "widthHeight": 0.452922761
+  },
+  {
+    "proportion": 1.0,
+    "station": -0.14,
+    "rms": 0.0212771185,
+    "widthHeight": 0.428363383
+  },
+  {
+    "proportion": 1.0,
+    "station": -0.12,
+    "rms": 0.01891696,
+    "widthHeight": 0.4522028
+  },
+  {
+    "proportion": 1.0,
+    "station": -0.1,
+    "rms": 0.0121320942,
+    "widthHeight": 0.490998536
+  },
+  {
+    "proportion": 1.0,
+    "station": -0.08,
+    "rms": 0.0139692863,
+    "widthHeight": 0.5537567
+  },
+  {
+    "proportion": 1.0,
+    "station": -0.06,
+    "rms": 0.0145094665,
+    "widthHeight": 0.587699533
+  },
+  {
+    "proportion": 1.0,
+    "station": -0.04,
+    "rms": 0.009309668,
+    "widthHeight": 0.577664733
+  },
+  {
+    "proportion": 1.0,
+    "station": -0.02,
+    "rms": 0.01759593,
+    "widthHeight": 0.5368199
+  },
+  {
+    "proportion": 1.0,
+    "station": -0.01,
+    "rms": 0.02623996,
+    "widthHeight": 0.5363733
+  },
+  {
+    "proportion": 1.0,
+    "station": 0.0,
+    "rms": 0.026701564,
+    "widthHeight": 0.5834712
+  },
+  {
+    "proportion": 1.3,
+    "station": -0.16,
+    "rms": 0.0165127255,
+    "widthHeight": 0.452922761
+  },
+  {
+    "proportion": 1.3,
+    "station": -0.14,
+    "rms": 0.02127711,
+    "widthHeight": 0.428363442
+  },
+  {
+    "proportion": 1.3,
+    "station": -0.12,
+    "rms": 0.01891525,
+    "widthHeight": 0.452200621
+  },
+  {
+    "proportion": 1.3,
+    "station": -0.1,
+    "rms": 0.0121317618,
+    "widthHeight": 0.490976185
+  },
+  {
+    "proportion": 1.3,
+    "station": -0.08,
+    "rms": 0.0139730889,
+    "widthHeight": 0.553857446
+  },
+  {
+    "proportion": 1.3,
+    "station": -0.06,
+    "rms": 0.0144855613,
+    "widthHeight": 0.587765455
+  },
+  {
+    "proportion": 1.3,
+    "station": -0.04,
+    "rms": 0.00933366548,
+    "widthHeight": 0.5776815
+  },
+  {
+    "proportion": 1.3,
+    "station": -0.02,
+    "rms": 0.0175172873,
+    "widthHeight": 0.537147
+  },
+  {
+    "proportion": 1.3,
+    "station": -0.01,
+    "rms": 0.02626664,
+    "widthHeight": 0.5366074
+  },
+  {
+    "proportion": 1.3,
+    "station": 0.0,
+    "rms": 0.0267382674,
+    "widthHeight": 0.5836752
+  }
+]

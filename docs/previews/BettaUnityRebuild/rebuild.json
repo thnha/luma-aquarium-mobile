@@ -1,0 +1,28 @@
+{
+  "kind": "Unity asset rebuild; no player export",
+  "skin": {
+    "normalStrength": 0.065,
+    "occlusionStrength": 0.18
+  },
+  "sceneUnchanged": true,
+  "sceneObjects": 597,
+  "obsoleteStarterMenuRemoved": true,
+  "checks": {
+    "builderRepeated": 8,
+    "curvatureSections": 30,
+    "headShape": 66,
+    "headAnimation": 150,
+    "animationVariants": 10,
+    "animationClips": 5,
+    "reversedTorsoFaces": 0,
+    "separatedSharedRoots": 0
+  },
+  "artifacts": {
+    "Assets/_Project/Scripts/Editor/BettaPrefabBuilder.cs": "11a162d7c9237a733338527096d0dfb20810ac5fe160a0e806a3d1fb7f171c77",
+    "Assets/_Project/Scripts/Editor/AquariumSceneBuilder.cs": "4044733cb62649926f8ff74d9d587747012844fd534d5222225c890c203ffe7e",
+    "Assets/_Project/Prefabs/Betta.prefab": "9c9d2d9a21f6d5aa7981fa1b437e6d7c887ba742328bfcfd3ee5a36c41ba7914",
+    "Assets/_Project/Art/Betta/Betta.controller": "033bc682a97a350d987916fe3d3a7df3754b1e2b55a3b2283f2c4d137739bb40",
+    "Assets/_Project/Art/Betta/Betta.mat": "828310ed985d1cfeaa1e32b6f5d597663e53c8766a94707fb2bf1815fb0994fa",
+    "Assets/_Project/Resources/BettaMembrane.mat": "25387ae8a474b7d06f5c0b80f448e618ea1f4ac5f3854a292ec64772a3f4dba2"
+  }
+}

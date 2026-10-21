@@ -1,0 +1,363 @@
+{
+  "verifiedOn": "2026-10-21",
+  "parameters": {
+    "segmentFollowRate": 3.2,
+    "maxJointBend": 11,
+    "bodyIdleAmplitude": 0.7,
+    "bodySwimAmplitude": 5,
+    "strokeSwimAmplitude": 3,
+    "turnTailKick": 0.025,
+    "maxTailKick": 4,
+    "headRecoil": 0.3
+  },
+  "face": {
+    "passed": 5,
+    "checks": [
+      "The test covers the original front face, mouth tip and both eye regions",
+      "Every facial vertex follows only the head, without fin or spine stretching",
+      "Front face keeps its shape across all five clips and exaggerated fin poses",
+      "Mouth surface does not stretch or jump relative to the head",
+      "Both eye regions stay fixed relative to the head"
+    ],
+    "poses": 20,
+    "faceVertices": 29152,
+    "mouthVertices": 3596,
+    "eyeRegionVertices": 4753,
+    "maxFaceError": 4.23111643e-08,
+    "maxMouthError": 3.33720322e-08,
+    "maxEyeError": 3.35276127e-08
+  },
+  "rig": {
+    "passed": 9,
+    "checks": [
+      "Aqua Fire is skinned to the existing Betta skeleton",
+      "Skinning preserves every original vertex and triangle",
+      "Original texture UVs are unchanged",
+      "The fitted skin preserves the original FBX surface and proportions",
+      "Fin movement cannot pinch the protected torso surface",
+      "Bind pose preserves the original surface within 0.01 mm",
+      "The rig keeps the original colour texture",
+      "Tail bone movement deforms the original mesh",
+      "The imported fish reuses the existing swim and fin simulation components"
+    ]
+  },
+  "turns": {
+    "passed": 40,
+    "checks": [
+      "Face remains rigid during right 90",
+      "Spine visibly trails the head during right 90",
+      "The actual torso bends with bounded displacement during right 90",
+      "Head and core torso move continuously without large jumps during right 90",
+      "Sampled core surface edges avoid severe compression or stretching during right 90",
+      "Face remains rigid during left 90",
+      "Spine visibly trails the head during left 90",
+      "The actual torso bends with bounded displacement during left 90",
+      "Head and core torso move continuously without large jumps during left 90",
+      "Sampled core surface edges avoid severe compression or stretching during left 90",
+      "Face remains rigid during right 180",
+      "Spine visibly trails the head during right 180",
+      "The actual torso bends with bounded displacement during right 180",
+      "Head and core torso move continuously without large jumps during right 180",
+      "Sampled core surface edges avoid severe compression or stretching during right 180",
+      "Face remains rigid during left 180",
+      "Spine visibly trails the head during left 180",
+      "The actual torso bends with bounded displacement during left 180",
+      "Head and core torso move continuously without large jumps during left 180",
+      "Sampled core surface edges avoid severe compression or stretching during left 180",
+      "Face remains rigid during right 90 at gameplay speed",
+      "Spine visibly trails the head during right 90 at gameplay speed",
+      "The actual torso bends with bounded displacement during right 90 at gameplay speed",
+      "Head and core torso move continuously without large jumps during right 90 at gameplay speed",
+      "Sampled core surface edges avoid severe compression or stretching during right 90 at gameplay speed",
+      "Face remains rigid during left 90 at gameplay speed",
+      "Spine visibly trails the head during left 90 at gameplay speed",
+      "The actual torso bends with bounded displacement during left 90 at gameplay speed",
+      "Head and core torso move continuously without large jumps during left 90 at gameplay speed",
+      "Sampled core surface edges avoid severe compression or stretching during left 90 at gameplay speed",
+      "Face remains rigid during right 180 at gameplay speed",
+      "Spine visibly trails the head during right 180 at gameplay speed",
+      "The actual torso bends with bounded displacement during right 180 at gameplay speed",
+      "Head and core torso move continuously without large jumps during right 180 at gameplay speed",
+      "Sampled core surface edges avoid severe compression or stretching during right 180 at gameplay speed",
+      "Face remains rigid during left 180 at gameplay speed",
+      "Spine visibly trails the head during left 180 at gameplay speed",
+      "The actual torso bends with bounded displacement during left 180 at gameplay speed",
+      "Head and core torso move continuously without large jumps during left 180 at gameplay speed",
+      "Sampled core surface edges avoid severe compression or stretching during left 180 at gameplay speed"
+    ],
+    "results": [
+      {
+        "turn": "right 90",
+        "maxSpineLagDegrees": 11.0,
+        "maxBodyLagMeters": 0.105416551,
+        "maxFaceErrorMeters": 6.70552254e-08,
+        "maxTorsoSpeed": 0.149018645,
+        "maxHeadAngularSpeed": 16.96613,
+        "minEdgeRatio": 0.7781034,
+        "maxEdgeRatio": 1.16946578,
+        "sampledCoreEdges": 1656,
+        "mostCompressed": {
+          "a": 191623,
+          "b": 191621,
+          "restA": "(0.023771, -0.077007, -0.073888)",
+          "restB": "(0.023187, -0.076713, -0.073083)",
+          "posedA": "(0.070367, -0.077007, -0.052502)",
+          "posedB": "(0.069675, -0.076713, -0.052208)",
+          "ratio": 0.7781034
+        },
+        "mostStretched": {
+          "a": 223187,
+          "b": 223181,
+          "restA": "(0.004279, -0.034673, -0.065235)",
+          "restB": "(0.003883, -0.034827, -0.065994)",
+          "posedA": "(0.052208, -0.034674, -0.056196)",
+          "posedB": "(0.052125, -0.034827, -0.057198)",
+          "ratio": 1.16946578
+        }
+      },
+      {
+        "turn": "left 90",
+        "maxSpineLagDegrees": 11.0,
+        "maxBodyLagMeters": 0.110899,
+        "maxFaceErrorMeters": 9.431682e-08,
+        "maxTorsoSpeed": 0.130365178,
+        "maxHeadAngularSpeed": 18.4746323,
+        "minEdgeRatio": 0.891438544,
+        "maxEdgeRatio": 1.22189319,
+        "sampledCoreEdges": 1656,
+        "mostCompressed": {
+          "a": 695758,
+          "b": 695767,
+          "restA": "(-0.032510, -0.038958, 0.092483)",
+          "restB": "(-0.032046, -0.039433, 0.093254)",
+          "posedA": "(-0.047853, -0.038958, 0.107630)",
+          "posedB": "(-0.047303, -0.039433, 0.108173)",
+          "ratio": 0.891438544
+        },
+        "mostStretched": {
+          "a": 191623,
+          "b": 191621,
+          "restA": "(0.023771, -0.077007, -0.073888)",
+          "restB": "(0.023187, -0.076713, -0.073083)",
+          "posedA": "(-0.007322, -0.077007, -0.083970)",
+          "posedB": "(-0.007493, -0.076713, -0.082749)",
+          "ratio": 1.22189319
+        }
+      },
+      {
+        "turn": "right 180",
+        "maxSpineLagDegrees": 11.0,
+        "maxBodyLagMeters": 0.109643728,
+        "maxFaceErrorMeters": 9.09459246e-08,
+        "maxTorsoSpeed": 0.1506735,
+        "maxHeadAngularSpeed": 18.6987457,
+        "minEdgeRatio": 0.7605909,
+        "maxEdgeRatio": 1.18902707,
+        "sampledCoreEdges": 1656,
+        "mostCompressed": {
+          "a": 191623,
+          "b": 191621,
+          "restA": "(0.023771, -0.077007, -0.073888)",
+          "restB": "(0.023187, -0.076713, -0.073083)",
+          "posedA": "(0.104835, -0.077007, -0.036966)",
+          "posedB": "(0.104118, -0.076713, -0.036812)",
+          "ratio": 0.7605909
+        },
+        "mostStretched": {
+          "a": 223187,
+          "b": 223181,
+          "restA": "(0.004279, -0.034673, -0.065235)",
+          "restB": "(0.003883, -0.034827, -0.065994)",
+          "posedA": "(0.088020, -0.034674, -0.044155)",
+          "posedB": "(0.088131, -0.034827, -0.045172)",
+          "ratio": 1.18902707
+        }
+      },
+      {
+        "turn": "left 180",
+        "maxSpineLagDegrees": 11.0,
+        "maxBodyLagMeters": 0.113397941,
+        "maxFaceErrorMeters": 9.21585936e-08,
+        "maxTorsoSpeed": 0.126072615,
+        "maxHeadAngularSpeed": 18.9366417,
+        "minEdgeRatio": 0.8769268,
+        "maxEdgeRatio": 1.25634265,
+        "sampledCoreEdges": 1656,
+        "mostCompressed": {
+          "a": 366417,
+          "b": 366416,
+          "restA": "(-0.000538, -0.029734, -0.075212)",
+          "restB": "(-0.001003, -0.029615, -0.075531)",
+          "posedA": "(-0.099484, -0.029734, -0.051381)",
+          "posedB": "(-0.099954, -0.029615, -0.051235)",
+          "ratio": 0.8769268
+        },
+        "mostStretched": {
+          "a": 191623,
+          "b": 191621,
+          "restA": "(0.023771, -0.077007, -0.073888)",
+          "restB": "(0.023187, -0.076713, -0.073083)",
+          "posedA": "(-0.085551, -0.077007, -0.070556)",
+          "posedB": "(-0.085149, -0.076713, -0.069352)",
+          "ratio": 1.25634265
+        }
+      },
+      {
+        "turn": "right 90 at gameplay speed",
+        "maxSpineLagDegrees": 11.0,
+        "maxBodyLagMeters": 0.106351435,
+        "maxFaceErrorMeters": 6.188917e-08,
+        "maxTorsoSpeed": 0.2546031,
+        "maxHeadAngularSpeed": 16.4157715,
+        "minEdgeRatio": 0.804105341,
+        "maxEdgeRatio": 1.15474033,
+        "sampledCoreEdges": 1656,
+        "mostCompressed": {
+          "a": 191623,
+          "b": 191621,
+          "restA": "(0.023771, -0.077007, -0.073888)",
+          "restB": "(0.023187, -0.076713, -0.073083)",
+          "posedA": "(0.114615, -0.077007, -0.029853)",
+          "posedB": "(0.113838, -0.076713, -0.029777)",
+          "ratio": 0.804105341
+        },
+        "mostStretched": {
+          "a": 772968,
+          "b": 772969,
+          "restA": "(-0.036808, -0.023563, 0.091345)",
+          "restB": "(-0.036852, -0.023593, 0.090922)",
+          "posedA": "(-0.015680, -0.023563, 0.078078)",
+          "posedB": "(-0.015609, -0.023593, 0.077592)",
+          "ratio": 1.15474033
+        }
+      },
+      {
+        "turn": "left 90 at gameplay speed",
+        "maxSpineLagDegrees": 11.0,
+        "maxBodyLagMeters": 0.110663913,
+        "maxFaceErrorMeters": 6.666605e-08,
+        "maxTorsoSpeed": 0.2052783,
+        "maxHeadAngularSpeed": 16.3480835,
+        "minEdgeRatio": 0.894239068,
+        "maxEdgeRatio": 1.18795645,
+        "sampledCoreEdges": 1656,
+        "mostCompressed": {
+          "a": 677027,
+          "b": 677026,
+          "restA": "(-0.038848, -0.028505, 0.131695)",
+          "restB": "(-0.039086, -0.028439, 0.129347)",
+          "posedA": "(-0.042588, -0.028505, 0.143724)",
+          "posedB": "(-0.043311, -0.028439, 0.141740)",
+          "ratio": 0.894239068
+        },
+        "mostStretched": {
+          "a": 191623,
+          "b": 191621,
+          "restA": "(0.023771, -0.077007, -0.073888)",
+          "restB": "(0.023187, -0.076713, -0.073083)",
+          "posedA": "(-0.089541, -0.077007, -0.067295)",
+          "posedB": "(-0.089206, -0.076713, -0.066146)",
+          "ratio": 1.18795645
+        }
+      },
+      {
+        "turn": "right 180 at gameplay speed",
+        "maxSpineLagDegrees": 11.0,
+        "maxBodyLagMeters": 0.10711205,
+        "maxFaceErrorMeters": 6.36850359e-08,
+        "maxTorsoSpeed": 0.254965663,
+        "maxHeadAngularSpeed": 19.1122456,
+        "minEdgeRatio": 0.8038751,
+        "maxEdgeRatio": 1.16113794,
+        "sampledCoreEdges": 1656,
+        "mostCompressed": {
+          "a": 191623,
+          "b": 191621,
+          "restA": "(0.023771, -0.077007, -0.073888)",
+          "restB": "(0.023187, -0.076713, -0.073083)",
+          "posedA": "(0.114604, -0.077007, -0.029862)",
+          "posedB": "(0.113827, -0.076713, -0.029786)",
+          "ratio": 0.8038751
+        },
+        "mostStretched": {
+          "a": 772968,
+          "b": 772969,
+          "restA": "(-0.036808, -0.023563, 0.091345)",
+          "restB": "(-0.036852, -0.023593, 0.090922)",
+          "posedA": "(-0.015705, -0.023563, 0.077997)",
+          "posedB": "(-0.015635, -0.023593, 0.077509)",
+          "ratio": 1.16113794
+        }
+      },
+      {
+        "turn": "left 180 at gameplay speed",
+        "maxSpineLagDegrees": 11.0,
+        "maxBodyLagMeters": 0.110646732,
+        "maxFaceErrorMeters": 6.188917e-08,
+        "maxTorsoSpeed": 0.205082878,
+        "maxHeadAngularSpeed": 18.90042,
+        "minEdgeRatio": 0.8916821,
+        "maxEdgeRatio": 1.19729757,
+        "sampledCoreEdges": 1656,
+        "mostCompressed": {
+          "a": 695758,
+          "b": 695767,
+          "restA": "(-0.032510, -0.038958, 0.092483)",
+          "restB": "(-0.032046, -0.039433, 0.093254)",
+          "posedA": "(-0.046337, -0.038958, 0.106592)",
+          "posedB": "(-0.045799, -0.039433, 0.107147)",
+          "ratio": 0.8916821
+        },
+        "mostStretched": {
+          "a": 191623,
+          "b": 191621,
+          "restA": "(0.023771, -0.077007, -0.073888)",
+          "restB": "(0.023187, -0.076713, -0.073083)",
+          "posedA": "(-0.089681, -0.077007, -0.067436)",
+          "posedB": "(-0.089337, -0.076713, -0.066280)",
+          "ratio": 1.19729757
+        }
+      }
+    ]
+  },
+  "sourceFiles": [
+    {
+      "file": "Meshy_AI_Aqua_Fire_Betta_1021043419_texture.fbx",
+      "sha256": "fed38de03629e0ac6d067afd469c471e12d4856297d2c1c4269ffdffdd850649",
+      "matchesOriginal": true
+    },
+    {
+      "file": "Meshy_AI_Aqua_Fire_Betta_1021043419_texture.png",
+      "sha256": "d77f41ea88d7abdd454116e8b8a22fd14ca050d878229b25be61404b1977f964",
+      "matchesOriginal": true
+    },
+    {
+      "file": "Meshy_AI_Aqua_Fire_Betta_1021043419_texture_metallic.png",
+      "sha256": "b9f46ae5b5a49cb81f622b5ceb6a9306e223c7d9d87298e6112eb03a9f17ef36",
+      "matchesOriginal": true
+    },
+    {
+      "file": "Meshy_AI_Aqua_Fire_Betta_1021043419_texture_normal.png",
+      "sha256": "e3e3fb8dfd1730c0665fe6a34eb32f29009a9483c16645b08330da93503e131e",
+      "matchesOriginal": true
+    },
+    {
+      "file": "Meshy_AI_Aqua_Fire_Betta_1021043419_texture_roughness.png",
+      "sha256": "d9dc2ccfac6a313cad48d49f4c4a7e7185f3674c2002a5cc5300b27753148b25",
+      "matchesOriginal": true
+    }
+  ],
+  "regressions": {
+    "aquaFireShopChecksPassed": 17,
+    "fishShopPlayModeChecksPassed": 31
+  },
+  "finalUnityConsole": {
+    "compilationFailed": false,
+    "errors": 0,
+    "warnings": 0
+  },
+  "limits": [
+    "Unity Editor verification; Android/iOS device performance and rendering not tested.",
+    "Surface edge checks sample the central torso; fins are inspected visually."
+  ]
+}

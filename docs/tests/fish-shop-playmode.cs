@@ -59,6 +59,13 @@ try
         inventory=new Lumaquarium.UI.FishShopInventory(key);field.SetValue(s,inventory);
         s.Open();s.optionButtons[i].onClick.Invoke();s.buyButton.onClick.Invoke();s.confirmButton.onClick.Invoke();
         var expected=s.offers[i].variant;
+        if(expected.modelPrefab!=null)
+        {
+            var skins=s.fish.GetComponentsInChildren<UnityEngine.SkinnedMeshRenderer>().Where(r=>r.enabled && r.gameObject.activeInHierarchy).ToArray();
+            check(s.fish.Variant==expected && skins.Length==1 && skins[0].sharedMesh.name=="AquaFireBetta_Skinned","Imported fish uses its own skinned model: "+expected.displayName);
+            check(!skins.Any(r=>r.name=="BODY" || r.name.StartsWith("Fin_")),"Imported fish hides the original model surface: "+expected.displayName);
+            continue;
+        }
         var enabled=s.fish.GetComponentsInChildren<UnityEngine.SkinnedMeshRenderer>(true).Where(r=>r.enabled&&r.name.StartsWith("Fin_")).Select(r=>r.name).OrderBy(n=>n);
         check(s.fish.Variant==expected && enabled.SequenceEqual(expected.tail.finMeshes.OrderBy(n=>n)),"Apply actual variant and correct fin meshes: "+expected.displayName);
         bool ruffled=s.fish.GetComponentsInChildren<UnityEngine.SkinnedMeshRenderer>(true).Where(r=>r.enabled&&r.name.StartsWith("Fin_")).All(r=>r.sharedMesh.name.EndsWith("_Ruffled"));

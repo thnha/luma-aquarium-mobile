@@ -28,7 +28,7 @@ Panel Trang trí giới thiệu ba nhóm Cây, Đá, Lũa và ghi rõ chưa hỗ
 
 Mở MainAquarium, thoát Play Mode rồi dùng `Lumaquarium > UI > Build Main Aquarium Screen`. Builder lưu riêng bản scene trên đĩa và bản đang chỉnh trong `Assets/_Project/Scenes/Backups/` trước khi tạo lại HUD; không thay Build Settings hoặc dựng lại cá. Các tùy chỉnh riêng trong HUD do builder tạo sẽ bị thay thế khi chạy lại. HUD starter được giữ dưới `LegacyAquariumHUD` và tắt.
 
-Không chạy builder hồ cá starter nếu muốn giữ màn này, vì builder đó tạo lại toàn bộ MainAquarium.
+Builder hồ cá starter tạo lại toàn bộ MainAquarium nên lệnh `Build Main Aquarium Scene` đã được gỡ khỏi menu. Cập nhật cá bằng `Lumaquarium > Build Betta Prefab` sau khi thoát Play Mode.
 
 ## Kiểm tra đã thực hiện
 

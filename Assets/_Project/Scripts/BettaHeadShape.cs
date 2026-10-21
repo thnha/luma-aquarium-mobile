@@ -41,23 +41,28 @@ public static class BettaHeadShape
             && (bones[index].name == "Root" || bones[index].name == "Head"
                 || bones[index].name.StartsWith("Gill_") || bones[index].name.StartsWith("Jaw_"));
 
-        // Relax the gill ridge on welded geometry, so UV seams cannot open while the
-        // cheek becomes rounder. This relaxation leaves the mouth, sockets and free fins anchored;
-        // the continuous body profile and root attachments are applied afterwards.
+        // Relax cheek and torso ridges on welded geometry, keeping UV copies joined.
+        // The mouth, sockets and free fins remain anchored; profile fitting follows.
         float[] attachment = AttachmentWeights(source, bones);
         var coreWeights = new float[positions.Length];
+        var skinLed = new bool[positions.Length];
         for (int i = 0; i < positions.Length; i++)
         {
             BoneWeight b = weights[i];
             coreWeights[i] = (Core(b.boneIndex0) ? b.weight0 : 0f) + (Core(b.boneIndex1) ? b.weight1 : 0f)
                 + (Core(b.boneIndex2) ? b.weight2 : 0f) + (Core(b.boneIndex3) ? b.weight3 : 0f);
             coreWeights[i] *= attachment[i];
+            string lead = bones[b.boneIndex0].name;
+            skinLed[i] = Core(b.boneIndex0) || lead.StartsWith("Spine_") || lead.StartsWith("Belly") || lead.StartsWith("Eye_");
         }
-        SoftenCheeks(source, positions, coreWeights, head, neck, out int[] weld, out float[] roundness);
+        // Belly and back skin can be weighted to fin roots. Classify complete skin
+        // islands rather than mistaking those attachment vertices for free fins.
+        bool[] skin = BettaFinSurface.BodyIslands(positions, source.uv, source.triangles, skinLed);
+        SoftenSurface(source, positions, coreWeights, skin, attachment, FinAnchors(bones), head, neck, tail, out int[] weld, out float[] roundness);
 
         TransformVertices(frame, positions, normals, tangents, Vector3.Distance(head, neck) * .001f, attachment);
 
-        // Rebuild the relaxed cheek's surface normals across UV copies; the rest retains
+        // Rebuild the relaxed surface normals across UV copies; the rest retains
         // its authored shading. Otherwise the old triangular ridge remains in the lighting.
         var sums = new Vector3[positions.Length];
         int[] tris = source.triangles;
@@ -84,6 +89,7 @@ public static class BettaHeadShape
         Mesh mesh = Object.Instantiate(source);
         mesh.name = source.name + "_HeadShape";
         mesh.vertices = positions;
+        mesh.boneWeights = BettaBodySkinning.Fit(source, bones, head, tail, skin);
         BettaFinSurface.Split(mesh, source, bones);
         if (normals.Length == positions.Length) mesh.normals = normals;
         if (tangents.Length == positions.Length) mesh.tangents = tangents;
@@ -108,6 +114,7 @@ public static class BettaHeadShape
         Mesh mesh = Object.Instantiate(source);
         mesh.name = source.name + "_BodyFit";
         mesh.vertices = positions;
+        mesh.boneWeights = BettaBodySkinning.Fit(source, bones, head, tail);
         if (normals.Length == positions.Length) mesh.normals = normals;
         if (tangents.Length == positions.Length) mesh.tangents = tangents;
         mesh.RecalculateBounds();
@@ -175,7 +182,24 @@ public static class BettaHeadShape
 
     }
 
-    static void SoftenCheeks(Mesh source, Vector3[] positions, float[] core, Vector3 head, Vector3 neck,
+    // Separate Fin_* meshes share their attachment positions with BODY. Keep those
+    // points on the common analytic profile; only the skin between them is relaxed.
+    static HashSet<Vector3Int> FinAnchors(Transform[] bones)
+    {
+        var anchors = new HashSet<Vector3Int>();
+        var animator = bones[0].GetComponentInParent<Animator>(true);
+        if (!animator) return anchors;
+        foreach (var renderer in animator.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+        {
+            if (!renderer.name.StartsWith("Fin_") || !renderer.sharedMesh) continue;
+            Mesh mesh = Source(BettaFinRuffle.Source(renderer.sharedMesh));
+            foreach (Vector3 point in mesh.vertices) anchors.Add(Vector3Int.RoundToInt(point * 100000f));
+        }
+        return anchors;
+    }
+
+    static void SoftenSurface(Mesh source, Vector3[] positions, float[] core, bool[] skin, float[] attachment, HashSet<Vector3Int> finAnchors,
+        Vector3 head, Vector3 neck, Vector3 tail,
         out int[] weld, out float[] roundness)
     {
         int count = positions.Length;
@@ -186,12 +210,19 @@ public static class BettaHeadShape
         var neighbours = new List<HashSet<int>>();
         float length = Vector3.Distance(head, neck);
         Vector3 forward = (head - neck).normalized;
+        float bodyLength = Vector3.Distance(head, tail);
+        Vector3 bodyForward = (head - tail).normalized;
         for (int i = 0; i < count; i++)
         {
             var key = Vector3Int.RoundToInt(positions[i] * 100000f);
             float u = Vector3.Dot(positions[i] - head, forward) / length;
-            float amount = core[i] * Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((u + 2f) / .8f))
+            float cheek = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((u + 2f) / .8f))
                 * (1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((u + .35f) / .45f)));
+            float s = Vector3.Dot(positions[i] - head, bodyForward) / bodyLength;
+            float torso = .7f * Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((s + 1.08f) / .16f))
+                * (1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((s + .22f) / .16f)));
+            if (finAnchors.Contains(key)) torso = 0f;
+            float amount = Mathf.Max(core[i] * cheek, skin[i] ? attachment[i] * torso : 0f);
             if (!groups.TryGetValue(key, out int group))
             {
                 groups[key] = group = points.Count;
@@ -201,6 +232,16 @@ public static class BettaHeadShape
             weld[i] = group;
         }
         int[] triangles = source.triangles;
+        // Nearly collinear stitch triangles cannot tolerate independent relaxation.
+        // Pin their welded corners rather than letting a tiny face turn inside out.
+        for (int i = 0; i < triangles.Length; i += 3)
+        {
+            int a = triangles[i], b = triangles[i + 1], c = triangles[i + 2];
+            Vector3 ab = positions[b] - positions[a], ac = positions[c] - positions[a];
+            float edge = Mathf.Max(ab.sqrMagnitude, ac.sqrMagnitude, (positions[c] - positions[b]).sqrMagnitude);
+            if (Vector3.Cross(ab, ac).sqrMagnitude < edge * edge * .0001f)
+                amounts[weld[a]] = amounts[weld[b]] = amounts[weld[c]] = 0f;
+        }
         for (int i = 0; i < triangles.Length; i += 3)
             for (int j = 0; j < 3; j++)
             {

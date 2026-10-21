@@ -198,7 +198,7 @@ public static class BettaMaskBaker
     static byte ToByte(float v) => (byte)Mathf.RoundToInt(Mathf.Clamp01(v) * 255f);
 
     // Grows UV islands outward so bilinear filtering and mipmaps don't pull in empty texels at seams.
-    static void Dilate(Color32[] pixels, bool[] filled, int passes)
+    internal static void Dilate(Color32[] pixels, bool[] filled, int passes)
     {
         int[] dx = { 1, -1, 0, 0 }, dy = { 0, 0, 1, -1 };
         for (int pass = 0; pass < passes; pass++)

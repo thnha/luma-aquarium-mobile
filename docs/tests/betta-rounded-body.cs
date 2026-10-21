@@ -59,5 +59,5 @@ try {
         reports.Add(new{variant=variant.name,front,middle,rear});
     }
     if(failures.Count>0)throw new Exception(string.Join("\n",failures));
-    return new{passed=checks,reports};
+    return new{passed=checks,variants=reports.Count};
 } finally {UnityEngine.Object.DestroyImmediate(fish);}

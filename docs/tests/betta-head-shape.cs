@@ -54,7 +54,10 @@ try
         var shaped = body.sharedMesh.vertices;
         check(fin.All(i => (shaped[i] - original[i]).sqrMagnitude < 1e-12f), variant.name + ": fin geometry preserved");
         check(seams.All(g => { int first = g.First().i; return g.All(v => (shaped[v.i] - shaped[first]).sqrMagnitude < 1e-10f); }), variant.name + ": neck and UV seams remain joined");
-        check(body.sharedMesh.vertexCount == source.vertexCount && body.sharedMesh.boneWeights.SequenceEqual(source.boneWeights), variant.name + ": skinning and topology preserved");
+        check(body.sharedMesh.vertexCount == source.vertexCount && body.sharedMesh.bindposes.SequenceEqual(source.bindposes)
+            && source.boneWeights.SequenceEqual(weights)
+            && body.sharedMesh.boneWeights.All(w => Mathf.Abs(w.weight0+w.weight1+w.weight2+w.weight3-1f)<.0001f)
+            && fin.All(i => body.sharedMesh.boneWeights[i].Equals(weights[i])), variant.name + ": source skinning, free fins and topology preserved; fitted weights normalized");
         check(body.sharedMesh.normals.All(n => !float.IsNaN(n.x) && n.sqrMagnitude > .99f && n.sqrMagnitude < 1.01f), variant.name + ": finite unit normals");
         var firstMesh = body.sharedMesh;
         var firstPositions = positions.ToArray();

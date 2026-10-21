@@ -15,6 +15,8 @@ public static class BettaPrefabBuilder
     [MenuItem("Lumaquarium/Build Betta Prefab")]
     public static GameObject Build()
     {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            throw new System.InvalidOperationException("Exit Play Mode before rebuilding Betta assets.");
         // Bake first: it may reimport the FBX, which would invalidate a model loaded before it.
         Texture2D variantMask = BettaMaskBaker.LoadOrBake();
         var fbx = AssetDatabase.LoadAssetAtPath<GameObject>(FbxPath);
@@ -40,9 +42,15 @@ public static class BettaPrefabBuilder
 
         var prefab = PrefabUtility.SaveAsPrefabAsset(go, PrefabPath);
         Object.DestroyImmediate(go);
+        AssetDatabase.SaveAssetIfDirty(mat);
+        AssetDatabase.SaveAssetIfDirty(controller);
+        AssetDatabase.SaveAssetIfDirty(AssetDatabase.LoadAssetAtPath<Material>("Assets/_Project/Resources/BettaMembrane.mat"));
         Debug.Log("[Lumaquarium] Built " + PrefabPath);
         return prefab;
     }
+
+    [MenuItem("Lumaquarium/Build Betta Prefab", true)]
+    static bool CanBuild() => !EditorApplication.isPlayingOrWillChangePlaymode;
 
     static Material FishMaterial(Texture2D variantMask)
     {
@@ -58,13 +66,14 @@ public static class BettaPrefabBuilder
         mat.SetFloat("_Smoothness", 1f);
         mat.EnableKeyword("_METALLICSPECGLOSSMAP");
         mat.SetTexture("_BumpMap", Tex("BETTA_Normal_OpenGL"));
-        mat.SetFloat("_BumpScale", 0.22f);
+        mat.SetFloat("_BumpScale", 0.065f);
         mat.EnableKeyword("_NORMALMAP");
         mat.SetTexture("_OcclusionMap", Tex("BETTA_Mixed_AO"));
-        mat.SetFloat("_OcclusionStrength", 0.35f);
+        mat.SetFloat("_OcclusionStrength", 0.18f);
         mat.EnableKeyword("_OCCLUSIONMAP");
         // Per-fish colours come from BettaAppearance (MaterialPropertyBlock), not this material.
         mat.SetTexture("_VariantMask", variantMask);
+        mat.SetTexture("_ScaleMap", BettaScaleBaker.LoadOrBake());
         // Fins are single planes: cut out by alpha and render both faces.
         mat.SetFloat("_AlphaClip", 1f);
         mat.SetFloat("_Cutoff", 0.5f);

@@ -56,6 +56,9 @@ public static class BettaFinRuffle
         Vector3[] srcNormals = source.normals;
         Vector4[] srcTangents = source.tangents;
         BoneWeight[] srcWeights = source.boneWeights;
+        // Fitted attachments now follow spine bones. Use authored ray weights to
+        // identify the fixed border, while subdividing the fitted weights below.
+        BoneWeight[] borderWeights = BettaHeadShape.Source(source).boneWeights;
         var srcUv = new List<Vector2>();
         source.GetUVs(0, srcUv);
         bool hasNormals = srcNormals.Length == n, hasTangents = srcTangents.Length == n, hasUv = srcUv.Count == n;
@@ -71,12 +74,17 @@ public static class BettaFinRuffle
 
         // Base = border vertices mostly skinned to fin root bones.
         var rootWeight = new float[welded];
+        var bodyWeight = new float[welded];
         for (int i = 0; i < n; i++)
         {
-            BoneWeight w = srcWeights[i];
+            BoneWeight w = borderWeights[i];
             rootWeight[weld[i]] = Mathf.Max(rootWeight[weld[i]],
                 (IsRoot(bones, w.boneIndex0) ? w.weight0 : 0f) + (IsRoot(bones, w.boneIndex1) ? w.weight1 : 0f) +
                 (IsRoot(bones, w.boneIndex2) ? w.weight2 : 0f) + (IsRoot(bones, w.boneIndex3) ? w.weight3 : 0f));
+            BoneWeight fitted = srcWeights[i];
+            bodyWeight[weld[i]] = Mathf.Max(bodyWeight[weld[i]],
+                (IsBody(bones, fitted.boneIndex0) ? fitted.weight0 : 0f) + (IsBody(bones, fitted.boneIndex1) ? fitted.weight1 : 0f)
+                + (IsBody(bones, fitted.boneIndex2) ? fitted.weight2 : 0f) + (IsBody(bones, fitted.boneIndex3) ? fitted.weight3 : 0f));
         }
         var weldedPos = new Vector3[welded];
         for (int i = 0; i < n; i++) weldedPos[weld[i]] = srcPos[i];
@@ -103,6 +111,10 @@ public static class BettaFinRuffle
         for (int i = 0; i < welded; i++) { s[i] = edgeLength * 0.5f; t[i] = 0.5f; }
         foreach (int b in loop) { t[b] = 0f; fixedT[b] = true; }
         for (int i = 0; i < free.Count; i++) { s[free[i]] = arc[i]; t[free[i]] = 1f; fixedS[free[i]] = fixedT[free[i]] = true; }
+        // Some shared BODY attachment points lie inside the membrane, rather than
+        // on its topological border. They must stay fixed under ruffle as well.
+        for (int i = 0; i < welded; i++)
+            if (bodyWeight[i] > .999f) { t[i] = 0f; fixedT[i] = true; }
         var nb = new int[welded][];
         for (int i = 0; i < welded; i++) { nb[i] = new int[neighbours[i].Count]; neighbours[i].CopyTo(nb[i]); }
         Relax(s, fixedS, nb);
@@ -221,6 +233,13 @@ public static class BettaFinRuffle
         if (bones == null || index < 0 || index >= bones.Length || bones[index] == null) return false;
         string name = bones[index].name;
         return name.EndsWith("_Base") || (name.EndsWith("_01") && !name.Contains("_Crown_"));
+    }
+
+    static bool IsBody(Transform[] bones, int index)
+    {
+        if (bones == null || index < 0 || index >= bones.Length || !bones[index]) return false;
+        string name = bones[index].name;
+        return name == "Head" || name == "Tail_Base" || name.StartsWith("Spine_");
     }
 
     static int[] Weld(Vector3[] positions, out int count)

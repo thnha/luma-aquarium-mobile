@@ -66,6 +66,7 @@ Shader "Lumaquarium/Betta Lit"
 
         // Variant colouring (per fish via MaterialPropertyBlock, see BettaAppearance)
         [NoScaleOffset] _VariantMask("Variant Mask", 2D) = "black" {}
+        [NoScaleOffset] _ScaleMap("Ordered Body Scales", 2D) = "gray" {}
         _VariantOn("Variant On", Float) = 0.0
         _VariantPrimary("Variant Primary", Color) = (1,1,1,1)
         _VariantSecondary("Variant Secondary", Color) = (1,1,1,1)

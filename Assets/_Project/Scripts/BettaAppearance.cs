@@ -51,6 +51,11 @@ public class BettaAppearance : MonoBehaviour
     readonly Dictionary<SkinnedMeshRenderer, Mesh> flatFins = new Dictionary<SkinnedMeshRenderer, Mesh>();
     Mesh bodySource;
     MaterialPropertyBlock block;
+    GameObject originalModelInstance;
+    GameObject originalModelPrefab;
+    Renderer[] sharedRigRenderers;
+    readonly Dictionary<Renderer, bool> hiddenRenderers = new Dictionary<Renderer, bool>();
+    readonly Dictionary<Behaviour, bool> pausedRig = new Dictionary<Behaviour, bool>();
 
     public BettaVariant Variant => variant;
 
@@ -64,9 +69,53 @@ public class BettaAppearance : MonoBehaviour
 
     public void Apply(BettaVariant v)
     {
+        if (v == null) return;
         variant = v;
+        if (ApplyOriginalModel(v.modelPrefab)) return;
         ApplyColors();
         ApplyShape();
+    }
+
+    // Imported fish keep their own geometry and painted material, while the parent AI
+    // continues to handle movement and feeding. The shared rig is restored on selection.
+    bool ApplyOriginalModel(GameObject prefab)
+    {
+        if (originalModelInstance != null && originalModelPrefab == prefab) return true;
+        if (originalModelInstance != null)
+        {
+            originalModelInstance.SetActive(false);
+            if (Application.isPlaying) Destroy(originalModelInstance);
+            else DestroyImmediate(originalModelInstance);
+            originalModelInstance = null;
+        }
+        foreach (var pair in hiddenRenderers) if (pair.Key) pair.Key.enabled = pair.Value;
+        foreach (var pair in pausedRig) if (pair.Key) pair.Key.enabled = pair.Value;
+        hiddenRenderers.Clear();
+        pausedRig.Clear();
+        originalModelPrefab = prefab;
+        if (prefab == null) return false;
+
+        sharedRigRenderers ??= GetComponentsInChildren<Renderer>(true);
+        foreach (var renderer in sharedRigRenderers)
+            if (renderer) { hiddenRenderers[renderer] = renderer.enabled; renderer.enabled = false; }
+        void Pause(Behaviour behaviour)
+        {
+            if (!behaviour) return;
+            pausedRig[behaviour] = behaviour.enabled;
+            behaviour.enabled = false;
+        }
+        Pause(GetComponent<BettaSwimMotion>());
+        Pause(GetComponent<BettaFinPhysics>());
+        Pause(GetComponent<BettaReactions>());
+        Pause(GetComponentInChildren<Animator>());
+        scaled.Clear();
+        positioned.Clear();
+        gillAnchors.Clear();
+        originalModelInstance = Instantiate(prefab, transform, false);
+        originalModelInstance.name = prefab.name;
+        foreach (var child in originalModelInstance.GetComponentsInChildren<Transform>(true))
+            child.gameObject.layer = gameObject.layer;
+        return true;
     }
 
     void LateUpdate()
@@ -79,7 +128,7 @@ public class BettaAppearance : MonoBehaviour
     // Edit-mode preview of colours while tuning a variant in the Inspector.
     void OnValidate()
     {
-        if (variant != null && !Application.isPlaying) ApplyColors();
+        if (variant != null && variant.modelPrefab == null && !Application.isPlaying) ApplyColors();
     }
 
     void ApplyColors()

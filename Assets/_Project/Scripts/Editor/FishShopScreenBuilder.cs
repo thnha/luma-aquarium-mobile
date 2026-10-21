@@ -104,11 +104,11 @@ public static class FishShopScreenBuilder
 
     private static FishShopOffer[] LoadOffers()
     {
-        string[] ids = { "royal", "mustard", "koi", "orchid", "pearl" };
-        string[] assets = { "RoyalBlueHalfmoon", "MustardGasVeiltail", "KoiGalaxyPlakat", "BlackOrchidCrowntail", "AquaPearlRosetail" };
+        string[] ids = { "royal", "mustard", "koi", "orchid", "pearl", "aqua-fire", "koi-nemo" };
+        string[] assets = { "RoyalBlueHalfmoon", "MustardGasVeiltail", "KoiGalaxyPlakat", "BlackOrchidCrowntail", "AquaPearlRosetail", "AquaFireBetta", "KoiNemoBetta" };
         string[] descriptions = { "Xanh hoàng gia · Đuôi xòe bán nguyệt", "Xanh sẫm, vây vàng · Đuôi rủ mềm", "Trắng, cam, đen · Hoa văn Koi", "Tím phong lan · Đuôi tưa cá tính",
-            "Trắng ngọc, vây xanh ngọc · Mép vây gợn sóng" };
-        int[] prices = { 350, 450, 650, 900, 0 }; // Aqua Pearl Rosetail is a free gift
+            "Trắng ngọc, vây xanh ngọc · Mép vây gợn sóng", "Xanh ngọc, đỏ lửa · Model và màu sắc nguyên bản", "Đỏ, xanh, trắng · Koi Nemo đuôi tròn" };
+        int[] prices = { 350, 450, 650, 900, 0, 0, 0 };
         return ids.Select((id, i) => new FishShopOffer
         {
             id = id,
@@ -327,17 +327,22 @@ public static class FishShopScreenBuilder
             clone.transform.position = new Vector3(1000, 0, 0);
             clone.transform.rotation = Quaternion.Euler(0, 90, 0);
             foreach (var behaviour in clone.GetComponentsInChildren<MonoBehaviour>()) behaviour.enabled = false;
-            foreach (var t in clone.GetComponentsInChildren<Transform>()) t.gameObject.layer = 31;
             var animator = clone.GetComponentInChildren<Animator>();
             if (animator != null) animator.enabled = false;
             var appearance = clone.GetComponent<BettaAppearance>();
             if (appearance == null) appearance = clone.AddComponent<BettaAppearance>();
             appearance.Apply(variant);
-            var renderers = clone.GetComponentsInChildren<SkinnedMeshRenderer>().Where(r => r.enabled).ToArray();
+            foreach (var t in clone.GetComponentsInChildren<Transform>()) t.gameObject.layer = 31;
+            var renderers = clone.GetComponentsInChildren<SkinnedMeshRenderer>().Where(r => r.enabled && r.gameObject.activeInHierarchy).ToArray();
             // Skinned renderer bounds include every tail form and over-frame short-finned fish.
             // Measure the currently enabled, deformed meshes for an accurately fitted portrait.
             var bounds = new Bounds();
             bool first = true;
+            foreach (var renderer in clone.GetComponentsInChildren<MeshRenderer>().Where(r => r.enabled && r.gameObject.activeInHierarchy))
+            {
+                if (first) { bounds = renderer.bounds; first = false; }
+                else bounds.Encapsulate(renderer.bounds);
+            }
             foreach (var renderer in renderers)
             {
                 var mesh = new Mesh();

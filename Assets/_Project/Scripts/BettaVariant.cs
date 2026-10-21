@@ -7,6 +7,8 @@ public class BettaVariant : ScriptableObject
     public enum Rarity { Common, Uncommon, Rare, Legendary }
 
     public string displayName = "Royal Blue Halfmoon";
+    [Tooltip("Optional original model with its own materials. Empty uses the shared Betta rig.")]
+    public GameObject modelPrefab;
     public BettaTailType tail;
     public BettaPattern pattern;
 

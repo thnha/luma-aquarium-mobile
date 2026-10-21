@@ -8,7 +8,8 @@ using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 // Builds the M1 MainAquarium scene from the starter README layout.
-// Menu: Lumaquarium > Build Main Aquarium Scene (safe to re-run; overwrites the scene).
+// Retained for initial setup scripts only. No menu entry: rebuilding this starter
+// would overwrite the customized aquarium, UI and fish configuration.
 public static class AquariumSceneBuilder
 {
     const string Root = "Assets/_Project";
@@ -21,7 +22,6 @@ public static class AquariumSceneBuilder
     // Pitch it nose-down inside BettaRoot so the fish looks level when it swims level.
     const float FishModelPitchCorrection = 20f;
 
-    [MenuItem("Lumaquarium/Build Main Aquarium Scene")]
     public static void Build()
     {
         EnsureFolder(Root, "Scenes");
