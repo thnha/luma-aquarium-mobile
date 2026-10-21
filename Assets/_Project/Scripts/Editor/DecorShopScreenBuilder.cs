@@ -54,7 +54,7 @@ public static class DecorShopScreenBuilder
         }
         Connect(aquarium);
         EditorSceneManager.MarkSceneDirty(scene);EditorSceneManager.SaveScene(scene);AssetDatabase.SaveAssets();
-        Debug.Log("[Lumaquarium] 24 decoration offers installed with stock, shared wallet and wood planting.");
+        Debug.Log($"[Lumaquarium] {catalog.offers.Length} decoration offers installed with stock, shared wallet and wood planting.");
     }
 
     private static void ApplyCatalog(AquariumDecoration decoration,AquariumDecorCatalog catalog)
