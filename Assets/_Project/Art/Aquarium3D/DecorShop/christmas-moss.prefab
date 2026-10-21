@@ -235,6 +235,8 @@ MonoBehaviour:
   attachable: 1
   supportsPlants: 0
   plantMounts: []
+  wallMounted: 0
+  wallSize: {x: 0, y: 0}
 --- !u!65 &8210795645021497450
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -58,6 +58,8 @@ MonoBehaviour:
   - {x: -0.075, y: 0.18, z: 0.02}
   - {x: 0.02, y: 0.4, z: 0.025}
   - {x: 0.13, y: 0.47, z: -0.05}
+  wallMounted: 0
+  wallSize: {x: 0, y: 0}
 --- !u!65 &5360210796327429537
 BoxCollider:
   m_ObjectHideFlags: 0

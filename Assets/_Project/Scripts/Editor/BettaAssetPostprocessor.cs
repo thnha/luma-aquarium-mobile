@@ -22,6 +22,9 @@ public class BettaAssetPostprocessor : AssetPostprocessor
         model.materialImportMode = ModelImporterMaterialImportMode.None;
         model.animationType = ModelImporterAnimationType.Generic;
         model.optimizeGameObjects = false;
+        // The pipeline bakes its normal map on the triangulated mesh in MikkTSpace, as Unity computes it.
+        model.importNormals = ModelImporterNormals.Import;
+        model.importTangents = ModelImporterTangents.CalculateMikk;
     }
 
     void OnPreprocessAnimation()
@@ -43,6 +46,16 @@ public class BettaAssetPostprocessor : AssetPostprocessor
     {
         if (!assetPath.StartsWith(FishDir)) return;
         var mask = (TextureImporter)assetImporter;
+        // Baked detail (fish_bake.py): _Normal is a tangent-space normal map, _Detail is cavity (R) and AO (G).
+        // Both are smooth data at 2048, so block compression is fine there.
+        if (assetPath.EndsWith("_Normal.png") || assetPath.EndsWith("_Detail.png"))
+        {
+            mask.textureType = assetPath.EndsWith("_Normal.png") ? TextureImporterType.NormalMap : TextureImporterType.Default;
+            mask.sRGBTexture = false;
+            mask.maxTextureSize = 2048;
+            mask.textureCompression = TextureImporterCompression.CompressedHQ;
+            return;
+        }
         mask.maxTextureSize = 1024;
         mask.sRGBTexture = assetPath.Contains("BaseColor");
         // Body/fin and eye edges sit in R/G: block compression would smear them.

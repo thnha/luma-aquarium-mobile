@@ -2,8 +2,9 @@ using UnityEngine;
 
 // Procedural swim layered on top of the Animator (runs in LateUpdate):
 // - a slow, small body wave on the rear spine (bettas keep the body fairly still),
-// - follow-the-leader turning: each spine segment chases the heading of the one in front,
-//   so the head turns first and the body curves into a C, then straightens,
+// - path-following turns: the pivot (gills) is the head, and each spine segment takes the
+//   heading the head had when it was where that segment is now (or a short time ago while
+//   hovering), so the head turns first, then the body bends, and the tail turns last,
 // - the caudal peduncle (Spine_04/Tail_Base) makes the active stroke; the fins themselves
 //   are soft bodies simulated by BettaFinPhysics, which trail and ripple from this motion,
 // - propulsion: tail effort follows the AI's burst/coast cycle, forward speed surges with
@@ -33,8 +34,12 @@ public class BettaSwimMotion : MonoBehaviour
     public float headRecoil = 0.6f;          // subtle recoil keeps the cheek aligned with the body
 
     [Header("Turning")]
-    public float segmentFollowRate = 7f;     // 1/s; lower = body trails the head longer
-    public float maxJointBend = 18f;         // degrees between neighbouring segments
+    // Below this speed the body trails the head by time as if moving this fast, so a fish
+    // turning on the spot does not stay coiled; above it the body follows the head's path.
+    public float trailFollowSpeed = 0.35f;    // m/s
+    public float maxSegmentBend = 26f;       // degrees between neighbouring segments; more folds the peduncle
+    [Range(0f, 1f)] public float pitchBendScale = 0.5f; // fish bend less up/down than sideways
+    public float maxSegmentPitchBend = 10f;
     public float turnTailKick = 0.08f;       // extra caudal degrees per deg/s of turning
     public float maxTailKick = 12f;
 
@@ -44,7 +49,9 @@ public class BettaSwimMotion : MonoBehaviour
     public float pectoralTurnBias = 0.5f;    // outer fin beats harder in a turn
     public float gillRestFrequency = 0.7f;   // breathing slows when resting
     public float gillActiveFrequency = 1.6f; // and speeds up after exertion
-    public float gillAmplitude = 1.2f;
+    // Degrees the gill cover (Gill_*_02, as in the Flare clip) swings out about the body axis.
+    // The cover skin carries only part of the bone weight, so this needs to be fairly large.
+    public float gillOpenAngle = 12f;
 
     struct Bone
     {
@@ -65,9 +72,16 @@ public class BettaSwimMotion : MonoBehaviour
     };
     Bone[] spine, pectoralL, pectoralR, gillL, gillR;
     Bone head;
-    float[] segmentHeading;                  // lagged world yaw per spine segment
-    float[] jointBend;
+    struct HeadSample { public float time, yaw, pitch, path; }
+    const int HistorySize = 1024;          // ~3 s of tail delay at 300 fps
+    readonly HeadSample[] history = new HeadSample[HistorySize];
+    int historyCount, historyHead;           // ring buffer, newest at historyHead
+    float pathLength;                        // distance the head has travelled
+    Vector3 lastPosition;
+    float[] segmentDistance;                 // local units from the head pivot to each segment's middle
+    float[] jointBend, jointPitch;
     float bodyPhase, caudalPhase, finPhase, gillPhase, lastYaw, yawRate;
+    float gillSideL, gillSideR;              // +1 on the fish's right, -1 on its left: the opening direction
     float exertion;                           // slow-moving average of effort: quick to rise, slow to recover
 
     void Awake()
@@ -80,13 +94,69 @@ public class BettaSwimMotion : MonoBehaviour
             spine[i] = Find(SpineChain[i].name, SpineChain[i].weight, SpineChain[i].index);
         pectoralL = new[] { Find("Pectoral_L_01", 1f, 0) };
         pectoralR = new[] { Find("Pectoral_R_01", 1f, 0) };
-        gillL = new[] { Find("Gill_L_01", 1f, 0) };
-        gillR = new[] { Find("Gill_R_01", 1f, 0) };
+        // The cover opens by rolling Gill_*_02 about the body axis so its lower edge flares
+        // out; swinging Gill_*_01 about the vertical barely moves the cover skin.
+        gillL = new[] { Find("Gill_L_02", 1f, 0) };
+        gillR = new[] { Find("Gill_R_02", 1f, 0) };
+        gillSideL = GillSide(gillL[0]);
+        gillSideR = GillSide(gillR[0]);
         head = Find("Head", 1f, 0);
         lastYaw = transform.eulerAngles.y;
-        segmentHeading = new float[spine.Length];
+        lastPosition = transform.position;
         jointBend = new float[spine.Length];
-        for (int i = 0; i < spine.Length; i++) segmentHeading[i] = lastYaw;
+        jointPitch = new float[spine.Length];
+
+        // Where each segment sits behind the head, measured on the rest pose: the middle
+        // between its joint and the next one (the last segment extends as far again).
+        float scale = Mathf.Max(0.0001f, transform.lossyScale.x);
+        segmentDistance = new float[spine.Length];
+        for (int i = 0; i < spine.Length; i++)
+        {
+            float start = spine[i].t ? Vector3.Distance(transform.position, spine[i].t.position) / scale : 0f;
+            float end = i + 1 < spine.Length && spine[i + 1].t ? Vector3.Distance(transform.position, spine[i + 1].t.position) / scale
+                : start + (i > 0 ? start - segmentDistance[i - 1] : 0.02f);
+            segmentDistance[i] = (start + end) * 0.5f;
+        }
+        if (fish) fish.BodyLength = segmentDistance[spine.Length - 1] * scale;
+    }
+
+    float GillSide(Bone gill) =>
+        gill.t && Vector3.Dot(gill.t.position - transform.position, transform.right) < 0f ? -1f : 1f;
+
+    void RecordHead(float yaw, float pitch)
+    {
+        pathLength += Vector3.Distance(transform.position, lastPosition);
+        lastPosition = transform.position;
+        historyHead = (historyHead + 1) % HistorySize;
+        history[historyHead] = new HeadSample { time = Time.time, yaw = yaw, pitch = pitch, path = pathLength };
+        historyCount = Mathf.Min(historyCount + 1, HistorySize);
+    }
+
+    // Heading the head had when it was `distance` back along its path, or `delay` seconds
+    // ago, whichever comes first (a hovering fish barely moves, so time takes over).
+    HeadSample PastHead(float distance, float delay)
+    {
+        HeadSample newer = history[historyHead];
+        for (int n = 1; n < historyCount; n++)
+        {
+            HeadSample older = history[(historyHead - n + HistorySize) % HistorySize];
+            float pathBack = pathLength - older.path, timeBack = Time.time - older.time;
+            if (pathBack >= distance || timeBack >= delay)
+            {
+                float newerPath = pathLength - newer.path, newerTime = Time.time - newer.time;
+                // Interpolate to whichever limit was crossed first between the two samples.
+                float t = 1f;
+                if (pathBack >= distance) t = Mathf.Min(t, Mathf.InverseLerp(newerPath, pathBack, distance));
+                if (timeBack >= delay) t = Mathf.Min(t, Mathf.InverseLerp(newerTime, timeBack, delay));
+                return new HeadSample
+                {
+                    yaw = Mathf.LerpAngle(newer.yaw, older.yaw, t),
+                    pitch = Mathf.LerpAngle(newer.pitch, older.pitch, t),
+                };
+            }
+            newer = older;
+        }
+        return newer;
     }
 
     Bone Find(string boneName, float weight, int index)
@@ -136,21 +206,25 @@ public class BettaSwimMotion : MonoBehaviour
         yawRate = Mathf.Lerp(yawRate, rawYawRate, 1f - Mathf.Exp(-8f * dt));
         lastYaw = yaw;
 
-        // Follow the leader: each segment eases toward the heading of the segment in front.
-        // The difference between neighbours is that joint's bend, so a turn travels down
-        // the body as a C-curve instead of rotating the whole fish rigidly.
-        float follow = 1f - Mathf.Exp(-segmentFollowRate * dt);
-        float leader = yaw;
+        // Path following: each segment points the way the head pointed when it was there,
+        // so a turn starts at the head and travels down the body to the tail. The difference
+        // between neighbours is that joint's bend.
+        float pitch = Mathf.DeltaAngle(0f, transform.eulerAngles.x);
+        RecordHead(yaw, pitch);
+        float scale = transform.lossyScale.x;
+        float leaderYaw = yaw, leaderPitch = pitch;
         for (int i = 0; i < spine.Length; i++)
         {
-            float lag = Mathf.DeltaAngle(leader, segmentHeading[i]) * (1f - follow);
-            lag = Mathf.Clamp(lag, -maxJointBend, maxJointBend);
-            segmentHeading[i] = leader + lag;
-            jointBend[i] = lag;
-            leader = segmentHeading[i];
+            float distance = segmentDistance[i] * scale;
+            HeadSample past = PastHead(distance, distance / Mathf.Max(0.01f, trailFollowSpeed));
+            jointBend[i] = Mathf.Clamp(Mathf.DeltaAngle(leaderYaw, past.yaw), -maxSegmentBend, maxSegmentBend);
+            jointPitch[i] = Mathf.Clamp(Mathf.DeltaAngle(leaderPitch, past.pitch) * pitchBendScale, -maxSegmentPitchBend, maxSegmentPitchBend);
+            leaderYaw += jointBend[i];
+            leaderPitch += jointPitch[i] / Mathf.Max(0.01f, pitchBendScale);
         }
 
         Vector3 up = transform.up;
+        Vector3 side = transform.right;
 
         // The peduncle makes the active stroke; turning adds a stronger kick.
         float bodyAmplitude = Mathf.Lerp(bodyIdleAmplitude, bodySwimAmplitude, effort);
@@ -161,7 +235,7 @@ public class BettaSwimMotion : MonoBehaviour
         {
             float wave = Mathf.Sin(bodyPhase - spine[i].index * wavePhaseStep) * bodyAmplitude;
             float angle = wave * spine[i].weight + stroke * StrokeWeights[i] + jointBend[i];
-            Apply(ref spine[i], Quaternion.AngleAxis(angle, up));
+            Apply(ref spine[i], Quaternion.AngleAxis(angle, up) * Quaternion.AngleAxis(jointPitch[i], side));
         }
 
         // Head swings slightly against each tail stroke (recoil), which sells the push.
@@ -181,9 +255,11 @@ public class BettaSwimMotion : MonoBehaviour
             Apply(ref pectoralR[i], Quaternion.AngleAxis(-right * pectoralR[i].weight, up));
         }
 
-        float gill = (Mathf.Sin(gillPhase) * 0.5f + 0.5f) * gillAmplitude * Mathf.Lerp(0.8f, 1.4f, exertion);
-        Apply(ref gillL[0], Quaternion.AngleAxis(gill, up));
-        Apply(ref gillR[0], Quaternion.AngleAxis(-gill, up));
+        // A positive roll about the forward axis swings the part below the pivot to the right.
+        float gill = (Mathf.Sin(gillPhase) * 0.5f + 0.5f) * gillOpenAngle * Mathf.Lerp(0.8f, 1.4f, exertion);
+        Vector3 bodyAxis = transform.forward;
+        Apply(ref gillL[0], Quaternion.AngleAxis(gill * gillSideL, bodyAxis));
+        Apply(ref gillR[0], Quaternion.AngleAxis(gill * gillSideR, bodyAxis));
     }
 
     // Applies a world-space rotation to a bone on top of this frame's base pose.

@@ -44,10 +44,12 @@ public static class PipelineFishImporter
         var mask = AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_VariantMask.png");
         var baseColor = AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_BaseColor.png");
         if (!model || !mask || !baseColor)
-            throw new InvalidOperationException("Copy " + fish.name + ".fbx, _VariantMask.png, _BaseColor.png (and _PatternMask.png) from betta-splendens/work into " + dir);
+            throw new InvalidOperationException("Copy " + fish.name + ".fbx, _VariantMask.png, _BaseColor.png (and _PatternMask.png, _Normal.png, _Detail.png) from betta-splendens/work into " + dir);
 
         var material = FishMaterial(source, mask, baseColor,
-            AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_PatternMask.png"));
+            AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_PatternMask.png"),
+            AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_Normal.png"),
+            AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_Detail.png"));
         var controller = Controller(source, model);
 
         var root = new GameObject(fish.name);
@@ -106,7 +108,7 @@ public static class PipelineFishImporter
         return variant;
     }
 
-    static Material FishMaterial(string source, Texture2D mask, Texture2D baseColor, Texture2D pattern)
+    static Material FishMaterial(string source, Texture2D mask, Texture2D baseColor, Texture2D pattern, Texture2D normal, Texture2D detail)
     {
         string path = source + ".mat";
         var shader = Shader.Find("Lumaquarium/Betta Lit");
@@ -120,6 +122,14 @@ public static class PipelineFishImporter
         material.SetTexture("_VariantMask", mask);
         // Optional: head, fin-ray streaks and height for patterns such as Galaxy.
         material.SetTexture("_PatternMask", pattern);
+        // Scales and fin folds baked from the raw Meshy mesh (fish_bake.py): normal map, and the
+        // detail map as occlusion (G = AO; BettaVariant.hlsl reads R = cavity).
+        material.SetTexture("_BumpMap", normal);
+        material.SetFloat("_BumpScale", 1f);
+        SetKeyword(material, "_NORMALMAP", normal);
+        material.SetTexture("_OcclusionMap", detail);
+        material.SetFloat("_OcclusionStrength", 1f);
+        SetKeyword(material, "_OCCLUSIONMAP", detail);
         // The ordered scale atlas follows the shared Betta's UVs; a transparent map turns it off.
         material.SetTexture("_ScaleMap", NoScales());
         // Meshy fins are thin shells: draw both faces.
@@ -127,6 +137,12 @@ public static class PipelineFishImporter
         material.doubleSidedGI = true;
         EditorUtility.SetDirty(material);
         return material;
+    }
+
+    static void SetKeyword(Material material, string keyword, bool on)
+    {
+        if (on) material.EnableKeyword(keyword);
+        else material.DisableKeyword(keyword);
     }
 
     static Texture2D NoScales()

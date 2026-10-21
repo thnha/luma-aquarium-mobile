@@ -1158,6 +1158,8 @@ MonoBehaviour:
   attachable: 0
   supportsPlants: 0
   plantMounts: []
+  wallMounted: 0
+  wallSize: {x: 0, y: 0}
 --- !u!65 &6250851500478805330
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4660,6 +4662,8 @@ MonoBehaviour:
   attachable: 0
   supportsPlants: 0
   plantMounts: []
+  wallMounted: 0
+  wallSize: {x: 0, y: 0}
 --- !u!65 &8060492432861549068
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6200,6 +6204,31 @@ MonoBehaviour:
   - {fileID: 1591452932781682506, guid: f0fe079b51d964c288acc0776da191d2, type: 3}
   - {fileID: 7896164193561838827, guid: 537732979931941029f6c7ca833c7749, type: 3}
   - {fileID: 8120371489698864648, guid: 1deecffd12511444a84a19677d131822, type: 3}
+  - {fileID: 403603104002959586, guid: fd3455d03ea1e41dea0c7507198f6ad2, type: 3}
+  - {fileID: 2654594488922304946, guid: 8d6292c73f17d4c9fa5f7f92d98420e9, type: 3}
+  - {fileID: 8356700393587037169, guid: f02328164f14243839c160cd5278cdcf, type: 3}
+  - {fileID: 4461709430307202843, guid: 4611ada5e60d44f83b644d8c77ee913c, type: 3}
+  - {fileID: 5794187622810039845, guid: 2b4b58d01fd3e4f07bfb040587aa8386, type: 3}
+  - {fileID: 8956153079274887969, guid: 6f90155e344a94e20b388dbe1f5a2454, type: 3}
+  - {fileID: 518409587291131, guid: 18d9a331e19dd4296a2bfd0f9a3a0912, type: 3}
+  - {fileID: 1245887978251689039, guid: e597f7e7846104015adfe4b83020f361, type: 3}
+  - {fileID: 5390425330897966064, guid: af9f9911aed9c4930b43d15dcab7700f, type: 3}
+  - {fileID: 6869654201320046118, guid: 81261743fe8724435a0ea2a6e8b0e07d, type: 3}
+  - {fileID: 3152260865794229726, guid: 57238bb8dd097480a913fced94ed83a5, type: 3}
+  - {fileID: 3581557651243262696, guid: 884eb1499c63649469a7b9a1d9efbdea, type: 3}
+  - {fileID: 2037892123915975756, guid: 8f360411791c744a1ba0e6f4e335e052, type: 3}
+  - {fileID: 7527994210034968102, guid: 3c88099c4a3e340c080c31d765548d33, type: 3}
+  - {fileID: 4927247566915813110, guid: 3b99d4af8413542cabc9c7fbefee1aa7, type: 3}
+  - {fileID: 6401732364208571238, guid: 7ef4a06fcce0f4e78b36e0698d288635, type: 3}
+  - {fileID: 3524609242044679224, guid: a24f6c5e5251a402ebab5d9849d8736f, type: 3}
+  - {fileID: 3751088729658944618, guid: 9a8ed09da977441fcaa75e3ea9db0791, type: 3}
+  - {fileID: 6898933227830173703, guid: 7d4f196de69724713a9095207dd13ee1, type: 3}
+  - {fileID: 4827623027934760729, guid: 15a50e6c1f694454394d2ec808f35ad9, type: 3}
+  - {fileID: 5968119375522399583, guid: 83ceb97d0f82e443784bea328ad41f0c, type: 3}
+  - {fileID: 1084338484231488539, guid: a4c3742bb935a4c0581d5b6a828fe116, type: 3}
+  - {fileID: 7220260656153194921, guid: a16c5c582e62c44679473d73415a3d17, type: 3}
+  - {fileID: 5614675725701440680, guid: 47720d66f965741588405ea43c20b92d, type: 3}
+  - {fileID: 1540067837692001380, guid: 6f426f2b8b6e242979a9758702090750, type: 3}
   catalog: {fileID: 11400000, guid: 7794c97f9f0e3470b936e1d249cf6cb7, type: 2}
   inventoryStorageKey: Lumaquarium.FishShop.v1
   itemsRoot: {fileID: 3540554829139068634}
@@ -6395,6 +6424,8 @@ MonoBehaviour:
   attachable: 0
   supportsPlants: 0
   plantMounts: []
+  wallMounted: 0
+  wallSize: {x: 0, y: 0}
 --- !u!65 &4478879099379782812
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6921,6 +6952,8 @@ MonoBehaviour:
   attachable: 0
   supportsPlants: 0
   plantMounts: []
+  wallMounted: 0
+  wallSize: {x: 0, y: 0}
 --- !u!65 &5574089760435468601
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -15315,6 +15348,8 @@ MonoBehaviour:
   attachable: 0
   supportsPlants: 0
   plantMounts: []
+  wallMounted: 0
+  wallSize: {x: 0, y: 0}
 --- !u!65 &5270793071365292429
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -17344,6 +17379,11 @@ MonoBehaviour:
   decorateTile: {fileID: 0}
   tileNormal: {fileID: 0}
   tileActive: {fileID: 0}
+  careGlow: {fileID: 0}
+  decorateGlow: {fileID: 0}
+  careLift: {fileID: 0}
+  decorateLift: {fileID: 0}
+  activeLift: 18
 --- !u!225 &5281912746202035024
 CanvasGroup:
   m_ObjectHideFlags: 0
