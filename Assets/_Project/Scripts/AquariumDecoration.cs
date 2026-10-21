@@ -354,9 +354,9 @@ public sealed class AquariumDecoration : MonoBehaviour
         bool valid = CanPlace(Selected, Selected.transform.position);
         bool attached = Selected.transform.parent != itemsRoot;
         instruction.text = !valid ? "Vòng đỏ: ra ngoài hồ hoặc chồng đồ. Kéo sang chỗ trống." :
-            attached ? "Đã gắn lên lũa • Xoay rồi chọn Đặt" :
+            attached ? "Đã gắn lên lũa/đá • Xoay rồi chọn Đặt" :
             Selected.floats ? "Kéo trên mặt nước • Xoay rồi chọn Đặt" :
-            Selected.attachable ? "Kéo trên cát hoặc lên lũa để gắn • Chọn Đặt" : "Kéo trên nền cát • Xoay rồi chọn Đặt";
+            Selected.attachable ? "Kéo trên cát, lên lũa hoặc đá để gắn • Chọn Đặt" : "Kéo trên nền cát • Xoay rồi chọn Đặt";
         selectionRing.gameObject.SetActive(true);
         selectionRing.transform.position = Selected.transform.position + Vector3.up * .012f;
         selectionRing.startColor = selectionRing.endColor = valid ? new Color(.6f, 1, .55f) : new Color(1, .25f, .15f);
