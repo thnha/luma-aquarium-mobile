@@ -4,10 +4,10 @@ Màn `Assets/_Project/Scenes/MainAquarium.unity` dùng HUD theo mẫu `../medias
 
 ## Phần đã dựng
 
-- Bảng tên và chân dung được render từ chính model Betta; nút Cài đặt, Ẩn UI và bốn hành động tiếng Việt.
+- HUD theo [redesign 2.5D](ui-redesign.md): chip cá (chân dung render từ model, tên, độ no), ví xu, nút Cài đặt và Ẩn UI, dock 5 nút Cho ăn · Chăm sóc · Trang trí · Cửa hàng · Ảnh.
 - Canvas tham chiếu 1080 × 1920, co theo chiều rộng, toolbar dùng HorizontalLayoutGroup và SafeArea hiện có.
 - Cho ăn gọi FeedingSystem, giữ cooldown và giới hạn viên thức ăn. Panel Chăm sóc đọc độ no và trạng thái thật từ BettaFishAI.
-- Ẩn UI giữ nút hiện lại. Cài đặt cho bật/tắt âm thanh và đưa camera về góc ban đầu. Camera bị khóa khi mở panel.
+- Ẩn UI giữ nút hiện lại. Sheet Cài đặt có Âm thanh, Ánh sáng ngày/đêm, Góc nhìn, Ẩn giao diện và Hồ sơ khách. Camera bị khóa khi mở sheet.
 - Ảnh được chụp sau khi ẩn HUD, lưu PNG vào `Application.persistentDataPath/Photos`, rồi hiện lại HUD. Thông báo thành công chỉ xuất hiện sau khi ghi file; chưa xuất vào thư viện ảnh điện thoại hoặc chia sẻ.
 
 ## Phạm vi hình ảnh
@@ -16,7 +16,7 @@ Nền `Assets/_Project/UI/Backgrounds/AquariumEnvironment.png` là ảnh hồ s�
 
 Geometry blockout cũ được giữ trong scene và tắt Renderer, còn SwimBounds và FoodSpawnPoint tiếp tục dùng cho gameplay. Vùng bơi nông hơn và cá lớn hơn để thấy rõ trên màn dọc. Không thay prefab hoặc script AI của cá.
 
-Panel Trang trí giới thiệu ba nhóm Cây, Đá, Lũa và ghi rõ chưa hỗ trợ đặt đồ 3D. Panel Chăm sóc ghi rõ chưa có dữ liệu nước và thiết bị; không hiển thị thông số minh họa như dữ liệu thật.
+Sheet Trang trí là kho đồ (tab Cây · Lũa · Đá): món còn trong kho mở chế độ đặt đồ, món hết mở Cửa hàng. Panel Chăm sóc ghi rõ chưa có dữ liệu nước và thiết bị; không hiển thị thông số minh họa như dữ liệu thật.
 
 ## File chính và tạo lại
 
@@ -26,7 +26,7 @@ Panel Trang trí giới thiệu ba nhóm Cây, Đá, Lũa và ghi rõ chưa hỗ
 - `Assets/_Project/UI/Portraits/BettaPortrait.png`: chân dung model.
 - `docs/previews/MainAquarium/`: ảnh HUD và panel kiểm tra trong Editor.
 
-Mở MainAquarium, thoát Play Mode rồi dùng `Lumaquarium > UI > Build Main Aquarium Screen`. Builder lưu riêng bản scene trên đĩa và bản đang chỉnh trong `Assets/_Project/Scenes/Backups/` trước khi tạo lại HUD; không thay Build Settings hoặc dựng lại cá. Các tùy chỉnh riêng trong HUD do builder tạo sẽ bị thay thế khi chạy lại. HUD starter được giữ dưới `LegacyAquariumHUD` và tắt.
+Mở MainAquarium, thoát Play Mode rồi dùng `Lumaquarium > UI > Build Main Aquarium Screen`. Builder lưu riêng bản scene trên đĩa và bản đang chỉnh trong `Assets/_Project/Scenes/Backups/` trước khi tạo lại HUD; không thay Build Settings hoặc dựng lại cá. Các tùy chỉnh riêng trong HUD do builder tạo sẽ bị thay thế khi chạy lại. HUD starter cũ (`LegacyAquariumHUD`) đã được xóa khỏi scene ngày 21/10/2026.
 
 Builder hồ cá starter tạo lại toàn bộ MainAquarium nên lệnh `Build Main Aquarium Scene` đã được gỡ khỏi menu. Cập nhật cá bằng `Lumaquarium > Build Betta Prefab` sau khi thoát Play Mode.
 

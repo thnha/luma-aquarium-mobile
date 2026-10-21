@@ -66,6 +66,10 @@ Logic ví, kho và đặt đồ (`FishShopInventory`, `AquariumDecoration`) gi�
 - Ánh sáng ngày/đêm trong Cài đặt là một nút chuyển, để `AquariumLighting.label` và test cũ vẫn dùng được.
 - Icon dock Cửa hàng `action_shop.png` được vẽ bằng `Tools/UI/make_shop_icon.py`, ghép từ ảnh render cá Royal Blue và dương xỉ Java trong game.
 
-### Chưa kiểm chứng
+### Đã dựng và kiểm tra (21/10/2026)
 
-Môi trường dùng để sửa code không có Unity. Code mới chỉ được soát cú pháp bằng tree-sitter và rà tham chiếu bằng tay; chưa được biên dịch, chưa chạy builder và chưa chụp Game View. Sau khi chạy các bước trên, cần chạy lại test trong `docs/tests` và xem Game View 9:16 và màn dài.
+Đã chạy cả 5 bước trên trong Unity 6000.3.26f1, biên dịch không lỗi. Build Settings: StartGame → LoginGame → LoadingGame → MainAquarium. `FrontEndScreenBuilder` đặt StartGame làm cảnh bắt đầu khi bấm Play trong Editor, mỗi lần nạp lại domain.
+
+Play Mode ở Game View 1080 × 1920: Khởi động hiện *Tiếp tục hồ của bạn* (đã có hồ sơ khách) → Đang tải → Hồ cá. Đã mở Chăm sóc, Trang trí, Cài đặt và Cửa hàng (tab Cá, 8 cá), console không có lỗi. Chưa thử mua cá, đặt đồ, màn lỗi của Loading, màn dài và thiết bị thật.
+
+Các builder vẫn ghi bản sao scene vào `Assets/_Project/Scenes/Backups/`. Thư mục này đã được dọn và đưa vào `.gitignore`; có thể xóa bất cứ lúc nào.

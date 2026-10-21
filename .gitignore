@@ -72,3 +72,7 @@ crashlytics-build.properties
 
 # Python bytecode from Tools scripts
 __pycache__/
+
+# Scene copies the editor builders write before changing a scene
+/Assets/_Project/Scenes/Backups/
+/Assets/_Project/Scenes/Backups.meta

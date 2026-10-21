@@ -14,10 +14,22 @@ using UnityEngine.SceneManagement;
 using UnityEngine.TextCore.LowLevel;
 using UnityEngine.U2D;
 
+[InitializeOnLoad]
 public static class FrontEndScreenBuilder
 {
     private const string Root = "Assets/_Project/UI";
     private const string SceneRoot = "Assets/_Project/Scenes/";
+
+    // Play in the Editor runs the full flow (Start → Loading → MainAquarium) whatever scene is open.
+    // playModeStartScene is not saved with the project, so set it on every domain load.
+    static FrontEndScreenBuilder()
+    {
+        EditorApplication.delayCall += () =>
+        {
+            if (EditorSceneManager.playModeStartScene == null)
+                EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(SceneRoot + FrontEndScenes.Start + ".unity");
+        };
+    }
     private static readonly Color Ink = Hex("343C2D");
     private static readonly Color Cream = Hex("FFF5DD");
     private static readonly Color Muted = Hex("65715A");

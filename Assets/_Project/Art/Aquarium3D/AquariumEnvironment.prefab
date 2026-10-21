@@ -17331,6 +17331,19 @@ MonoBehaviour:
   muteLabel: {fileID: 5633167526665015186}
   hud: {fileID: 5281912746202035024}
   decoration: {fileID: 3482791865683105501}
+  fishShop: {fileID: 0}
+  walletLabel: {fileID: 0}
+  hudFullnessFill: {fileID: 0}
+  hudFullnessLabel: {fileID: 0}
+  hungerPercent: {fileID: 0}
+  fishNameLabel: {fileID: 0}
+  fishPortrait: {fileID: 0}
+  careFishName: {fileID: 0}
+  carePortrait: {fileID: 0}
+  careTile: {fileID: 0}
+  decorateTile: {fileID: 0}
+  tileNormal: {fileID: 0}
+  tileActive: {fileID: 0}
 --- !u!225 &5281912746202035024
 CanvasGroup:
   m_ObjectHideFlags: 0
