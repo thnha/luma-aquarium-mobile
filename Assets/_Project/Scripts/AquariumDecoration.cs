@@ -16,12 +16,14 @@ public sealed class AquariumDecoration : MonoBehaviour
     public OrbitTouchCamera orbit;
     public Lumaquarium.UI.MainAquariumScreen screen;
     public GameObject dock;
+    public GameObject tiltButton;
     public TMP_Text instruction;
     public LineRenderer selectionRing;
     public AquariumWaterEffects water;
     public Vector2 min = new Vector2(-.74f, -.5f);
     public Vector2 max = new Vector2(.74f, .55f);
     public float floorY = .31f;
+    // Capacity in points: a small piece costs 1, larger pieces up to 3 (AquariumDecorItem.points).
     public int capacity = 24;
     public string storageKey = "Lumaquarium.Decoration.Preview.v1";
     public bool persistLayout = true;
@@ -41,13 +43,28 @@ public sealed class AquariumDecoration : MonoBehaviour
     private bool reactionsEnabled;
     private readonly List<RaycastResult> uiHits = new List<RaycastResult>();
     private readonly List<AquariumDecorItem> items = new List<AquariumDecorItem>();
+    // World-space vertices of each placed stone or piece of wood, read when something is stacked on it.
+    private readonly Dictionary<AquariumDecorItem, (Vector3[] points, Bounds bounds)> surfaces =
+        new Dictionary<AquariumDecorItem, (Vector3[] points, Bounds bounds)>();
     public int Count => items.Count;
+    public int Points
+    {
+        get
+        {
+            int points = 0;
+            foreach (var item in items) if (item != null) points += Mathf.Max(1, item.points);
+            return points;
+        }
+    }
+
+    public bool HasRoomFor(int kind) =>
+        kind >= 0 && kind < prefabs.Length && prefabs[kind] != null && Points + Mathf.Max(1, prefabs[kind].points) <= capacity;
 
     [Serializable] private class Layout { public List<Entry> items = new List<Entry>(); }
     [Serializable] private class Entry
     {
         public int kind;
-        public float x, y, z, yaw;
+        public float x, y, z, yaw, tilt;
         public string id, parentId;
     }
 
@@ -64,9 +81,67 @@ public sealed class AquariumDecoration : MonoBehaviour
     private float WallZ => max.y;
     private float WallTop => water != null ? water.surfaceY - .08f : floorY + 1.8f;
 
-    // Where an item comes to rest for a dragged point: on the sand, the surface or the back glass.
+    // Where an item comes to rest for a dragged point: on the sand or the stone and wood below it,
+    // on the surface, or on the back glass.
     private Vector3 Rest(AquariumDecorItem item, Vector3 p) =>
-        item.wallMounted ? new Vector3(p.x, p.y, WallZ) : new Vector3(p.x, Height(item), p.z);
+        item.wallMounted ? new Vector3(p.x, p.y, WallZ) :
+        new Vector3(p.x, item.Stacks ? GroundAt(item, p, float.PositiveInfinity) : Height(item), p.z);
+
+    // The highest stone or wood surface under a point, or the sand. Only surfaces below the ceiling
+    // count, so settling never lifts a piece onto what is stacked on top of it.
+    private float GroundAt(AquariumDecorItem item, Vector3 p, float ceiling)
+    {
+        float top = floorY, radius = Mathf.Max(.05f, item.footprint * .35f);
+        foreach (var other in items)
+        {
+            if (other == null || other == item || other.transform.IsChildOf(item.transform) ||
+                other.transform.parent != itemsRoot || !other.Stacks) continue;
+            var surface = Surface(other, out var bounds);
+            if (p.x < bounds.min.x - radius || p.x > bounds.max.x + radius || p.z < bounds.min.z - radius ||
+                p.z > bounds.max.z + radius || bounds.max.y <= top) continue;
+            foreach (var v in surface)
+                if (v.y > top && v.y < ceiling && (v.x - p.x) * (v.x - p.x) + (v.z - p.z) * (v.z - p.z) < radius * radius)
+                    top = v.y;
+        }
+        // Sink a little into the surface so the piece looks seated rather than balanced on a point.
+        return top > floorY ? top - .015f : floorY;
+    }
+
+    private Vector3[] Surface(AquariumDecorItem item, out Bounds bounds)
+    {
+        if (surfaces.TryGetValue(item, out var cached)) { bounds = cached.bounds; return cached.points; }
+        var points = new List<Vector3>();
+        foreach (var filter in item.GetComponentsInChildren<MeshFilter>())
+        {
+            // Plants attached to the piece are not part of its surface.
+            if (filter.sharedMesh == null || !filter.sharedMesh.isReadable || filter.GetComponentInParent<AquariumDecorItem>() != item) continue;
+            var matrix = filter.transform.localToWorldMatrix;
+            foreach (var v in filter.sharedMesh.vertices) points.Add(matrix.MultiplyPoint3x4(v));
+        }
+        var result = points.ToArray();
+        bounds = result.Length > 0 ? GeometryUtility.CalculateBounds(result, Matrix4x4.identity) : new Bounds(item.transform.position, Vector3.zero);
+        surfaces[item] = (result, bounds);
+        return result;
+    }
+
+    // A piece resting on stone or wood rather than on the sand.
+    private bool Raised(AquariumDecorItem item, Vector3 p) => item.Stacks && p.y > floorY + .03f;
+
+    // After a piece is moved or put away, whatever stood on it drops onto the next surface down.
+    private void Settle()
+    {
+        surfaces.Clear();
+        var raised = items.FindAll(x => x != null && x.transform.parent == itemsRoot && Raised(x, x.transform.position));
+        raised.Sort((a, b) => a.transform.position.y.CompareTo(b.transform.position.y));
+        foreach (var item in raised)
+        {
+            var p = item.transform.position;
+            float y = GroundAt(item, p, p.y + .02f);
+            if (Mathf.Abs(y - p.y) < .005f) continue;
+            item.transform.position = new Vector3(p.x, y, p.z);
+            surfaces.Remove(item);
+        }
+    }
 
     private void Start()
     {
@@ -87,8 +162,28 @@ public sealed class AquariumDecoration : MonoBehaviour
             }
             new Lumaquarium.UI.FishShopInventory(inventoryStorageKey).ImportStarterDecor(starter);
         }
+        EnsureTiltButton();
         dock.SetActive(false);
         selectionRing.gameObject.SetActive(false);
+    }
+
+    // Docks built before the Nghiêng button get one copied from Xoay.
+    private void EnsureTiltButton()
+    {
+        if (tiltButton == null)
+        {
+            var rotate = dock.transform.Find("PlacementAction0");
+            if (rotate == null) return;
+            tiltButton = Instantiate(rotate.gameObject, rotate.parent);
+            tiltButton.name = "PlacementTilt";
+            tiltButton.transform.SetSiblingIndex(rotate.GetSiblingIndex() + 1);
+            var label = tiltButton.GetComponentInChildren<TMP_Text>();
+            if (label != null) label.text = "Nghiêng";
+            var button = tiltButton.GetComponent<UnityEngine.UI.Button>();
+            button.onClick = new UnityEngine.UI.Button.ButtonClickedEvent();
+            button.onClick.AddListener(Tilt);
+        }
+        tiltButton.SetActive(false);
     }
 
     public void BeginPlant() => OpenShop(0);
@@ -112,15 +207,15 @@ public sealed class AquariumDecoration : MonoBehaviour
         OpenEditor();
         // Placing from the Trang trí sheet returns to it, so the next item is one tap away.
         returnToInventory = true;
-        if (items.Count >= capacity)
+        if (!HasRoomFor(kind))
         {
-            instruction.text = $"Hồ đã đủ {capacity} món. Cất bớt đồ để đặt món mới.";
+            instruction.text = $"Hồ đã dùng {Points}/{capacity} điểm, món này cần {Mathf.Max(1, prefabs[kind].points)}. Cất bớt đồ để đặt.";
             return false;
         }
         Selected = Instantiate(prefabs[kind], itemsRoot);
         Selected.name = prefabs[kind].name;
         Selected.instanceId = Guid.NewGuid().ToString("N");
-        Selected.transform.position = Rest(Selected, new Vector3(0, floorY + .3f, -.1f));
+        Selected.transform.position = Rest(Selected, new Vector3(0, floorY + .3f, Mathf.Lerp(min.y, max.y, .4f)));
         FrameSelection();
         isNew = true;
         RefreshSelection();
@@ -140,6 +235,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         cameraPosition = viewCamera.transform.position;
         cameraRotation = viewCamera.transform.rotation;
         Editing = true;
+        surfaces.Clear();
         screen.ClosePanels();
         screen.toolbar.SetActive(false);
         dock.SetActive(true);
@@ -281,6 +377,8 @@ public sealed class AquariumDecoration : MonoBehaviour
         {
             if (other == null || other == item || other.transform.IsChildOf(item.transform) ||
                 other.transform.parent != itemsRoot || other.floats != item.floats || other.wallMounted) continue;
+            // Stacked pieces sit on top of others, so their footprints may overlap.
+            if (Raised(item, p) || Raised(other, other.transform.position)) continue;
             Vector2 delta = new Vector2(p.x - other.transform.position.x, p.z - other.transform.position.z);
             if (delta.sqrMagnitude < Mathf.Pow(r + other.footprint, 2)) return false;
         }
@@ -294,14 +392,26 @@ public sealed class AquariumDecoration : MonoBehaviour
         RefreshSelection();
     }
 
+    // Leans driftwood sideways in 10° steps up to 30°, then stands it upright again.
+    public void Tilt()
+    {
+        if (Selected == null || !Selected.tiltable || Selected.transform.parent != itemsRoot) return;
+        var angles = Selected.transform.eulerAngles;
+        float tilt = Mathf.DeltaAngle(0, angles.z);
+        tilt = tilt >= 25 ? 0 : Mathf.Round(tilt / 10) * 10 + 10;
+        Selected.transform.rotation = Quaternion.Euler(0, angles.y, tilt);
+        RefreshSelection();
+    }
+
     public bool ConfirmPlacement()
     {
         if (Selected == null || !CanPlace(Selected, Selected.transform.position)) return false;
-        if (isNew && (items.Count >= capacity || Available(Selected.kind) <= 0)) return false;
+        if (isNew && (Points + Mathf.Max(1, Selected.points) > capacity || Available(Selected.kind) <= 0)) return false;
         if (isNew) items.Add(Selected);
         water?.Ripple(Selected.transform.position);
         Selected = null;
         isNew = false;
+        Settle();
         SaveLayout();
         CloseEditor();
         return true;
@@ -317,6 +427,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         Destroy(Selected.gameObject);
         Selected = null;
         isNew = false;
+        Settle();
         SaveLayout();
         CloseEditor();
     }
@@ -345,6 +456,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         if (!Editing) return;
         Editing = false;
         dock.SetActive(false);
+        if (tiltButton != null) tiltButton.SetActive(false);
         selectionRing.gameObject.SetActive(false);
         screen.toolbar.SetActive(true);
         viewCamera.transform.SetPositionAndRotation(cameraPosition, cameraRotation);
@@ -404,11 +516,14 @@ public sealed class AquariumDecoration : MonoBehaviour
         if (Selected == null) return;
         bool valid = CanPlace(Selected, Selected.transform.position);
         bool attached = Selected.transform.parent != itemsRoot;
+        if (tiltButton != null) tiltButton.SetActive(Selected.tiltable && !attached);
         instruction.text = !valid ? "Vòng đỏ: ra ngoài hồ hoặc chồng đồ. Kéo sang chỗ trống." :
             attached ? "Đã gắn lên lũa/đá • Xoay rồi chọn Đặt" :
             Selected.wallMounted ? "Kéo trên kính sau hồ • Ghép nhiều tấm thành tường rêu • Chọn Đặt" :
             Selected.floats ? "Kéo trên mặt nước • Xoay rồi chọn Đặt" :
-            Selected.attachable ? "Kéo trên cát, lên lũa hoặc đá để gắn • Chọn Đặt" : "Kéo trên nền cát • Xoay rồi chọn Đặt";
+            Selected.attachable ? "Kéo trên cát, lên lũa hoặc đá để gắn • Chọn Đặt" :
+            Raised(Selected, Selected.transform.position) ? "Đang chồng lên đá/lũa • Xoay rồi chọn Đặt" :
+            Selected.tiltable ? "Kéo trên cát hoặc lên đá • Xoay, Nghiêng rồi chọn Đặt" : "Kéo trên cát hoặc lên đá để chồng • Xoay rồi chọn Đặt";
         selectionRing.gameObject.SetActive(true);
         selectionRing.startColor = selectionRing.endColor = valid ? new Color(.6f, 1, .55f) : new Color(1, .25f, .15f);
         if (Selected.wallMounted)
@@ -446,7 +561,8 @@ public sealed class AquariumDecoration : MonoBehaviour
             if (string.IsNullOrEmpty(item.instanceId)) item.instanceId = Guid.NewGuid().ToString("N");
             layout.items.Add(new Entry { kind = item.kind, id = item.instanceId, parentId = host != null ? host.instanceId : "",
                 x = position.x, y = position.y, z = position.z,
-                yaw = host != null ? item.transform.localEulerAngles.y : item.transform.eulerAngles.y });
+                yaw = host != null ? item.transform.localEulerAngles.y : item.transform.eulerAngles.y,
+                tilt = host != null || !item.tiltable ? 0 : Mathf.DeltaAngle(0, item.transform.eulerAngles.z) });
         }
         PlayerPrefs.SetString(storageKey, JsonUtility.ToJson(layout));
         PlayerPrefs.Save();
@@ -463,7 +579,8 @@ public sealed class AquariumDecoration : MonoBehaviour
         foreach (var entry in layout.items)
         {
             if (entry == null || entry.kind < 0 || entry.kind >= prefabs.Length || prefabs[entry.kind] == null ||
-                !float.IsFinite(entry.x) || !float.IsFinite(entry.y) || !float.IsFinite(entry.z) || !float.IsFinite(entry.yaw))
+                !float.IsFinite(entry.x) || !float.IsFinite(entry.y) || !float.IsFinite(entry.z) || !float.IsFinite(entry.yaw) ||
+                !float.IsFinite(entry.tilt))
             { Discard(loaded); return; }
             string id = string.IsNullOrEmpty(entry.id) ? Guid.NewGuid().ToString("N") : entry.id;
             if (byId.ContainsKey(id)) { Discard(loaded); return; }
@@ -487,7 +604,8 @@ public sealed class AquariumDecoration : MonoBehaviour
                 item.transform.localPosition = local;
                 item.transform.localRotation = Quaternion.Euler(0, entry.yaw, 0);
             }
-            else item.transform.SetPositionAndRotation(Rest(item, new Vector3(entry.x, entry.y, entry.z)), Quaternion.Euler(0, entry.yaw, 0));
+            else item.transform.SetPositionAndRotation(Restore(item, new Vector3(entry.x, entry.y, entry.z)),
+                Quaternion.Euler(0, entry.yaw, item.tiltable ? Mathf.Clamp(entry.tilt, -30, 30) : 0));
         }
         // Validate against the candidate layout, while keeping the current layout recoverable.
         var previous = new List<AquariumDecorItem>(items);
@@ -497,6 +615,10 @@ public sealed class AquariumDecoration : MonoBehaviour
             { items.Clear(); items.AddRange(previous); Discard(loaded); return; }
         Discard(previous);
     }
+
+    // A saved position: stacked stone and wood keep their height, anything else rests as when placed.
+    private Vector3 Restore(AquariumDecorItem item, Vector3 p) =>
+        item.Stacks ? new Vector3(p.x, Mathf.Clamp(p.y, floorY, WallTop), p.z) : Rest(item, p);
 
     private static void Discard(List<AquariumDecorItem> list)
     {

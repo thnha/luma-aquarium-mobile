@@ -14,6 +14,13 @@ public sealed class AquariumDecorItem : MonoBehaviour
     // Hangs flat on the back glass instead of standing on the sand; the pivot is the bottom centre.
     public bool wallMounted;
     public Vector2 wallSize;
+    // Weight against the tank's capacity: larger pieces cost more points.
+    public int points = 1;
+    // Driftwood can lean sideways with the Nghiêng button.
+    public bool tiltable;
+
+    // Stones, wood and corals: they can rest on top of one another.
+    public bool Stacks => !floats && !wallMounted && !attachable && foliage == null;
 
     private void LateUpdate()
     {

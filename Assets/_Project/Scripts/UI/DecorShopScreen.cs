@@ -154,8 +154,8 @@ namespace Lumaquarium.UI
             if (!IsOpen || confirmation.activeSelf || selectedIndex < 0) return;
             int kind = catalog.offers[selectedIndex].prefab.kind;
             if (aquarium.decoration.Available(kind) <= 0) return;
-            if (aquarium.decoration.Count >= aquarium.decoration.capacity)
-            { feedback.text = "Hồ đã đầy. Cất bớt đồ trước khi đặt thêm."; return; }
+            if (!aquarium.decoration.HasRoomFor(kind))
+            { feedback.text = $"Hồ không đủ điểm cho món này ({aquarium.decoration.Points}/{aquarium.decoration.capacity}). Cất bớt đồ trước khi đặt thêm."; return; }
             Close();
             aquarium.decoration.Begin(kind);
         }

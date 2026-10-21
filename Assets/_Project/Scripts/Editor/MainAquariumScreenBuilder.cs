@@ -371,6 +371,13 @@ public static class MainAquariumScreenBuilder
             button.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = i == 3 ? 1.6f : 1;
             Wire(button, actions[i]);
         }
+        // Nghiêng sits beside Xoay and shows only while a piece of driftwood is selected.
+        var tilt = Ui3D.Button("PlacementTilt", dock.transform, "Nghiêng", Ui3D.Style.Secondary, 44);
+        tilt.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
+        tilt.transform.SetSiblingIndex(1);
+        Wire(tilt, decoration.Tilt);
+        decoration.tiltButton = tilt.gameObject;
+        tilt.gameObject.SetActive(false);
         var chip = Ui3D.Image("InstructionChip", dock.transform, "ui3d_hint");
         chip.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().ignoreLayout = true;
         Ui3D.At(chip.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 0), new Vector2(0, 24), new Vector2(940, 104));

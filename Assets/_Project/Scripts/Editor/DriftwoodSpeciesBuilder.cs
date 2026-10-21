@@ -70,7 +70,7 @@ public static class DriftwoodSpeciesBuilder
             colA=new Color(.42f,.31f,.22f), colB=new Color(.24f,.17f,.12f), tone=Tone.Grain },
     };
 
-    public static Mesh Build(Species sp,int seed,out Vector3[] plantMounts,out float footprint)
+    public static Mesh Build(Species sp,int seed,out Vector3[] plantMounts,out float footprint,int maxMounts=3)
     {
         var g = new Grower(sp, seed);
         float r0 = sp.r0;
@@ -83,7 +83,7 @@ public static class DriftwoodSpeciesBuilder
                 g.Grow(new Vector3(-.015f,0,0),new Vector3(-.6f,.8f,.05f),0,r0*.8f,.95f,.5f);
                 g.Grow(new Vector3(.015f,0,.01f),new Vector3(.62f,.78f,-.05f),0,r0*.8f,.95f,.5f); break;
         }
-        return g.Finish(out plantMounts,out footprint);
+        return g.Finish(out plantMounts,out footprint,maxMounts);
     }
 
     private static float Hash(int x,int y,int z)
@@ -236,7 +236,7 @@ public static class DriftwoodSpeciesBuilder
             for (int j = 0; j < sides; j++) triangles.AddRange(new[]{center,baseIndex+j+1,baseIndex+j});
         }
 
-        public Mesh Finish(out Vector3[] plantMounts,out float footprint)
+        public Mesh Finish(out Vector3[] plantMounts,out float footprint,int maxMounts)
         {
             var bounds = new Bounds(vertices[0],Vector3.zero);
             foreach (var v in vertices) bounds.Encapsulate(v);
@@ -257,7 +257,7 @@ public static class DriftwoodSpeciesBuilder
             // Keep mounts far enough apart that two attached plants never overlap.
             var chosen = new List<Vector3>();
             foreach (var m in mounts)
-                if (chosen.Count < 3 && chosen.TrueForAll(c => Vector3.Distance(c,m) >= .06f)) chosen.Add(m);
+                if (chosen.Count < maxMounts && chosen.TrueForAll(c => Vector3.Distance(c,m) >= .06f)) chosen.Add(m);
             plantMounts = chosen.ConvertAll(m => m + offset).ToArray();
             footprint = Mathf.Clamp(Mathf.Max(bounds.size.x,bounds.size.z)*.5f,.14f,.32f);
             return mesh;

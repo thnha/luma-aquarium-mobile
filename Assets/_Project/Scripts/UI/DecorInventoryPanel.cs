@@ -28,6 +28,7 @@ namespace Lumaquarium.UI
 
         private void Awake()
         {
+            AddMissingCards();
             for (int i = 0; i < tabButtons.Length; i++)
             {
                 int index = i;
@@ -43,6 +44,36 @@ namespace Lumaquarium.UI
         }
 
         private void OnEnable() => Refresh();
+
+        // A sheet built before newer catalog items gets their cards copied from the first card.
+        private void AddMissingCards()
+        {
+            var catalog = Decoration != null ? Decoration.catalog : null;
+            if (catalog == null || cards.Length == 0 || cards.Length >= catalog.offers.Length) return;
+            int count = catalog.offers.Length;
+            int old = cards.Length;
+            System.Array.Resize(ref cards, count);
+            System.Array.Resize(ref cardButtons, count);
+            System.Array.Resize(ref cardSurfaces, count);
+            System.Array.Resize(ref countLabels, count);
+            if (countBadges != null && countBadges.Length == old) System.Array.Resize(ref countBadges, count);
+            for (int i = old; i < count; i++)
+            {
+                var offer = catalog.offers[i];
+                var card = Instantiate(cards[0], cards[0].transform.parent);
+                card.name = "Item_" + offer.id;
+                cards[i] = card;
+                cardButtons[i] = card.GetComponent<UnityEngine.UI.Button>();
+                cardSurfaces[i] = card.GetComponent<UnityEngine.UI.Image>();
+                var portrait = card.transform.Find("Portrait");
+                if (portrait != null) portrait.GetComponent<UnityEngine.UI.Image>().sprite = offer.portrait;
+                var title = card.transform.Find("Name");
+                if (title != null) title.GetComponent<TMP_Text>().text = offer.displayName;
+                var badge = card.transform.Find("Count");
+                if (countBadges != null && countBadges.Length == count && badge != null) countBadges[i] = badge.GetComponent<UnityEngine.UI.Image>();
+                countLabels[i] = badge != null ? badge.GetComponentInChildren<TMP_Text>() : card.GetComponentInChildren<TMP_Text>();
+            }
+        }
 
         public void SelectCategory(int index)
         {
@@ -78,7 +109,7 @@ namespace Lumaquarium.UI
                 countLabels[i].color = tabLabelOn;
             }
             if (summary != null && decoration != null)
-                summary.text = shown > 0 ? $"Kho của bạn · trong hồ {decoration.Count}/{decoration.capacity} món"
+                summary.text = shown > 0 ? $"Kho của bạn · trong hồ {decoration.Points}/{decoration.capacity} điểm"
                     : "Kho trống ở mục này · chọn Mua thêm";
         }
 
