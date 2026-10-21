@@ -35,9 +35,8 @@ public static class MainAquariumScreenBuilder
         if (fish == null || feeding == null || orbit == null)
             throw new InvalidOperationException("MainAquarium requires its existing fish, feeding system and camera.");
         Ui3D.LoadFonts();
-        bool firstBuild = GameObject.Find("AquariumBackdrop") == null;
-        if (firstBuild && Sprite("AquariumEnvironment") == null)
-            throw new InvalidOperationException("Prepare the clean environment first.");
+        // The aquarium has no painted backdrop behind it; only the camera's water colour shows there.
+        bool firstBuild = UnityEngine.Object.FindFirstObjectByType<MainAquariumScreen>(FindObjectsInactive.Include) == null;
 
         // Retain both the on-disk and any unsaved authored scene before making changes.
         string backupDir = "Assets/_Project/Scenes/Backups";
@@ -59,11 +58,7 @@ public static class MainAquariumScreenBuilder
         var existing = GameObject.Find("MainAquariumHUD");
         if (existing != null) Undo.DestroyObjectImmediate(existing);
 
-        if (firstBuild)
-        {
-            ConfigurePresentation(fish, orbit);
-            BuildBackdrop(orbit.GetComponent<Camera>());
-        }
+        if (firstBuild) ConfigurePresentation(fish, orbit);
         BakePortrait(fish);
         var decoration = UnityEngine.Object.FindFirstObjectByType<AquariumDecoration>(FindObjectsInactive.Include);
         var lighting = UnityEngine.Object.FindFirstObjectByType<AquariumLighting>(FindObjectsInactive.Include);
@@ -501,21 +496,6 @@ public static class MainAquariumScreenBuilder
         }
     }
 
-    private static void BuildBackdrop(Camera camera)
-    {
-        var canvas = NewCanvas("AquariumBackdrop");
-        var component = canvas.GetComponent<Canvas>();
-        component.renderMode = RenderMode.ScreenSpaceCamera;
-        component.worldCamera = camera;
-        component.planeDistance = 15;
-        UnityEngine.Object.DestroyImmediate(canvas.GetComponent<UnityEngine.UI.GraphicRaycaster>());
-        var image = Picture("Environment", canvas, "AquariumEnvironment");
-        Stretch(image.rectTransform);
-        var fitter = image.gameObject.AddComponent<UnityEngine.UI.AspectRatioFitter>();
-        fitter.aspectMode = UnityEngine.UI.AspectRatioFitter.AspectMode.EnvelopeParent;
-        fitter.aspectRatio = image.sprite.rect.width / image.sprite.rect.height;
-    }
-
     private static void BakePortrait(BettaFishAI fish)
     {
         string directory = Root + "/Portraits";
@@ -576,52 +556,5 @@ public static class MainAquariumScreenBuilder
             UnityEngine.Object.DestroyImmediate(clone);
         }
         AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
-    }
-
-    private static RectTransform NewCanvas(string name)
-    {
-        var root = Rect(name, null);
-        Undo.RegisterCreatedObjectUndo(root.gameObject, "Create " + name);
-        root.gameObject.AddComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
-        var scaler = root.gameObject.AddComponent<UnityEngine.UI.CanvasScaler>();
-        scaler.uiScaleMode = UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1080, 1920);
-        scaler.matchWidthOrHeight = 0;
-        root.gameObject.AddComponent<UnityEngine.UI.GraphicRaycaster>();
-        return root;
-    }
-
-    private static UnityEngine.UI.Image Picture(string name, Transform parent, string sprite, bool sliced = false)
-    {
-        var image = Rect(name, parent).gameObject.AddComponent<UnityEngine.UI.Image>();
-        image.sprite = Sprite(sprite);
-        image.type = sliced ? UnityEngine.UI.Image.Type.Sliced : UnityEngine.UI.Image.Type.Simple;
-        image.raycastTarget = false;
-        return image;
-    }
-
-    private static Sprite Sprite(string name)
-    {
-        foreach (string folder in new[] { "Surfaces", "Icons", "Backgrounds", "Portraits" })
-        {
-            var sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{Root}/{folder}/{name}.png");
-            if (sprite != null) return sprite;
-        }
-        throw new InvalidOperationException("Missing UI sprite: " + name);
-    }
-
-    private static RectTransform Rect(string name, Transform parent)
-    {
-        var rect = (RectTransform)new GameObject(name, typeof(RectTransform)).transform;
-        if (parent != null) rect.SetParent(parent, false);
-        return rect;
-    }
-
-    private static void Stretch(RectTransform rect, float inset = 0)
-    {
-        rect.anchorMin = Vector2.zero;
-        rect.anchorMax = Vector2.one;
-        rect.offsetMin = new Vector2(inset, inset);
-        rect.offsetMax = new Vector2(-inset, -inset);
     }
 }

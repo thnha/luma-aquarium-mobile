@@ -135,6 +135,11 @@ namespace Lumaquarium.UI
         public void ToggleDecorate() => TogglePanel(decoratePanel);
         public void ToggleSettings() => TogglePanel(settingsPanel);
 
+        public void OpenDecorate()
+        {
+            if (!decoratePanel.activeSelf) ToggleDecorate();
+        }
+
         private void TogglePanel(GameObject panel)
         {
             decoration?.Cancel();

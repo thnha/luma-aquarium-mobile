@@ -25,10 +25,13 @@ public sealed class AquariumDecoration : MonoBehaviour
     public int capacity = 24;
     public string storageKey = "Lumaquarium.Decoration.Preview.v1";
     public bool persistLayout = true;
+    // Placement looks down on the sand at this angle, so the back of the tank gets as much screen as the front.
+    public float placementPitch = 50;
 
     public bool Editing { get; private set; }
     public AquariumDecorItem Selected { get; private set; }
     private bool isNew;
+    private bool returnToInventory;
     private Vector3 originalPosition;
     private Quaternion originalRotation;
     private Transform originalParent;
@@ -103,9 +106,12 @@ public sealed class AquariumDecoration : MonoBehaviour
     public bool Begin(int kind)
     {
         if (kind < 0 || kind >= prefabs.Length || prefabs[kind] == null) return false;
+        returnToInventory = false;
         Cancel();
         if (Available(kind) <= 0) return false;
         OpenEditor();
+        // Placing from the Trang trí sheet returns to it, so the next item is one tap away.
+        returnToInventory = true;
         if (items.Count >= capacity)
         {
             instruction.text = $"Hồ đã đủ {capacity} món. Cất bớt đồ để đặt món mới.";
@@ -125,6 +131,7 @@ public sealed class AquariumDecoration : MonoBehaviour
     {
         Cancel();
         OpenEditor();
+        returnToInventory = true;
         instruction.text = "Chạm một món trong hồ để chọn và di chuyển.";
     }
 
@@ -137,8 +144,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         screen.toolbar.SetActive(false);
         dock.SetActive(true);
         orbit.enabled = false;
-        viewCamera.transform.position = new Vector3(0, 2.1f, -3.4f);
-        viewCamera.transform.LookAt(new Vector3(0, .9f, 0));
+        FramePlacementArea();
         reactions = screen.fish != null ? screen.fish.GetComponent<BettaReactions>() : null;
         if (reactions != null) { reactionsEnabled = reactions.enabled; reactions.enabled = false; }
     }
@@ -164,10 +170,28 @@ public sealed class AquariumDecoration : MonoBehaviour
             viewCamera.transform.position = new Vector3(0, Height(Selected) + 2f, -2.5f);
             viewCamera.transform.LookAt(new Vector3(0, Height(Selected), 0));
         }
-        else
+        else if (Selected.wallMounted)
         {
             viewCamera.transform.position = new Vector3(0, 2.1f, -3.4f);
             viewCamera.transform.LookAt(new Vector3(0, .9f, 0));
+        }
+        else FramePlacementArea();
+    }
+
+    // Looks down on the whole placement area from above the front glass, as close as the screen allows:
+    // the front edge stays above the placement dock and the back edge below the header.
+    private void FramePlacementArea()
+    {
+        var target = new Vector3((min.x + max.x) * .5f, floorY, Mathf.Lerp(min.y, max.y, .4f));
+        var rotation = Quaternion.Euler(placementPitch, 0, 0);
+        float depth = max.y - min.y;
+        for (float distance = depth * .8f; distance < depth * 4; distance += .05f)
+        {
+            viewCamera.transform.SetPositionAndRotation(target - rotation * Vector3.forward * distance, rotation);
+            Vector3 frontLeft = viewCamera.WorldToViewportPoint(new Vector3(min.x, floorY, min.y));
+            Vector3 frontRight = viewCamera.WorldToViewportPoint(new Vector3(max.x, floorY, min.y));
+            Vector3 back = viewCamera.WorldToViewportPoint(new Vector3(min.x, floorY, max.y));
+            if (frontLeft.x >= .03f && frontRight.x <= .97f && frontLeft.y >= .27f && back.y <= .88f) return;
         }
     }
 
@@ -326,6 +350,11 @@ public sealed class AquariumDecoration : MonoBehaviour
         viewCamera.transform.SetPositionAndRotation(cameraPosition, cameraRotation);
         if (reactions != null) reactions.enabled = reactionsEnabled;
         orbit.enabled = true;
+        if (returnToInventory)
+        {
+            returnToInventory = false;
+            screen.OpenDecorate();
+        }
     }
 
     private void Update()

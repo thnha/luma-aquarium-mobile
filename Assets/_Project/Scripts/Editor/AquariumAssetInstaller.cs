@@ -39,7 +39,7 @@ public static class AquariumAssetInstaller
             var orbit = Find<OrbitTouchCamera>(main);
             var camera = orbit.GetComponent<Camera>();
             var sun = Components<Light>(main).First(x => x.type == LightType.Directional);
-            var backdrop = preview.GetRootGameObjects().Single(x => x.name == "AquariumBackdrop");
+            var backdrop = preview.GetRootGameObjects().SingleOrDefault(x => x.name == "AquariumBackdrop");
             if (source.GetComponent<AquariumLighting>() == null || source.prefabs.Any(x => x == null))
                 throw new InvalidOperationException("Complete the approved natural-assets preview first.");
             var existing = main.GetRootGameObjects().SingleOrDefault(x => PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(x) == AssetPath);
@@ -59,6 +59,7 @@ public static class AquariumAssetInstaller
             var map = new Dictionary<UnityEngine.Object, UnityEngine.Object>();
             foreach (var root in new[] { source.gameObject, screen.gameObject, backdrop })
             {
+                if (root == null) continue;
                 var clone = UnityEngine.Object.Instantiate(root, staging.transform, false);
                 clone.name = root == source.gameObject ? "AquariumDecor" : root.name;
                 MapHierarchy(root.transform, clone.transform, map);

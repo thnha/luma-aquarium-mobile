@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace Lumaquarium.UI
 {
-    // The Trang trí sheet: lists owned decorations by group. A card with stock starts
-    // placement; an empty one opens the shop on that item.
+    // The Trang trí sheet: lists the decorations still in storage by group; tapping one starts
+    // placement. Items not bought yet, or all placed, stay in the shop.
     public sealed class DecorInventoryPanel : MonoBehaviour
     {
         public MainAquariumScreen aquarium;
@@ -57,8 +57,7 @@ namespace Lumaquarium.UI
         {
             var decoration = Decoration;
             var catalog = decoration != null ? decoration.catalog : null;
-            if (summary != null && decoration != null)
-                summary.text = $"Kho của bạn · trong hồ {decoration.Count}/{decoration.capacity} món";
+            int shown = 0;
             for (int i = 0; i < tabButtons.Length; i++)
             {
                 bool on = i == (int)category;
@@ -68,16 +67,19 @@ namespace Lumaquarium.UI
             for (int i = 0; i < cards.Length; i++)
             {
                 var offer = catalog != null && i < catalog.offers.Length ? catalog.offers[i] : null;
-                bool visible = offer != null && offer.prefab != null && offer.category == category;
-                cards[i].SetActive(visible);
-                if (!visible) continue;
-                int available = decoration.Available(offer.prefab.kind);
-                countLabels[i].text = available > 0 ? "x" + available : "Mua";
-                cardSurfaces[i].sprite = available > 0 ? cardNormal : cardEmpty;
-                if (countBadges != null && i < countBadges.Length)
-                    countBadges[i].sprite = available > 0 ? badgeStock : badgeEmpty;
-                countLabels[i].color = available > 0 ? tabLabelOn : tabLabelOff;
+                int available = offer != null && offer.prefab != null && offer.category == category
+                    ? decoration.Available(offer.prefab.kind) : 0;
+                cards[i].SetActive(available > 0);
+                if (available <= 0) continue;
+                shown++;
+                countLabels[i].text = "x" + available;
+                cardSurfaces[i].sprite = cardNormal;
+                if (countBadges != null && i < countBadges.Length) countBadges[i].sprite = badgeStock;
+                countLabels[i].color = tabLabelOn;
             }
+            if (summary != null && decoration != null)
+                summary.text = shown > 0 ? $"Kho của bạn · trong hồ {decoration.Count}/{decoration.capacity} món"
+                    : "Kho trống ở mục này · chọn Mua thêm";
         }
 
         public void Use(int index)
