@@ -37,6 +37,21 @@ half _VariantDetail;
 half _VariantDetailGain;
 half4 _VariantEdge;
 float4 _VariantSpeckle;     // x = speckles per UV unit, y = density (0..1)
+half _Cavity;
+half _AlbedoAO;
+half _ScaleTilt;
+half _IridescenceShift;
+// Set by BettaPassFragment (forward pass) before the surface is built: the view direction and the
+// tangent frame, so the scale sheen can follow the normal-mapped surface. Zero in other passes.
+static half gBettaHasView = 0.0h;
+static half3 gBettaViewWS = half3(0.0h, 0.0h, 1.0h);
+static half3x3 gBettaTangentToWorld = half3x3(1.0h, 0.0h, 0.0h, 0.0h, 1.0h, 0.0h, 0.0h, 0.0h, 1.0h);
+// Left by the surface for the forward pass's fin transmission (BettaLit.shader).
+half _FinTranslucency;
+static half3 gBettaAlbedo = half3(0.0h, 0.0h, 0.0h);
+static half gBettaFin = 0.0h;
+static half gBettaEdge = 0.0h;
+static half gBettaFolds = 1.0h;   // cavity x AO: fin rays and folds pass less light
 
 // Dots scattered in UV space: x = dot, y = its bright core. Each cell holds at most one dot placed
 // anywhere in it, and the 3x3 neighbourhood is searched so dots overlap cell borders: no visible grid.
@@ -194,6 +209,56 @@ inline void BettaVariantSurfaceData(float2 uv, out SurfaceData outSurfaceData)
     outSurfaceData.metallic = lerp(outSurfaceData.metallic, silver * 0.1h, skin);
     half scaleSmoothness = 0.40h + silver * 0.08h + sheen * 0.06h + (scales.r - 0.5h) * 0.02h;
     outSurfaceData.smoothness = lerp(outSurfaceData.smoothness, scaleSmoothness, skin);
+#if defined(_OCCLUSIONMAP)
+    // Pipeline fish (fish_bake.py): R = cavity darkens and roughens the seams between scales and the
+    // grooves between fin rays, so paint no longer hides them. URP applies AO (G) to ambient light only;
+    // part of it also goes on albedo so folds and fin roots stay shaded under the key light.
+    half3 detail = SAMPLE_TEXTURE2D(_OcclusionMap, sampler_OcclusionMap, uv).rgb;
+    half cavity = lerp(1.0h, saturate((detail.r - 0.3h) / 0.55h), _Cavity);
+    outSurfaceData.albedo *= cavity * lerp(1.0h, detail.g, _AlbedoAO);
+    outSurfaceData.smoothness *= lerp(0.6h, 1.0h, cavity);
+    half rays = saturate((detail.r - 0.3h) / 0.55h);
+    gBettaFolds = rays * rays * detail.g;
+    // Body scales a little glossier than the fin membranes.
+    half2 bodyEye = SAMPLE_TEXTURE2D(_VariantMask, sampler_VariantMask, uv).rg;
+    half eyeMask = saturate(bodyEye.r * bodyEye.g);
+    half onScales = bodyEye.r * (1.0h - eyeMask) * _VariantOn;
+    outSurfaceData.smoothness *= lerp(0.8h, 1.0h, bodyEye.r);
+#if defined(_NORMALMAP)
+    // B = one random value per scale (fish_bake.scale_ids): every scale tilts and polishes a little
+    // differently, so highlights jump from scale to scale as the fish turns instead of sliding.
+    float2 rnd = frac(detail.b * float2(12.9898, 78.233) * 43.7585) - 0.5;
+    half3 n = outSurfaceData.normalTS;
+    n.xy += (half2)rnd * _ScaleTilt * onScales;
+    outSurfaceData.normalTS = normalize(n);
+    outSurfaceData.smoothness = saturate(outSurfaceData.smoothness * (1.0h + (half)rnd.y * 0.12h * onScales));
+    if (gBettaHasView > 0.5h)
+    {
+        // Thin-film sheen: towards grazing angles of the (normal-mapped) scale surface the colour turns
+        // to a blue-violet film hue at the same brightness, so a scale's rim changes colour as it turns
+        // while its face keeps the fish colour. Kept out of the crevices; some metallic makes the
+        // reflections take the film colour too.
+        half3 nWS = normalize(mul(outSurfaceData.normalTS, gBettaTangentToWorld));
+        half film = 1.0h - saturate(dot(nWS, gBettaViewWS));
+        float phase = film * _IridescenceShift + _VariantSeed * 0.1;
+        half3 thin = 0.5h + 0.5h * cos(6.2831853 * (phase + float3(0.55, 0.75, 0.95)));
+        thin = lerp(thin, half3(0.25h, 0.45h, 1.0h), 0.4h);   // betta sheen leans blue-violet
+        half luma = dot(outSurfaceData.albedo, half3(0.299h, 0.587h, 0.114h));
+        half3 filmColor = thin * (luma * 1.6h + 0.05h);
+        half amount = saturate(_VariantIridescence * 2.0h) * _VariantOn * (1.0h - eyeMask) * lerp(0.3h, 1.0h, bodyEye.r)
+            * cavity * smoothstep(0.15h, 0.85h, film);
+        outSurfaceData.albedo = lerp(outSurfaceData.albedo, filmColor, amount);
+        outSurfaceData.metallic = max(outSurfaceData.metallic, amount * 0.4h);
+    }
+#endif
+#endif
+    // Fins: a little deeper at the root, lighter towards the thin edge (G = root 0 -> edge 1).
+    half2 finMask = SAMPLE_TEXTURE2D(_VariantMask, sampler_VariantMask, uv).rg;
+    half fin = 1.0h - finMask.r;
+    outSurfaceData.albedo *= lerp(1.0h, lerp(0.82h, 1.06h, finMask.g), fin * _VariantOn);
+    gBettaAlbedo = outSurfaceData.albedo;
+    gBettaFin = fin;
+    gBettaEdge = finMask.g * fin;
 }
 
 // The stock pass files call InitializeStandardLitSurfaceData; route them through the wrapper.

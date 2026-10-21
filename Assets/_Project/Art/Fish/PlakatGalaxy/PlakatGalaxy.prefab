@@ -61,8 +61,10 @@ MonoBehaviour:
   strokeSwimAmplitude: 8
   thrustPulse: 0.3
   headRecoil: 0.6
-  segmentFollowRate: 7
-  maxJointBend: 18
+  trailFollowSpeed: 0.35
+  maxSegmentBend: 26
+  pitchBendScale: 0.5
+  maxSegmentPitchBend: 10
   turnTailKick: 0.08
   maxTailKick: 12
   pectoralFrequency: 3.2
@@ -70,7 +72,7 @@ MonoBehaviour:
   pectoralTurnBias: 0.5
   gillRestFrequency: 0.7
   gillActiveFrequency: 1.6
-  gillAmplitude: 1.2
+  gillOpenAngle: 12
 --- !u!114 &7560441506026521490
 MonoBehaviour:
   m_ObjectHideFlags: 0

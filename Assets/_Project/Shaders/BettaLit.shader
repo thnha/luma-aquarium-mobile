@@ -84,6 +84,14 @@ Shader "Lumaquarium/Betta Lit"
         _VariantDetailGain("Variant Texture Detail Gain", Float) = 2.5
         _VariantEdge("Variant Fin Edge (Galaxy)", Color) = (1,0.82,0.2,1)
         _VariantSpeckle("Variant Speckles (Galaxy: per UV, density)", Vector) = (220,0.35,0,0)
+        // Pipeline fish: the occlusion map is fish_bake.py's detail map (R cavity between scales, G AO)
+        _Cavity("Cavity Strength", Range(0.0, 1.0)) = 0.7
+        _AlbedoAO("AO on Direct Light", Range(0.0, 1.0)) = 0.5
+        // Detail map B = random value per scale: small normal tilt and gloss change per scale
+        _ScaleTilt("Scale Tilt", Range(0.0, 0.6)) = 0.08
+        _IridescenceShift("Iridescence Hue Shift", Range(0.0, 4.0)) = 1.6
+        // Fins are thin membranes: light from behind shines through, more towards the edge
+        _FinTranslucency("Fin Translucency", Range(0.0, 2.0)) = 0.8
         // Editmode props
         _QueueOffset("Queue offset", Float) = 0.0
 
@@ -202,6 +210,26 @@ Shader "Lumaquarium/Betta Lit"
             #include "BettaVariant.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl"
 
+            // Light through a fin from its far side: the main light (strongest looking into it) plus
+            // ambient from behind, tinted by the fin colour and stronger where the membrane thins out.
+            half3 BettaFinTransmission(float3 positionWS, half3 normalWS)
+            {
+                half fin = gBettaFin * _FinTranslucency;
+                if (fin <= 0.001h)
+                    return half3(0.0h, 0.0h, 0.0h);
+                half3 viewWS = GetWorldSpaceNormalizeViewDir(positionWS);
+                Light light = GetMainLight(TransformWorldToShadowCoord(positionWS));
+                half behind = saturate(-dot(normalWS, light.direction));
+                half into = saturate(dot(viewWS, -light.direction));
+                into *= into; into *= into;
+                half3 direct = light.color * (light.distanceAttenuation * light.shadowAttenuation * behind * (0.35h + 0.65h * into));
+                half3 ambient = SampleSH(-normalWS) * 0.6h;
+                half thin = lerp(0.35h, 1.0h, gBettaEdge) * lerp(0.25h, 1.0h, gBettaFolds);
+                // light filtered by the membrane comes out deeper in colour than the lit surface
+                half3 tint = gBettaAlbedo * sqrt(gBettaAlbedo) * 1.3h;
+                return tint * (direct + ambient) * (thin * fin);
+            }
+
             void BettaPassFragment(
                 Varyings input
                 , FRONT_FACE_TYPE face : FRONT_FACE_SEMANTIC
@@ -218,11 +246,20 @@ Shader "Lumaquarium/Betta Lit"
                     input.tangentWS = -input.tangentWS; // xyz and sign, keeps the normal map un-mirrored
                 #endif
                 }
+            #if defined(REQUIRES_WORLD_SPACE_TANGENT_INTERPOLATOR)
+                // view and tangent frame for the scale sheen in BettaVariant.hlsl
+                half3 sheenN = normalize(input.normalWS);
+                half3 sheenB = input.tangentWS.w * cross(sheenN, input.tangentWS.xyz);
+                gBettaTangentToWorld = half3x3(input.tangentWS.xyz, sheenB, sheenN);
+                gBettaViewWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
+                gBettaHasView = 1.0h;
+            #endif
                 LitPassFragment(input, outColor
             #ifdef _WRITE_RENDERING_LAYERS
                     , outRenderingLayers
             #endif
                 );
+                outColor.rgb += BettaFinTransmission(input.positionWS, normalize(input.normalWS));
             }
             ENDHLSL
         }
@@ -430,7 +467,7 @@ Shader "Lumaquarium/Betta Lit"
             // -------------------------------------
             // Shader Stages
             #pragma vertex DepthNormalsVertex
-            #pragma fragment DepthNormalsFragment
+            #pragma fragment BettaDepthNormalsFragment
 
             // -------------------------------------
             // Material Keywords
@@ -457,6 +494,30 @@ Shader "Lumaquarium/Betta Lit"
             // Includes
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitDepthNormalsPass.hlsl"
+
+            // Back faces of the fins write the flipped normal too, so SSAO sees the side facing the camera.
+            void BettaDepthNormalsFragment(
+                Varyings input
+                , FRONT_FACE_TYPE face : FRONT_FACE_SEMANTIC
+                , out half4 outNormalWS : SV_Target0
+            #ifdef _WRITE_RENDERING_LAYERS
+                , out uint outRenderingLayers : SV_Target1
+            #endif
+            )
+            {
+                if (!IS_FRONT_VFACE(face, true, false))
+                {
+                    input.normalWS = -input.normalWS;
+                #if defined(REQUIRES_WORLD_SPACE_TANGENT_INTERPOLATOR)
+                    input.tangentWS = -input.tangentWS;
+                #endif
+                }
+                DepthNormalsFragment(input, outNormalWS
+            #ifdef _WRITE_RENDERING_LAYERS
+                    , outRenderingLayers
+            #endif
+                );
+            }
             ENDHLSL
         }
 
