@@ -13,6 +13,7 @@ Shader "Lumaquarium/Aquarium Leaf"
         Cull Off
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+        #include "AquariumDepth.hlsl"
         TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
         float _AquariumLightingActive;
             half4 _AquariumAmbientColor;
@@ -64,7 +65,7 @@ Shader "Lumaquarium/Aquarium Leaf"
                 half3 pigment=tex.rgb*_BaseColor.rgb*i.color.rgb;
                 half3 lighting=lerp(half3(.32,.4,.26),_AquariumAmbientColor.rgb,_AquariumLightingActive)+light.color*(diffuse*.85*light.shadowAttenuation+transmission);
                 float fresnel=pow(1-saturate(dot(normal,view)),4);
-                return half4(pigment*lighting+light.color*gloss+pigment*fresnel*.12,1);
+                return half4(AquariumDepthFog(pigment*lighting+light.color*gloss+pigment*fresnel*.12,i.world),1);
             }
             ENDHLSL
         }

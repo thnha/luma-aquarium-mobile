@@ -23,6 +23,9 @@ public sealed class AquariumDecoration : MonoBehaviour
     public Vector2 min = new Vector2(-.74f, -.5f);
     public Vector2 max = new Vector2(.74f, .55f);
     public float floorY = .31f;
+    // The sand rises by sandRise toward the back, between world z sandRiseFrom and sandRiseTo.
+    public float sandRise;
+    public float sandRiseFrom = .3f, sandRiseTo = 2.2f;
     // Capacity in points: a small piece costs 1, larger pieces up to 3 (AquariumDecorItem.points).
     public int capacity = 24;
     public string storageKey = "Lumaquarium.Decoration.Preview.v1";
@@ -76,7 +79,10 @@ public sealed class AquariumDecoration : MonoBehaviour
         return Mathf.Max(0, inventory.DecorCount(offer.id) - items.FindAll(x => x != null && x.kind == kind).Count);
     }
 
-    private float Height(AquariumDecorItem item) => item.floats && water != null ? water.surfaceY - .012f : floorY;
+    // Height of the sand at a point; the sand bed mesh is shaped with the same curve.
+    public float SandAt(Vector3 p) => floorY + sandRise * Mathf.SmoothStep(0, 1, Mathf.InverseLerp(sandRiseFrom, sandRiseTo, p.z));
+
+    private float Height(AquariumDecorItem item, Vector3 p) => item.floats && water != null ? water.surfaceY - .012f : SandAt(p);
     // The back glass is the far edge of the placement area; moss walls cover it up to below the surface.
     private float WallZ => max.y;
     private float WallTop => water != null ? water.surfaceY - .08f : floorY + 1.8f;
@@ -85,13 +91,13 @@ public sealed class AquariumDecoration : MonoBehaviour
     // on the surface, or on the back glass.
     private Vector3 Rest(AquariumDecorItem item, Vector3 p) =>
         item.wallMounted ? new Vector3(p.x, p.y, WallZ) :
-        new Vector3(p.x, item.Stacks ? GroundAt(item, p, float.PositiveInfinity) : Height(item), p.z);
+        new Vector3(p.x, item.Stacks ? GroundAt(item, p, float.PositiveInfinity) : Height(item, p), p.z);
 
     // The highest stone or wood surface under a point, or the sand. Only surfaces below the ceiling
     // count, so settling never lifts a piece onto what is stacked on top of it.
     private float GroundAt(AquariumDecorItem item, Vector3 p, float ceiling)
     {
-        float top = floorY, radius = Mathf.Max(.05f, item.footprint * .35f);
+        float sand = SandAt(p), top = sand, radius = Mathf.Max(.05f, item.footprint * .35f);
         foreach (var other in items)
         {
             if (other == null || other == item || other.transform.IsChildOf(item.transform) ||
@@ -104,7 +110,7 @@ public sealed class AquariumDecoration : MonoBehaviour
                     top = v.y;
         }
         // Sink a little into the surface so the piece looks seated rather than balanced on a point.
-        return top > floorY ? top - .015f : floorY;
+        return top > sand ? top - .015f : sand;
     }
 
     private Vector3[] Surface(AquariumDecorItem item, out Bounds bounds)
@@ -125,7 +131,7 @@ public sealed class AquariumDecoration : MonoBehaviour
     }
 
     // A piece resting on stone or wood rather than on the sand.
-    private bool Raised(AquariumDecorItem item, Vector3 p) => item.Stacks && p.y > floorY + .03f;
+    private bool Raised(AquariumDecorItem item, Vector3 p) => item.Stacks && p.y > SandAt(p) + .03f;
 
     // After a piece is moved or put away, whatever stood on it drops onto the next surface down.
     private void Settle()
@@ -263,8 +269,9 @@ public sealed class AquariumDecoration : MonoBehaviour
         if (Selected == null) return;
         if (Selected.floats)
         {
-            viewCamera.transform.position = new Vector3(0, Height(Selected) + 2f, -2.5f);
-            viewCamera.transform.LookAt(new Vector3(0, Height(Selected), 0));
+            float surface = Height(Selected, Selected.transform.position);
+            viewCamera.transform.position = new Vector3(0, surface + 2f, -2.5f);
+            viewCamera.transform.LookAt(new Vector3(0, surface, 0));
         }
         else if (Selected.wallMounted)
         {
@@ -286,7 +293,7 @@ public sealed class AquariumDecoration : MonoBehaviour
             viewCamera.transform.SetPositionAndRotation(target - rotation * Vector3.forward * distance, rotation);
             Vector3 frontLeft = viewCamera.WorldToViewportPoint(new Vector3(min.x, floorY, min.y));
             Vector3 frontRight = viewCamera.WorldToViewportPoint(new Vector3(max.x, floorY, min.y));
-            Vector3 back = viewCamera.WorldToViewportPoint(new Vector3(min.x, floorY, max.y));
+            Vector3 back = viewCamera.WorldToViewportPoint(new Vector3(min.x, SandAt(new Vector3(0, 0, max.y)), max.y));
             if (frontLeft.x >= .03f && frontRight.x <= .97f && frontLeft.y >= .27f && back.y <= .88f) return;
         }
     }
@@ -317,8 +324,22 @@ public sealed class AquariumDecoration : MonoBehaviour
             var wood = WoodAlongRay(ray, out var hitPoint);
             if (wood != null) return AttachTo(wood, hitPoint);
         }
-        return new Plane(Vector3.up, new Vector3(0, Height(Selected), 0)).Raycast(ray, out float distance)
-            && MoveTo(ray.GetPoint(distance));
+        return SurfaceHit(ray, out var point) && MoveTo(point);
+    }
+
+    // Where the ray meets the sand (or the water surface for floating plants). The sloped sand is
+    // found by meeting the flat height first, then refining at the sand height found there.
+    private bool SurfaceHit(Ray ray, out Vector3 point)
+    {
+        point = default;
+        float height = Height(Selected, new Vector3(0, 0, min.y));
+        for (int step = 0; step < 3; step++)
+        {
+            if (!new Plane(Vector3.up, new Vector3(0, height, 0)).Raycast(ray, out float distance)) return false;
+            point = ray.GetPoint(distance);
+            height = Height(Selected, point);
+        }
+        return true;
     }
 
     public bool MoveTo(Vector3 position)
@@ -362,7 +383,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         if (item.wallMounted)
         {
             Vector2 half = item.wallSize * .5f;
-            if (p.x - half.x < min.x || p.x + half.x > max.x || p.y < floorY - .001f || p.y + item.wallSize.y > WallTop) return false;
+            if (p.x - half.x < min.x || p.x + half.x > max.x || p.y < SandAt(p) - .001f || p.y + item.wallSize.y > WallTop) return false;
             // Neighbouring panels may overlap a little so the moss closes the seam between them.
             foreach (var other in items)
                 if (other != null && other != item && other.wallMounted && other.transform.parent == itemsRoot &&
@@ -616,9 +637,11 @@ public sealed class AquariumDecoration : MonoBehaviour
         Discard(previous);
     }
 
-    // A saved position: stacked stone and wood keep their height, anything else rests as when placed.
+    // A saved position: stacked stone and wood and moss walls keep their height (raised onto the
+    // sand if it has since been sloped), anything else rests as when placed.
     private Vector3 Restore(AquariumDecorItem item, Vector3 p) =>
-        item.Stacks ? new Vector3(p.x, Mathf.Clamp(p.y, floorY, WallTop), p.z) : Rest(item, p);
+        item.Stacks ? new Vector3(p.x, Mathf.Clamp(p.y, SandAt(p), WallTop), p.z) :
+        item.wallMounted ? Rest(item, new Vector3(p.x, Mathf.Max(p.y, SandAt(new Vector3(p.x, 0, WallZ))), p.z)) : Rest(item, p);
 
     private static void Discard(List<AquariumDecorItem> list)
     {

@@ -8,6 +8,8 @@ public sealed class AquariumLighting : MonoBehaviour
     public Light sun;
     public Image nightBackdrop;
     public TMP_Text label;
+    // Depth tint toward the water colour (AquariumDepth.hlsl): none at fogNear, depthFog at fogFar (world z).
+    public float depthFog = .5f, fogNear = 0, fogFar = 2.6f;
     public bool IsNight { get; private set; }
     public float NightBlend { get; private set; }
     private Color oldAmbient, oldLightColor, oldShaderAmbient;
@@ -46,8 +48,12 @@ public sealed class AquariumLighting : MonoBehaviour
         Shader.SetGlobalFloat("_AquariumLightingActive",1);
         Shader.SetGlobalFloat("_AquariumNight",t);
         Shader.SetGlobalColor("_AquariumAmbientColor",ambient);
-        if (viewCamera != null)
-            viewCamera.backgroundColor = Color.Lerp(new Color(.045f,.24f,.29f), new Color(.018f,.055f,.11f), t);
+        Color water = Color.Lerp(new Color(.045f,.24f,.29f), new Color(.018f,.055f,.11f), t);
+        if (viewCamera != null) viewCamera.backgroundColor = water;
+        Shader.SetGlobalColor("_AquariumWaterColor", water);
+        Shader.SetGlobalFloat("_AquariumFogAmount", depthFog);
+        Shader.SetGlobalFloat("_AquariumFogNear", fogNear);
+        Shader.SetGlobalFloat("_AquariumFogFar", fogFar);
         if (sun != null)
         {
             sun.color = Color.Lerp(new Color(1,.95f,.83f), new Color(.46f,.66f,1),t);
@@ -63,6 +69,7 @@ public sealed class AquariumLighting : MonoBehaviour
         Shader.SetGlobalFloat("_AquariumLightingActive",oldActive);
         Shader.SetGlobalFloat("_AquariumNight",oldNight);
         Shader.SetGlobalColor("_AquariumAmbientColor",oldShaderAmbient);
+        Shader.SetGlobalFloat("_AquariumFogAmount",0);
         if (viewCamera != null) viewCamera.backgroundColor = oldBackground;
         if (sun != null) { sun.color = oldLightColor; sun.intensity = oldIntensity; sun.transform.rotation = oldRotation; }
         if (nightBackdrop != null) nightBackdrop.color = new Color(1,1,1,0);
