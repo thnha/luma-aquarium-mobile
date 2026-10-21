@@ -11,6 +11,9 @@ public sealed class AquariumDecorItem : MonoBehaviour
     public bool attachable;
     public bool supportsPlants;
     public Vector3[] plantMounts = new Vector3[0];
+    // Hangs flat on the back glass instead of standing on the sand; the pivot is the bottom centre.
+    public bool wallMounted;
+    public Vector2 wallSize;
 
     private void LateUpdate()
     {

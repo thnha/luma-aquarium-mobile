@@ -39,8 +39,9 @@ public static class AquariumDecorCatalogBuilder
                 item.footprint = i < 12 ? (i >= 9 ? .12f : i < 4 ? .16f : .11f) : i < 18 ? (i == 13 ? .30f : .23f) : (i >= 22 ? .29f : .18f);
                 item.attachable = i >= 4 && i <= 8;
                 item.floats = i >= 9 && i <= 11;
-                item.supportsPlants = i >= 12 && i <= 17;
-                if (i < 12) BuildPlant(item,i);
+                item.supportsPlants = i >= 12;
+                if (i == 8) BuildMoss(item,MossSpeciesBuilder.MiniFiss);
+                else if (i < 12) BuildPlant(item,i);
                 else if (i < 18) BuildWood(item,i-12);
                 else BuildRock(item,i-18);
                 var bounds = new Bounds(Vector3.zero,Vector3.one*.02f);
@@ -52,8 +53,8 @@ public static class AquariumDecorCatalogBuilder
                     category=i<12?AquariumDecorCategory.Plants:i<18?AquariumDecorCategory.Wood:AquariumDecorCategory.Rocks,
                     description=i>=12&&i<18?"Lũa tự nhiên · Có 3 vị trí gắn ráy, dương xỉ hoặc rêu":
                         item.floats?"Bèo nổi trên mặt nước · Kéo để sắp xếp từng cụm":
-                        item.attachable?"Trồng trên nền hoặc kéo lên lũa để gắn":i<12?"Cây thủy sinh trồng nền · Lá đung đưa theo dòng nước":
-                        i==23?"Tiểu cảnh núi đá nhiều tầng · Đặt và xoay theo ý thích":"Đá tự nhiên · Trang trí nền hồ",
+                        item.attachable?"Trồng trên nền hoặc kéo lên lũa, đá để gắn":i<12?"Cây thủy sinh trồng nền · Lá đung đưa theo dòng nước":
+                        i==23?"Tiểu cảnh núi đá nhiều tầng · Gắn rêu lên các mỏm đá":"Đá tự nhiên · Gắn rêu, ráy hoặc dương xỉ lên mặt đá",
                     portrait=Portrait(prefab.gameObject,Ids[i]) });
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
@@ -81,9 +82,55 @@ public static class AquariumDecorCatalogBuilder
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }
-        // Named stones and corals follow the driftwood species on kinds 35+; corals get their own San hô tab.
+        // Named mosses follow the driftwood species, again keeping every released kind unchanged.
+        for (int i = 0; i < MossSpeciesBuilder.All.Length; i++)
+        {
+            var species = MossSpeciesBuilder.All[i];
+            var root = new GameObject(species.id);
+            try
+            {
+                root.layer = 8;
+                var item = root.AddComponent<AquariumDecorItem>();
+                item.kind = Ids.Length + 3 + DriftwoodSpeciesBuilder.All.Length + i;
+                item.attachable = true;
+                item.footprint = BuildMoss(item,species);
+                var bounds = new Bounds(Vector3.zero,Vector3.one*.02f);
+                foreach (var renderer in root.GetComponentsInChildren<MeshRenderer>()) bounds.Encapsulate(renderer.bounds);
+                var collider = root.AddComponent<BoxCollider>(); collider.isTrigger=true;
+                collider.center=bounds.center; collider.size=bounds.size + Vector3.one*.025f;
+                var prefab = PrefabUtility.SaveAsPrefabAsset(root, Root + "/" + species.id + ".prefab").GetComponent<AquariumDecorItem>();
+                offers.Add(new AquariumDecorOffer { id=species.id, displayName=species.name, price=species.price, prefab=prefab,
+                    category=AquariumDecorCategory.Plants, description=species.description, portrait=Portrait(prefab.gameObject,species.id) });
+            }
+            finally { UnityEngine.Object.DestroyImmediate(root); }
+        }
+        // Moss walls for the back glass come last among the new kinds.
+        for (int i = 0; i < MossSpeciesBuilder.Walls.Length; i++)
+        {
+            var wall = MossSpeciesBuilder.Walls[i];
+            var root = new GameObject(wall.id);
+            try
+            {
+                root.layer = 8;
+                var item = root.AddComponent<AquariumDecorItem>();
+                item.kind = Ids.Length + 3 + DriftwoodSpeciesBuilder.All.Length + MossSpeciesBuilder.All.Length + i;
+                item.wallMounted = true;
+                item.wallSize = wall.size;
+                item.footprint = wall.size.x*.5f;
+                var mesh = Store(MossSpeciesBuilder.BuildWall(wall),wall.id);
+                Model("Moss",root.transform,mesh,Nature("MossSpecies",Color.white));
+                var bounds = mesh.bounds;
+                var collider = root.AddComponent<BoxCollider>(); collider.isTrigger=true;
+                collider.center=bounds.center; collider.size=bounds.size + Vector3.one*.025f;
+                var prefab = PrefabUtility.SaveAsPrefabAsset(root, Root + "/" + wall.id + ".prefab").GetComponent<AquariumDecorItem>();
+                offers.Add(new AquariumDecorOffer { id=wall.id, displayName=wall.name, price=wall.price, prefab=prefab,
+                    category=AquariumDecorCategory.Plants, description=wall.description, portrait=Portrait(prefab.gameObject,wall.id) });
+            }
+            finally { UnityEngine.Object.DestroyImmediate(root); }
+        }
+        // Named stones and corals follow the moss walls on kinds 40+; corals get their own San hô tab.
         var speciesStone = SpeciesStone(); var smoothCoral = SmoothCoral();
-        int firstStoneKind = Ids.Length + 3 + DriftwoodSpeciesBuilder.All.Length;
+        int firstStoneKind = Ids.Length + 3 + DriftwoodSpeciesBuilder.All.Length + MossSpeciesBuilder.All.Length + MossSpeciesBuilder.Walls.Length;
         for (int i = 0; i < StoneCoralBuilder.All.Length; i++)
         {
             var piece = StoneCoralBuilder.All[i];
@@ -95,6 +142,9 @@ public static class AquariumDecorCatalogBuilder
                 item.kind = firstStoneKind + i;
                 var mesh = Store(StoneCoralBuilder.Build(piece,1,out item.footprint),piece.id);
                 Model("Stone",root.transform,mesh,piece.smooth?smoothCoral:speciesStone);
+                // Stones take moss on their highest faces like the other rocks; corals stay bare.
+                item.supportsPlants = !piece.IsCoral;
+                if (item.supportsPlants) item.plantMounts = TopMounts(root);
                 var bounds = mesh.bounds;
                 var collider = root.AddComponent<BoxCollider>(); collider.isTrigger=true;
                 collider.center=bounds.center; collider.size=bounds.size + Vector3.one*.025f;
@@ -115,14 +165,15 @@ public static class AquariumDecorCatalogBuilder
             {
                 var item = root.GetComponent<AquariumDecorItem>();
                 item.attachable = i == 0;
-                item.supportsPlants = i == 2;
+                item.supportsPlants = i != 0;
+                if (i == 1) item.plantMounts = TopMounts(root);
                 if (i == 2) item.plantMounts = new[] { new Vector3(-.075f,.18f,.02f), new Vector3(.02f,.40f,.025f), new Vector3(.13f,.47f,-.05f) };
                 PrefabUtility.SaveAsPrefabAsset(root,prefabPath);
             }
             finally { PrefabUtility.UnloadPrefabContents(root); }
             offers.Add(new AquariumDecorOffer { id=starterIds[i], displayName=starterNames[i], price=starterPrices[i], prefab=starterPrefabs[i],
                 category=i==0?AquariumDecorCategory.Plants:i==1?AquariumDecorCategory.Rocks:AquariumDecorCategory.Wood,
-                description=i==2?"Lũa phân nhánh cao · Gắn cây hoặc rêu tại 3 vị trí":i==0?"Cây lá rộng · Trồng nền hoặc gắn lên lũa":"Đá cuội tròn · Trang trí nền hồ",
+                description=i==2?"Lũa phân nhánh cao · Gắn cây hoặc rêu tại 3 vị trí":i==0?"Cây lá rộng · Trồng nền hoặc gắn lên lũa, đá":"Đá cuội tròn · Gắn rêu hoặc ráy lên mặt đá",
                 portrait=Portrait(starterPrefabs[i].gameObject,starterIds[i]) });
         }
         catalog.offers=offers.ToArray(); EditorUtility.SetDirty(catalog); AssetDatabase.SaveAssets(); return catalog;
@@ -285,6 +336,39 @@ public static class AquariumDecorCatalogBuilder
         if(material==null){material=new Material(source);AssetDatabase.CreateAsset(material,path);}
         material.SetColor("_BaseColor",tint);material.SetFloat("_Tiling",style==2?7:3);EditorUtility.SetDirty(material);
         Model("Stone",item.transform,mesh.Save(Ids[style+18]),material);
+        item.plantMounts=TopMounts(item.gameObject);
+    }
+
+    // The highest upward-facing points of a rock, spaced so attached moss or plants never overlap.
+    private static Vector3[] TopMounts(GameObject root)
+    {
+        var candidates=new List<Vector3>();
+        foreach(var filter in root.GetComponentsInChildren<MeshFilter>())
+        {
+            if(filter.sharedMesh==null)continue;
+            var vertices=filter.sharedMesh.vertices;var normals=filter.sharedMesh.normals;
+            if(normals.Length!=vertices.Length)continue;
+            for(int i=0;i<vertices.Length;i++)
+            {
+                var normal=root.transform.InverseTransformDirection(filter.transform.TransformDirection(normals[i])).normalized;
+                if(normal.y>.6f)candidates.Add(root.transform.InverseTransformPoint(filter.transform.TransformPoint(vertices[i])));
+            }
+        }
+        candidates.Sort((a,b)=>b.y.CompareTo(a.y));
+        var chosen=new List<Vector3>();
+        foreach(var c in candidates)
+            if(chosen.Count<3&&chosen.TrueForAll(m=>new Vector2(m.x-c.x,m.z-c.z).magnitude>=.06f))chosen.Add(c);
+        return chosen.ToArray();
+    }
+
+    // One pad mesh under the swaying pivot; vertex colours tint the shared white moss material.
+    private static float BuildMoss(AquariumDecorItem item,MossSpeciesBuilder.Species species)
+    {
+        item.foliage=new GameObject("SwayingFoliage").transform;item.foliage.SetParent(item.transform,false);
+        item.phase=species.id.Length*1.37f;
+        var mesh=Store(MossSpeciesBuilder.Build(species,out float footprint),species.id+"-leaves");
+        Model("Leaves",item.foliage,mesh,Nature("MossSpecies",Color.white));
+        return footprint;
     }
 
     // Neutral bark shared by every driftwood species; each mesh's vertex colours give the wood its colour.
