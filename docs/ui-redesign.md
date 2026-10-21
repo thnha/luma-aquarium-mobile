@@ -64,7 +64,7 @@ Logic ví, kho và đặt đồ (`FishShopInventory`, `AquariumDecoration`) gi�
 
 - Kho Trang trí chia 3 tab Cây · Lũa · Đá, khớp với `AquariumDecorCategory` và tab cửa hàng. Preview tách riêng Rêu và Bèo, nhưng dữ liệu catalog hiện chưa có nhóm đó.
 - Ánh sáng ngày/đêm trong Cài đặt là một nút chuyển, để `AquariumLighting.label` và test cũ vẫn dùng được.
-- Icon dock Cửa hàng tạm dùng `utility_coin`.
+- Icon dock Cửa hàng `action_shop.png` được vẽ bằng `Tools/UI/make_shop_icon.py`, ghép từ ảnh render cá Royal Blue và dương xỉ Java trong game.
 
 ### Chưa kiểm chứng
 

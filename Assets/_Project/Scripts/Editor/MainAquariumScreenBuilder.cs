@@ -197,9 +197,7 @@ public static class MainAquariumScreenBuilder
         var decorate = Tile("DecorateButton", dock.transform, "Trang trí", "action_decorate");
         Wire(decorate, controller.ToggleDecorate);
         controller.decorateTile = (UnityEngine.UI.Image)decorate.targetGraphic;
-        var shop = Tile("ShopButton", dock.transform, "Cửa hàng", "utility_coin");
-        ((RectTransform)shop.transform.Find("Icon")).offsetMin = new Vector2(30, 14); // the coin is a small glyph
-        Wire(shop, controller.OpenShop);
+        Wire(Tile("ShopButton", dock.transform, "Cửa hàng", "action_shop"), controller.OpenShop);
         Wire(Tile("PhotoButton", dock.transform, "Ảnh", "action_photo"), controller.TakePhoto);
     }
 
