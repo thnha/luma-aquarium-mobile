@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace Lumaquarium.UI
 {
-    // The Trang trí sheet: lists owned decorations by group. A card with stock starts
-    // placement; an empty one opens the shop on that item.
+    // The Trang trí sheet: lists the decorations still in storage by group; tapping one starts
+    // placement. Items not bought yet, or all placed, stay in the shop.
     public sealed class DecorInventoryPanel : MonoBehaviour
     {
         public MainAquariumScreen aquarium;
@@ -28,6 +28,7 @@ namespace Lumaquarium.UI
 
         private void Awake()
         {
+            AddMissingCards();
             for (int i = 0; i < tabButtons.Length; i++)
             {
                 int index = i;
@@ -44,6 +45,36 @@ namespace Lumaquarium.UI
 
         private void OnEnable() => Refresh();
 
+        // A sheet built before newer catalog items gets their cards copied from the first card.
+        private void AddMissingCards()
+        {
+            var catalog = Decoration != null ? Decoration.catalog : null;
+            if (catalog == null || cards.Length == 0 || cards.Length >= catalog.offers.Length) return;
+            int count = catalog.offers.Length;
+            int old = cards.Length;
+            System.Array.Resize(ref cards, count);
+            System.Array.Resize(ref cardButtons, count);
+            System.Array.Resize(ref cardSurfaces, count);
+            System.Array.Resize(ref countLabels, count);
+            if (countBadges != null && countBadges.Length == old) System.Array.Resize(ref countBadges, count);
+            for (int i = old; i < count; i++)
+            {
+                var offer = catalog.offers[i];
+                var card = Instantiate(cards[0], cards[0].transform.parent);
+                card.name = "Item_" + offer.id;
+                cards[i] = card;
+                cardButtons[i] = card.GetComponent<UnityEngine.UI.Button>();
+                cardSurfaces[i] = card.GetComponent<UnityEngine.UI.Image>();
+                var portrait = card.transform.Find("Portrait");
+                if (portrait != null) portrait.GetComponent<UnityEngine.UI.Image>().sprite = offer.portrait;
+                var title = card.transform.Find("Name");
+                if (title != null) title.GetComponent<TMP_Text>().text = offer.displayName;
+                var badge = card.transform.Find("Count");
+                if (countBadges != null && countBadges.Length == count && badge != null) countBadges[i] = badge.GetComponent<UnityEngine.UI.Image>();
+                countLabels[i] = badge != null ? badge.GetComponentInChildren<TMP_Text>() : card.GetComponentInChildren<TMP_Text>();
+            }
+        }
+
         public void SelectCategory(int index)
         {
             if (index < 0 || index > (int)AquariumDecorCategory.Coral) return;
@@ -57,8 +88,7 @@ namespace Lumaquarium.UI
         {
             var decoration = Decoration;
             var catalog = decoration != null ? decoration.catalog : null;
-            if (summary != null && decoration != null)
-                summary.text = $"Kho của bạn · trong hồ {decoration.Count}/{decoration.capacity} món";
+            int shown = 0;
             for (int i = 0; i < tabButtons.Length; i++)
             {
                 bool on = i == (int)category;
@@ -68,16 +98,19 @@ namespace Lumaquarium.UI
             for (int i = 0; i < cards.Length; i++)
             {
                 var offer = catalog != null && i < catalog.offers.Length ? catalog.offers[i] : null;
-                bool visible = offer != null && offer.prefab != null && offer.category == category;
-                cards[i].SetActive(visible);
-                if (!visible) continue;
-                int available = decoration.Available(offer.prefab.kind);
-                countLabels[i].text = available > 0 ? "x" + available : "Mua";
-                cardSurfaces[i].sprite = available > 0 ? cardNormal : cardEmpty;
-                if (countBadges != null && i < countBadges.Length)
-                    countBadges[i].sprite = available > 0 ? badgeStock : badgeEmpty;
-                countLabels[i].color = available > 0 ? tabLabelOn : tabLabelOff;
+                int available = offer != null && offer.prefab != null && offer.category == category
+                    ? decoration.Available(offer.prefab.kind) : 0;
+                cards[i].SetActive(available > 0);
+                if (available <= 0) continue;
+                shown++;
+                countLabels[i].text = "x" + available;
+                cardSurfaces[i].sprite = cardNormal;
+                if (countBadges != null && i < countBadges.Length) countBadges[i].sprite = badgeStock;
+                countLabels[i].color = tabLabelOn;
             }
+            if (summary != null && decoration != null)
+                summary.text = shown > 0 ? $"Kho của bạn · trong hồ {decoration.Points}/{decoration.capacity} điểm"
+                    : "Kho trống ở mục này · chọn Mua thêm";
         }
 
         public void Use(int index)

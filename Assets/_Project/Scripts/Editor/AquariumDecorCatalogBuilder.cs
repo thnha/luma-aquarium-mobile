@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 
 // Species use distinct silhouettes; meshes and existing materials are shared by all placed copies.
-public static class AquariumDecorCatalogBuilder
+public static partial class AquariumDecorCatalogBuilder
 {
     public const string Root = "Assets/_Project/Art/Aquarium3D/DecorShop";
     private const string Art = "Assets/_Project/Art/Aquarium3D/";
@@ -40,6 +40,7 @@ public static class AquariumDecorCatalogBuilder
                 item.attachable = i >= 4 && i <= 8;
                 item.floats = i >= 9 && i <= 11;
                 item.supportsPlants = i >= 12;
+                item.tiltable = i >= 12 && i < 18;
                 if (i == 8) BuildMoss(item,MossSpeciesBuilder.MiniFiss);
                 else if (i < 12) BuildPlant(item,i);
                 else if (i < 18) BuildWood(item,i-12);
@@ -71,6 +72,7 @@ public static class AquariumDecorCatalogBuilder
                 var item = root.AddComponent<AquariumDecorItem>();
                 item.kind = Ids.Length + 3 + i;
                 item.supportsPlants = true;
+                item.tiltable = true;
                 var mesh = Store(DriftwoodSpeciesBuilder.Build(species,1,out item.plantMounts,out item.footprint),species.id);
                 Model("Wood",root.transform,mesh,speciesWood);
                 var bounds = mesh.bounds;
@@ -176,11 +178,15 @@ public static class AquariumDecorCatalogBuilder
                 description=i==2?"Lũa phân nhánh cao · Gắn cây hoặc rêu tại 3 vị trí":i==0?"Cây lá rộng · Trồng nền hoặc gắn lên lũa, đá":"Đá cuội tròn · Gắn rêu hoặc ráy lên mặt đá",
                 portrait=Portrait(starterPrefabs[i].gameObject,starterIds[i]) });
         }
+        // Large pieces come after the starters so every earlier offer keeps its place in built sheets.
+        AddLarge(offers,firstStoneKind+StoneCoralBuilder.All.Length,speciesWood,speciesStone);
         catalog.offers=offers.ToArray(); EditorUtility.SetDirty(catalog); AssetDatabase.SaveAssets(); return catalog;
     }
 
-    private static void BuildPlant(AquariumDecorItem item,int style)
+    // A height above 1 grows the same species taller, with more leaf levels, under its own mesh name.
+    private static void BuildPlant(AquariumDecorItem item,int style,float tall=1,string name=null)
     {
+        name=name??Ids[style];
         item.foliage=new GameObject("SwayingFoliage").transform; item.foliage.SetParent(item.transform,false);
         item.phase=style*1.37f;
         var leaves=new Geometry(); var stems=new Geometry();
@@ -194,19 +200,20 @@ public static class AquariumDecorCatalogBuilder
                 float angle=n*2.39996f;
                 var radial=new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle));
                 Vector3 start=radial*(.025f+random()*.04f);
-                float height=.29f+random()*.23f;
+                float height=(.29f+random()*.23f)*tall;
                 Vector3 tip=start+radial*.035f+Vector3.up*height;
-                if(style==2) { leaves.Blade(start,tip+radial*.07f,.012f,radial,5); continue; }
-                stems.Tube(start,(start+tip)*.5f,tip,.003f,.001f,7,5);
-                for(int level=1;level<=7;level++)
+                if(style==2) { leaves.Blade(start,tip+radial*.07f*tall,tall>1?.02f:.012f,radial,Mathf.RoundToInt(5*tall)); continue; }
+                stems.Tube(start,(start+tip)*.5f,tip,.003f*Mathf.Sqrt(tall),.001f,Mathf.RoundToInt(7*tall),5);
+                int levels=Mathf.RoundToInt(7*tall);
+                for(int level=1;level<=levels;level++)
                 {
-                    Vector3 center=Vector3.Lerp(start,tip,level/8f);
+                    Vector3 center=Vector3.Lerp(start,tip,level/(levels+1f));
                     int whorl=style==3?2:5;
                     for(int k=0;k<whorl;k++)
                     {
                         float a=k*Mathf.PI*2/whorl+level*.6f+n;
                         var direction=new Vector3(Mathf.Cos(a),.3f,Mathf.Sin(a));
-                        float length=(style==3?.045f:.065f)*(1-level*.055f);
+                        float length=(style==3?.045f:.065f)*(1-level*.385f/levels);
                         if(style==3) leaves.Blade(center,center+direction*length,.014f,Vector3.up,4);
                         else
                         {
@@ -276,8 +283,8 @@ public static class AquariumDecorCatalogBuilder
             }
         }
         Color green=style==3?new Color(.65f,.30f,.19f):style>=6&&style<=8?new Color(.19f,.43f,.12f):new Color(.36f,.60f,.14f);
-        Model("Leaves",item.foliage,leaves.Save(Ids[style]+"-leaves"),Nature(Ids[style]+"-leaf",green));
-        Model("Stems",item.foliage,stems.Save(Ids[style]+"-stems"),Nature("PlantStem",new Color(.19f,.30f,.07f)));
+        Model("Leaves",item.foliage,leaves.Save(name+"-leaves"),Nature(Ids[style]+"-leaf",green));
+        Model("Stems",item.foliage,stems.Save(name+"-stems"),Nature("PlantStem",new Color(.19f,.30f,.07f)));
     }
 
     private static void BuildWood(AquariumDecorItem item,int style)

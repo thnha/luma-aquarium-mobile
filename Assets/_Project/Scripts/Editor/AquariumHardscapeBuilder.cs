@@ -166,11 +166,16 @@ public static class AquariumHardscapeBuilder
         var importer=(TextureImporter)AssetImporter.GetAtPath(NightPath);
         importer.textureType=TextureImporterType.Sprite;importer.spriteImportMode=SpriteImportMode.Single;
         importer.mipmapEnabled=false;importer.wrapMode=TextureWrapMode.Clamp;importer.maxTextureSize=2048;importer.SaveAndReimport();
-        var day=GameObject.Find("AquariumBackdrop/Environment").GetComponent<Image>();
-        var night=day.transform.parent.Find("NightEnvironment");
-        if(night==null) { var go=UnityEngine.Object.Instantiate(day.gameObject,day.transform.parent);go.name="NightEnvironment";night=go.transform;Undo.RegisterCreatedObjectUndo(go,"Night backdrop"); }
-        var image=night.GetComponent<Image>();image.sprite=AssetDatabase.LoadAssetAtPath<Sprite>(NightPath);image.color=new Color(1,1,1,0);image.raycastTarget=false;
-        var aspect=night.GetComponent<AspectRatioFitter>();if(aspect!=null)aspect.aspectRatio=image.sprite.rect.width/image.sprite.rect.height;
+        // The painted backdrop was removed; the night image is only kept for scenes that still have one.
+        var day=GameObject.Find("AquariumBackdrop/Environment");
+        Image image=null;
+        if(day!=null)
+        {
+            var night=day.transform.parent.Find("NightEnvironment");
+            if(night==null) { var go=UnityEngine.Object.Instantiate(day,day.transform.parent);go.name="NightEnvironment";night=go.transform;Undo.RegisterCreatedObjectUndo(go,"Night backdrop"); }
+            image=night.GetComponent<Image>();image.sprite=AssetDatabase.LoadAssetAtPath<Sprite>(NightPath);image.color=new Color(1,1,1,0);image.raycastTarget=false;
+            var aspect=night.GetComponent<AspectRatioFitter>();if(aspect!=null)aspect.aspectRatio=image.sprite.rect.width/image.sprite.rect.height;
+        }
         var lighting=d.GetComponent<AquariumLighting>();if(lighting==null)lighting=Undo.AddComponent<AquariumLighting>(d.gameObject);
         Undo.RecordObject(lighting,"Configure aquarium lighting");
         lighting.sun=UnityEngine.Object.FindObjectsByType<Light>(FindObjectsSortMode.None).First(x=>x.type==LightType.Directional);
