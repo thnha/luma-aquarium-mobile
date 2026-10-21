@@ -38,14 +38,17 @@ public static class FishShopScreenBuilder
         // otherwise hand edits to it are kept. Rebuilding keeps the prefab GUID, so the scene instance follows.
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
         var built = prefab != null ? prefab.GetComponent<FishShopScreen>() : null;
+        // Pipeline fish are re-imported whenever their colours or text change: always re-bake their portraits.
+        var pipelineIds = PipelineFishImporter.All().Where(f => f.inShop).Select(f => f.shopId).ToArray();
         if (built == null || built.layoutVersion < LayoutVersion || built.offers == null
             || !built.offers.Select(o => o.id).SequenceEqual(offers.Select(o => o.id)))
         {
-            BakePortraits(aquarium.fish.gameObject, offers);
+            BakePortraits(aquarium.fish.gameObject, offers, pipelineIds);
             var screen = CreateScreen(offers);
             PrefabUtility.SaveAsPrefabAsset(screen.gameObject, PrefabPath);
             UnityEngine.Object.DestroyImmediate(screen.gameObject);
         }
+        else RefreshPipelineOffers(aquarium.fish.gameObject, offers, pipelineIds);
         var shop = UnityEngine.Object.FindFirstObjectByType<FishShopScreen>(FindObjectsInactive.Include);
         if (shop == null)
         {
@@ -92,11 +95,11 @@ public static class FishShopScreenBuilder
 
     private static FishShopOffer[] LoadOffers()
     {
-        string[] ids = { "royal", "mustard", "koi", "orchid", "pearl", "aqua-fire", "koi-nemo" };
-        string[] assets = { "RoyalBlueHalfmoon", "MustardGasVeiltail", "KoiGalaxyPlakat", "BlackOrchidCrowntail", "AquaPearlRosetail", "AquaFireBetta", "KoiNemoBetta" };
+        string[] ids = { "royal", "mustard", "koi", "orchid", "pearl", "aqua-fire" };
+        string[] assets = { "RoyalBlueHalfmoon", "MustardGasVeiltail", "KoiGalaxyPlakat", "BlackOrchidCrowntail", "AquaPearlRosetail", "AquaFireBetta" };
         string[] descriptions = { "Xanh hoàng gia · Đuôi xòe bán nguyệt", "Xanh sẫm, vây vàng · Đuôi rủ mềm", "Trắng, cam, đen · Hoa văn Koi", "Tím phong lan · Đuôi tưa cá tính",
-            "Trắng ngọc, vây xanh ngọc · Mép vây gợn sóng", "Xanh ngọc, đỏ lửa · Model và màu sắc nguyên bản", "Đỏ, xanh, trắng · Koi Nemo đuôi tròn" };
-        int[] prices = { 350, 450, 650, 900, 0, 0, 0 };
+            "Trắng ngọc, vây xanh ngọc · Mép vây gợn sóng", "Xanh ngọc, đỏ lửa · Model và màu sắc nguyên bản" };
+        int[] prices = { 350, 450, 650, 900, 0, 0 };
         var offers = ids.Select((id, i) => new FishShopOffer
         {
             id = id,
@@ -239,14 +242,41 @@ public static class FishShopScreenBuilder
         return shop;
     }
 
-    private static void BakePortraits(GameObject fish, FishShopOffer[] offers)
+    // Same fish list, so the hand-tunable prefab is kept: only the pipeline fish's text, price,
+    // card name and portrait are brought up to date with their PipelineFish specs.
+    private static void RefreshPipelineOffers(GameObject fish, FishShopOffer[] offers, string[] pipelineIds)
+    {
+        var fresh = offers.Where(o => pipelineIds.Contains(o.id)).ToArray();
+        if (fresh.Length == 0) return;
+        BakePortraits(fish, fresh, pipelineIds);
+        var root = PrefabUtility.LoadPrefabContents(PrefabPath);
+        try
+        {
+            var screen = root.GetComponent<FishShopScreen>();
+            foreach (var offer in fresh)
+            {
+                int i = Array.FindIndex(screen.offers, o => o.id == offer.id);
+                screen.offers[i].variant = offer.variant;
+                screen.offers[i].description = offer.description;
+                screen.offers[i].price = offer.price;
+                screen.offers[i].portrait = offer.portrait;
+                var card = screen.optionButtons[i].transform;
+                card.Find("Name").GetComponent<TMP_Text>().text = offer.variant.displayName;
+                card.Find("Portrait").GetComponent<UnityEngine.UI.Image>().sprite = offer.portrait;
+            }
+            PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
+        }
+        finally { PrefabUtility.UnloadPrefabContents(root); }
+    }
+
+    private static void BakePortraits(GameObject fish, FishShopOffer[] offers, string[] alwaysBake)
     {
         string directory = Root + "/Portraits/Shop";
         Directory.CreateDirectory(directory);
         foreach (var offer in offers)
         {
             string path = directory + "/" + offer.id + ".png";
-            if (!File.Exists(path)) BakePortrait(fish, offer.variant, path);
+            if (!File.Exists(path) || alwaysBake.Contains(offer.id)) BakePortrait(fish, offer.variant, path);
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
             offer.portrait = AssetDatabase.LoadAssetAtPath<Sprite>(path);
         }

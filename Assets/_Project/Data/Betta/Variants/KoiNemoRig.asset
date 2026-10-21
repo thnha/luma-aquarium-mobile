@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f782e909e6f4416e97ca931601db3a05, type: 3}
   m_Name: KoiNemoRig
   m_EditorClassIdentifier: Assembly-CSharp::BettaVariant
-  displayName: Koi Nemo (pipeline test)
+  displayName: Koi Nemo Betta
   modelPrefab: {fileID: 6706469586767245113, guid: a0314bf2013eb4dc395845dd52016a27, type: 3}
   tail: {fileID: 0}
   pattern: {fileID: 11400000, guid: 47ac8245d7a894d6abe1a3763c256013, type: 2}

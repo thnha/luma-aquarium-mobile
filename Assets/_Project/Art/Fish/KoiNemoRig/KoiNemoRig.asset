@@ -12,11 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25c23ed5e6b1645669af9d8c4c327d31, type: 3}
   m_Name: KoiNemoRig
   m_EditorClassIdentifier: Assembly-CSharp-Editor::PipelineFish
-  displayName: Koi Nemo (pipeline test)
-  inShop: 0
-  shopId: koi-nemo-rig
-  description: 
+  displayName: Koi Nemo Betta
+  inShop: 1
+  shopId: koi-nemo
+  description: "Xanh d\u01B0\u01A1ng, tr\u1EAFng, \u0111en \xB7 Koi Nemo \u0111u\xF4i
+    tr\xF2n"
   price: 0
+  size: 2.4
   pattern: {fileID: 11400000, guid: 47ac8245d7a894d6abe1a3763c256013, type: 2}
   primary: {r: 0.1, g: 0.25, b: 0.85, a: 1}
   secondary: {r: 0.95, g: 0.95, b: 0.95, a: 1}
