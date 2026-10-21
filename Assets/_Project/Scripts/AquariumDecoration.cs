@@ -57,6 +57,13 @@ public sealed class AquariumDecoration : MonoBehaviour
     }
 
     private float Height(AquariumDecorItem item) => item.floats && water != null ? water.surfaceY - .012f : floorY;
+    // The back glass is the far edge of the placement area; moss walls cover it up to below the surface.
+    private float WallZ => max.y;
+    private float WallTop => water != null ? water.surfaceY - .08f : floorY + 1.8f;
+
+    // Where an item comes to rest for a dragged point: on the sand, the surface or the back glass.
+    private Vector3 Rest(AquariumDecorItem item, Vector3 p) =>
+        item.wallMounted ? new Vector3(p.x, p.y, WallZ) : new Vector3(p.x, Height(item), p.z);
 
     private void Start()
     {
@@ -107,7 +114,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         Selected = Instantiate(prefabs[kind], itemsRoot);
         Selected.name = prefabs[kind].name;
         Selected.instanceId = Guid.NewGuid().ToString("N");
-        Selected.transform.position = new Vector3(0, Height(Selected), -.1f);
+        Selected.transform.position = Rest(Selected, new Vector3(0, floorY + .3f, -.1f));
         FrameSelection();
         isNew = true;
         RefreshSelection();
@@ -182,6 +189,9 @@ public sealed class AquariumDecoration : MonoBehaviour
     public bool MoveAlongRay(Ray ray)
     {
         if (!Editing || Selected == null) return false;
+        if (Selected.wallMounted)
+            return new Plane(Vector3.back, new Vector3(0, 0, WallZ)).Raycast(ray, out float wallDistance)
+                && MoveTo(ray.GetPoint(wallDistance) - Vector3.up * Selected.wallSize.y * .5f);
         if (Selected.attachable)
         {
             var wood = WoodAlongRay(ray, out var hitPoint);
@@ -193,9 +203,9 @@ public sealed class AquariumDecoration : MonoBehaviour
 
     public bool MoveTo(Vector3 position)
     {
-        if (!Editing || Selected == null || !float.IsFinite(position.x) || !float.IsFinite(position.z)) return false;
+        if (!Editing || Selected == null || !float.IsFinite(position.x) || !float.IsFinite(position.y) || !float.IsFinite(position.z)) return false;
         Selected.transform.SetParent(itemsRoot, true);
-        Selected.transform.position = new Vector3(position.x, Height(Selected), position.z);
+        Selected.transform.position = Rest(Selected, position);
         RefreshSelection();
         return CanPlace(Selected, Selected.transform.position);
     }
@@ -229,12 +239,24 @@ public sealed class AquariumDecoration : MonoBehaviour
                     Vector3.Distance(p, other.transform.position) < .045f) return false;
             return true;
         }
+        if (item.wallMounted)
+        {
+            Vector2 half = item.wallSize * .5f;
+            if (p.x - half.x < min.x || p.x + half.x > max.x || p.y < floorY - .001f || p.y + item.wallSize.y > WallTop) return false;
+            // Neighbouring panels may overlap a little so the moss closes the seam between them.
+            foreach (var other in items)
+                if (other != null && other != item && other.wallMounted && other.transform.parent == itemsRoot &&
+                    Mathf.Abs(p.x - other.transform.position.x) < half.x + other.wallSize.x * .5f - .03f &&
+                    Mathf.Abs(p.y + half.y - other.transform.position.y - other.wallSize.y * .5f) < half.y + other.wallSize.y * .5f - .03f)
+                    return false;
+            return true;
+        }
         float r = item.footprint;
         if (p.x - r < min.x || p.x + r > max.x || p.z - r < min.y || p.z + r > max.y) return false;
         foreach (var other in items)
         {
             if (other == null || other == item || other.transform.IsChildOf(item.transform) ||
-                other.transform.parent != itemsRoot || other.floats != item.floats) continue;
+                other.transform.parent != itemsRoot || other.floats != item.floats || other.wallMounted) continue;
             Vector2 delta = new Vector2(p.x - other.transform.position.x, p.z - other.transform.position.z);
             if (delta.sqrMagnitude < Mathf.Pow(r + other.footprint, 2)) return false;
         }
@@ -243,7 +265,7 @@ public sealed class AquariumDecoration : MonoBehaviour
 
     public void Rotate()
     {
-        if (Selected == null) return;
+        if (Selected == null || Selected.wallMounted) return;
         Selected.transform.Rotate(0, 30, 0, Space.World);
         RefreshSelection();
     }
@@ -354,12 +376,29 @@ public sealed class AquariumDecoration : MonoBehaviour
         bool valid = CanPlace(Selected, Selected.transform.position);
         bool attached = Selected.transform.parent != itemsRoot;
         instruction.text = !valid ? "Vòng đỏ: ra ngoài hồ hoặc chồng đồ. Kéo sang chỗ trống." :
-            attached ? "Đã gắn lên lũa • Xoay rồi chọn Đặt" :
+            attached ? "Đã gắn lên lũa/đá • Xoay rồi chọn Đặt" :
+            Selected.wallMounted ? "Kéo trên kính sau hồ • Ghép nhiều tấm thành tường rêu • Chọn Đặt" :
             Selected.floats ? "Kéo trên mặt nước • Xoay rồi chọn Đặt" :
-            Selected.attachable ? "Kéo trên cát hoặc lên lũa để gắn • Chọn Đặt" : "Kéo trên nền cát • Xoay rồi chọn Đặt";
+            Selected.attachable ? "Kéo trên cát, lên lũa hoặc đá để gắn • Chọn Đặt" : "Kéo trên nền cát • Xoay rồi chọn Đặt";
         selectionRing.gameObject.SetActive(true);
-        selectionRing.transform.position = Selected.transform.position + Vector3.up * .012f;
         selectionRing.startColor = selectionRing.endColor = valid ? new Color(.6f, 1, .55f) : new Color(1, .25f, .15f);
+        if (Selected.wallMounted)
+        {
+            // A rectangle on the glass, drawn just in front of the panel.
+            selectionRing.transform.position = Selected.transform.position + Vector3.back * .05f;
+            Vector2 size = Selected.wallSize;
+            for (int i = 0; i < 49; i++)
+            {
+                float t = (i % 48) / 48f * 2 * (size.x + size.y), x, y;
+                if (t < size.x) { x = t; y = 0; }
+                else if (t < size.x + size.y) { x = size.x; y = t - size.x; }
+                else if (t < 2 * size.x + size.y) { x = 2 * size.x + size.y - t; y = size.y; }
+                else { x = 0; y = 2 * (size.x + size.y) - t; }
+                selectionRing.SetPosition(i, new Vector3(x - size.x * .5f, y, 0));
+            }
+            return;
+        }
+        selectionRing.transform.position = Selected.transform.position + Vector3.up * .012f;
         for (int i = 0; i < 49; i++)
         {
             float angle = i * Mathf.PI * 2 / 48;
@@ -419,7 +458,7 @@ public sealed class AquariumDecoration : MonoBehaviour
                 item.transform.localPosition = local;
                 item.transform.localRotation = Quaternion.Euler(0, entry.yaw, 0);
             }
-            else item.transform.SetPositionAndRotation(new Vector3(entry.x, Height(item), entry.z), Quaternion.Euler(0, entry.yaw, 0));
+            else item.transform.SetPositionAndRotation(Rest(item, new Vector3(entry.x, entry.y, entry.z)), Quaternion.Euler(0, entry.yaw, 0));
         }
         // Validate against the candidate layout, while keeping the current layout recoverable.
         var previous = new List<AquariumDecorItem>(items);
