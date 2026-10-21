@@ -53,8 +53,13 @@ MonoBehaviour:
   instanceId: 
   floats: 0
   attachable: 0
-  supportsPlants: 0
-  plantMounts: []
+  supportsPlants: 1
+  plantMounts:
+  - {x: 0.02436309, y: 0.5505871, z: 0.052083954}
+  - {x: -0.048488554, y: 0.5217188, z: 0.059999995}
+  - {x: -0.04368478, y: 0.502989, z: -0.0001269728}
+  wallMounted: 0
+  wallSize: {x: 0, y: 0}
 --- !u!65 &7783286160961452600
 BoxCollider:
   m_ObjectHideFlags: 0

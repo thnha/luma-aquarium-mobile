@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 // Lightweight FSM from the GDD: Wander, Idle, SeekFood, Eat, Rest, plus Breathe
@@ -17,9 +18,22 @@ public class BettaFishAI : MonoBehaviour
     public float seekSpeedMultiplier = 1.6f;
     public float acceleration = 0.9f;
     public float deceleration = 0.22f;            // water drag when coasting: slow to lose speed
-    public float turnDegreesPerSecond = 100f;     // top turn rate at full swim speed
-    public float hoverTurnDegreesPerSecond = 50f; // turn rate when nearly stopped
-    public float turnAcceleration = 220f;         // deg/s^2, eases turns in and out
+    // The pivot (gills) is the head: it swings toward the new heading first and the body
+    // follows its path (BettaSwimMotion), so the head turns, then the body, then the tail.
+    // A swimming fish changes direction along an arc instead of spinning on the spot:
+    // the turn rate follows forward speed (speed / radius), with a slow pectoral turn when hovering.
+    // The radius is in body lengths so a big fish turns wider; a tighter arc than about half a
+    // body length would need the spine to coil further than the rig can bend.
+    public float turnRadiusBodyLengths = 0.5f;    // larger = wider, calmer turns
+    public float headTurnRate = 140f;             // deg/s cap
+    public float hoverHeadTurnRate = 40f;         // deg/s turning on the spot while holding position
+    public float turnGlideSpeed = 0.1f;           // m/s it always glides forward while the heading is well off
+    [Range(0.1f, 1f)] public float closeTurnRadiusFactor = 0.4f; // tightest arc near the target, share of the normal radius
+    public float headTurnGain = 2f;               // deg/s of turn rate per degree still to go: eases out
+    public float headTurnAcceleration = 300f;     // deg/s^2, how gradually the swing starts and stops
+    [Range(0f, 1f)] public float minTurnSpeedFactor = 0.8f; // keeps swimming through a U-turn instead of stopping
+    public float turnExitBoost = 1.3f;            // speed multiplier as the tail sweeps out of a big turn
+    public float turnExitBoostTime = 0.5f;
     public float maxPitch = 15f;                  // while wandering; bettas mostly swim level
     public float feedMaxPitch = 60f;              // darting up to floating food is steep
     public float restMaxPitch = 35f;              // gliding down to a rest spot
@@ -59,6 +73,19 @@ public class BettaFishAI : MonoBehaviour
     public float hoverYawDrift = 6f;              // deg/s of slow heading wander while hovering
     public float verticalHoverSpeed = 0.1f;       // m/s straight up/down on the pectorals when a target is too steep
 
+    [Header("Obstacles")]
+    // Rocks, driftwood and coral are solid (their placement BoxCollider); plants are not.
+    // The fish looks ahead and steers around or over them, wander/rest spots are lifted
+    // above them, and any remaining overlap is pushed out.
+    public float obstacleLookAhead = 0.3f;        // metres ahead of the snout
+    public float bodyRadiusBodyLengths = 0.12f;   // half the body depth, in body lengths
+    public float finHangBodyLengths = 0.4f;       // long anal/pelvic fins hang this far below the body
+    public float obstacleClearance = 0.04f;       // extra room it keeps while steering
+    public float avoidStrength = 2.5f;
+    public float maxClimb = 0.3f;                 // lower obstacles are swum over, taller ones around
+    public float climbLookAhead = 0.8f;           // metres ahead it starts rising to clear something
+    public float climbMaxPitch = 40f;             // may tilt this steeply while rising over decor
+
     [Header("Timing")]
     public float wanderMinTime = 3f;
     public float wanderMaxTime = 7f;
@@ -81,7 +108,9 @@ public class BettaFishAI : MonoBehaviour
     private FoodPellet food;
     private float stateTimer;
     private float currentSpeed;
-    private float currentTurnSpeed;
+    private float yawVelocity;                    // signed deg/s, so a turn eases in and out
+    private bool bigTurn;
+    private float turnExitTimer;
     private bool coasting;
     private float strokeTimer;
     private float targetEffort;
@@ -94,6 +123,10 @@ public class BettaFishAI : MonoBehaviour
     private bool settled;                         // resting: reached the rest spot
     private bool restOnBottom;
     private float roll;
+    private readonly List<Collider> obstacles = new List<Collider>();
+    private AquariumDecoration decoration;
+    private float obstacleScanTimer;
+    private bool climbingObstacle;
 
     // True only once the fish has reached its rest spot and lies still.
     public bool IsResting => state == State.Rest && settled;
@@ -102,6 +135,8 @@ public class BettaFishAI : MonoBehaviour
         : state == State.Rest ? (settled ? -1f : -0.3f) : state == State.Idle ? 0.2f : 0.35f;
 
     public float CurrentSpeed => currentSpeed;
+    // Gills to tail base in metres; set by BettaSwimMotion from the model's rig.
+    public float BodyLength { get; set; } = 0.3f;
     // 0 = hovering/gliding, 1 = actively beating the tail. Drives the caudal fin.
     public float Effort { get; private set; }
     // Set each frame by BettaSwimMotion so forward motion surges with each tail stroke.
@@ -222,6 +257,7 @@ public class BettaFishAI : MonoBehaviour
         float normalBottom = NormalBottom();
         floor = state == State.Rest && restOnBottom ? Mathf.Min(normalBottom, bottomRestY) : Mathf.Min(normalBottom, Mathf.Max(floor, transform.position.y));
         transform.position = ClampToBounds(transform.position, ceiling, floor);
+        ResolveObstacles();
         if (animator) animator.SetFloat(SpeedId, currentSpeed);
     }
 
@@ -250,6 +286,7 @@ public class BettaFishAI : MonoBehaviour
     void SwimTowards(Vector3 target, float targetSpeed, bool strike = false)
     {
         Vector3 direction = target - transform.position;
+        if (targetSpeed > 0f) direction = AvoidObstacles(direction);
         // Heading the fish can actually swim: yaw toward the target, pitch within the
         // limit for this state. Yaw and pitch are steered separately and rebuilt with zero
         // roll; slerping the whole rotation takes a shortcut that banks the fish mid-turn.
@@ -262,6 +299,7 @@ public class BettaFishAI : MonoBehaviour
             if (horizontal > 0.03f) targetYaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
             float limit = state == State.SeekFood ? feedMaxPitch : state == State.Rest ? restMaxPitch
                 : state == State.Breathe ? breatheMaxPitch : maxPitch;
+            if (climbingObstacle) limit = Mathf.Max(limit, climbMaxPitch);
             if (targetSpeed > 0f || state == State.Breathe)
             {
                 float rawPitch = -Mathf.Atan2(direction.y, horizontal) * Mathf.Rad2Deg;
@@ -282,24 +320,49 @@ public class BettaFishAI : MonoBehaviour
             Vector3 reachable = Quaternion.Euler(targetPitch, targetYaw, 0f) * Vector3.forward;
             float alignment = Vector3.Dot(transform.forward, reachable) * 0.5f + 0.5f;
             float approach = Mathf.Clamp01(direction.magnitude / slowdownRadius);
-            targetSpeed *= Mathf.Max(0.15f, alignment * alignment) * Mathf.Max(0.2f, approach);
+            targetSpeed *= Mathf.Max(minTurnSpeedFactor, alignment * alignment) * Mathf.Max(0.2f, approach);
             braking = approach < 1f || alignment < 0.6f;
+            // Coming out of a big turn the tail sweeps through and pushes the fish off.
+            if (turnExitTimer > 0f)
+            {
+                targetSpeed *= turnExitBoost;
+                braking = false;
+            }
+            // A betta never stands still and spins toward a new heading: while the heading
+            // is still well off it glides forward a little and turns along that glide.
+            float offHeading = Mathf.Clamp01((Mathf.Abs(Mathf.DeltaAngle(yaw, targetYaw)) - 15f) / 30f);
+            targetSpeed = Mathf.Max(targetSpeed, turnGlideSpeed * offHeading);
         }
         // A strike is a short dart; the fish then brakes hard with its pectorals.
         float rate = targetSpeed > currentSpeed ? acceleration * (strike ? 4f : 1f)
             : braking ? acceleration * (currentSpeed > swimSpeed * 1.2f ? 3f : 1f) : deceleration;
         currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, rate * Time.deltaTime);
 
-        // Turn rate grows with swim speed and eases off as the heading lines up,
-        // so turns start and finish smoothly instead of snapping at a fixed rate.
-        float desiredTurnSpeed = 0f;
+        // The head swings quickly toward the new heading and eases off as it lines up.
+        // The rate is signed and acceleration-limited, so the swing starts and stops smoothly
+        // and never jumps when the target changes side.
+        float yawError = Mathf.DeltaAngle(yaw, targetYaw);
+        float desiredYawVelocity = 0f;
         if (direction.sqrMagnitude > 0.0001f)
         {
-            float maxRate = Mathf.Lerp(hoverTurnDegreesPerSecond, turnDegreesPerSecond, Mathf.Clamp01(currentSpeed / swimSpeed));
-            desiredTurnSpeed = Mathf.Min(maxRate, Mathf.Abs(Mathf.DeltaAngle(yaw, targetYaw)) * 2.5f);
+            // Travelling to a target the fish turns only as fast as its forward glide allows
+            // (speed / radius). Close to the target the arc tightens on the pectorals, so a
+            // target just behind is reached instead of circled. Only a fish holding position
+            // (target speed 0) turns on the spot, slowly.
+            float turnRadius = Mathf.Max(0.01f, turnRadiusBodyLengths * BodyLength);
+            turnRadius = Mathf.Max(turnRadius * closeTurnRadiusFactor, Mathf.Min(turnRadius, horizontal * 0.5f));
+            float maxRate = targetSpeed > 0f ? Mathf.Min(currentSpeed / turnRadius * Mathf.Rad2Deg, headTurnRate) : hoverHeadTurnRate;
+            desiredYawVelocity = Mathf.Clamp(yawError * headTurnGain, -maxRate, maxRate);
         }
-        currentTurnSpeed = Mathf.MoveTowards(currentTurnSpeed, desiredTurnSpeed, turnAcceleration * Time.deltaTime);
-        yaw = Mathf.MoveTowardsAngle(yaw, targetYaw, currentTurnSpeed * Time.deltaTime);
+        yawVelocity = Mathf.MoveTowards(yawVelocity, desiredYawVelocity, headTurnAcceleration * Time.deltaTime);
+        yaw += yawVelocity * Time.deltaTime;
+        if (Mathf.Abs(yawError) > 100f) bigTurn = true;
+        else if (bigTurn && Mathf.Abs(yawError) < 25f)
+        {
+            bigTurn = false;
+            turnExitTimer = turnExitBoostTime;
+        }
+        turnExitTimer -= Time.deltaTime;
         // Level out while hovering, and don't pitch steeply in the middle of a sharp turn.
         // (Unless the target is nearly overhead/below, where the yaw error barely matters.)
         float turnFactor = horizontal < 0.15f ? 1f : Mathf.Clamp01(1f - Mathf.Abs(Mathf.DeltaAngle(yaw, targetYaw)) / 90f);
@@ -342,7 +405,7 @@ public class BettaFishAI : MonoBehaviour
         state = State.Wander;
         Bounds b = swimBounds ? swimBounds.bounds : new Bounds(transform.position, Vector3.one);
         float y = transform.position.y + Random.Range(-wanderHeightRange, wanderHeightRange);
-        destination = ClampToBounds(new Vector3(Random.Range(b.min.x, b.max.x), y, Random.Range(b.min.z, b.max.z)));
+        destination = AboveObstacles(ClampToBounds(new Vector3(Random.Range(b.min.x, b.max.x), y, Random.Range(b.min.z, b.max.z))));
         stateTimer = Random.Range(wanderMinTime, wanderMaxTime);
     }
 
@@ -362,7 +425,7 @@ public class BettaFishAI : MonoBehaviour
         state = State.Wander;
         Bounds b = swimBounds ? swimBounds.bounds : new Bounds(transform.position, Vector3.one);
         float y = transform.position.y - Random.Range(0.3f, 0.6f);
-        destination = ClampToBounds(new Vector3(Random.Range(b.min.x, b.max.x), y, Random.Range(b.min.z, b.max.z)));
+        destination = AboveObstacles(ClampToBounds(new Vector3(Random.Range(b.min.x, b.max.x), y, Random.Range(b.min.z, b.max.z))));
         stateTimer = Random.Range(wanderMinTime, wanderMaxTime);
     }
 
@@ -382,7 +445,8 @@ public class BettaFishAI : MonoBehaviour
         float y = restOnBottom ? Mathf.Min(NormalBottom(), bottomRestY) : NormalTop();
         // On the bottom keep to the open front half; rocks and plants fill the back.
         float zMax = restOnBottom ? Mathf.Min(b.max.z, b.center.z - 0.05f) : b.max.z;
-        destination = ClampToBounds(new Vector3(Random.Range(b.min.x, b.max.x), y, Random.Range(b.min.z, zMax)), NormalTop(), y);
+        // Over a rock or driftwood it rests on top of it, as bettas like to.
+        destination = AboveObstacles(ClampToBounds(new Vector3(Random.Range(b.min.x, b.max.x), y, Random.Range(b.min.z, zMax)), NormalTop(), y));
         // Give up travelling after this long and rest where it is.
         stateTimer = 6f + Vector3.Distance(transform.position, destination) / 0.08f;
     }
@@ -405,6 +469,166 @@ public class BettaFishAI : MonoBehaviour
             hunger = Mathf.Clamp01(hunger - hungerPerPellet);
         }
         food = null;
+    }
+
+    float BodyRadius => bodyRadiusBodyLengths * BodyLength;
+    float FinHang => finHangBodyLengths * BodyLength;
+
+    void ScanObstacles()
+    {
+        obstacleScanTimer -= Time.deltaTime;
+        if (obstacleScanTimer > 0f) return;
+        obstacleScanTimer = 0.5f;                 // decorations can be added and moved at any time
+        obstacles.Clear();
+        if (!decoration) decoration = FindFirstObjectByType<AquariumDecoration>();
+        foreach (var item in FindObjectsByType<AquariumDecorItem>(FindObjectsSortMode.None))
+        {
+            if (item.floats || item.wallMounted) continue;
+            var offer = decoration && decoration.catalog ? decoration.catalog.Find(item.kind) : null;
+            bool solid = offer != null ? offer.category != AquariumDecorCategory.Plants : item.foliage == null;
+            var col = item.GetComponent<Collider>();
+            if (solid && col && col.enabled) obstacles.Add(col);
+        }
+    }
+
+    // Points along the body, snout to tail base; the rear ones also check where the fins hang.
+    static readonly float[] BodySamples = { 0.15f, 0f, -0.35f, -0.7f, -1f };
+
+    // Height the pivot needs for the body and hanging fins to clear this obstacle.
+    float ClearHeight(Collider col) => col.bounds.max.y + FinHang + BodyRadius;
+
+    // Swim over it when it is low, or when the tank is too shallow front to back to pass
+    // beside it (and it isn't taller than the swimming space); otherwise go around.
+    bool ClimbOver(Collider col)
+    {
+        float clear = ClearHeight(col);
+        if (clear > NormalTop()) return false;
+        if (clear - transform.position.y < maxClimb) return true;
+        Bounds b = col.bounds, swim = swimBounds.bounds;
+        float r = BodyRadius;
+        bool roomInFront = b.min.z - r > swim.min.z + boundsInset;
+        bool roomBehind = b.max.z + r < swim.max.z - boundsInset;
+        return !roomInFront && !roomBehind;
+    }
+
+    // Steers the swim direction around or over decorations ahead.
+    Vector3 AvoidObstacles(Vector3 direction)
+    {
+        ScanObstacles();
+        climbingObstacle = false;
+        if (obstacles.Count == 0) return direction;
+        Vector3 forward = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
+        Vector3 side = Vector3.Cross(Vector3.up, forward);
+        Vector3 snout = transform.position + transform.forward * (BodySamples[0] * BodyLength);
+        float r = BodyRadius, reach = r + obstacleClearance;
+
+        // Over: rise early enough to clear what lies ahead, and hold the height until the
+        // tail and its fins have passed (the stretch behind the snout is checked too).
+        float slope = float.NegativeInfinity;
+        foreach (var col in obstacles)
+        {
+            if (!ClimbOver(col)) continue;
+            Bounds b = col.bounds;
+            float needed = ClearHeight(col) - transform.position.y;
+            for (float d = -BodyLength * 1.15f; d <= climbLookAhead; d += 0.05f)
+            {
+                Vector3 p = snout + forward * d;
+                if (p.x < b.min.x - r || p.x > b.max.x + r || p.z < b.min.z - r || p.z > b.max.z + r) continue;
+                slope = Mathf.Max(slope, needed / Mathf.Max(0.15f, d));
+                break;
+            }
+        }
+
+        // Around: push sideways away from what's just ahead.
+        Vector3 steer = Vector3.zero;
+        for (int k = 1; k <= 3; k++)
+        {
+            Vector3 ahead = snout + forward * (obstacleLookAhead * k / 3f);
+            foreach (var col in obstacles)
+            {
+                if (ClimbOver(col)) continue;
+                for (int f = 0; f < 2; f++)
+                {
+                    Vector3 point = f == 0 ? ahead : ahead + Vector3.down * FinHang;
+                    Vector3 away = point - col.ClosestPoint(point);
+                    float distance = away.magnitude;
+                    if (distance >= reach) continue;
+                    // Head-on, push straight sideways, away from the obstacle's centre.
+                    Vector3 lateral = Vector3.ProjectOnPlane(away, forward);
+                    lateral.y = 0f;
+                    if (lateral.sqrMagnitude < 1e-6f)
+                        lateral = side * (Vector3.Dot(side, point - col.bounds.center) >= 0f ? 1f : -1f);
+                    steer += lateral.normalized * (1f - distance / reach) / k;
+                }
+            }
+        }
+
+        bool climb = slope > float.NegativeInfinity;
+        if (steer == Vector3.zero && !climb) return direction;
+        Vector3 result = direction.normalized + steer * avoidStrength;
+        if (climb)
+        {
+            // Never descend into it; rise along the slope that clears it in time.
+            Vector3 flat = new Vector3(result.x, 0f, result.z);
+            float run = Mathf.Max(0.05f, flat.magnitude);
+            result.y = Mathf.Max(result.y, slope * run);
+            climbingObstacle = slope > 0f;
+        }
+        return result * direction.magnitude;
+    }
+
+    // Last resort: push the body back out of anything it still overlaps.
+    void ResolveObstacles()
+    {
+        ScanObstacles();
+        if (obstacles.Count == 0) return;
+        Vector3 push = Vector3.zero;
+        for (int i = 0; i < BodySamples.Length; i++)
+        {
+            Vector3 body = transform.position + transform.forward * (BodySamples[i] * BodyLength);
+            for (int f = 0; f < (i == 0 ? 1 : 2); f++)
+            {
+                Vector3 point = f == 0 ? body : body + Vector3.down * FinHang;
+                foreach (var col in obstacles)
+                {
+                    Vector3 closest = col.ClosestPoint(point);
+                    Vector3 away = point - closest;
+                    float distance = away.magnitude;
+                    float radius = i == 0 ? BodyRadius * 0.6f : BodyRadius;
+                    if (distance >= radius) continue;
+                    if (distance < 1e-5f)
+                    {
+                        // Inside the box: leave through the top if that's closest, else sideways.
+                        Bounds b = col.bounds;
+                        away = b.max.y - point.y < Mathf.Min(b.extents.x, b.extents.z) ? Vector3.up
+                            : Vector3.ProjectOnPlane(point - b.center, Vector3.up).normalized;
+                        distance = 0f;
+                    }
+                    else away /= distance;
+                    Vector3 needed = away * (radius - distance);
+                    push = new Vector3(
+                        Mathf.Abs(needed.x) > Mathf.Abs(push.x) ? needed.x : push.x,
+                        Mathf.Abs(needed.y) > Mathf.Abs(push.y) ? needed.y : push.y,
+                        Mathf.Abs(needed.z) > Mathf.Abs(push.z) ? needed.z : push.z);
+                }
+            }
+        }
+        if (push == Vector3.zero) return;
+        transform.position = ClampToBounds(transform.position + push * Mathf.Clamp01(10f * Time.deltaTime), SurfaceTop(), float.MinValue);
+    }
+
+    // Lifts a spot so the fish (and its hanging fins) clears any decoration under it.
+    Vector3 AboveObstacles(Vector3 position)
+    {
+        ScanObstacles();
+        float r = BodyRadius;
+        foreach (var col in obstacles)
+        {
+            Bounds b = col.bounds;
+            if (position.x < b.min.x - r || position.x > b.max.x + r || position.z < b.min.z - r || position.z > b.max.z + r) continue;
+            position.y = Mathf.Max(position.y, Mathf.Min(b.max.y + FinHang + r, NormalTop()));
+        }
+        return position;
     }
 
     Vector3 ClampToBounds(Vector3 position) => ClampToBounds(position, NormalTop(), NormalBottom());
