@@ -4,7 +4,7 @@ var results=new System.Collections.Generic.List<string>();
 System.Action<bool,string> check=(ok,label)=>{ if(!ok) throw new System.Exception("FAIL: "+label); results.Add(label); };
 string[] ids={"moss-mini-taiwan","moss-weeping","moss-flame","mini-fiss"};
 int[] kinds={35,36,37,11};
-check(catalog.offers.Length==40,"Catalog lists 24 shop items, 8 driftwood species, 3 mosses, 2 moss walls and 3 starters");
+check(catalog.offers.Length==52,"Catalog lists 24 shop items, 8 driftwood species, 3 mosses, 2 moss walls, 12 stones/corals and 3 starters");
 for(int i=0;i<ids.Length;i++)
 {
     var offer=System.Array.Find(catalog.offers,x=>x.id==ids[i]);

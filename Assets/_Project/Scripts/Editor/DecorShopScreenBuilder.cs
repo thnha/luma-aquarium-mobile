@@ -122,9 +122,9 @@ public static class DecorShopScreenBuilder
         var frame=Ui3D.BuildShopFrame(root,1,"Cửa hàng");
         shop.content=frame.content.gameObject;shop.backButton=frame.back;shop.balanceLabel=frame.balance;
         shop.fishButton=frame.tabs[0];
-        shop.categoryButtons=new[]{frame.tabs[1],frame.tabs[2],frame.tabs[3]};
-        shop.categorySurfaces=new[]{frame.tabSurfaces[1],frame.tabSurfaces[2],frame.tabSurfaces[3]};
-        shop.categoryLabels=new[]{frame.tabLabels[1],frame.tabLabels[2],frame.tabLabels[3]};
+        shop.categoryButtons=frame.tabs.Skip(1).ToArray();
+        shop.categorySurfaces=frame.tabSurfaces.Skip(1).ToArray();
+        shop.categoryLabels=frame.tabLabels.Skip(1).ToArray();
         shop.tabLabelOn=Ui3D.Ink;shop.tabLabelOff=Ui3D.Cream;
 
         shop.portrait=Ui3D.Image("Portrait",frame.hero,null,false);shop.portrait.sprite=catalog.offers[0].portrait;shop.portrait.preserveAspect=true;

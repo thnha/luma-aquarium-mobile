@@ -46,7 +46,7 @@ namespace Lumaquarium.UI
 
         public void SelectCategory(int index)
         {
-            if (index < 0 || index > 2) return;
+            if (index < 0 || index > (int)AquariumDecorCategory.Coral) return;
             category = (AquariumDecorCategory)index;
             Refresh();
             var scroll = GetComponentInChildren<UnityEngine.UI.ScrollRect>();

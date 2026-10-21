@@ -118,7 +118,7 @@ public static class FishShopScreenBuilder
         return offers.Concat(pipeline).ToArray();
     }
 
-    public const int LayoutVersion = 2; // 2 = shared 2.5D shop with Cá/Cây/Lũa/Đá tabs
+    public const int LayoutVersion = 3; // 2 = shared 2.5D shop with Cá/Cây/Lũa/Đá tabs, 3 = adds the San hô tab
 
     private static FishShopScreen CreateScreen(FishShopOffer[] offers)
     {
@@ -132,7 +132,7 @@ public static class FishShopScreenBuilder
         shop.content = frame.content.gameObject;
         shop.backButton = frame.back;
         shop.balanceLabel = frame.balance;
-        shop.decorTabs = new[] { frame.tabs[1], frame.tabs[2], frame.tabs[3] };
+        shop.decorTabs = frame.tabs.Skip(1).ToArray();
 
         shop.heroPortrait = Ui3D.Image("Portrait", frame.hero, null, false);
         shop.heroPortrait.sprite = offers[0].portrait;

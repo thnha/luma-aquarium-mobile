@@ -20,7 +20,7 @@ namespace Lumaquarium.UI
         public UnityEngine.UI.Image portrait;
         public TMP_Text title, description, balanceLabel, priceLabel, feedback, confirmationText, stockButtonLabel;
         public Sprite normalSurface, selectedSurface;
-        // Shared shop tabs: categoryButtons are Cây/Lũa/Đá, fishButton is the Cá tab.
+        // Shared shop tabs: categoryButtons are Cây/Lũa/Đá/San hô, fishButton is the Cá tab.
         public UnityEngine.UI.Image[] categorySurfaces;
         public TMP_Text[] categoryLabels;
         public Color tabLabelOn = new Color32(52, 60, 45, 255);
@@ -95,7 +95,7 @@ namespace Lumaquarium.UI
 
         public void SelectCategory(int index)
         {
-            if (confirmation.activeSelf || index < 0 || index > 2) return;
+            if (confirmation.activeSelf || index < 0 || index > (int)AquariumDecorCategory.Coral) return;
             category = (AquariumDecorCategory)index;
             selectedIndex = Array.FindIndex(catalog.offers, x => x.category == category);
             Refresh();
