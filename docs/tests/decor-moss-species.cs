@@ -4,7 +4,7 @@ var results=new System.Collections.Generic.List<string>();
 System.Action<bool,string> check=(ok,label)=>{ if(!ok) throw new System.Exception("FAIL: "+label); results.Add(label); };
 string[] ids={"moss-mini-taiwan","moss-weeping","moss-flame","mini-fiss"};
 int[] kinds={35,36,37,11};
-check(catalog.offers.Length==38,"Catalog lists 24 shop items, 8 driftwood species, 3 mosses and 3 starters");
+check(catalog.offers.Length==40,"Catalog lists 24 shop items, 8 driftwood species, 3 mosses, 2 moss walls and 3 starters");
 for(int i=0;i<ids.Length;i++)
 {
     var offer=System.Array.Find(catalog.offers,x=>x.id==ids[i]);
@@ -30,5 +30,18 @@ foreach(var id in rocks)
     for(int a=0;a<item.plantMounts.Length;a++) for(int b=a+1;b<item.plantMounts.Length;b++)
         spaced&=UnityEngine.Vector3.Distance(item.plantMounts[a],item.plantMounts[b])>=.05f;
     check(spaced,id+" mounts are far enough apart for two pads");
+}
+string[] walls={"moss-wall-taiwan","moss-wall-weeping"};
+for(int i=0;i<walls.Length;i++)
+{
+    var offer=System.Array.Find(catalog.offers,x=>x.id==walls[i]);
+    check(offer!=null && offer.IsValid && offer.category==AquariumDecorCategory.Plants,walls[i]+" is a valid plant offer");
+    var item=offer.prefab;
+    check(item.kind==38+i && catalog.Find(38+i)==offer,walls[i]+" uses kind "+(38+i));
+    check(item.wallMounted && !item.attachable && !item.floats && !item.supportsPlants && item.wallSize.x>0 && item.wallSize.y>0,walls[i]+" hangs on the back glass only");
+    var mesh=item.GetComponentInChildren<UnityEngine.MeshFilter>().sharedMesh;
+    check(mesh.bounds.max.z<.01f && mesh.bounds.min.z>-.12f,walls[i]+" lies flat against the glass, facing the room");
+    check(mesh.bounds.min.y>-.001f && mesh.bounds.size.y>=item.wallSize.y*.9f && mesh.bounds.size.x>=item.wallSize.x*.9f,walls[i]+" covers its panel from the bottom edge");
+    check(mesh.triangles.Length/3<12000 && mesh.colors.Length==mesh.vertexCount,walls[i]+" is coloured and within the mobile triangle budget");
 }
 return new{passed=results.Count,checks=results};

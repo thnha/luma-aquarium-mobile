@@ -104,6 +104,30 @@ public static class AquariumDecorCatalogBuilder
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }
+        // Moss walls for the back glass come last among the new kinds.
+        for (int i = 0; i < MossSpeciesBuilder.Walls.Length; i++)
+        {
+            var wall = MossSpeciesBuilder.Walls[i];
+            var root = new GameObject(wall.id);
+            try
+            {
+                root.layer = 8;
+                var item = root.AddComponent<AquariumDecorItem>();
+                item.kind = Ids.Length + 3 + DriftwoodSpeciesBuilder.All.Length + MossSpeciesBuilder.All.Length + i;
+                item.wallMounted = true;
+                item.wallSize = wall.size;
+                item.footprint = wall.size.x*.5f;
+                var mesh = Store(MossSpeciesBuilder.BuildWall(wall),wall.id);
+                Model("Moss",root.transform,mesh,Nature("MossSpecies",Color.white));
+                var bounds = mesh.bounds;
+                var collider = root.AddComponent<BoxCollider>(); collider.isTrigger=true;
+                collider.center=bounds.center; collider.size=bounds.size + Vector3.one*.025f;
+                var prefab = PrefabUtility.SaveAsPrefabAsset(root, Root + "/" + wall.id + ".prefab").GetComponent<AquariumDecorItem>();
+                offers.Add(new AquariumDecorOffer { id=wall.id, displayName=wall.name, price=wall.price, prefab=prefab,
+                    category=AquariumDecorCategory.Plants, description=wall.description, portrait=Portrait(prefab.gameObject,wall.id) });
+            }
+            finally { UnityEngine.Object.DestroyImmediate(root); }
+        }
         string[] starterIds = { "starter-anubias", "starter-stone", "starter-wood" };
         string[] starterNames = { "Ráy Anubias", "Đá suối tròn", "Lũa nhánh cổ thụ" };
         int[] starterPrices = { 140, 80, 200 };
