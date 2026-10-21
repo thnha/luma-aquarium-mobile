@@ -22,6 +22,7 @@ Bản này dùng lại artwork, icon, font Nunito và bảng màu đã duyệt t
 | Dock | 5 nút: Cho ăn · Chăm sóc · Trang trí · Cửa hàng · Ảnh. Nút đang mở được tô sage. |
 | Sheet | Nền cream, bo 26 px, nổi trên dock, tiêu đề 22 px với nút ✕ ở bên phải. Chạm ✕ hoặc chạm lại nút dock thì đóng. |
 | Nút | Chính: forest, chữ cream, cao 52–54 px. Phụ: cream đậm có viền. Nút khóa: xám be. Mỗi vùng chỉ có một nút chính. |
+| Khối 2.5D | Mọi chip, nút, khay dock, sheet và hộp thoại: viền xanh rêu `#4A7A3A` dày 2–3 px, mép dưới đặc 2–3.5 px cùng màu, vệt sáng trắng 2 px ở mép trên và nền chuyển màu nhẹ. Nút chính chuyển `#5E8F4A` → `#45703A`; nút phụ nền kem, viền và mép dưới `#BFA978`. Khi nhấn, nút lún 2 px. |
 | Nhóm hàng | Cửa hàng: Cá · Cây · Lũa · Đá. Trong kho Trang trí, nhóm Cây tách ra thành Cây / Rêu / Bèo. |
 
 ## Luồng mới
