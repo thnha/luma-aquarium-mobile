@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25c23ed5e6b1645669af9d8c4c327d31, type: 3}
+  m_Name: KoiNemoRig
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::PipelineFish
+  displayName: Koi Nemo (pipeline test)
+  inShop: 0
+  shopId: koi-nemo-rig
+  description: 
+  price: 0
+  pattern: {fileID: 11400000, guid: 47ac8245d7a894d6abe1a3763c256013, type: 2}
+  primary: {r: 0.1, g: 0.25, b: 0.85, a: 1}
+  secondary: {r: 0.95, g: 0.95, b: 0.95, a: 1}
+  accent: {r: 0.09, g: 0.09, b: 0.09, a: 1}
+  iridescence: 0.4
+  seed: 0
+  bodySwimAmplitude: 3
+  strokeSwimAmplitude: 8

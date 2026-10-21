@@ -37,6 +37,7 @@ public class BettaAppearance : MonoBehaviour
     static readonly int BandId = Shader.PropertyToID("_VariantBand");
     static readonly int BandSoftnessId = Shader.PropertyToID("_VariantBandSoftness");
     static readonly int BaseMapId = Shader.PropertyToID("_BaseMap");
+    static readonly int VariantMaskId = Shader.PropertyToID("_VariantMask");
 
     static readonly string[] CaudalRoots = { "Tail_Top_01", "Tail_UpMid_01", "Tail_01", "Tail_LowMid_01", "Tail_Low_01", "Tail_Bot_01" };
 
@@ -71,7 +72,16 @@ public class BettaAppearance : MonoBehaviour
     {
         if (v == null) return;
         variant = v;
-        if (ApplyOriginalModel(v.modelPrefab)) return;
+        if (ApplyOriginalModel(v.modelPrefab))
+        {
+            // Pipeline fish (Art/Fish) are plain white with a variant mask in their own UVs: paint them too.
+            // Their mask is not laid out like the shared rig's, so the tail type's base map is not applied.
+            var painted = new List<Renderer>();
+            foreach (var r in originalModelInstance.GetComponentsInChildren<Renderer>(true))
+                if (r.sharedMaterial && r.sharedMaterial.HasProperty(VariantMaskId) && r.sharedMaterial.GetTexture(VariantMaskId)) painted.Add(r);
+            if (painted.Count > 0) ApplyColors(painted, false);
+            return;
+        }
         ApplyColors();
         ApplyShape();
     }
@@ -131,12 +141,14 @@ public class BettaAppearance : MonoBehaviour
         if (variant != null && variant.modelPrefab == null && !Application.isPlaying) ApplyColors();
     }
 
-    void ApplyColors()
+    void ApplyColors() => ApplyColors(GetComponentsInChildren<Renderer>(true), true);
+
+    void ApplyColors(IEnumerable<Renderer> renderers, bool tailBaseMap)
     {
         block ??= new MaterialPropertyBlock();
         BettaPattern p = variant.pattern;
-        Texture2D baseMap = variant.tail ? variant.tail.baseMap : null;
-        foreach (var r in GetComponentsInChildren<Renderer>(true))
+        Texture2D baseMap = tailBaseMap && variant.tail ? variant.tail.baseMap : null;
+        foreach (var r in renderers)
         {
             if (System.Array.IndexOf(keepOriginalRenderers, r.name) >= 0) continue;
             r.GetPropertyBlock(block);

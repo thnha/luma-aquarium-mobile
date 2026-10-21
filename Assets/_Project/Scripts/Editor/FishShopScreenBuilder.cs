@@ -97,13 +97,22 @@ public static class FishShopScreenBuilder
         string[] descriptions = { "Xanh hoàng gia · Đuôi xòe bán nguyệt", "Xanh sẫm, vây vàng · Đuôi rủ mềm", "Trắng, cam, đen · Hoa văn Koi", "Tím phong lan · Đuôi tưa cá tính",
             "Trắng ngọc, vây xanh ngọc · Mép vây gợn sóng", "Xanh ngọc, đỏ lửa · Model và màu sắc nguyên bản", "Đỏ, xanh, trắng · Koi Nemo đuôi tròn" };
         int[] prices = { 350, 450, 650, 900, 0, 0, 0 };
-        return ids.Select((id, i) => new FishShopOffer
+        var offers = ids.Select((id, i) => new FishShopOffer
         {
             id = id,
             variant = AssetDatabase.LoadAssetAtPath<BettaVariant>("Assets/_Project/Data/Betta/Variants/" + assets[i] + ".asset")
                 ?? throw new InvalidOperationException("Missing variant " + assets[i] + ". Build the Betta variant presets first."),
             description = descriptions[i], price = prices[i]
-        }).ToArray();
+        });
+        // Fish from the Blender pipeline (Art/Fish/*/<Name>.asset) follow the hand-listed ones.
+        var pipeline = PipelineFishImporter.All().Where(f => f.inShop).Select(f => new FishShopOffer
+        {
+            id = f.shopId,
+            variant = AssetDatabase.LoadAssetAtPath<BettaVariant>(PipelineFishImporter.VariantPath(f))
+                ?? throw new InvalidOperationException("Missing variant for " + f.name + ". Run Lumaquarium > Fish > Import Pipeline Fish."),
+            description = f.description, price = f.price
+        });
+        return offers.Concat(pipeline).ToArray();
     }
 
     public const int LayoutVersion = 2; // 2 = shared 2.5D shop with Cá/Cây/Lũa/Đá tabs

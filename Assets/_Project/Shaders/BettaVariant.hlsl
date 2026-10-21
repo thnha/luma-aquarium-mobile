@@ -8,7 +8,8 @@
 //
 // _VariantMask (baked by Editor/BettaMaskBaker.cs, or painted by an artist with the same layout):
 //   R = body (1) / fin (0)
-//   G = fin root (0) -> fin edge (1)
+//   G = fin root (0) -> fin edge (1); on the body, eye (1) for pipeline fish
+//   (their material sets a transparent _ScaleMap: the ordered atlas follows the shared Betta's UVs)
 //   B, A = two independent spot noises; the seed blends them so every seed gets new spots.
 // Pattern indices match BettaPattern.Kind.
 
@@ -65,7 +66,10 @@ half3 BettaVariantAlbedo(half3 original, float2 uv)
         bodyColor = lerp(P, A, smoothstep(0.35h, 0.8h, lum) * 0.8h);
         finColor = lerp(P, S, edge);
     }
-    return lerp(original, lerp(finColor, bodyColor, body) * shade, _VariantOn);
+    // G on body texels marks the eye in one-piece pipeline fish (betta-splendens/pipeline): keep its
+    // own colour. The shared Betta's mask has G = 0 on the body (its eyes are a separate renderer).
+    half eye = saturate(edge * body);
+    return lerp(original, lerp(lerp(finColor, bodyColor, body) * shade, original, eye), _VariantOn);
 }
 
 inline void BettaVariantSurfaceData(float2 uv, out SurfaceData outSurfaceData)
