@@ -6,7 +6,7 @@ Trong **MainAquarium**, nhấn **Cây · Lũa · Đá** dưới nút Mua cá, ho
 
 Chọn thẻ để xem ảnh 3D, mô tả, giá, số trong kho và số đang đặt. Nhấn **Mua 1 món → Xác nhận mua** để cộng kho. **Chọn lại** không trừ xu. Chọn **Đặt vào hồ**, kéo tới vị trí, xoay rồi **Đặt**. Chỉ xác nhận đặt mới sử dụng một món trong kho. Hủy đặt giữ nguyên số lượng. **Cất** trả món về kho, không hoàn xu. Hết xu vẫn có thể đặt các món đã mua còn trong kho.
 
-Bộ mới có 24 món, 8 loại lũa theo giống gỗ, 6 loại đá và 6 loại san hô; 3 mẫu ban đầu cũng đã được đưa vào shop, tổng cộng **47 lựa chọn**. Đá và san hô nằm chung tab **Đá**:
+Bộ mới có 24 món, 8 loại lũa theo giống gỗ, 6 loại đá và 6 loại san hô; 3 mẫu ban đầu cũng đã được đưa vào shop, tổng cộng **47 lựa chọn**. Đá nằm ở tab **Đá**, san hô có tab **San hô** riêng (cả trong shop lẫn kho đồ ở bảng Trang trí):
 
 | Nhóm | Món | Xu/món |
 |---|---|---:|
@@ -78,7 +78,7 @@ Bèo luôn đặt ở độ cao mặt nước, có rễ rủ xuống. Camera chu
 - `Scripts/Editor/DecorShopScreenBuilder.cs`: menu **Lumaquarium → UI → Build Decoration Shop**. Chạy ở Edit Mode trong MainAquarium. Lưu bản sao scene trên đĩa và bản đang chỉnh trong `Scenes/Backups/` trước khi tích hợp. Cập nhật environment prefab dùng chung và scene; không dựng lại hồ starter.
 - `Scripts/Editor/FishShopScreenBuilder.cs`: nối lại cửa hàng trang trí khi nối HUD/shop cá.
 
-Builder giữ nguyên ba kind cũ 0/1/2; 24 món mới dùng kind 3–26; 8 loại lũa dùng kind 27–34; 12 loại đá và san hô dùng kind 35–46. Trong catalog, 24 món mới đứng trước, tiếp theo là 8 loại lũa, rồi đá và san hô, ba mẫu ban đầu đứng cuối. Sau khi đổi catalog, chạy **Lumaquarium → UI → Build Decoration Shop** rồi **Lumaquarium → UI → Build Main Aquarium Screen** để shop và bảng Trang trí có thẻ cho món mới. Không đổi kind hoặc ID của món đã phát hành.
+Builder giữ nguyên ba kind cũ 0/1/2; 24 món mới dùng kind 3–26; 8 loại lũa dùng kind 27–34; 12 loại đá và san hô dùng kind 35–46. Nhóm `AquariumDecorCategory.Coral` (giá trị 3) được thêm vào cuối enum nên dữ liệu cũ không đổi; `FishShopScreenBuilder.LayoutVersion` lên 3 để shop cá và shop trang trí dựng lại với 5 tab Cá/Cây/Lũa/Đá/San hô. Trong catalog, 24 món mới đứng trước, tiếp theo là 8 loại lũa, rồi đá và san hô, ba mẫu ban đầu đứng cuối. Sau khi đổi catalog, chạy **Lumaquarium → UI → Build Decoration Shop** rồi **Lumaquarium → UI → Build Main Aquarium Screen** để shop và bảng Trang trí có thẻ cho món mới. Không đổi kind hoặc ID của món đã phát hành.
 
 ## Kiểm thử và ảnh
 

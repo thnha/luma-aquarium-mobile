@@ -81,7 +81,7 @@ public static class AquariumDecorCatalogBuilder
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }
-        // Named stones and corals follow the driftwood species on kinds 35+ and share the Đá tab.
+        // Named stones and corals follow the driftwood species on kinds 35+; corals get their own San hô tab.
         var speciesStone = SpeciesStone(); var smoothCoral = SmoothCoral();
         int firstStoneKind = Ids.Length + 3 + DriftwoodSpeciesBuilder.All.Length;
         for (int i = 0; i < StoneCoralBuilder.All.Length; i++)
@@ -100,7 +100,7 @@ public static class AquariumDecorCatalogBuilder
                 collider.center=bounds.center; collider.size=bounds.size + Vector3.one*.025f;
                 var prefab = PrefabUtility.SaveAsPrefabAsset(root, Root + "/" + piece.id + ".prefab").GetComponent<AquariumDecorItem>();
                 offers.Add(new AquariumDecorOffer { id=piece.id, displayName=piece.name, price=piece.price, prefab=prefab,
-                    category=AquariumDecorCategory.Rocks, description=piece.description, portrait=Portrait(prefab.gameObject,piece.id) });
+                    category=piece.IsCoral?AquariumDecorCategory.Coral:AquariumDecorCategory.Rocks, description=piece.description, portrait=Portrait(prefab.gameObject,piece.id) });
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }

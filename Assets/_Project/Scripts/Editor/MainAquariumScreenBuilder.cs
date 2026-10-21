@@ -270,7 +270,7 @@ public static class MainAquariumScreenBuilder
         row.spacing = 6;
         row.childControlWidth = row.childControlHeight = true;
         row.childForceExpandWidth = row.childForceExpandHeight = true;
-        string[] groups = { "Cây", "Lũa", "Đá" }; // AquariumDecorCategory order: Plants, Wood, Rocks
+        string[] groups = { "Cây", "Lũa", "Đá", "San hô" }; // AquariumDecorCategory order: Plants, Wood, Rocks, Coral
         inventory.tabButtons = new UnityEngine.UI.Button[groups.Length];
         inventory.tabSurfaces = new UnityEngine.UI.Image[groups.Length];
         inventory.tabLabels = new TMP_Text[groups.Length];
@@ -284,7 +284,7 @@ public static class MainAquariumScreenBuilder
             button.transition = UnityEngine.UI.Selectable.Transition.None;
             inventory.tabButtons[i] = button;
             inventory.tabSurfaces[i] = tab;
-            inventory.tabLabels[i] = Ui3D.Text("Label", tab.transform, groups[i], 40, i == 0 ? Ui3D.Cream : Ui3D.Ink, true);
+            inventory.tabLabels[i] = Ui3D.Text("Label", tab.transform, groups[i], 36, i == 0 ? Ui3D.Cream : Ui3D.Ink, true);
             Ui3D.Edges(inventory.tabLabels[i].rectTransform, Vector2.zero, Vector2.one, new Vector2(6, 12), new Vector2(-6, -4));
         }
         inventory.tabLabelOn = Ui3D.Cream;

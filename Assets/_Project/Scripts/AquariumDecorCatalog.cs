@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public enum AquariumDecorCategory { Plants, Wood, Rocks }
+public enum AquariumDecorCategory { Plants, Wood, Rocks, Coral }
 
 [Serializable]
 public sealed class AquariumDecorOffer

@@ -9,7 +9,8 @@ check(catalog.Find(27).id=="wood-linh-sam" && catalog.Find(34).id=="wood-bonsai"
 for(int i=0;i<ids.Length;i++)
 {
     var offer=System.Array.Find(catalog.offers,x=>x.id==ids[i]);
-    check(offer!=null && offer.IsValid && offer.category==AquariumDecorCategory.Rocks,ids[i]+" is a valid offer in the Đá tab");
+    var tab=i<6?AquariumDecorCategory.Rocks:AquariumDecorCategory.Coral;
+    check(offer!=null && offer.IsValid && offer.category==tab,ids[i]+" is a valid offer in the "+(i<6?"Đá":"San hô")+" tab");
     var item=offer.prefab;
     check(item.kind==35+i && catalog.Find(35+i)==offer,ids[i]+" uses kind "+(35+i));
     check(!item.supportsPlants && !item.attachable && !item.floats,ids[i]+" sits on the sand like the other rocks");
@@ -18,4 +19,8 @@ for(int i=0;i<ids.Length;i++)
     check(mesh.colors.Length==mesh.vertexCount,ids[i]+" carries its colour");
     check(item.footprint>=.12f && item.footprint<=.32f,ids[i]+" has a placement footprint");
 }
+var shop=UnityEngine.Object.FindFirstObjectByType<Lumaquarium.UI.DecorShopScreen>(UnityEngine.FindObjectsInactive.Include);
+if(shop!=null) check(shop.categoryButtons.Length==4,"Decoration shop has Cây/Lũa/Đá/San hô tabs");
+var panel=UnityEngine.Object.FindFirstObjectByType<Lumaquarium.UI.DecorInventoryPanel>(UnityEngine.FindObjectsInactive.Include);
+if(panel!=null) check(panel.tabButtons.Length==4,"Inventory panel has a San hô tab");
 return new{passed=results.Count,checks=results};

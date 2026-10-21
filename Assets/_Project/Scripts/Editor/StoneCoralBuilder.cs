@@ -15,6 +15,7 @@ public static class StoneCoralBuilder
     {
         public string id, name, description; public int price; public Form form;
         public bool smooth; public Color colA, colB, accent;
+        public bool IsCoral => form >= Form.CoralRubble;
     }
 
     public static readonly Piece[] All =

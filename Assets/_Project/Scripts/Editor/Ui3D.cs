@@ -195,7 +195,7 @@ public static class Ui3D
             UnityEventTools.RemovePersistentListener(button.onClick, i);
     }
 
-    // Shared frame of the one shop: header, Cá/Cây/Lũa/Đá tabs, preview area, sheet and footer.
+    // Shared frame of the one shop: header, Cá/Cây/Lũa/Đá/San hô tabs, preview area, sheet and footer.
     public sealed class ShopFrame
     {
         public RectTransform content, safe, hero, sheet, footer, modal, dialog;
@@ -206,7 +206,7 @@ public static class Ui3D
         public TMP_Text[] tabLabels;
     }
 
-    public static readonly string[] ShopTabs = { "Cá", "Cây", "Lũa", "Đá" };
+    public static readonly string[] ShopTabs = { "Cá", "Cây", "Lũa", "Đá", "San hô" };
 
     public static ShopFrame BuildShopFrame(Transform root, int selectedTab, string heading)
     {
@@ -260,7 +260,7 @@ public static class Ui3D
             frame.tabs[i].targetGraphic = tab;
             frame.tabs[i].transition = Selectable.Transition.None;
             frame.tabSurfaces[i] = tab;
-            frame.tabLabels[i] = Text("Label", tab.transform, ShopTabs[i], 42, on ? Ink : Cream, true);
+            frame.tabLabels[i] = Text("Label", tab.transform, ShopTabs[i], 38, on ? Ink : Cream, true);
             Stretch(frame.tabLabels[i].rectTransform, 6);
         }
 
