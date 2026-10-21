@@ -1,15 +1,13 @@
 using UnityEngine;
 
-// One kind of fish: tail form + pattern + colours + proportions. Applied by BettaAppearance.
+// One fish in the shop: its model (a pipeline fish) + pattern + colours. Applied by BettaAppearance.
+// PipelineFishImporter writes these from each Art/Fish/<Name>/<Name>.asset.
 [CreateAssetMenu(menuName = "Lumaquarium/Betta Variant")]
 public class BettaVariant : ScriptableObject
 {
-    public enum Rarity { Common, Uncommon, Rare, Legendary }
-
-    public string displayName = "Royal Blue Halfmoon";
-    [Tooltip("Optional original model with its own materials. Empty uses the shared Betta rig.")]
+    public string displayName = "Plakat Betta";
+    [Tooltip("The fish's own rigged model (Art/Fish/<Name>/<Name>.prefab).")]
     public GameObject modelPrefab;
-    public BettaTailType tail;
     public BettaPattern pattern;
 
     [Header("Colours")]
@@ -24,23 +22,6 @@ public class BettaVariant : ScriptableObject
     [Tooltip("Silvery shine of the painted metallic map on body and fins. 1 = as painted; 0 = satin, non-metal (milky white).")]
     [Range(0f, 1f)] public float silverSheen = 1f;
 
-    [Header("Proportions")]
-    [Tooltip("Head proportions relative to the fuller shared skull shape; blended smoothly into the neck.")]
-    [Range(0.8f, 1.3f)] public float headScale = 1f;
-    [Tooltip("Uniform eye size. Eye anchors follow the skull shape without stretching the eyeballs.")]
-    [Range(0.8f, 1.6f)] public float eyeScale = 1f;
-    [Range(0.6f, 1.4f)] public float finLength = 1f;
-
     [Tooltip("Moves the Marble/Koi spots; same seed = same spots.")]
     public int seed;
-
-    // Tail and pattern weights both add up to about 100 in the presets, so the
-    // product / 10000 is roughly the chance of rolling this combination.
-    public float RarityWeight => (tail ? tail.rarityWeight : 10f) * (pattern ? pattern.rarityWeight : 10f);
-
-    public Rarity GetRarity()
-    {
-        float chance = RarityWeight / 10000f;
-        return chance > 0.08f ? Rarity.Common : chance > 0.03f ? Rarity.Uncommon : chance > 0.008f ? Rarity.Rare : Rarity.Legendary;
-    }
 }

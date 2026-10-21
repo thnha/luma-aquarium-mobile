@@ -1,6 +1,6 @@
 # MainAquarium
 
-Màn `Assets/_Project/Scenes/MainAquarium.unity` dùng HUD theo mẫu `../medias/concepts/lumaquarium-hud-approved-v1.png`, sprite và font Nunito đã có. Cá là prefab Betta 3D hiện tại, giữ rig, animation, chuyển động, phản ứng chạm và hệ thức ăn.
+Màn `Assets/_Project/Scenes/MainAquarium.unity` dùng HUD theo mẫu `../medias/concepts/lumaquarium-hud-approved-v1.png`, sprite và font Nunito đã có. Cá là các cá pipeline trong `Art/Fish` (mặc định Plakat Koi), có rig, animation, chuyển động, phản ứng chạm và hệ thức ăn. Xem [cá và tiệm cá](fish-shop-ui.md).
 
 ## Phần đã dựng
 
@@ -28,7 +28,7 @@ Sheet Trang trí là kho đồ (tab Cây · Lũa · Đá): món còn trong kho m
 
 Mở MainAquarium, thoát Play Mode rồi dùng `Lumaquarium > UI > Build Main Aquarium Screen`. Builder lưu riêng bản scene trên đĩa và bản đang chỉnh trong `Assets/_Project/Scenes/Backups/` trước khi tạo lại HUD; không thay Build Settings hoặc dựng lại cá. Các tùy chỉnh riêng trong HUD do builder tạo sẽ bị thay thế khi chạy lại. HUD starter cũ (`LegacyAquariumHUD`) đã được xóa khỏi scene ngày 21/10/2026.
 
-Builder hồ cá starter tạo lại toàn bộ MainAquarium nên lệnh `Build Main Aquarium Scene` đã được gỡ khỏi menu. Cập nhật cá bằng `Lumaquarium > Build Betta Prefab` sau khi thoát Play Mode.
+Builder hồ cá starter tạo lại toàn bộ MainAquarium nên lệnh `Build Main Aquarium Scene` đã được gỡ khỏi menu. Cập nhật cá bằng `Lumaquarium > Fish > Import Pipeline Fish and Update Shop` sau khi thoát Play Mode.
 
 ## Kiểm tra đã thực hiện
 

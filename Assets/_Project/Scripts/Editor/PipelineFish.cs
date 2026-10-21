@@ -14,7 +14,7 @@ public class PipelineFish : ScriptableObject
     public int price;
 
     [Header("Model")]
-    [Tooltip("Scale against the shared Betta rig (1 = same body length). Koi Nemo and Aqua Fire are about 2.4.")]
+    [Tooltip("Scale against the template rig in Art/Betta/Betta.fbx (1 = same body length). Koi Nemo is about 2.4.")]
     public float size = 2f;
 
     [Header("Colours (BettaAppearance paints them through the variant mask)")]

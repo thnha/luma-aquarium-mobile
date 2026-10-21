@@ -37,11 +37,11 @@ public class BettaFinPhysics : MonoBehaviour
     public float flowDrag = 0.5f;
     [Tooltip("Degrees the dorsal fin rises when excited; it folds by the same amount at rest. Anal fin follows at half.")]
     public float dorsalRaise = 12f;
-    [Tooltip("Degrees the upper and lower caudal rays open (+) or close (-) relative to the model (tail form, set by BettaAppearance).")]
+    [Tooltip("Degrees the upper and lower caudal rays open (+) or close (-) relative to the model.")]
     public float caudalSpread;
-    [Tooltip("Degrees the whole caudal fin hangs down (tail form, set by BettaAppearance).")]
+    [Tooltip("Degrees the whole caudal fin hangs down.")]
     public float caudalDroop;
-    [Tooltip("Root bones of chains not simulated (they follow the animation), e.g. Tail_01 hidden in the Double Tail slit (tail form, set by BettaAppearance).")]
+    [Tooltip("Root bones of chains not simulated (they follow the animation), e.g. the crowntail spike chains (set by PipelineFishImporter).")]
     public string[] skippedChains = new string[0];
 
     enum Group { Caudal, DorsalAnal, Pelvic, Pectoral }
@@ -121,8 +121,7 @@ public class BettaFinPhysics : MonoBehaviour
 
     void Awake() { Rebind(); }
 
-    // Re-reads the fin chains. Call after changing fin bone scale (BettaAppearance), since
-    // bone lengths are measured here.
+    // Re-reads the fin chains. Call after changing fin bone scale, since bone lengths are measured here.
     public void Rebind()
     {
         if (skeletonRoot == null) skeletonRoot = transform;

@@ -89,13 +89,14 @@ namespace Lumaquarium.UI
 
         private void Start()
         {
-            for (int i = 0; i < offers.Length; i++)
-                if (offers[i].id == inventory.ActiveId)
-                {
-                    selectedIndex = i;
-                    ApplyToAquarium(offers[i]);
-                    break;
-                }
+            // The saved fish; with none (new player) or one no longer sold, the tank's default fish.
+            int active = Array.FindIndex(offers, o => o.id == inventory.ActiveId);
+            if (active < 0 && fish != null) active = Array.FindIndex(offers, o => o.variant == fish.variant);
+            if (active >= 0)
+            {
+                selectedIndex = active;
+                ApplyToAquarium(offers[active]);
+            }
             Refresh();
         }
 

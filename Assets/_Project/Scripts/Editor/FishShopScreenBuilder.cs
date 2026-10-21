@@ -80,6 +80,14 @@ public static class FishShopScreenBuilder
         shop.aquariumFishName.enableAutoSizing = true;
         shop.aquariumFishName.fontSizeMin = 20;
         shop.aquariumFishName.fontSizeMax = 42;
+        // The header shows the tank's default fish until a saved one is applied at runtime.
+        var current = shop.offers?.FirstOrDefault(o => o.IsValid && o.variant == shop.fish.variant);
+        if (current != null)
+        {
+            Undo.RecordObject(shop.aquariumPortrait, "Show default fish");
+            shop.aquariumFishName.text = current.variant.displayName;
+            shop.aquariumPortrait.sprite = current.portrait;
+        }
         // The redesigned HUD opens the shop from the dock, wallet chip and Đổi cá through OpenShop.
         Undo.RecordObject(aquarium, "Connect fish shop");
         aquarium.fishShop = shop;
@@ -93,29 +101,18 @@ public static class FishShopScreenBuilder
         if (PrefabUtility.IsPartOfPrefabInstance(shop)) PrefabUtility.RecordPrefabInstancePropertyModifications(shop);
     }
 
+    // Every fish comes from the Blender pipeline (Art/Fish/*/<Name>.asset with inShop).
     private static FishShopOffer[] LoadOffers()
     {
-        string[] ids = { "royal", "mustard", "koi", "orchid", "pearl", "aqua-fire" };
-        string[] assets = { "RoyalBlueHalfmoon", "MustardGasVeiltail", "KoiGalaxyPlakat", "BlackOrchidCrowntail", "AquaPearlRosetail", "AquaFireBetta" };
-        string[] descriptions = { "Xanh hoàng gia · Đuôi xòe bán nguyệt", "Xanh sẫm, vây vàng · Đuôi rủ mềm", "Trắng, cam, đen · Hoa văn Koi", "Tím phong lan · Đuôi tưa cá tính",
-            "Trắng ngọc, vây xanh ngọc · Mép vây gợn sóng", "Xanh ngọc, đỏ lửa · Model và màu sắc nguyên bản" };
-        int[] prices = { 350, 450, 650, 900, 0, 0 };
-        var offers = ids.Select((id, i) => new FishShopOffer
-        {
-            id = id,
-            variant = AssetDatabase.LoadAssetAtPath<BettaVariant>("Assets/_Project/Data/Betta/Variants/" + assets[i] + ".asset")
-                ?? throw new InvalidOperationException("Missing variant " + assets[i] + ". Build the Betta variant presets first."),
-            description = descriptions[i], price = prices[i]
-        });
-        // Fish from the Blender pipeline (Art/Fish/*/<Name>.asset) follow the hand-listed ones.
-        var pipeline = PipelineFishImporter.All().Where(f => f.inShop).Select(f => new FishShopOffer
+        var offers = PipelineFishImporter.All().Where(f => f.inShop).Select(f => new FishShopOffer
         {
             id = f.shopId,
             variant = AssetDatabase.LoadAssetAtPath<BettaVariant>(PipelineFishImporter.VariantPath(f))
                 ?? throw new InvalidOperationException("Missing variant for " + f.name + ". Run Lumaquarium > Fish > Import Pipeline Fish."),
             description = f.description, price = f.price
-        });
-        return offers.Concat(pipeline).ToArray();
+        }).ToArray();
+        if (offers.Length == 0) throw new InvalidOperationException("No pipeline fish has inShop set in " + PipelineFishImporter.FishDir + ".");
+        return offers;
     }
 
     public const int LayoutVersion = 3; // 2 = shared 2.5D shop with Cá/Cây/Lũa/Đá tabs, 3 = adds the San hô tab

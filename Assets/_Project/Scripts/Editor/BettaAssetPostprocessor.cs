@@ -1,8 +1,7 @@
 using UnityEditor;
 
-// Import settings for the Blender-exported Betta (Assets/_Project/Art/Betta),
-// so re-exporting Betta.fbx from Blender keeps the same setup. Pipeline fish
-// (Art/Fish, see PipelineFishImporter) come from the same rig and share the model rules.
+// Import settings for the Blender-exported template rig (Assets/_Project/Art/Betta/Betta.fbx, source of the
+// shared animation clips) and the pipeline fish (Art/Fish, see PipelineFishImporter), which come from the same rig.
 public class BettaAssetPostprocessor : AssetPostprocessor
 {
     const string ArtDir = "Assets/_Project/Art/Betta/";
@@ -42,20 +41,11 @@ public class BettaAssetPostprocessor : AssetPostprocessor
 
     void OnPreprocessTexture()
     {
-        if (assetPath.StartsWith(FishDir))
-        {
-            var mask = (TextureImporter)assetImporter;
-            mask.maxTextureSize = 1024;
-            mask.sRGBTexture = assetPath.Contains("BaseColor");
-            // Body/fin and eye edges sit in R/G: block compression would smear them.
-            mask.textureCompression = TextureImporterCompression.Uncompressed;
-            return;
-        }
-        if (!assetPath.StartsWith(ArtDir)) return;
-        var tex = (TextureImporter)assetImporter;
-        tex.maxTextureSize = 2048;
-        if (assetPath.Contains("Normal")) tex.textureType = TextureImporterType.NormalMap;
-        tex.sRGBTexture = assetPath.Contains("BaseColor");
-        tex.alphaIsTransparency = assetPath.Contains("BaseColor");
+        if (!assetPath.StartsWith(FishDir)) return;
+        var mask = (TextureImporter)assetImporter;
+        mask.maxTextureSize = 1024;
+        mask.sRGBTexture = assetPath.Contains("BaseColor");
+        // Body/fin and eye edges sit in R/G: block compression would smear them.
+        mask.textureCompression = TextureImporterCompression.Uncompressed;
     }
 }

@@ -505,6 +505,9 @@ public static class MainAquariumScreenBuilder
         clone.transform.position = new Vector3(1000, 0, 0);
         clone.transform.rotation = Quaternion.Euler(0, 90, 0);
         foreach (var behaviour in clone.GetComponentsInChildren<MonoBehaviour>()) behaviour.enabled = false;
+        // The tank fish shows its model only once BettaAppearance applies the variant.
+        var appearance = clone.GetComponent<BettaAppearance>();
+        if (appearance != null) appearance.Apply(appearance.variant);
         foreach (var t in clone.GetComponentsInChildren<Transform>()) t.gameObject.layer = 31;
         var renderers = clone.GetComponentsInChildren<SkinnedMeshRenderer>();
         var bounds = renderers[0].bounds;

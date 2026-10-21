@@ -16,7 +16,7 @@ public static class PipelineFishImporter
     public const string FishDir = "Assets/_Project/Art/Fish";
     const string VariantDir = "Assets/_Project/Data/Betta/Variants";
     const string BettaController = "Assets/_Project/Art/Betta/Betta.controller";
-    // The template lies pitched like the shared Betta; same correction as AquariumSceneBuilder.
+    // The template rig lies pitched in its FBX; tilt the model level in the tank.
     const float PitchCorrection = 20f;
 
     [MenuItem("Lumaquarium/Fish/Import Pipeline Fish and Update Shop")]
@@ -143,7 +143,7 @@ public static class PipelineFishImporter
     static AnimatorOverrideController Controller(string source, GameObject model)
     {
         var shared = AssetDatabase.LoadAssetAtPath<AnimatorController>(BettaController);
-        if (!shared) throw new InvalidOperationException("Build the Betta prefab first (missing " + BettaController + ").");
+        if (!shared) throw new InvalidOperationException("Run Lumaquarium > Fish > Rebuild Betta Animator Controller first (missing " + BettaController + ").");
         var clips = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(model)).OfType<AnimationClip>()
             .Where(c => !c.name.StartsWith("__preview__")).ToArray();
         string path = source + ".overrideController";

@@ -696,9 +696,8 @@ GameObject:
   m_Component:
   - component: {fileID: 76333110}
   - component: {fileID: 76333109}
-  - component: {fileID: 76333113}
-  - component: {fileID: 76333112}
   - component: {fileID: 76333111}
+  - component: {fileID: 76333112}
   m_Layer: 0
   m_Name: BettaRoot
   m_TagString: Untagged
@@ -721,7 +720,7 @@ MonoBehaviour:
   state: 0
   swimBounds: {fileID: 1345118687}
   feeding: {fileID: 299667323}
-  animator: {fileID: 1490326034}
+  animator: {fileID: 0}
   swimSpeed: 0.3
   seekSpeedMultiplier: 1.6
   acceleration: 0.9
@@ -780,8 +779,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 1.35, z: 0}
   m_LocalScale: {x: 1.45, y: 1.45, z: 1.45}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1490326035}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &76333111
@@ -791,13 +789,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 76333108}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f72c8581d89b2450d87ae105b90ebcae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BettaReactions
   fish: {fileID: 76333109}
-  animator: {fileID: 1490326034}
+  animator: {fileID: 0}
   viewCamera: {fileID: 0}
   flareCooldown: 2
   maxTapSeconds: 0.3
@@ -811,80 +809,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 76333108}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea7f5184e47724b42a7a5e53788f9429, type: 3}
+  m_Script: {fileID: 11500000, guid: 6cf0bff738374b34b3ec05532c66f69d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BettaFinPhysics
-  skeletonRoot: {fileID: 1490326035}
-  fish: {fileID: 76333109}
-  caudal:
-    rootStiffness: 0.1
-    tipStiffness: 0.035
-    damping: 0.18
-    maxAngle: 22
-    ripple: 0.005
-    speedStiffening: 1.3
-    sag: 0.15
-  dorsalAnal:
-    rootStiffness: 0.14
-    tipStiffness: 0.06
-    damping: 0.24
-    maxAngle: 22
-    ripple: 0.002
-    speedStiffening: 2.5
-    sag: 0.08
-  pelvic:
-    rootStiffness: 0.16
-    tipStiffness: 0.06
-    damping: 0.18
-    maxAngle: 35
-    ripple: 0.002
-    speedStiffening: 2
-    sag: 0.2
-  pectoral:
-    rootStiffness: 0.2
-    tipStiffness: 0.1
-    damping: 0.16
-    maxAngle: 35
-    ripple: 0.002
-    speedStiffening: 1.5
-    sag: 0
-  flowDrag: 0.5
-  dorsalRaise: 12
---- !u!114 &76333113
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 76333108}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce1adae7064f1426c96a5e64d570ca3b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BettaSwimMotion
-  fish: {fileID: 76333109}
-  skeletonRoot: {fileID: 1490326035}
-  bodyIdleFrequency: 0.4
-  bodySwimFrequency: 1
-  bodyIdleAmplitude: 0.5
-  bodySwimAmplitude: 3
-  wavePhaseStep: 0.6
-  caudalIdleFrequency: 0.6
-  caudalSwimFrequency: 1.4
-  strokeIdleAmplitude: 2
-  strokeSwimAmplitude: 11
-  thrustPulse: 0.3
-  headRecoil: 2
-  segmentFollowRate: 7
-  maxJointBend: 18
-  turnTailKick: 0.08
-  maxTailKick: 12
-  pectoralFrequency: 3.2
-  pectoralAmplitude: 18
-  pectoralTurnBias: 0.5
-  gillRestFrequency: 0.7
-  gillActiveFrequency: 1.6
-  gillAmplitude: 4
+  m_EditorClassIdentifier: Assembly-CSharp::BettaAppearance
+  variant: {fileID: 11400000, guid: d81b8f34f3980428d824586d35863f22, type: 2}
+  library: {fileID: 0}
+  generateRandom: 0
+  skeletonRoot: {fileID: 0}
+  finPhysics: {fileID: 0}
+  keepOriginalRenderers:
+  - EYES
 --- !u!1 &93926144
 GameObject:
   m_ObjectHideFlags: 0
@@ -13975,6 +13909,19 @@ MonoBehaviour:
   muteLabel: {fileID: 870133530}
   hud: {fileID: 1422654771}
   decoration: {fileID: 2080354080}
+  fishShop: {fileID: 0}
+  walletLabel: {fileID: 0}
+  hudFullnessFill: {fileID: 0}
+  hudFullnessLabel: {fileID: 0}
+  hungerPercent: {fileID: 0}
+  fishNameLabel: {fileID: 0}
+  fishPortrait: {fileID: 0}
+  careFishName: {fileID: 0}
+  carePortrait: {fileID: 0}
+  careTile: {fileID: 0}
+  decorateTile: {fileID: 0}
+  tileNormal: {fileID: 0}
+  tileActive: {fileID: 0}
 --- !u!114 &1422654773
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14209,73 +14156,6 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 8522833208539843545, guid: 713b8bd8db9b7413c8be290a724c6268, type: 3}
   m_PrefabInstance: {fileID: 1487505850}
-  m_PrefabAsset: {fileID: 0}
---- !u!1001 &1490326033
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 76333110}
-    m_Modifications:
-    - target: {fileID: 7110684378056690990, guid: 1e7157939ec0c43a39dfd125530d9025, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7110684378056690990, guid: 1e7157939ec0c43a39dfd125530d9025, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7110684378056690990, guid: 1e7157939ec0c43a39dfd125530d9025, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7110684378056690990, guid: 1e7157939ec0c43a39dfd125530d9025, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.9848078
-      objectReference: {fileID: 0}
-    - target: {fileID: 7110684378056690990, guid: 1e7157939ec0c43a39dfd125530d9025, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.1736482
-      objectReference: {fileID: 0}
-    - target: {fileID: 7110684378056690990, guid: 1e7157939ec0c43a39dfd125530d9025, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7110684378056690990, guid: 1e7157939ec0c43a39dfd125530d9025, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7110684378056690990, guid: 1e7157939ec0c43a39dfd125530d9025, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7110684378056690990, guid: 1e7157939ec0c43a39dfd125530d9025, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7110684378056690990, guid: 1e7157939ec0c43a39dfd125530d9025, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7630761776892434324, guid: 1e7157939ec0c43a39dfd125530d9025, type: 3}
-      propertyPath: m_Name
-      value: FishModel
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 1e7157939ec0c43a39dfd125530d9025, type: 3}
---- !u!95 &1490326034 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 2152517375175879588, guid: 1e7157939ec0c43a39dfd125530d9025, type: 3}
-  m_PrefabInstance: {fileID: 1490326033}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1490326035 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7110684378056690990, guid: 1e7157939ec0c43a39dfd125530d9025, type: 3}
-  m_PrefabInstance: {fileID: 1490326033}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1491244118
 GameObject:
@@ -17294,6 +17174,8 @@ MonoBehaviour:
   - {fileID: 759509928161289980, guid: 90fb3d76b266b40769d2fe6566bc6314, type: 3}
   - {fileID: 453281846841281109, guid: 713b8bd8db9b7413c8be290a724c6268, type: 3}
   - {fileID: 1040828910335748385, guid: c5a08fca441b44e9c91c89522e15b866, type: 3}
+  catalog: {fileID: 0}
+  inventoryStorageKey: Lumaquarium.FishShop.v1
   itemsRoot: {fileID: 98837184}
   viewCamera: {fileID: 1407712927}
   orbit: {fileID: 1407712925}
