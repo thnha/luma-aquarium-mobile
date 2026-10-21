@@ -17,6 +17,7 @@ namespace Lumaquarium.UI
         public GameObject[] cards;
         public UnityEngine.UI.Image[] cardSurfaces;
         public TMP_Text[] stockLabels;
+        public TMP_Text[] priceLabels; // layout 4: the price sits in its own pill, stock stays in stockLabels
         public UnityEngine.UI.Image portrait;
         public TMP_Text title, description, balanceLabel, priceLabel, feedback, confirmationText, stockButtonLabel;
         public Sprite normalSurface, selectedSurface;
@@ -173,8 +174,10 @@ namespace Lumaquarium.UI
                 int available = aquarium.decoration.Available(offer.prefab.kind);
                 cards[i].SetActive(offer.category == category && (!stockOnly || total > 0));
                 cardSurfaces[i].sprite = i == selectedIndex ? selectedSurface : normalSurface;
-                stockLabels[i].text = layoutVersion >= 2
-                    ? $"{offer.price} xu · Kho {available} · Hồ {total - available}"
+                bool pills = priceLabels != null && i < priceLabels.Length;
+                if (pills) priceLabels[i].text = Money(offer.price);
+                stockLabels[i].text = pills ? $"Kho {available} · Hồ {total - available}"
+                    : layoutVersion >= 2 ? $"{offer.price} xu · Kho {available} · Hồ {total - available}"
                     : $"{offer.price} xu / món\nKho: {available} · Trong hồ: {total - available}";
             }
             for (int i = 0; i < categoryButtons.Length; i++)
@@ -193,7 +196,7 @@ namespace Lumaquarium.UI
             title.text = selected.displayName;
             description.text = selected.description;
             int remaining = aquarium.decoration.Available(selected.prefab.kind);
-            priceLabel.text = layoutVersion >= 2 ? $"{selected.price} xu" : $"{selected.price} xu / món · Kho: {remaining}";
+            priceLabel.text = layoutVersion >= 4 ? Money(selected.price) : layoutVersion >= 2 ? $"{selected.price} xu" : $"{selected.price} xu / món · Kho: {remaining}";
             buyButton.interactable = selected.IsValid && inventory.Balance >= selected.price;
             buyButton.GetComponentInChildren<TMP_Text>().text = buyButton.interactable ? (layoutVersion >= 2 ? "Mua 1" : "Mua 1 món") : "Chưa đủ xu";
             placeButton.interactable = remaining > 0;
@@ -201,6 +204,8 @@ namespace Lumaquarium.UI
                 ? (remaining > 0 ? $"Đặt ({remaining})" : "Kho trống")
                 : (remaining > 0 ? "Đặt vào hồ" : "Chưa có trong kho");
         }
+
+        private static string Money(int amount) => amount.ToString("N0", CultureInfo.GetCultureInfo("vi-VN"));
 
         private void OnDisable() { if (IsOpen) Close(); }
     }

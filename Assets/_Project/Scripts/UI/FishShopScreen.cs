@@ -28,6 +28,12 @@ namespace Lumaquarium.UI
         public UnityEngine.UI.Image[] optionSurfaces;
         public GameObject[] optionChecks;
         public TMP_Text[] optionPrices;
+        // Layout 4: card price pills (gold with a coin for a price, green for free or owned).
+        public UnityEngine.UI.Image[] optionPricePills;
+        public GameObject[] optionPriceCoins;
+        public Sprite priceSprite;
+        public Sprite freePriceSprite;
+        public GameObject priceCoin;
         public Sprite normalSurface;
         public Sprite selectedSurface;
         public UnityEngine.UI.Image heroPortrait;
@@ -216,17 +222,34 @@ namespace Lumaquarium.UI
                 optionSurfaces[i].sprite = selected ? selectedSurface : normalSurface;
                 optionChecks[i].SetActive(selected);
                 optionButtons[i].interactable = offers[i].IsValid;
-                optionPrices[i].text = inventory.Owns(offers[i].id) ? "Đã sở hữu" : PriceText(offers[i].price);
+                if (optionPricePills != null && i < optionPricePills.Length) ShowPill(i);
+                else optionPrices[i].text = inventory.Owns(offers[i].id) ? "Đã sở hữu" : PriceText(offers[i].price);
             }
             var offer = offers[selectedIndex];
             heroPortrait.sprite = offer.portrait;
             heroName.text = offer.variant != null ? offer.variant.displayName : "Cá chưa sẵn sàng";
             description.text = offer.description;
-            priceLabel.text = inventory.Owns(offer.id) ? "Đã sở hữu" : PriceText(offer.price);
+            bool priced = !inventory.Owns(offer.id) && offer.price > 0;
+            if (priceCoin != null)
+            {
+                priceCoin.SetActive(priced);
+                priceLabel.text = priced ? Money(offer.price) : inventory.Owns(offer.id) ? "Đã sở hữu" : "Miễn phí";
+            }
+            else priceLabel.text = inventory.Owns(offer.id) ? "Đã sở hữu" : PriceText(offer.price);
             bool active = inventory.ActiveId == offer.id;
             bool canAfford = inventory.Balance >= offer.price;
             buyButton.interactable = offer.IsValid && !active && (inventory.Owns(offer.id) || canAfford);
             buyLabel.text = active ? "Đang trong hồ" : inventory.Owns(offer.id) ? "Dùng cá này" : offer.price == 0 ? "Nhận cá" : canAfford ? "Mua cá" : "Chưa đủ xu";
+        }
+
+        private void ShowPill(int i)
+        {
+            var offer = offers[i];
+            bool owned = inventory.Owns(offer.id);
+            bool priced = !owned && offer.price > 0;
+            optionPricePills[i].sprite = priced ? priceSprite : freePriceSprite;
+            optionPriceCoins[i].SetActive(!owned);
+            optionPrices[i].text = inventory.ActiveId == offer.id ? "Trong hồ" : owned ? "Đã có" : priced ? Money(offer.price) : "Miễn phí";
         }
 
         private void SaveFailed(Exception exception)
