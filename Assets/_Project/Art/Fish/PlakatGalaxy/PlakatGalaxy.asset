@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25c23ed5e6b1645669af9d8c4c327d31, type: 3}
+  m_Name: PlakatGalaxy
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::PipelineFish
+  displayName: Plakat Galaxy
+  inShop: 1
+  shopId: plakat-galaxy
+  description: "Đỏ cam, đen, đốm xanh \xB7 Galaxy đu\xF4i tr\xF2n to"
+  price: 0
+  size: 2
+  pattern: {fileID: 11400000, guid: 033004b91971f4dd9818a435933096cf, type: 2}
+  primary: {r: 0.91, g: 0.25, b: 0.08, a: 1}
+  secondary: {r: 0.06, g: 0.06, b: 0.07, a: 1}
+  accent: {r: 0.25, g: 0.45, b: 1, a: 1}
+  finEdge: {r: 1, g: 0.8, b: 0.2, a: 1}
+  iridescence: 0.7
+  seed: 3
+  bodySwimAmplitude: 3
+  strokeSwimAmplitude: 8

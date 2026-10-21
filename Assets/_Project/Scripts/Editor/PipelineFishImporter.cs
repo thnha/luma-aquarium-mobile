@@ -96,6 +96,7 @@ public static class PipelineFishImporter
         variant.primary = fish.primary;
         variant.secondary = fish.secondary;
         variant.accent = fish.accent;
+        variant.finEdge = fish.finEdge;
         variant.iridescence = fish.iridescence;
         variant.seed = fish.seed;
         EditorUtility.SetDirty(variant);

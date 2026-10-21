@@ -81,6 +81,8 @@ Shader "Lumaquarium/Betta Lit"
         _VariantBandSoftness("Variant Butterfly Band Softness", Range(0.01, 0.5)) = 0.04
         _VariantDetail("Variant Texture Detail", Range(0.0, 1.0)) = 0.6
         _VariantDetailGain("Variant Texture Detail Gain", Float) = 2.5
+        _VariantEdge("Variant Fin Edge (Galaxy)", Color) = (1,0.82,0.2,1)
+        _VariantSpeckle("Variant Speckles (Galaxy: per UV, density)", Vector) = (220,0.35,0,0)
         // Editmode props
         _QueueOffset("Queue offset", Float) = 0.0
 

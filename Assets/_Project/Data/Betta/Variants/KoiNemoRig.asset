@@ -14,15 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BettaVariant
   displayName: Koi Nemo Betta
   modelPrefab: {fileID: 6706469586767245113, guid: a0314bf2013eb4dc395845dd52016a27, type: 3}
-  tail: {fileID: 0}
   pattern: {fileID: 11400000, guid: 47ac8245d7a894d6abe1a3763c256013, type: 2}
   primary: {r: 0.1, g: 0.25, b: 0.85, a: 1}
   secondary: {r: 0.95, g: 0.95, b: 0.95, a: 1}
   accent: {r: 0.09, g: 0.09, b: 0.09, a: 1}
+  finEdge: {r: 1, g: 0.82, b: 0.2, a: 1}
   iridescence: 0.4
   textureDetail: 0.6
   silverSheen: 1
-  headScale: 1
-  eyeScale: 1
-  finLength: 1
   seed: 0

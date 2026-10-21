@@ -1,0 +1,300 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6207462310338228702
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2300201012789712013}
+  - component: {fileID: 3150960136288381476}
+  - component: {fileID: 7560441506026521490}
+  - component: {fileID: 6861943154521974456}
+  - component: {fileID: 7708764418832649915}
+  m_Layer: 0
+  m_Name: PlakatGalaxy
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2300201012789712013
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6207462310338228702}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2544556807694195574}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3150960136288381476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6207462310338228702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce1adae7064f1426c96a5e64d570ca3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaSwimMotion
+  fish: {fileID: 0}
+  skeletonRoot: {fileID: 2544556807694195574}
+  bodyIdleFrequency: 0.4
+  bodySwimFrequency: 1
+  bodyIdleAmplitude: 0.5
+  bodySwimAmplitude: 3
+  wavePhaseStep: 0.6
+  caudalIdleFrequency: 0.6
+  caudalSwimFrequency: 1.4
+  strokeIdleAmplitude: 2
+  strokeSwimAmplitude: 8
+  thrustPulse: 0.3
+  headRecoil: 0.6
+  segmentFollowRate: 7
+  maxJointBend: 18
+  turnTailKick: 0.08
+  maxTailKick: 12
+  pectoralFrequency: 3.2
+  pectoralAmplitude: 18
+  pectoralTurnBias: 0.5
+  gillRestFrequency: 0.7
+  gillActiveFrequency: 1.6
+  gillAmplitude: 1.2
+--- !u!114 &7560441506026521490
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6207462310338228702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea7f5184e47724b42a7a5e53788f9429, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaFinPhysics
+  skeletonRoot: {fileID: 2544556807694195574}
+  fish: {fileID: 0}
+  caudal:
+    rootStiffness: 0.1
+    tipStiffness: 0.035
+    damping: 0.18
+    maxAngle: 22
+    ripple: 0.005
+    speedStiffening: 1.3
+    sag: 0.15
+  dorsalAnal:
+    rootStiffness: 0.14
+    tipStiffness: 0.06
+    damping: 0.24
+    maxAngle: 22
+    ripple: 0.002
+    speedStiffening: 2.5
+    sag: 0.08
+  pelvic:
+    rootStiffness: 0.16
+    tipStiffness: 0.06
+    damping: 0.18
+    maxAngle: 35
+    ripple: 0.002
+    speedStiffening: 2
+    sag: 0.2
+  pectoral:
+    rootStiffness: 0.2
+    tipStiffness: 0.1
+    damping: 0.16
+    maxAngle: 35
+    ripple: 0.002
+    speedStiffening: 1.5
+    sag: 0
+  flowDrag: 0.5
+  dorsalRaise: 12
+  caudalSpread: 0
+  caudalDroop: 0
+  skippedChains:
+  - Tail_Crown_01_01
+  - Tail_Crown_02_01
+  - Tail_Crown_03_01
+  - Tail_Crown_04_01
+  - Tail_Crown_05_01
+  - Tail_Crown_06_01
+  - Tail_Crown_07_01
+  - Tail_Crown_08_01
+  - Tail_Crown_09_01
+  - Tail_Crown_10_01
+  - Tail_Crown_11_01
+  - Tail_Crown_12_01
+  - Dorsal_Crown_01_01
+  - Dorsal_Crown_02_01
+  - Dorsal_Crown_03_01
+  - Dorsal_Crown_04_01
+  - Dorsal_Crown_05_01
+  - Dorsal_Crown_06_01
+  - Dorsal_Crown_07_01
+  - Dorsal_Crown_08_01
+  - Dorsal_Crown_09_01
+  - Anal_Crown_01_01
+  - Anal_Crown_02_01
+  - Anal_Crown_03_01
+  - Anal_Crown_04_01
+  - Anal_Crown_05_01
+  - Anal_Crown_06_01
+  - Anal_Crown_07_01
+  - Anal_Crown_08_01
+  - Anal_Crown_09_01
+  - Anal_Crown_10_01
+  - Anal_Crown_11_01
+--- !u!114 &6861943154521974456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6207462310338228702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f72c8581d89b2450d87ae105b90ebcae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaReactions
+  fish: {fileID: 0}
+  animator: {fileID: 3216023654784458622}
+  viewCamera: {fileID: 0}
+  flareCooldown: 2
+  maxTapSeconds: 0.3
+  maxTapMovePixels: 20
+--- !u!114 &7708764418832649915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6207462310338228702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 972504744c4264e3c94ffdd6b48e95ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaRiggedModel
+  animator: {fileID: 3216023654784458622}
+  reactions: {fileID: 6861943154521974456}
+--- !u!1001 &2655625773533592733
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2300201012789712013}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.9848078
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.1736482
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      propertyPath: m_Name
+      value: PlakatGalaxy
+      objectReference: {fileID: 0}
+    - target: {fileID: 1253815975407863519, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      propertyPath: m_Quality
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1253815975407863519, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 86160f088fe544393a4add00dc482a28, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3216023654784458622}
+  m_SourcePrefab: {fileID: 100100000, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+--- !u!4 &2544556807694195574 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+  m_PrefabInstance: {fileID: 2655625773533592733}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &2890119381216018892 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 8970446a2cad0417e97926d4a3776c79, type: 3}
+  m_PrefabInstance: {fileID: 2655625773533592733}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &3216023654784458622
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2890119381216018892}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 22100000, guid: 8a995ac6798c14d3e9e6952676c4916f, type: 2}
+  m_CullingMode: 1
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

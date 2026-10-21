@@ -25,6 +25,8 @@ public class BettaAppearance : MonoBehaviour
     static readonly int AccentSpotId = Shader.PropertyToID("_VariantAccentSpot");
     static readonly int BandId = Shader.PropertyToID("_VariantBand");
     static readonly int BandSoftnessId = Shader.PropertyToID("_VariantBandSoftness");
+    static readonly int EdgeId = Shader.PropertyToID("_VariantEdge");
+    static readonly int SpeckleId = Shader.PropertyToID("_VariantSpeckle");
     static readonly int BaseMapId = Shader.PropertyToID("_BaseMap");
     static readonly int VariantMaskId = Shader.PropertyToID("_VariantMask");
 
@@ -92,6 +94,8 @@ public class BettaAppearance : MonoBehaviour
             block.SetFloat(AccentSpotId, p ? p.accentThreshold : 0.3f);
             block.SetFloat(BandId, p ? p.butterflyBand : 0.55f);
             block.SetFloat(BandSoftnessId, p ? p.butterflyBandSoftness : 0.04f);
+            block.SetColor(EdgeId, variant.finEdge);
+            block.SetVector(SpeckleId, new Vector4(p ? p.speckleScale : 220f, p ? p.speckleDensity : 0.35f, 0f, 0f));
             Texture baseMap = r.sharedMaterial && r.sharedMaterial.HasProperty(BaseMapId) ? r.sharedMaterial.GetTexture(BaseMapId) : null;
             if (baseMap) block.SetTexture(BaseMapId, baseMap);
             r.SetPropertyBlock(block);
