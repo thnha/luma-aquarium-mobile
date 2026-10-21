@@ -477,6 +477,8 @@ public class BettaFishAI : MonoBehaviour
     void ScanObstacles()
     {
         obstacleScanTimer -= Time.deltaTime;
+        // A decoration removed between scans leaves a destroyed collider in the list.
+        obstacles.RemoveAll(col => !col);
         if (obstacleScanTimer > 0f) return;
         obstacleScanTimer = 0.5f;                 // decorations can be added and moved at any time
         obstacles.Clear();
