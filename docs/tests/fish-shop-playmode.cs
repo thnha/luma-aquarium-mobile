@@ -15,7 +15,7 @@ bool orbit=s.aquarium.orbit.enabled;
 try
 {
     field.SetValue(s,inventory);
-    var entry=s.aquarium.header.transform.Find("FishShopButton").GetComponent<UnityEngine.UI.Button>();
+    var entry=s.aquarium.toolbar.transform.Find("ShopButton").GetComponent<UnityEngine.UI.Button>();
     entry.onClick.Invoke();
     check(s.IsOpen && s.aquarium.hud.alpha==0 && !s.aquarium.hud.blocksRaycasts && !s.aquarium.orbit.enabled,"Entry opens shop, hides HUD and locks orbit");
     s.optionButtons[2].onClick.Invoke();

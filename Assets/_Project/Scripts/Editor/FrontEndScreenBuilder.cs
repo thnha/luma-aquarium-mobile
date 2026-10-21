@@ -56,6 +56,7 @@ public static class FrontEndScreenBuilder
 
         bodyFont = FontAsset("Nunito-SemiBold");
         titleFont = FontAsset("Nunito-ExtraBold");
+        Ui3D.LoadFonts();
         CreateScrim();
         CreateAtlas();
         var previousActive = SceneManager.GetActiveScene();
@@ -83,21 +84,35 @@ public static class FrontEndScreenBuilder
         Debug.Log("[Lumaquarium] StartGame, LoginGame and LoadingGame built. MainAquarium preserved.");
     }
 
+    // Start and guest login are one screen; LoginGame keeps only the coming-soon account form.
     private static void BuildStart()
     {
         var canvas = NewScreen(FrontEndScenes.Start);
         var controller = canvas.gameObject.AddComponent<StartGameScreen>();
         var safe = SafeRoot(canvas);
-        Header(safe, "Lumaquarium", "Hồ cá của riêng bạn");
-        var button = Button("StartButton", safe, "Bắt đầu", "button_primary", new Vector2(0, 290), new Vector2(760, 146));
-        var arrow = Picture("Arrow", button.transform, "utility_back");
-        At(arrow.rectTransform, new Vector2(1, .5f), new Vector2(1, .5f), new Vector2(-43, 0), new Vector2(55, 55));
-        arrow.rectTransform.localScale = new Vector3(-1, 1, 1);
+        var subtitle = Header(safe, "Lumaquarium", "Hồ cá của riêng bạn");
+        var card = Ui3D.Panel("StartPanel", safe);
+        Ui3D.At(card.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 88), new Vector2(1000, 690));
+        var title = Ui3D.Text("Title", card.transform, "Một góc hồ dành cho bạn", 60, Ui3D.Ink, true);
+        Ui3D.TopStrip(title.rectTransform, 50, 50, 60, 80);
+        var description = Ui3D.Text("Description", card.transform, "Bắt đầu ngay, không cần tài khoản", 40, Ui3D.Muted);
+        Ui3D.TopStrip(description.rectTransform, 50, 50, 145, 56);
+        var start = Ui3D.Button("StartButton", card.transform, "Chơi ngay", Ui3D.Style.Primary, 50);
+        Ui3D.TopStrip((RectTransform)start.transform, 60, 60, 230, 150);
+        var account = Ui3D.Button("AccountButton", card.transform, "Đăng nhập tài khoản", Ui3D.Style.Secondary);
+        Ui3D.TopStrip((RectTransform)account.transform, 60, 60, 400, 150);
+        var accountLabel = account.GetComponentInChildren<TMP_Text>();
+        accountLabel.rectTransform.offsetMax = new Vector2(-200, -6);
+        var soon = Ui3D.Badge("Soon", account.transform, "Sắp có", true, out _);
+        Ui3D.At(soon.rectTransform, new Vector2(1, .5f), new Vector2(1, .5f), new Vector2(-34, 4), new Vector2(180, 66));
+        var note = Ui3D.Text("LocalSaveNote", card.transform, "Tiến trình chơi khách lưu trên thiết bị này", 34, Ui3D.Muted);
+        Ui3D.TopStrip(note.rectTransform, 50, 50, 575, 56);
         var feedback = Text("Feedback", safe, "", 31, Cream);
-        At(feedback.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 145), new Vector2(900, 90));
-        var caption = Text("Caption", safe, "Ngắm cá bơi, chăm chút góc hồ của mình", 33, Cream);
-        At(caption.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 95), new Vector2(940, 60));
-        Assign(controller, "startButton", button);
+        At(feedback.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 800), new Vector2(940, 80));
+        Assign(controller, "startButton", start);
+        Assign(controller, "accountButton", account);
+        Assign(controller, "startLabel", start.GetComponentInChildren<TMP_Text>());
+        Assign(controller, "subtitle", subtitle);
         Assign(controller, "feedback", feedback);
         SaveScreen(canvas, FrontEndScenes.Start);
     }
@@ -107,36 +122,41 @@ public static class FrontEndScreenBuilder
         var canvas = NewScreen(FrontEndScenes.Login);
         var controller = canvas.gameObject.AddComponent<LoginGameScreen>();
         var safe = SafeRoot(canvas);
-        Header(safe, "Lumaquarium", "Chào mừng bạn trở lại");
-        var back = IconButton("BackButton", safe, "utility_back");
-        At((RectTransform)back.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(48, -55), new Vector2(96, 96));
+        var back = Ui3D.RoundButton("BackButton", safe, "utility_back");
+        At((RectTransform)back.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(44, -40), new Vector2(122, 122));
+        var heading = Ui3D.Text("Heading", safe, "Tài khoản", 56, Cream, true, TextAlignmentOptions.MidlineLeft);
+        At(heading.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(190, -40), new Vector2(700, 122));
 
-        var guest = Panel("GuestPanel", safe, new Vector2(0, 110), new Vector2(900, 600));
-        PanelText("GuestTitle", guest, "Một góc hồ dành cho bạn", 55, -82, 790, titleFont);
-        PanelText("GuestDescription", guest, "Bắt đầu nhẹ nhàng, không cần tài khoản", 33, -166, 790, bodyFont, Muted);
-        var playGuest = Button("GuestButton", guest, "Chơi với tư cách khách", "button_primary", new Vector2(0, -290), new Vector2(760, 136), true);
-        var account = Button("AccountButton", guest, "Đăng nhập tài khoản", "button_normal", new Vector2(0, -430), new Vector2(760, 118), true);
-        PanelText("LocalSaveNote", guest, "Hành trình chơi khách lưu trên thiết bị này", 29, -525, 790, bodyFont, Muted);
-
-        var accountForm = Panel("AccountPanel", safe, new Vector2(0, 110), new Vector2(900, 820));
-        PanelText("AccountTitle", accountForm, "Đăng nhập tài khoản", 55, -83, 790, titleFont);
-        PanelText("AccountAvailability", accountForm, "Sắp có · Bạn vẫn có thể chơi khách ngay", 31, -158, 790, bodyFont, Muted);
-        var email = Input("EmailInput", accountForm, "Email", -282, false);
+        var form = Ui3D.Panel("AccountPanel", safe);
+        Ui3D.At(form.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 88), new Vector2(1000, 1210));
+        var soon = Ui3D.Badge("Soon", form.transform, "SẮP CÓ", true, out _);
+        At(soon.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -50), new Vector2(210, 66));
+        var title = Ui3D.Text("AccountTitle", form.transform, "Đăng nhập tài khoản", 60, Ui3D.Ink, true);
+        Ui3D.TopStrip(title.rectTransform, 50, 50, 130, 80);
+        var description = Ui3D.Text("AccountAvailability", form.transform, "Đồng bộ hồ giữa nhiều thiết bị sẽ mở trong bản sau", 38, Ui3D.Muted);
+        Ui3D.TopStrip(description.rectTransform, 50, 50, 215, 100);
+        var emailLabel = Ui3D.Text("EmailLabel", form.transform, "Email", 34, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.TopStrip(emailLabel.rectTransform, 74, 70, 330, 50);
+        var email = Input("EmailInput", form.transform, "ban@vidu.com", -445, false);
         email.contentType = TMP_InputField.ContentType.EmailAddress;
-        var password = Input("PasswordInput", accountForm, "Mật khẩu", -430, true);
+        var passwordLabel = Ui3D.Text("PasswordLabel", form.transform, "Mật khẩu", 34, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.TopStrip(passwordLabel.rectTransform, 74, 70, 540, 50);
+        var password = Input("PasswordInput", form.transform, "Mật khẩu", -655, true);
         email.interactable = password.interactable = false;
-        var submit = Button("AccountSubmitButton", accountForm, "Đăng nhập", "button_primary", new Vector2(0, -578), new Vector2(760, 126), true);
+        var submit = Ui3D.Button("AccountSubmitButton", form.transform, "Đăng nhập", Ui3D.Style.Primary);
+        Ui3D.TopStrip((RectTransform)submit.transform, 70, 70, 750, 150);
         submit.interactable = false;
-        var returnGuest = Button("ReturnToGuestButton", accountForm, "Quay lại chơi khách", "button_normal", new Vector2(0, -720), new Vector2(760, 114), true);
-        accountForm.gameObject.SetActive(false);
+        var divider = Ui3D.Solid("Divider", form.transform, Ui3D.Divider);
+        Ui3D.TopStrip(divider.rectTransform, 70, 70, 925, 4);
+        var guest = Ui3D.Button("ReturnToGuestButton", form.transform, "Chơi với tư cách khách", Ui3D.Style.Primary);
+        Ui3D.TopStrip((RectTransform)guest.transform, 70, 70, 955, 150);
+        var note = Ui3D.Text("PrivacyNote", form.transform, "Không gửi hay lưu thông tin đăng nhập", 32, Ui3D.Muted);
+        Ui3D.TopStrip(note.rectTransform, 50, 50, 1115, 50);
 
         var feedback = Text("Feedback", safe, "", 30, Cream);
-        At(feedback.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 15), new Vector2(960, 80));
-        Assign(controller, "guestPanel", guest.gameObject);
-        Assign(controller, "accountPanel", accountForm.gameObject);
-        Assign(controller, "guestButton", playGuest);
-        Assign(controller, "accountButton", account);
-        Assign(controller, "returnToGuestButton", returnGuest);
+        At(feedback.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 1320), new Vector2(960, 80));
+        Assign(controller, "accountPanel", form.gameObject);
+        Assign(controller, "returnToGuestButton", guest);
         Assign(controller, "backButton", back);
         Assign(controller, "password", password);
         Assign(controller, "feedback", feedback);
@@ -149,24 +169,27 @@ public static class FrontEndScreenBuilder
         var controller = canvas.gameObject.AddComponent<GameLoadingScreen>();
         var safe = SafeRoot(canvas);
         Header(safe, "Lumaquarium", "Góc hồ đang chờ bạn");
-        var status = Text("LoadingStatus", safe, "Đang chuẩn bị hồ cá...", 44, Cream);
-        At(status.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 365), new Vector2(920, 90));
-        var track = Picture("ProgressTrack", safe, "progress_track");
-        track.type = UnityEngine.UI.Image.Type.Sliced;
-        At(track.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 300), new Vector2(760, 42));
-        var fill = Picture("ProgressFill", track.transform, "progress_fill");
-        Stretch(fill.rectTransform, 3);
+        var card = Ui3D.Panel("LoadingPanel", safe);
+        Ui3D.At(card.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 88), new Vector2(1000, 500));
+        var status = Ui3D.Text("LoadingStatus", card.transform, "Đang chuẩn bị hồ cá...", 46, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.TopStrip(status.rectTransform, 60, 230, 60, 70);
+        var percent = Ui3D.Text("ProgressPercent", card.transform, "0%", 44, Ui3D.Forest, true, TextAlignmentOptions.MidlineRight);
+        Ui3D.TopStrip(percent.rectTransform, 700, 60, 60, 70);
+        var track = Ui3D.Image("ProgressTrack", card.transform, "ui3d_track");
+        Ui3D.TopStrip(track.rectTransform, 60, 60, 150, 48);
+        var fill = Ui3D.Image("ProgressFill", track.transform, "ui3d_fill", false);
+        Stretch(fill.rectTransform, 6);
         fill.type = UnityEngine.UI.Image.Type.Filled;
         fill.fillMethod = UnityEngine.UI.Image.FillMethod.Horizontal;
         fill.fillAmount = 0;
-        var percent = Text("ProgressPercent", safe, "0%", 35, Cream);
-        At(percent.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 220), new Vector2(760, 60));
-        var tip = Text("LoadingTip", safe, "Bạn có thể xoay góc nhìn để ngắm hồ", 32, Cream);
-        At(tip.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 145), new Vector2(920, 60));
-        var actions = Rect("ErrorActions", safe);
-        At(actions, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 80), new Vector2(800, 140));
-        var retry = Button("RetryButton", actions, "Thử lại", "button_normal", new Vector2(-200, 0), new Vector2(365, 130));
-        var back = Button("BackButton", actions, "Quay lại", "button_normal", new Vector2(200, 0), new Vector2(365, 130));
+        var tip = Ui3D.Text("LoadingTip", card.transform, "Bạn có thể xoay góc nhìn để ngắm hồ", 36, Ui3D.Muted);
+        Ui3D.TopStrip(tip.rectTransform, 50, 50, 225, 50);
+        var actions = Ui3D.Rect("ErrorActions", card.transform);
+        Ui3D.TopStrip(actions, 60, 60, 300, 150);
+        var back = Ui3D.Button("BackButton", actions, "Quay lại", Ui3D.Style.Secondary);
+        Ui3D.Edges((RectTransform)back.transform, Vector2.zero, new Vector2(.41f, 1), Vector2.zero, Vector2.zero);
+        var retry = Ui3D.Button("RetryButton", actions, "Thử lại", Ui3D.Style.Primary);
+        Ui3D.Edges((RectTransform)retry.transform, new Vector2(.44f, 0), Vector2.one, Vector2.zero, Vector2.zero);
         actions.gameObject.SetActive(false);
         Assign(controller, "progressFill", fill);
         Assign(controller, "progressLabel", percent);
@@ -218,71 +241,21 @@ public static class FrontEndScreenBuilder
         return safe;
     }
 
-    private static void Header(Transform parent, string title, string subtitle)
+    private static TMP_Text Header(Transform parent, string title, string subtitle)
     {
         var label = Text("Title", parent, title, 92, Cream, titleFont);
         At(label.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -135), new Vector2(950, 135));
         var small = Text("Subtitle", parent, subtitle, 36, Cream);
         At(small.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -255), new Vector2(950, 80));
-    }
-
-    private static RectTransform Panel(string name, Transform parent, Vector2 position, Vector2 size)
-    {
-        var image = Picture(name, parent, "panel_care");
-        image.type = UnityEngine.UI.Image.Type.Sliced;
-        At(image.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), position, size);
-        return image.rectTransform;
-    }
-
-    private static TMP_Text PanelText(string name, Transform parent, string value, float size, float y,
-        float width, TMP_FontAsset font, Color? color = null)
-    {
-        var label = Text(name, parent, value, size, color ?? Ink, font);
-        At(label.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, .5f), new Vector2(0, y), new Vector2(width, 80));
-        return label;
-    }
-
-    private static UnityEngine.UI.Button Button(string name, Transform parent, string label,
-        string surface, Vector2 position, Vector2 size, bool fromTop = false)
-    {
-        // Square action tiles compress their vertical gradient in short button rows.
-        string spriteName = surface == "button_normal" || surface == "button_selected"
-            || surface == "button_pressed" || surface == "button_disabled" ? surface + "_wide" : surface;
-        var image = Picture(name, parent, spriteName);
-        image.type = UnityEngine.UI.Image.Type.Sliced;
-        image.raycastTarget = true;
-        At(image.rectTransform, new Vector2(.5f, fromTop ? 1 : 0), new Vector2(.5f, .5f), position, size);
-        // Keep both border pairs inside the rect so uGUI never squashes just one axis.
-        var border = image.sprite.border / image.pixelsPerUnit;
-        image.pixelsPerUnitMultiplier = Mathf.Max(1, Mathf.Max(
-            (border.x + border.z) / size.x, (border.y + border.w) / size.y));
-        var button = image.gameObject.AddComponent<UnityEngine.UI.Button>();
-        var colors = button.colors;
-        colors.highlightedColor = new Color(.98f, 1, .95f);
-        colors.pressedColor = new Color(.84f, .88f, .78f);
-        colors.disabledColor = new Color(.85f, .85f, .8f, .66f);
-        button.colors = colors;
-        var text = Text("Label", image.transform, label, 42, surface == "button_primary" ? Cream : Ink, titleFont);
-        Stretch(text.rectTransform, 22);
-        return button;
-    }
-
-    private static UnityEngine.UI.Button IconButton(string name, Transform parent, string icon)
-    {
-        var background = Picture(name, parent, "utility_badge");
-        background.raycastTarget = true;
-        var button = background.gameObject.AddComponent<UnityEngine.UI.Button>();
-        var glyph = Picture("Icon", background.transform, icon);
-        Stretch(glyph.rectTransform, 22);
-        return button;
+        return small;
     }
 
     private static TMP_InputField Input(string name, Transform parent, string placeholder, float y, bool password)
     {
-        var image = Picture(name, parent, "inventory_slot");
+        var image = Picture(name, parent, "ui3d_tile_empty");
         image.type = UnityEngine.UI.Image.Type.Sliced;
         image.raycastTarget = true;
-        At(image.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, .5f), new Vector2(0, y), new Vector2(760, 124));
+        At(image.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, .5f), new Vector2(0, y), new Vector2(860, 132));
         var input = image.gameObject.AddComponent<TMP_InputField>();
         input.targetGraphic = image;
         var viewport = Rect("Viewport", image.transform);

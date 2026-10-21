@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using Lumaquarium.UI;
 using TMPro;
 using UnityEditor;
@@ -12,15 +11,14 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 
-// Adds the approved HUD to the existing aquarium without rebuilding its fish or rig.
+// Builds the redesigned 2.5D HUD (docs/ui-redesign.md) over the existing aquarium.
+// The first build also frames the starter tank; later builds replace only the HUD and
+// rewire the placement dock, lighting switch and shops, keeping the installed 3D aquarium.
 public static class MainAquariumScreenBuilder
 {
     private const string Root = "Assets/_Project/UI";
     private const string ScenePath = "Assets/_Project/Scenes/MainAquarium.unity";
-    private static readonly Color Ink = new Color32(52, 60, 45, 255);
-    private static readonly Color Muted = new Color32(101, 113, 90, 255);
-    private static TMP_FontAsset bodyFont;
-    private static TMP_FontAsset titleFont;
+    private const float Side = 33, DockBottom = 66, DockHeight = 280, SheetBottom = 390;
 
     [MenuItem("Lumaquarium/UI/Build Main Aquarium Screen")]
     public static void Build()
@@ -36,10 +34,10 @@ public static class MainAquariumScreenBuilder
         var orbit = UnityEngine.Object.FindFirstObjectByType<OrbitTouchCamera>();
         if (fish == null || feeding == null || orbit == null)
             throw new InvalidOperationException("MainAquarium requires its existing fish, feeding system and camera.");
-        bodyFont = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(Root + "/Fonts/Nunito-SemiBold SDF.asset");
-        titleFont = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(Root + "/Fonts/Nunito-ExtraBold SDF.asset");
-        if (bodyFont == null || titleFont == null || Sprite("AquariumEnvironment") == null)
-            throw new InvalidOperationException("Prepare the UI fonts and clean environment first.");
+        Ui3D.LoadFonts();
+        bool firstBuild = GameObject.Find("AquariumBackdrop") == null;
+        if (firstBuild && Sprite("AquariumEnvironment") == null)
+            throw new InvalidOperationException("Prepare the clean environment first.");
 
         // Retain both the on-disk and any unsaved authored scene before making changes.
         string backupDir = "Assets/_Project/Scenes/Backups";
@@ -49,7 +47,7 @@ public static class MainAquariumScreenBuilder
         EditorSceneManager.SaveScene(scene, backupName + "-working.unity", true);
         Undo.IncrementCurrentGroup();
         int group = Undo.GetCurrentGroup();
-        Undo.SetCurrentGroupName("Build approved MainAquarium screen");
+        Undo.SetCurrentGroupName("Build redesigned MainAquarium screen");
 
         var old = GameObject.Find("Canvas");
         if (old != null)
@@ -58,115 +56,66 @@ public static class MainAquariumScreenBuilder
             old.name = "LegacyAquariumHUD";
             old.SetActive(false);
         }
-        foreach (string name in new[] { "MainAquariumHUD", "AquariumBackdrop" })
-        {
-            var existing = GameObject.Find(name);
-            if (existing != null) Undo.DestroyObjectImmediate(existing);
-        }
+        var existing = GameObject.Find("MainAquariumHUD");
+        if (existing != null) Undo.DestroyObjectImmediate(existing);
 
-        ConfigurePresentation(fish, orbit);
-        BuildBackdrop(orbit.GetComponent<Camera>());
+        if (firstBuild)
+        {
+            ConfigurePresentation(fish, orbit);
+            BuildBackdrop(orbit.GetComponent<Camera>());
+        }
         BakePortrait(fish);
-        var canvas = NewCanvas("MainAquariumHUD");
+        var decoration = UnityEngine.Object.FindFirstObjectByType<AquariumDecoration>(FindObjectsInactive.Include);
+        var lighting = UnityEngine.Object.FindFirstObjectByType<AquariumLighting>(FindObjectsInactive.Include);
+
+        var canvas = Ui3D.Canvas("MainAquariumHUD", 0);
+        Undo.RegisterCreatedObjectUndo(canvas.gameObject, "Create MainAquariumHUD");
         var controller = canvas.gameObject.AddComponent<MainAquariumScreen>();
         controller.fish = fish;
         controller.feeding = feeding;
         controller.orbit = orbit;
+        controller.decoration = decoration;
         controller.hud = canvas.gameObject.AddComponent<CanvasGroup>();
-        var safe = Rect("SafeArea", canvas);
-        Stretch(safe);
+        controller.tileNormal = Ui3D.Require("ui3d_tile");
+        controller.tileActive = Ui3D.Require("ui3d_tile_selected");
+        var safe = Ui3D.Rect("SafeArea", canvas);
+        Ui3D.Stretch(safe);
         safe.gameObject.AddComponent<SafeArea>();
 
-        var header = Rect("Header", safe);
-        header.anchorMin = new Vector2(0, 1);
-        header.anchorMax = Vector2.one;
-        header.pivot = new Vector2(.5f, 1);
-        header.sizeDelta = new Vector2(-96, 144);
-        header.anchoredPosition = new Vector2(0, -50);
-        controller.header = header.gameObject;
-        var plate = Picture("FishNameplate", header, "fish_nameplate", true);
-        At(plate.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(70, -19), new Vector2(255, 87));
-        var nameLabel = Text("FishName", plate.transform, "Betta", 39, Ink, true);
-        Stretch(nameLabel.rectTransform);
-        nameLabel.rectTransform.offsetMin = new Vector2(46, 5);
-        var portrait = Picture("BettaPortrait", header, "BettaPortrait");
-        At(portrait.rectTransform, new Vector2(0, 1), new Vector2(0, 1), Vector2.zero, new Vector2(124, 124));
-        var frame = Picture("PortraitFrame", portrait.transform, "fish_portrait_frame");
-        Stretch(frame.rectTransform);
-        var settings = IconButton("SettingsButton", header, "utility_settings");
-        At((RectTransform)settings.transform, Vector2.one, Vector2.one, new Vector2(-100, -7), new Vector2(86, 86));
-        Wire(settings, controller.ToggleSettings);
-        var hide = IconButton("HideButton", header, "utility_hide");
-        At((RectTransform)hide.transform, Vector2.one, Vector2.one, new Vector2(0, -7), new Vector2(86, 86));
-        Wire(hide, controller.ToggleHud);
+        BuildHeader(controller, safe);
+        BuildDock(controller, safe);
+        BuildCare(controller, safe);
+        var dayNight = BuildSettings(controller, safe);
+        BuildDecorate(controller, safe, decoration);
 
-        var toolbar = Rect("BottomBar", safe);
-        toolbar.anchorMin = Vector2.zero;
-        toolbar.anchorMax = new Vector2(1, 0);
-        toolbar.pivot = new Vector2(.5f, 0);
-        toolbar.sizeDelta = new Vector2(-96, 222);
-        toolbar.anchoredPosition = new Vector2(0, 75);
-        var layout = toolbar.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>();
-        layout.spacing = 24;
-        layout.childControlWidth = layout.childControlHeight = true;
-        layout.childForceExpandWidth = layout.childForceExpandHeight = true;
-        controller.toolbar = toolbar.gameObject;
-        Wire(ActionButton("FeedButton", toolbar, "Cho ăn", "action_feed", true), controller.Feed);
-        Wire(ActionButton("CareButton", toolbar, "Chăm sóc", "action_care"), controller.ToggleCare);
-        Wire(ActionButton("DecorateButton", toolbar, "Trang trí", "action_decorate"), controller.ToggleDecorate);
-        Wire(ActionButton("PhotoButton", toolbar, "Ảnh", "action_photo"), controller.TakePhoto);
-
-        var care = Panel("CarePanel", safe, "Chăm sóc hồ", "panel_care", 590, controller);
-        controller.carePanel = care.gameObject;
-        PanelText(care, "StatusHeading", "BETTA CỦA BẠN", 28, -140, Muted);
-        controller.behaviourLabel = PanelText(care, "Behaviour", "Đang bơi thong thả", 37, -196, Ink);
-        controller.hungerLabel = PanelText(care, "HungerLabel", "Độ no", 32, -266, Ink);
-        var track = Picture("HungerTrack", care, "progress_track", true);
-        At(track.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, .5f), new Vector2(0, -320), new Vector2(760, 30));
-        var fill = Picture("HungerFill", track.transform, "progress_fill");
-        Stretch(fill.rectTransform);
-        fill.type = UnityEngine.UI.Image.Type.Filled;
-        fill.fillMethod = UnityEngine.UI.Image.FillMethod.Horizontal;
-        fill.fillOrigin = 0;
-        controller.hungerFill = fill;
-        PanelText(care, "WaterAvailability", "Nước & thiết bị: chưa có dữ liệu mô phỏng", 29, -399, Muted);
-        var feed = TextButton("PanelFeedButton", care, "Cho Betta ăn", new Vector2(0, 48), new Vector2(760, 103));
-        Wire(feed, controller.Feed);
-
-        var decorate = Panel("DecoratePanel", safe, "Trang trí hồ", "panel_decorate", 510, controller);
-        controller.decoratePanel = decorate.gameObject;
-        string[] kinds = { "Cây", "Đá", "Lũa" };
-        string[] icons = { "utility_leaf", "utility_rock", "utility_driftwood" };
-        for (int i = 0; i < kinds.Length; i++)
-        {
-            var slot = Picture("Inventory" + i, decorate, "inventory_slot", true);
-            At(slot.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, .5f), new Vector2((i - 1) * 242, -225), new Vector2(200, 174));
-            var icon = Picture("Icon", slot.transform, icons[i]);
-            At(icon.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(0, 8), new Vector2(90, 90));
-            var label = Text("Label", slot.transform, kinds[i], 29, Ink, true);
-            At(label.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 10), new Vector2(150, 40));
-        }
-        PanelText(decorate, "Availability", "Bố cục hồ đang dùng nền theo mẫu đã duyệt.\nĐặt vật phẩm 3D sẽ được bổ sung sau.", 30, -390, Muted, 122);
-
-        var settingsPanel = Panel("SettingsPanel", safe, "Cài đặt", "panel_care", 440, controller);
-        controller.settingsPanel = settingsPanel.gameObject;
-        var mute = TextButton("MuteButton", settingsPanel, "Âm thanh: Bật", new Vector2(0, 198), new Vector2(760, 100));
-        controller.muteLabel = mute.GetComponentInChildren<TMP_Text>();
-        Wire(mute, controller.ToggleMute);
-        Wire(TextButton("ResetViewButton", settingsPanel, "Góc nhìn ban đầu", new Vector2(0, 74), new Vector2(760, 100)), controller.ResetView);
-
-        var restore = IconButton("RestoreHudButton", safe, "utility_hide");
-        At((RectTransform)restore.transform, Vector2.one, Vector2.one, new Vector2(-48, -57), new Vector2(86, 86));
+        var restore = Ui3D.RoundButton("RestoreHudButton", safe, "utility_hide");
+        Ui3D.At((RectTransform)restore.transform, Vector2.one, Vector2.one, new Vector2(-44, -50), new Vector2(122, 122));
         Wire(restore, controller.ToggleHud);
         controller.restoreButton = restore.gameObject;
         restore.gameObject.SetActive(false);
-        var feedback = Text("Feedback", safe, "", 30, new Color32(255, 248, 228, 255), true);
-        At(feedback.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 330), new Vector2(900, 110));
+        var feedback = Ui3D.Text("Feedback", safe, "", 34, Ui3D.Cream, true);
+        Ui3D.At(feedback.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, SheetBottom + 10), new Vector2(940, 110));
         var outline = feedback.gameObject.AddComponent<UnityEngine.UI.Outline>();
-        outline.effectColor = new Color(0, .06f, .04f, .9f);
+        outline.effectColor = new Color(.05f, .12f, .06f, .95f);
         outline.effectDistance = new Vector2(2, -2);
         controller.feedback = feedback;
         feedback.gameObject.SetActive(false);
+
+        if (decoration != null)
+        {
+            Undo.RecordObject(decoration, "Wire placement dock");
+            decoration.screen = controller;
+            BuildPlacementDock(decoration, safe);
+            Saved(decoration);
+        }
+        if (lighting != null)
+        {
+            Undo.RecordObject(lighting, "Wire lighting switch");
+            lighting.label = dayNight.GetComponentInChildren<TMP_Text>();
+            Wire(dayNight, lighting.Toggle);
+            Saved(lighting);
+        }
+        else dayNight.interactable = false;
         controller.ClosePanels();
         FishShopScreenBuilder.Connect(controller);
 
@@ -176,7 +125,323 @@ public static class MainAquariumScreenBuilder
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
         AssetDatabase.SaveAssets();
-        Debug.Log("[Lumaquarium] Approved MainAquarium HUD built with the existing animated Betta.");
+        Debug.Log("[Lumaquarium] Redesigned 2.5D MainAquarium HUD built. Rebuild the fish and decoration shops next.");
+    }
+
+    // Fish chip (portrait, name, fullness) on the left; wallet, settings and hide on the right.
+    private static void BuildHeader(MainAquariumScreen controller, RectTransform safe)
+    {
+        var header = Ui3D.Rect("Header", safe);
+        Ui3D.TopStrip(header, 44, 44, 40, 290);
+        controller.header = header.gameObject;
+
+        var chip = Ui3D.Image("FishNameplate", header, "ui3d_chip");
+        chip.raycastTarget = true;
+        Ui3D.At(chip.rectTransform, new Vector2(0, 1), new Vector2(0, 1), Vector2.zero, new Vector2(500, 156));
+        var chipButton = chip.gameObject.AddComponent<UnityEngine.UI.Button>();
+        chipButton.targetGraphic = chip;
+        Wire(chipButton, controller.ToggleCare);
+        var name = Ui3D.Text("FishName", chip.transform, "Betta", 42, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.Edges(name.rectTransform, new Vector2(0, .48f), Vector2.one, new Vector2(166, 0), new Vector2(-30, -16));
+        controller.fishNameLabel = name;
+        var caption = Ui3D.Text("FullnessCaption", chip.transform, "No", 30, Ui3D.Muted, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.At(caption.rectTransform, Vector2.zero, Vector2.zero, new Vector2(166, 28), new Vector2(56, 44));
+        var track = Ui3D.Image("FullnessTrack", chip.transform, "ui3d_track");
+        track.pixelsPerUnitMultiplier = 1.6f; // keep the rounded ends on a short bar
+        Ui3D.At(track.rectTransform, Vector2.zero, Vector2.zero, new Vector2(224, 34), new Vector2(170, 34));
+        var fill = Filled("FullnessFill", track.transform, 5);
+        controller.hudFullnessFill = fill;
+        var percent = Ui3D.Text("FullnessPercent", chip.transform, "100%", 30, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.At(percent.rectTransform, Vector2.zero, Vector2.zero, new Vector2(404, 28), new Vector2(80, 44));
+        controller.hudFullnessLabel = percent;
+
+        var portrait = Ui3D.Image("BettaPortrait", header, "BettaPortrait", false);
+        Ui3D.At(portrait.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, -14), new Vector2(124, 124));
+        var ring = Ui3D.Image("PortraitRing", portrait.transform, "ui3d_ring", false);
+        Ui3D.Stretch(ring.rectTransform, -10);
+        controller.fishPortrait = portrait;
+
+        var settings = Ui3D.RoundButton("SettingsButton", header, "utility_settings");
+        Ui3D.At((RectTransform)settings.transform, Vector2.one, Vector2.one, new Vector2(0, -10), new Vector2(122, 122));
+        Wire(settings, controller.ToggleSettings);
+        var wallet = Ui3D.Image("WalletButton", header, "ui3d_chip");
+        wallet.raycastTarget = true;
+        Ui3D.At(wallet.rectTransform, Vector2.one, Vector2.one, new Vector2(-140, -10), new Vector2(290, 122));
+        var walletButton = wallet.gameObject.AddComponent<UnityEngine.UI.Button>();
+        walletButton.targetGraphic = wallet;
+        Wire(walletButton, controller.OpenShop);
+        var coin = Ui3D.Icon("Coin", wallet.transform, "utility_coin");
+        Ui3D.At(coin.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(16, 3), new Vector2(84, 84));
+        controller.walletLabel = Ui3D.Text("Balance", wallet.transform, "1.250", 46, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.Edges(controller.walletLabel.rectTransform, Vector2.zero, Vector2.one, new Vector2(106, 12), new Vector2(-22, -6));
+        var hide = Ui3D.RoundButton("HideButton", header, "utility_hide");
+        Ui3D.At((RectTransform)hide.transform, Vector2.one, Vector2.one, new Vector2(0, -150), new Vector2(122, 122));
+        Wire(hide, controller.ToggleHud);
+    }
+
+    private static void BuildDock(MainAquariumScreen controller, RectTransform safe)
+    {
+        var dock = Ui3D.Image("BottomBar", safe, "ui3d_dock");
+        dock.raycastTarget = true;
+        Ui3D.BottomStrip(dock.rectTransform, Side, Side, DockBottom, DockHeight);
+        var layout = dock.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>();
+        layout.padding = new RectOffset(22, 22, 20, 34);
+        layout.spacing = 14;
+        layout.childControlWidth = layout.childControlHeight = true;
+        layout.childForceExpandWidth = layout.childForceExpandHeight = true;
+        controller.toolbar = dock.gameObject;
+        Wire(Tile("FeedButton", dock.transform, "Cho ăn", "action_feed"), controller.Feed);
+        var care = Tile("CareButton", dock.transform, "Chăm sóc", "action_care");
+        Wire(care, controller.ToggleCare);
+        controller.careTile = (UnityEngine.UI.Image)care.targetGraphic;
+        var decorate = Tile("DecorateButton", dock.transform, "Trang trí", "action_decorate");
+        Wire(decorate, controller.ToggleDecorate);
+        controller.decorateTile = (UnityEngine.UI.Image)decorate.targetGraphic;
+        var shop = Tile("ShopButton", dock.transform, "Cửa hàng", "utility_coin");
+        ((RectTransform)shop.transform.Find("Icon")).offsetMin = new Vector2(30, 14); // the coin is a small glyph
+        Wire(shop, controller.OpenShop);
+        Wire(Tile("PhotoButton", dock.transform, "Ảnh", "action_photo"), controller.TakePhoto);
+    }
+
+    private static void BuildCare(MainAquariumScreen controller, RectTransform safe)
+    {
+        var panel = Sheet("CarePanel", safe, "Chăm sóc", 840, controller);
+        controller.carePanel = panel.gameObject;
+        var portrait = Ui3D.Image("CarePortrait", panel, "BettaPortrait", false);
+        Ui3D.At(portrait.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(50, -150), new Vector2(160, 160));
+        Ui3D.Stretch(Ui3D.Image("PortraitRing", portrait.transform, "ui3d_ring", false).rectTransform, -10);
+        controller.carePortrait = portrait;
+        controller.careFishName = Ui3D.Text("FishName", panel, "Betta", 46, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.At(controller.careFishName.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(240, -160), new Vector2(640, 64));
+        controller.behaviourLabel = Ui3D.Text("Behaviour", panel, "Đang bơi thong thả", 36, Ui3D.Forest, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.At(controller.behaviourLabel.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(240, -232), new Vector2(640, 56));
+
+        var card = Ui3D.Image("FullnessCard", panel, "ui3d_tile");
+        Ui3D.TopStrip(card.rectTransform, 44, 44, 340, 180);
+        controller.hungerLabel = Ui3D.Text("HungerLabel", card.transform, "Độ no", 40, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.Edges(controller.hungerLabel.rectTransform, new Vector2(0, .5f), Vector2.one, new Vector2(36, 0), new Vector2(-220, -12));
+        controller.hungerPercent = Ui3D.Text("HungerPercent", card.transform, "100%", 40, Ui3D.Ink, true, TextAlignmentOptions.MidlineRight);
+        Ui3D.Edges(controller.hungerPercent.rectTransform, new Vector2(.6f, .5f), Vector2.one, Vector2.zero, new Vector2(-36, -12));
+        var track = Ui3D.Image("HungerTrack", card.transform, "ui3d_track");
+        Ui3D.Edges(track.rectTransform, Vector2.zero, new Vector2(1, .5f), new Vector2(36, 34), new Vector2(-36, -8));
+        controller.hungerFill = Filled("HungerFill", track.transform, 6);
+
+        var water = Ui3D.Text("WaterAvailability", panel, "Nước & thiết bị", 36, Ui3D.Muted, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.TopStrip(water.rectTransform, 56, 300, 550, 70);
+        var soon = Ui3D.Badge("Soon", panel, "Sắp có", true, out _);
+        Ui3D.At(soon.rectTransform, Vector2.one, Vector2.one, new Vector2(-56, -552), new Vector2(180, 66));
+        var change = Ui3D.Button("ChangeFishButton", panel, "Đổi cá", Ui3D.Style.Secondary);
+        Ui3D.Edges((RectTransform)change.transform, Vector2.zero, new Vector2(.38f, 0), new Vector2(44, 40), new Vector2(-8, 190));
+        Wire(change, controller.OpenShop);
+        var feed = Ui3D.Button("PanelFeedButton", panel, "Cho Betta ăn", Ui3D.Style.Primary);
+        Ui3D.Edges((RectTransform)feed.transform, new Vector2(.38f, 0), new Vector2(1, 0), new Vector2(8, 40), new Vector2(-44, 190));
+        Wire(feed, controller.Feed);
+    }
+
+    // Returns the day/night button so the lighting component can drive its label.
+    private static UnityEngine.UI.Button BuildSettings(MainAquariumScreen controller, RectTransform safe)
+    {
+        var panel = Sheet("SettingsPanel", safe, "Cài đặt", 900, controller);
+        controller.settingsPanel = panel.gameObject;
+        var mute = Row(panel, 0, "Âm thanh", "Bật hoặc tắt tiếng hồ", "MuteButton", "Đang bật");
+        controller.muteLabel = mute.GetComponentInChildren<TMP_Text>();
+        Wire(mute, controller.ToggleMute);
+        var dayNight = Row(panel, 1, "Ánh sáng hồ", "Đổi ngày và đêm cho hồ", "DayNightButton", "Ban ngày");
+        Wire(Row(panel, 2, "Góc nhìn", "Đưa camera về vị trí đầu", "ResetViewButton", "Đặt lại"), controller.ResetView);
+        Wire(Row(panel, 3, "Ẩn giao diện", "Chỉ giữ nút hiện lại ở góc", "HideUiButton", "Ẩn"), controller.ToggleHud);
+        var profile = RowFrame(panel, 4, "Hồ sơ khách", "Lưu trên thiết bị này", false);
+        var soon = Ui3D.Badge("Soon", profile, "Đăng nhập · Sắp có", true, out _);
+        Ui3D.At(soon.rectTransform, new Vector2(1, .5f), new Vector2(1, .5f), Vector2.zero, new Vector2(340, 66));
+        return dayNight;
+    }
+
+    // Owned decorations by group. Cards follow the catalog order so their index is the offer index.
+    private static void BuildDecorate(MainAquariumScreen controller, RectTransform safe, AquariumDecoration decoration)
+    {
+        var panel = Sheet("DecoratePanel", safe, "Trang trí", 1150, controller);
+        controller.decoratePanel = panel.gameObject;
+        var inventory = panel.gameObject.AddComponent<DecorInventoryPanel>();
+        inventory.aquarium = controller;
+        inventory.summary = Ui3D.Text("Summary", panel, "Kho của bạn", 32, Ui3D.Muted, false, TextAlignmentOptions.MidlineLeft);
+        Ui3D.TopStrip(inventory.summary.rectTransform, 56, 180, 122, 46);
+
+        var tray = Ui3D.Image("Tabs", panel, "ui3d_tab_tray_light");
+        Ui3D.TopStrip(tray.rectTransform, 44, 44, 190, 120);
+        var row = tray.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>();
+        row.padding = new RectOffset(10, 10, 10, 16);
+        row.spacing = 6;
+        row.childControlWidth = row.childControlHeight = true;
+        row.childForceExpandWidth = row.childForceExpandHeight = true;
+        string[] groups = { "Cây", "Lũa", "Đá" }; // AquariumDecorCategory order: Plants, Wood, Rocks
+        inventory.tabButtons = new UnityEngine.UI.Button[groups.Length];
+        inventory.tabSurfaces = new UnityEngine.UI.Image[groups.Length];
+        inventory.tabLabels = new TMP_Text[groups.Length];
+        for (int i = 0; i < groups.Length; i++)
+        {
+            var tab = Ui3D.Image("Tab" + i, tray.transform, "ui3d_button_primary");
+            tab.color = i == 0 ? Color.white : Color.clear;
+            tab.raycastTarget = true;
+            var button = tab.gameObject.AddComponent<UnityEngine.UI.Button>();
+            button.targetGraphic = tab;
+            button.transition = UnityEngine.UI.Selectable.Transition.None;
+            inventory.tabButtons[i] = button;
+            inventory.tabSurfaces[i] = tab;
+            inventory.tabLabels[i] = Ui3D.Text("Label", tab.transform, groups[i], 40, i == 0 ? Ui3D.Cream : Ui3D.Ink, true);
+            Ui3D.Edges(inventory.tabLabels[i].rectTransform, Vector2.zero, Vector2.one, new Vector2(6, 12), new Vector2(-6, -4));
+        }
+        inventory.tabLabelOn = Ui3D.Cream;
+        inventory.tabLabelOff = Ui3D.Hex("4A503F");
+
+        var items = Ui3D.Rect("Items", panel);
+        Ui3D.Edges(items, Vector2.zero, Vector2.one, new Vector2(44, 236), new Vector2(-44, -330));
+        items.gameObject.AddComponent<UnityEngine.UI.RectMask2D>();
+        var grid = Ui3D.Rect("Content", items);
+        Ui3D.Edges(grid, new Vector2(0, 1), Vector2.one, Vector2.zero, Vector2.zero);
+        grid.pivot = new Vector2(.5f, 1);
+        var layout = grid.gameObject.AddComponent<UnityEngine.UI.GridLayoutGroup>();
+        layout.cellSize = new Vector2(221, 262);
+        layout.spacing = new Vector2(14, 14);
+        layout.constraint = UnityEngine.UI.GridLayoutGroup.Constraint.FixedColumnCount;
+        layout.constraintCount = 4;
+        grid.gameObject.AddComponent<UnityEngine.UI.ContentSizeFitter>().verticalFit = UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize;
+        var scroll = items.gameObject.AddComponent<UnityEngine.UI.ScrollRect>();
+        scroll.content = grid;
+        scroll.viewport = items;
+        scroll.horizontal = false;
+        scroll.movementType = UnityEngine.UI.ScrollRect.MovementType.Clamped;
+
+        var offers = decoration != null && decoration.catalog != null ? decoration.catalog.offers : new AquariumDecorOffer[0];
+        inventory.cards = new GameObject[offers.Length];
+        inventory.cardButtons = new UnityEngine.UI.Button[offers.Length];
+        inventory.cardSurfaces = new UnityEngine.UI.Image[offers.Length];
+        inventory.countLabels = new TMP_Text[offers.Length];
+        inventory.countBadges = new UnityEngine.UI.Image[offers.Length];
+        inventory.cardNormal = Ui3D.Require("ui3d_tile");
+        inventory.cardEmpty = Ui3D.Require("ui3d_tile_empty");
+        inventory.badgeStock = Ui3D.Require("ui3d_badge");
+        inventory.badgeEmpty = Ui3D.Require("ui3d_badge_light");
+        for (int i = 0; i < offers.Length; i++)
+        {
+            var offer = offers[i];
+            var card = Ui3D.Image("Item_" + offer.id, grid, "ui3d_tile");
+            card.raycastTarget = true;
+            var button = card.gameObject.AddComponent<UnityEngine.UI.Button>();
+            button.targetGraphic = card;
+            button.transition = UnityEngine.UI.Selectable.Transition.SpriteSwap;
+            button.spriteState = new UnityEngine.UI.SpriteState { pressedSprite = Ui3D.Require("ui3d_tile_pressed") };
+            var image = Ui3D.Image("Portrait", card.transform, null, false);
+            image.sprite = offer.portrait;
+            image.preserveAspect = true;
+            Ui3D.Edges(image.rectTransform, new Vector2(0, .3f), Vector2.one, new Vector2(14, 0), new Vector2(-14, -14));
+            var label = Ui3D.Text("Name", card.transform, offer.displayName, 28, Ui3D.Ink, true);
+            Ui3D.Edges(label.rectTransform, Vector2.zero, new Vector2(1, .32f), new Vector2(6, 14), new Vector2(-6, 0));
+            var badge = Ui3D.Badge("Count", card.transform, "x1", false, out var count);
+            Ui3D.At(badge.rectTransform, Vector2.one, Vector2.one, new Vector2(-10, -10), new Vector2(86, 56));
+            inventory.cards[i] = card.gameObject;
+            inventory.cardButtons[i] = button;
+            inventory.cardSurfaces[i] = card;
+            inventory.countLabels[i] = count;
+            inventory.countBadges[i] = badge;
+        }
+
+        inventory.arrangeButton = Ui3D.Button("ArrangeButton", panel, "Sắp xếp lại", Ui3D.Style.Secondary);
+        Ui3D.Edges((RectTransform)inventory.arrangeButton.transform, Vector2.zero, new Vector2(.5f, 0), new Vector2(44, 44), new Vector2(-8, 194));
+        inventory.shopButton = Ui3D.Button("ShopButton", panel, "Mua thêm", Ui3D.Style.Primary);
+        Ui3D.Edges((RectTransform)inventory.shopButton.transform, new Vector2(.5f, 0), new Vector2(1, 0), new Vector2(8, 44), new Vector2(-44, 194));
+    }
+
+    // Instruction chip above a tray of Xoay / Cất / Hủy and the primary Đặt.
+    private static void BuildPlacementDock(AquariumDecoration decoration, RectTransform safe)
+    {
+        var dock = Ui3D.Image("PlacementDock", safe, "ui3d_dock");
+        dock.raycastTarget = true;
+        Ui3D.BottomStrip(dock.rectTransform, Side, Side, DockBottom, DockHeight);
+        var layout = dock.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>();
+        layout.padding = new RectOffset(24, 24, 40, 52);
+        layout.spacing = 16;
+        layout.childControlWidth = layout.childControlHeight = true;
+        layout.childForceExpandWidth = layout.childForceExpandHeight = true;
+        string[] labels = { "Xoay", "Cất", "Hủy", "Đặt" };
+        UnityAction[] actions = { decoration.Rotate, decoration.Delete, decoration.Cancel, decoration.Confirm };
+        for (int i = 0; i < labels.Length; i++)
+        {
+            var button = Ui3D.Button("PlacementAction" + i, dock.transform, labels[i], i == 3 ? Ui3D.Style.Primary : Ui3D.Style.Secondary, 44);
+            button.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = i == 3 ? 1.6f : 1;
+            Wire(button, actions[i]);
+        }
+        var chip = Ui3D.Image("InstructionChip", dock.transform, "ui3d_hint");
+        chip.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().ignoreLayout = true;
+        Ui3D.At(chip.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 0), new Vector2(0, 24), new Vector2(940, 104));
+        var hint = Ui3D.Text("Instruction", chip.transform, "Kéo trên cát • Xoay • Đặt", 34, Ui3D.Cream, true);
+        Ui3D.Stretch(hint.rectTransform, 18);
+        decoration.dock = dock.gameObject;
+        decoration.instruction = hint;
+        dock.gameObject.SetActive(false);
+    }
+
+    private static UnityEngine.UI.Button Tile(string name, Transform parent, string label, string icon)
+    {
+        var surface = Ui3D.Image(name, parent, "ui3d_tile");
+        surface.raycastTarget = true;
+        var button = surface.gameObject.AddComponent<UnityEngine.UI.Button>();
+        button.targetGraphic = surface;
+        button.transition = UnityEngine.UI.Selectable.Transition.SpriteSwap;
+        button.spriteState = new UnityEngine.UI.SpriteState { pressedSprite = Ui3D.Require("ui3d_tile_pressed") };
+        var artwork = Ui3D.Icon("Icon", surface.transform, icon);
+        Ui3D.Edges(artwork.rectTransform, new Vector2(0, .3f), Vector2.one, new Vector2(12, 0), new Vector2(-12, -14));
+        var text = Ui3D.Text("Label", surface.transform, label, 32, Ui3D.Ink, true);
+        Ui3D.Edges(text.rectTransform, Vector2.zero, new Vector2(1, .32f), new Vector2(4, 14), new Vector2(-4, 0));
+        return button;
+    }
+
+    private static RectTransform Sheet(string name, RectTransform safe, string title, float height, MainAquariumScreen controller)
+    {
+        var panel = Ui3D.Panel(name, safe);
+        Ui3D.BottomStrip(panel.rectTransform, Side, Side, SheetBottom, height);
+        var heading = Ui3D.Text("Title", panel.transform, title, 58, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.TopStrip(heading.rectTransform, 56, 180, 40, 90);
+        var close = Ui3D.RoundButton("CloseButton", panel.transform, "utility_close", true);
+        Ui3D.At((RectTransform)close.transform, Vector2.one, Vector2.one, new Vector2(-30, -28), new Vector2(116, 116));
+        Wire(close, controller.ClosePanels);
+        return panel.rectTransform;
+    }
+
+    private static RectTransform RowFrame(RectTransform panel, int index, string title, string subtitle, bool divider = true)
+    {
+        var row = Ui3D.Rect("Row" + index, panel);
+        Ui3D.TopStrip(row, 56, 56, 150 + index * 140, 140);
+        var heading = Ui3D.Text("Title", row, title, 40, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.Edges(heading.rectTransform, new Vector2(0, .5f), Vector2.one, Vector2.zero, new Vector2(-340, -12));
+        var detail = Ui3D.Text("Detail", row, subtitle, 30, Ui3D.Muted, false, TextAlignmentOptions.MidlineLeft);
+        Ui3D.Edges(detail.rectTransform, Vector2.zero, new Vector2(1, .5f), new Vector2(0, 14), new Vector2(-340, 0));
+        if (divider) Ui3D.Edges(Ui3D.Solid("Divider", row, Ui3D.Divider).rectTransform, Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 3));
+        return row;
+    }
+
+    private static UnityEngine.UI.Button Row(RectTransform panel, int index, string title, string subtitle, string button, string label)
+    {
+        var row = RowFrame(panel, index, title, subtitle);
+        var control = Ui3D.Button(button, row, label, Ui3D.Style.Secondary, 38);
+        Ui3D.At((RectTransform)control.transform, new Vector2(1, .5f), new Vector2(1, .5f), Vector2.zero, new Vector2(300, 116));
+        return control;
+    }
+
+    private static UnityEngine.UI.Image Filled(string name, Transform track, float inset)
+    {
+        var fill = Ui3D.Image(name, track, "ui3d_fill", false);
+        Ui3D.Stretch(fill.rectTransform, inset);
+        fill.type = UnityEngine.UI.Image.Type.Filled;
+        fill.fillMethod = UnityEngine.UI.Image.FillMethod.Horizontal;
+        fill.fillOrigin = 0;
+        return fill;
+    }
+
+    private static void Wire(UnityEngine.UI.Button button, UnityAction action) => UnityEventTools.AddPersistentListener(button.onClick, action);
+
+    private static void Saved(Component component)
+    {
+        EditorUtility.SetDirty(component);
+        if (PrefabUtility.IsPartOfPrefabInstance(component)) PrefabUtility.RecordPrefabInstancePropertyModifications(component);
     }
 
     private static void ConfigurePresentation(BettaFishAI fish, OrbitTouchCamera orbit)
@@ -303,90 +568,6 @@ public static class MainAquariumScreenBuilder
         return root;
     }
 
-    private static RectTransform Panel(string name, Transform parent, string title, string surface, float height, MainAquariumScreen controller)
-    {
-        var panel = Picture(name, parent, surface, true);
-        panel.raycastTarget = true;
-        At(panel.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 326), new Vector2(960, height));
-        PanelText(panel.transform, "Title", title, 47, -73, Ink);
-        var close = IconButton("CloseButton", panel.transform, "utility_close");
-        At((RectTransform)close.transform, Vector2.one, Vector2.one, new Vector2(-30, -27), new Vector2(72, 72));
-        Wire(close, controller.ClosePanels);
-        return panel.rectTransform;
-    }
-
-    private static TMP_Text PanelText(Transform parent, string name, string value, float size, float y, Color color, float height = 64)
-    {
-        var text = Text(name, parent, value, size, color, name == "Title");
-        At(text.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, .5f), new Vector2(0, y), new Vector2(790, height));
-        return text;
-    }
-
-    private static UnityEngine.UI.Button ActionButton(string name, Transform parent, string label, string icon, bool selected = false)
-    {
-        var background = Picture(name, parent, selected ? "button_selected" : "button_normal", true);
-        background.raycastTarget = true;
-        var element = background.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
-        element.flexibleWidth = 1;
-        var button = background.gameObject.AddComponent<UnityEngine.UI.Button>();
-        ButtonStates(button);
-        var artwork = Picture("Icon", background.transform, icon);
-        artwork.preserveAspect = true;
-        Stretch(artwork.rectTransform);
-        artwork.rectTransform.offsetMin = new Vector2(10, 51);
-        artwork.rectTransform.offsetMax = new Vector2(-10, -8);
-        var text = Text("Label", background.transform, label, 31, Ink, true);
-        At(text.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 19), new Vector2(195, 49));
-        return button;
-    }
-
-    private static UnityEngine.UI.Button TextButton(string name, Transform parent, string label, Vector2 position, Vector2 size)
-    {
-        var image = Picture(name, parent, "button_primary", true);
-        image.raycastTarget = true;
-        At(image.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), position, size);
-        var button = image.gameObject.AddComponent<UnityEngine.UI.Button>();
-        var text = Text("Label", image.transform, label, 36, new Color32(255, 248, 228, 255), true);
-        Stretch(text.rectTransform, 12);
-        return button;
-    }
-
-    private static UnityEngine.UI.Button IconButton(string name, Transform parent, string icon)
-    {
-        var image = Picture(name, parent, "utility_badge");
-        image.raycastTarget = true;
-        var button = image.gameObject.AddComponent<UnityEngine.UI.Button>();
-        var glyph = Picture("Icon", image.transform, icon);
-        Stretch(glyph.rectTransform, 21);
-        return button;
-    }
-
-    private static void ButtonStates(UnityEngine.UI.Button button)
-    {
-        button.transition = UnityEngine.UI.Selectable.Transition.SpriteSwap;
-        button.spriteState = new UnityEngine.UI.SpriteState
-        {
-            highlightedSprite = Sprite("button_selected"),
-            pressedSprite = Sprite("button_pressed"),
-            selectedSprite = Sprite("button_selected"),
-            disabledSprite = Sprite("button_disabled")
-        };
-    }
-
-    private static void Wire(UnityEngine.UI.Button button, UnityAction action) => UnityEventTools.AddPersistentListener(button.onClick, action);
-
-    private static TMP_Text Text(string name, Transform parent, string value, float size, Color color, bool title = false)
-    {
-        var text = Rect(name, parent).gameObject.AddComponent<TextMeshProUGUI>();
-        text.font = title ? titleFont : bodyFont;
-        text.fontSize = size;
-        text.color = color;
-        text.text = value;
-        text.alignment = TextAlignmentOptions.Center;
-        text.raycastTarget = false;
-        return text;
-    }
-
     private static UnityEngine.UI.Image Picture(string name, Transform parent, string sprite, bool sliced = false)
     {
         var image = Rect(name, parent).gameObject.AddComponent<UnityEngine.UI.Image>();
@@ -411,14 +592,6 @@ public static class MainAquariumScreenBuilder
         var rect = (RectTransform)new GameObject(name, typeof(RectTransform)).transform;
         if (parent != null) rect.SetParent(parent, false);
         return rect;
-    }
-
-    private static void At(RectTransform rect, Vector2 anchor, Vector2 pivot, Vector2 position, Vector2 size)
-    {
-        rect.anchorMin = rect.anchorMax = anchor;
-        rect.pivot = pivot;
-        rect.anchoredPosition = position;
-        rect.sizeDelta = size;
     }
 
     private static void Stretch(RectTransform rect, float inset = 0)

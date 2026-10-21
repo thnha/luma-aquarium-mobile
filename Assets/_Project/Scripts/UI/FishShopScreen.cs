@@ -45,6 +45,10 @@ namespace Lumaquarium.UI
         public UnityEngine.UI.Button cancelButton;
         public TMP_Text aquariumFishName;
         public UnityEngine.UI.Image aquariumPortrait;
+        // One shop with Cá/Cây/Lũa/Đá tabs: the last three hand over to the decoration shop.
+        public DecorShopScreen decorShop;
+        public UnityEngine.UI.Button[] decorTabs;
+        public int layoutVersion;
 
         private static readonly CultureInfo Vietnamese = CultureInfo.GetCultureInfo("vi-VN");
         private FishShopInventory inventory;
@@ -68,6 +72,19 @@ namespace Lumaquarium.UI
             backButton.onClick.AddListener(Close);
             confirmButton.onClick.AddListener(ConfirmPurchase);
             cancelButton.onClick.AddListener(CancelPurchase);
+            if (decorTabs != null)
+                for (int i = 0; i < decorTabs.Length; i++)
+                {
+                    int category = i;
+                    decorTabs[i].onClick.AddListener(() => OpenDecor(category));
+                }
+        }
+
+        public void OpenDecor(int category)
+        {
+            if (decorShop == null || confirmation.activeSelf) return;
+            decorShop.Open(); // closes this shop first and keeps the HUD state it restored
+            decorShop.SelectCategory(category);
         }
 
         private void Start()

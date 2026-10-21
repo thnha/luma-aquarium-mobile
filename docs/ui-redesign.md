@@ -1,8 +1,8 @@
-# Lumaquarium — đề xuất redesign giao diện (chờ duyệt)
+# Lumaquarium — redesign giao diện
 
 Bản xem trước tương tác (sơ đồ luồng + 12 màn): https://claude.ai/artifact/13fS4ioUHtvvvDrN3bYrkj
 
-Bản này dùng lại artwork, icon, font Nunito và bảng màu đã duyệt trong `Assets/_Project/UI/sprite-manifest.json` (ink `#343C2D`, cream `#F1E6C8`, sage `#CFDDBB`, forest `#455D3F`). Chưa thay đổi code hay scene Unity.
+Bản này dùng lại artwork, icon, font Nunito và bảng màu đã duyệt trong `Assets/_Project/UI/sprite-manifest.json` (ink `#343C2D`, cream `#F1E6C8`, sage `#CFDDBB`, forest `#455D3F`). Thiết kế đã được duyệt và đưa vào code Unity, xem phần **Triển khai** bên dưới.
 
 ## Vấn đề ở bản hiện tại
 
@@ -35,9 +35,37 @@ Bản này dùng lại artwork, icon, font Nunito và bảng màu đã duyệt t
 6. **Đặt đồ**: chip món đang đặt và số còn trong kho, gợi ý chuyển đỏ khi vị trí không hợp lệ, công cụ Xoay / Cất / Hủy và nút chính *Đặt* (bị khóa khi vị trí không hợp lệ).
 7. **Cài đặt**: Âm thanh, Ánh sáng ngày/đêm (chuyển từ nút giữa màn vào đây), Góc nhìn, Ẩn giao diện, Hồ sơ khách.
 
-## Ảnh hưởng khi triển khai (sau khi duyệt)
+## Triển khai
 
-- `FrontEndScreenBuilder` / `StartGameScreen` / `LoginGameScreen`: gộp Start và Login vào một màn, giữ `GuestIdKey`.
-- `MainAquariumScreenBuilder` / `MainAquariumScreen`: thêm chip xu và nút dock Cửa hàng, bỏ hai nút chữ shop, chuyển ngày/đêm và Ẩn UI vào Cài đặt, panel Trang trí đổi thành lưới kho.
-- `FishShopScreen` + `DecorShopScreen`: dùng chung một khung cửa hàng có tab. Logic ví và kho (`FishShopInventory`, `AquariumDecoration`) giữ nguyên.
-- Icon dock Cửa hàng hiện tạm dùng `utility_coin`. Cần vẽ icon minh họa riêng cùng phong cách 4 icon hành động.
+Code đã sửa xong. Scene và prefab là do builder sinh ra, nên cần mở Unity 6000.3.26f1 và chạy builder theo đúng thứ tự dưới đây. Mỗi builder đều lưu bản sao scene vào `Assets/_Project/Scenes/Backups/` trước khi sửa.
+
+1. `Lumaquarium > UI > Prepare Sprite Assets`: import 24 surface `ui3d_*` mới với viền 9-slice lấy từ manifest.
+2. `Lumaquarium > UI > Build Front End Screens`: dựng lại StartGame, LoginGame và LoadingGame.
+3. Mở `MainAquarium` rồi chạy `Lumaquarium > UI > Build Main Aquarium Screen`. Builder chỉ thay `MainAquariumHUD`, dựng lại dock đặt đồ, rồi nối lại `AquariumDecoration`, nút ngày/đêm của `AquariumLighting` và hai shop. Hồ 3D, backdrop đêm và camera được giữ nguyên.
+4. `Lumaquarium > UI > Build Fish Shop Screen`: prefab có `layoutVersion < 2` sẽ được dựng lại theo khung cửa hàng chung.
+5. `Lumaquarium > UI > Build Decoration Shop`: tương tự cho shop trang trí, rồi nối tab Cá ↔ Cây/Lũa/Đá và bảng Trang trí.
+
+Sprite nguồn được sinh lại bằng `python3 Tools/UI/make_ui3d_sprites.py`. Nếu đổi kích thước hoặc viền, cập nhật `borderLTRB` trong manifest theo số liệu script in ra.
+
+### Thay đổi chính trong code
+
+| Khu vực | File |
+|---|---|
+| Widget 2.5D và khung cửa hàng dùng chung | `Scripts/Editor/Ui3D.cs`, `Scripts/UI/Ui3DButtonLabel.cs`, `Tools/UI/make_ui3d_sprites.py` |
+| Khởi động gộp với chơi khách; Login chỉ còn form Sắp có; Back ở Loading về Start | `FrontEndScreenBuilder.cs`, `StartGameScreen.cs`, `LoginGameScreen.cs`, `GameLoadingScreen.cs`, `FrontEndScenes.cs` |
+| HUD: chip cá + độ no, ví xu, dock 5 nút, sheet Chăm sóc / Cài đặt / Trang trí, dock đặt đồ | `MainAquariumScreenBuilder.cs`, `MainAquariumScreen.cs`, `DecorInventoryPanel.cs` |
+| Cửa hàng chung có tab | `FishShopScreenBuilder.cs`, `DecorShopScreenBuilder.cs`, `FishShopScreen.cs`, `DecorShopScreen.cs` |
+| Không đụng HUD mới khi chạy lại builder cũ | `AquariumHardscapeBuilder.cs` (tìm `DayNightButton` trong Cài đặt), `Aquarium3DPreviewBuilder.cs` (bỏ qua khi đã có `DecorInventoryPanel`) |
+| Test | `docs/tests/main-aquarium-playmode.cs`, `fish-shop-scene.cs`, `fish-shop-playmode.cs` |
+
+Logic ví, kho và đặt đồ (`FishShopInventory`, `AquariumDecoration`) giữ nguyên. Các field mới đều tùy chọn, nên scene dựng trước redesign vẫn chạy được.
+
+### Khác với preview
+
+- Kho Trang trí chia 3 tab Cây · Lũa · Đá, khớp với `AquariumDecorCategory` và tab cửa hàng. Preview tách riêng Rêu và Bèo, nhưng dữ liệu catalog hiện chưa có nhóm đó.
+- Ánh sáng ngày/đêm trong Cài đặt là một nút chuyển, để `AquariumLighting.label` và test cũ vẫn dùng được.
+- Icon dock Cửa hàng tạm dùng `utility_coin`.
+
+### Chưa kiểm chứng
+
+Môi trường dùng để sửa code không có Unity. Code mới chỉ được soát cú pháp bằng tree-sitter và rà tham chiếu bằng tay; chưa được biên dịch, chưa chạy builder và chưa chụp Game View. Sau khi chạy các bước trên, cần chạy lại test trong `docs/tests` và xem Game View 9:16 và màn dài.
