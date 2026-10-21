@@ -48,20 +48,36 @@ public static class AquariumDecorCatalogBuilder
                 var collider = root.AddComponent<BoxCollider>(); collider.isTrigger=true;
                 collider.center=bounds.center; collider.size=bounds.size + Vector3.one*.025f;
                 var prefab = PrefabUtility.SaveAsPrefabAsset(root, Root + "/" + Ids[i] + ".prefab").GetComponent<AquariumDecorItem>();
-                string image = Root + "/" + Ids[i] + ".png";
-                BakePortrait(prefab.gameObject,image);
-                AssetDatabase.ImportAsset(image,ImportAssetOptions.ForceSynchronousImport);
-                var importer=(TextureImporter)AssetImporter.GetAtPath(image);
-                importer.textureType=TextureImporterType.Sprite; importer.spriteImportMode=SpriteImportMode.Single;
-                importer.alphaIsTransparency=true; importer.mipmapEnabled=false; importer.maxTextureSize=512;
-                importer.SaveAndReimport();
                 offers.Add(new AquariumDecorOffer { id=Ids[i], displayName=Names[i], price=Prices[i], prefab=prefab,
                     category=i<12?AquariumDecorCategory.Plants:i<18?AquariumDecorCategory.Wood:AquariumDecorCategory.Rocks,
                     description=i>=12&&i<18?"Lũa tự nhiên · Có 3 vị trí gắn ráy, dương xỉ hoặc rêu":
                         item.floats?"Bèo nổi trên mặt nước · Kéo để sắp xếp từng cụm":
                         item.attachable?"Trồng trên nền hoặc kéo lên lũa để gắn":i<12?"Cây thủy sinh trồng nền · Lá đung đưa theo dòng nước":
                         i==23?"Tiểu cảnh núi đá nhiều tầng · Đặt và xoay theo ý thích":"Đá tự nhiên · Trang trí nền hồ",
-                    portrait=AssetDatabase.LoadAssetAtPath<Sprite>(image) });
+                    portrait=Portrait(prefab.gameObject,Ids[i]) });
+            }
+            finally { UnityEngine.Object.DestroyImmediate(root); }
+        }
+        // Named driftwood species follow the 24 shop items; kinds 27+ keep every released kind unchanged.
+        var speciesWood = SpeciesWood();
+        for (int i = 0; i < DriftwoodSpeciesBuilder.All.Length; i++)
+        {
+            var species = DriftwoodSpeciesBuilder.All[i];
+            var root = new GameObject(species.id);
+            try
+            {
+                root.layer = 8;
+                var item = root.AddComponent<AquariumDecorItem>();
+                item.kind = Ids.Length + 3 + i;
+                item.supportsPlants = true;
+                var mesh = Store(DriftwoodSpeciesBuilder.Build(species,1,out item.plantMounts,out item.footprint),species.id);
+                Model("Wood",root.transform,mesh,speciesWood);
+                var bounds = mesh.bounds;
+                var collider = root.AddComponent<BoxCollider>(); collider.isTrigger=true;
+                collider.center=bounds.center; collider.size=bounds.size + Vector3.one*.025f;
+                var prefab = PrefabUtility.SaveAsPrefabAsset(root, Root + "/" + species.id + ".prefab").GetComponent<AquariumDecorItem>();
+                offers.Add(new AquariumDecorOffer { id=species.id, displayName=species.name, price=species.price, prefab=prefab,
+                    category=AquariumDecorCategory.Wood, description=species.description, portrait=Portrait(prefab.gameObject,species.id) });
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }
@@ -81,16 +97,10 @@ public static class AquariumDecorCatalogBuilder
                 PrefabUtility.SaveAsPrefabAsset(root,prefabPath);
             }
             finally { PrefabUtility.UnloadPrefabContents(root); }
-            string image = Root + "/" + starterIds[i] + ".png";
-            BakePortrait(starterPrefabs[i].gameObject,image);
-            AssetDatabase.ImportAsset(image,ImportAssetOptions.ForceSynchronousImport);
-            var importer = (TextureImporter)AssetImporter.GetAtPath(image);
-            importer.textureType=TextureImporterType.Sprite;importer.spriteImportMode=SpriteImportMode.Single;
-            importer.alphaIsTransparency=true;importer.mipmapEnabled=false;importer.maxTextureSize=512;importer.SaveAndReimport();
             offers.Add(new AquariumDecorOffer { id=starterIds[i], displayName=starterNames[i], price=starterPrices[i], prefab=starterPrefabs[i],
                 category=i==0?AquariumDecorCategory.Plants:i==1?AquariumDecorCategory.Rocks:AquariumDecorCategory.Wood,
                 description=i==2?"Lũa phân nhánh cao · Gắn cây hoặc rêu tại 3 vị trí":i==0?"Cây lá rộng · Trồng nền hoặc gắn lên lũa":"Đá cuội tròn · Trang trí nền hồ",
-                portrait=AssetDatabase.LoadAssetAtPath<Sprite>(image) });
+                portrait=Portrait(starterPrefabs[i].gameObject,starterIds[i]) });
         }
         catalog.offers=offers.ToArray(); EditorUtility.SetDirty(catalog); AssetDatabase.SaveAssets(); return catalog;
     }
@@ -254,6 +264,21 @@ public static class AquariumDecorCatalogBuilder
         Model("Stone",item.transform,mesh.Save(Ids[style+18]),material);
     }
 
+    // Neutral bark shared by every driftwood species; each mesh's vertex colours give the wood its colour.
+    private static Material SpeciesWood()
+    {
+        string texture=Art+"Textures/DriftwoodGrey-v3.png";
+        var importer=(TextureImporter)AssetImporter.GetAtPath(texture);
+        importer.textureType=TextureImporterType.Default;importer.sRGBTexture=true;importer.mipmapEnabled=true;
+        importer.wrapMode=TextureWrapMode.Repeat;importer.filterMode=FilterMode.Trilinear;importer.anisoLevel=4;importer.maxTextureSize=1024;
+        importer.SaveAndReimport();
+        string path=Root+"/DriftwoodSpecies.mat";var material=AssetDatabase.LoadAssetAtPath<Material>(path);
+        if(material==null){material=new Material(Shader.Find("Lumaquarium/Aquarium Hardscape"));AssetDatabase.CreateAsset(material,path);}
+        material.SetTexture("_BaseMap",AssetDatabase.LoadAssetAtPath<Texture2D>(texture));material.SetColor("_BaseColor",Color.white);
+        material.SetFloat("_Tiling",2);material.SetFloat("_UVMode",1);material.SetFloat("_Roughness",.6f);
+        EditorUtility.SetDirty(material);return material;
+    }
+
     private static Material Nature(string name,Color color)
     {
         string path=Root+"/"+name+".mat";var material=AssetDatabase.LoadAssetAtPath<Material>(path);
@@ -324,17 +349,34 @@ public static class AquariumDecorCatalogBuilder
         }
         public Mesh Save(string name)
         {
-            var mesh=new Mesh{name=name};mesh.SetVertices(vertices);mesh.SetUVs(0,uvs);
+            var mesh=new Mesh();mesh.SetVertices(vertices);mesh.SetUVs(0,uvs);
             var colors=new Color[vertices.Count];for(int i=0;i<colors.Length;i++)colors[i]=Color.white;mesh.colors=colors;
             mesh.SetTriangles(triangles,0);mesh.RecalculateNormals();mesh.RecalculateBounds();
-            string path=Root+"/"+name+".asset";var old=AssetDatabase.LoadAssetAtPath<Mesh>(path);
-            if(old==null){AssetDatabase.CreateAsset(mesh,path);return mesh;}
-            // Setters invalidate the native render buffers too. CopySerialized can leave old GPU
-            // vertices alive while bounds already describe the rebuilt geometry, clipping portraits.
-            old.Clear();old.vertices=mesh.vertices;old.normals=mesh.normals;old.uv=mesh.uv;
-            old.colors=mesh.colors;old.triangles=mesh.triangles;old.RecalculateBounds();
-            UnityEngine.Object.DestroyImmediate(mesh);EditorUtility.SetDirty(old);return old;
+            return Store(mesh,name);
         }
+    }
+
+    private static Mesh Store(Mesh mesh,string name)
+    {
+        mesh.name=name;
+        string path=Root+"/"+name+".asset";var old=AssetDatabase.LoadAssetAtPath<Mesh>(path);
+        if(old==null){AssetDatabase.CreateAsset(mesh,path);return mesh;}
+        // Setters invalidate the native render buffers too. CopySerialized can leave old GPU
+        // vertices alive while bounds already describe the rebuilt geometry, clipping portraits.
+        old.Clear();old.vertices=mesh.vertices;old.normals=mesh.normals;old.uv=mesh.uv;
+        old.colors=mesh.colors;old.triangles=mesh.triangles;old.RecalculateBounds();
+        UnityEngine.Object.DestroyImmediate(mesh);EditorUtility.SetDirty(old);return old;
+    }
+
+    private static Sprite Portrait(GameObject prefab,string id)
+    {
+        string image=Root+"/"+id+".png";
+        BakePortrait(prefab,image);
+        AssetDatabase.ImportAsset(image,ImportAssetOptions.ForceSynchronousImport);
+        var importer=(TextureImporter)AssetImporter.GetAtPath(image);
+        importer.textureType=TextureImporterType.Sprite;importer.spriteImportMode=SpriteImportMode.Single;
+        importer.alphaIsTransparency=true;importer.mipmapEnabled=false;importer.maxTextureSize=512;importer.SaveAndReimport();
+        return AssetDatabase.LoadAssetAtPath<Sprite>(image);
     }
 
     private static void BakePortrait(GameObject prefab,string path)
