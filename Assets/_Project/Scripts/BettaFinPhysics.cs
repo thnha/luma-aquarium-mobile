@@ -21,7 +21,7 @@ public class BettaFinPhysics : MonoBehaviour
         [Range(0.005f, 0.5f)] public float rootStiffness = 0.12f; // share of offset pulled back per 60 Hz step
         [Range(0.005f, 0.5f)] public float tipStiffness = 0.04f;
         [Range(0f, 0.5f)] public float damping = 0.12f;          // velocity lost per 60 Hz step
-        public float maxAngle = 30f;                              // per joint; a chain of N joints can curl up to N x this
+        public float maxAngle = 30f;                              // total additional bend along a complete ray
         public float ripple = 0.004f;                             // metres of idle water ripple at the tip
         public float speedStiffening = 1.5f;                      // stiffness/damping multiplier at full swim speed
         public float sag = 0f;                                    // droop under its own weight when slow (share of bone length)
@@ -102,6 +102,7 @@ public class BettaFinPhysics : MonoBehaviour
         public Vector3 p, pp;                // tip particle (current, previous)
         public Quaternion baseLocal, lastWritten;
         public float phase;
+        public float bendShare;
         public float raise;                  // dorsal root -1, anal root +0.5 (sign measured on this rig), else 0
         public float spread;                 // caudal roots: +1 top ray .. -1 bottom ray, else 0
         public bool caudalRoot;
@@ -127,6 +128,7 @@ public class BettaFinPhysics : MonoBehaviour
         if (skeletonRoot == null) skeletonRoot = transform;
         if (fish == null) fish = GetComponentInParent<BettaFishAI>();
         var list = new List<Node>();
+        int ray = 0;
         foreach (var chain in Chains)
         {
             if (skippedChains != null && System.Array.IndexOf(skippedChains, chain.bones[0]) >= 0) continue;
@@ -148,14 +150,33 @@ public class BettaFinPhysics : MonoBehaviour
                     length = Vector3.Distance(t.position, tipWorld),
                     baseLocal = t.localRotation,
                     lastWritten = t.localRotation,
-                    phase = list.Count * 1.37f,
+                    // Neighbouring rays share a travelling wave, rather than pulling the
+                    // same membrane in unrelated directions. Tips lag behind their roots.
+                    phase = ray * .18f + i * .65f,
+                    bendShare = Mathf.Lerp(.35f, 1f, chain.bones.Length > 1 ? i / (float)(chain.bones.Length - 1) : 1f),
                     // Spikes inherit raise/spread/droop from the ray they hang off.
                     raise = i > 0 || crown ? 0f : chain.bones[0].StartsWith("Dorsal") ? -1f : chain.bones[0].StartsWith("Anal") ? 0.5f : 0f,
                     spread = i > 0 ? 0f : SpreadWeight(chain.bones[0]),
                     caudalRoot = i == 0 && !crown && chain.group == Group.Caudal,
                 });
             }
+            ray++;
         }
+        // Branches (pectoral tips and crowntail spikes) inherit their parent ray's bend.
+        // Share one budget along the actual skeleton path, including those parents.
+        var byTransform = list.ToDictionary(n => n.t);
+        var pathTotals = new Dictionary<Node, float>();
+        foreach (Node tip in list)
+        {
+            var path = new List<Node>();
+            float total = 0f;
+            for (Transform t = tip.t; t; t = t.parent)
+                if (byTransform.TryGetValue(t, out Node ancestor) && ancestor.group == tip.group)
+                { path.Add(ancestor); total += ancestor.bendShare; }
+            foreach (Node ancestor in path)
+                pathTotals[ancestor] = Mathf.Max(pathTotals.TryGetValue(ancestor, out float old) ? old : 0f, total);
+        }
+        foreach (Node n in list) n.bendShare /= pathTotals[n];
         nodes = list.ToArray();
         initialized = false;
     }
@@ -234,7 +255,8 @@ public class BettaFinPhysics : MonoBehaviour
             Vector3 dir = n.p - origin;
             if (dir.sqrMagnitude < 1e-10f) dir = restDir;
             float angle = Vector3.Angle(restDir, dir);
-            if (angle > s.maxAngle) dir = Vector3.Slerp(restDir.normalized, dir.normalized, s.maxAngle / angle);
+            float limit = Mathf.Max(0f, s.maxAngle) * n.bendShare;
+            if (angle > limit) dir = Vector3.Slerp(restDir.normalized, dir.normalized, limit / angle);
             dir = dir.normalized * n.length;
             n.p = origin + dir;
 

@@ -1153,6 +1153,11 @@ MonoBehaviour:
   footprint: 0.14
   foliage: {fileID: 2458716734336465024}
   phase: 2.37
+  instanceId: 
+  floats: 0
+  attachable: 0
+  supportsPlants: 0
+  plantMounts: []
 --- !u!65 &6250851500478805330
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4650,6 +4655,11 @@ MonoBehaviour:
   footprint: 0.24
   foliage: {fileID: 0}
   phase: 0
+  instanceId: 
+  floats: 0
+  attachable: 0
+  supportsPlants: 0
+  plantMounts: []
 --- !u!65 &8060492432861549068
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5014,7 +5024,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "X\xF3a"
+  m_text: "C\u1EA5t"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: cd6c4b9aea25a4988bc2bb2bf1a35ba4, type: 2}
   m_sharedMaterial: {fileID: 8934875412012319478, guid: cd6c4b9aea25a4988bc2bb2bf1a35ba4, type: 2}
@@ -6166,6 +6176,32 @@ MonoBehaviour:
   - {fileID: 759509928161289980, guid: 90fb3d76b266b40769d2fe6566bc6314, type: 3}
   - {fileID: 453281846841281109, guid: 713b8bd8db9b7413c8be290a724c6268, type: 3}
   - {fileID: 1040828910335748385, guid: c5a08fca441b44e9c91c89522e15b866, type: 3}
+  - {fileID: 5896165944679456118, guid: de41239e306824ed185685e0469b26bb, type: 3}
+  - {fileID: 3188668314361343473, guid: 94211f1acf95c4d64b6b0ad8857f4414, type: 3}
+  - {fileID: 7065173692799982857, guid: 2e3e7f4d21637445f9b7c0e750170e00, type: 3}
+  - {fileID: 7980677418838859195, guid: 662ada90a697a47e78ced7d4ad2045ba, type: 3}
+  - {fileID: 1500878096876122333, guid: 462590ac3d9d7473bb346713762b4f34, type: 3}
+  - {fileID: 5253262802523085251, guid: 589e71811a9e449dc9e9af9a6e70cad1, type: 3}
+  - {fileID: 3211976664821014305, guid: 78153640ab44d4546bcce770af4f9b17, type: 3}
+  - {fileID: 113938180942058718, guid: c0017fedfe52241e6bc51341c38df4d3, type: 3}
+  - {fileID: 4776535820008894957, guid: b125d6c5ed24e48829d5171353daca34, type: 3}
+  - {fileID: 7548544811738130589, guid: 7bbe851d98bb048b0984e1a57684ff3f, type: 3}
+  - {fileID: 6100983691109164828, guid: a951678c04776408f903f5a8d4b45792, type: 3}
+  - {fileID: 8124629337318516893, guid: 800a43c0bbd8a47359d25a1761f29e7d, type: 3}
+  - {fileID: 8493812309846780260, guid: f83d8e738a2274d9aaf7f9755cab35a2, type: 3}
+  - {fileID: 766826646691127933, guid: d4b497e9632974b83873d9253d2faaa9, type: 3}
+  - {fileID: 2022319966326232689, guid: 607ba7eac82f84006b0c0a21779603c4, type: 3}
+  - {fileID: 1833439343516428148, guid: 8708668c16f0a4de1b29fe44a67ec591, type: 3}
+  - {fileID: 6867087318297336415, guid: 10bade2e5a3d847e4ab30c0a4f0a07f0, type: 3}
+  - {fileID: 1142652252326045970, guid: 48e69db822b39416783056e9de4b94de, type: 3}
+  - {fileID: 2898196677190139823, guid: 92b68348316a7470796996361c0bbe32, type: 3}
+  - {fileID: 4282567310117695232, guid: 39e2bb0ce21834242a82484616d3e055, type: 3}
+  - {fileID: 534905492378825262, guid: 23823bc26f9914331ad129a0572099b0, type: 3}
+  - {fileID: 1591452932781682506, guid: f0fe079b51d964c288acc0776da191d2, type: 3}
+  - {fileID: 7896164193561838827, guid: 537732979931941029f6c7ca833c7749, type: 3}
+  - {fileID: 8120371489698864648, guid: 1deecffd12511444a84a19677d131822, type: 3}
+  catalog: {fileID: 11400000, guid: 7794c97f9f0e3470b936e1d249cf6cb7, type: 2}
+  inventoryStorageKey: Lumaquarium.FishShop.v1
   itemsRoot: {fileID: 3540554829139068634}
   viewCamera: {fileID: 0}
   orbit: {fileID: 0}
@@ -6175,7 +6211,7 @@ MonoBehaviour:
   selectionRing: {fileID: 2907905595299774683}
   water: {fileID: 3355497037398684170}
   min: {x: -0.74, y: -0.5}
-  max: {x: 0.74, y: 0.55}
+  max: {x: 0.74, y: 2.4}
   floorY: 0.31
   capacity: 24
   storageKey: Lumaquarium.Decoration.Main.v1
@@ -6354,6 +6390,11 @@ MonoBehaviour:
   footprint: 0.19
   foliage: {fileID: 0}
   phase: 0
+  instanceId: 
+  floats: 0
+  attachable: 0
+  supportsPlants: 0
+  plantMounts: []
 --- !u!65 &4478879099379782812
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6875,6 +6916,11 @@ MonoBehaviour:
   footprint: 0.14
   foliage: {fileID: 4955389339077054921}
   phase: 2.37
+  instanceId: 
+  floats: 0
+  attachable: 0
+  supportsPlants: 0
+  plantMounts: []
 --- !u!65 &5574089760435468601
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8035,8 +8081,8 @@ Transform:
   m_GameObject: {fileID: 5040866814723894655}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.28, z: -0.6}
-  m_LocalScale: {x: 1, y: 1, z: 1.375}
+  m_LocalPosition: {x: 0, y: 0.28, z: 1.2}
+  m_LocalScale: {x: 2.222222, y: 1, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8629639078913894257}
@@ -15264,6 +15310,11 @@ MonoBehaviour:
   footprint: 0.19
   foliage: {fileID: 0}
   phase: 0
+  instanceId: 
+  floats: 0
+  attachable: 0
+  supportsPlants: 0
+  plantMounts: []
 --- !u!65 &5270793071365292429
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -17729,7 +17780,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4597602611957250571
 RectTransform:
   m_ObjectHideFlags: 0

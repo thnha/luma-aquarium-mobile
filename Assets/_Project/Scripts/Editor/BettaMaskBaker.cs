@@ -152,33 +152,11 @@ public static class BettaMaskBaker
         // UV islands: union triangle corners, welding vertices Unity split only for hard normals
         // (same position and UV). An island is body when over 15% of it follows core bones
         // (Betta.fbx: body halves 49%, jaws 100%, every fin 0%).
-        var weld = new Dictionary<(Vector3Int, Vector2Int), int>();
-        var parent = new int[verts.Length];
-        for (int v = 0; v < verts.Length; v++)
-        {
-            var key = (Vector3Int.RoundToInt(verts[v] * 1e5f), Vector2Int.RoundToInt(uvs[v] * 1e5f));
-            parent[v] = weld.TryGetValue(key, out int first) ? first : v;
-            if (parent[v] == v) weld[key] = v;
-        }
-        int Find(int v) { while (parent[v] != v) v = parent[v] = parent[parent[v]]; return v; }
-        for (int t = 0; t < tris.Length; t += 3)
-        {
-            parent[Find(tris[t + 1])] = Find(tris[t]);
-            parent[Find(tris[t + 2])] = Find(tris[t]);
-        }
-        var islandSize = new Dictionary<int, int>();
-        var islandCore = new Dictionary<int, int>();
-        for (int v = 0; v < verts.Length; v++)
-        {
-            int island = Find(v);
-            islandSize[island] = (islandSize.TryGetValue(island, out int n) ? n : 0) + 1;
-            islandCore[island] = (islandCore.TryGetValue(island, out int c) ? c : 0) + (coreLed[v] ? 1 : 0);
-        }
+        bool[] bodyIslands = BettaFinSurface.BodyIslands(verts, uvs, tris, coreLed);
         var body = new float[verts.Length];
         for (int v = 0; v < verts.Length; v++)
         {
-            int island = Find(v);
-            body[v] = islandCore[island] > islandSize[island] * 0.15f ? 1f : 0f;
+            body[v] = bodyIslands[v] ? 1f : 0f;
             depth[v] *= 1f - body[v];
         }
 

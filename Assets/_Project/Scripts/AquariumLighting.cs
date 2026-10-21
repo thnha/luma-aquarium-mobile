@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Keeps the foreground, reflected environment and distant backdrop on one lighting clock.
+// Keeps the foreground, water background and reflections on one lighting clock.
 public sealed class AquariumLighting : MonoBehaviour
 {
     public Light sun;
@@ -13,6 +13,8 @@ public sealed class AquariumLighting : MonoBehaviour
     private Color oldAmbient, oldLightColor, oldShaderAmbient;
     private float oldIntensity, oldReflection, oldActive, oldNight;
     private Quaternion oldRotation;
+    private Camera viewCamera;
+    private Color oldBackground;
 
     private void OnEnable()
     {
@@ -21,6 +23,8 @@ public sealed class AquariumLighting : MonoBehaviour
         oldActive = Shader.GetGlobalFloat("_AquariumLightingActive");
         oldNight = Shader.GetGlobalFloat("_AquariumNight");
         oldShaderAmbient = Shader.GetGlobalColor("_AquariumAmbientColor");
+        viewCamera = GetComponent<AquariumDecoration>()?.viewCamera;
+        if (viewCamera != null) oldBackground = viewCamera.backgroundColor;
         if (sun != null) { oldLightColor = sun.color; oldIntensity = sun.intensity; oldRotation = sun.transform.rotation; }
         ApplyImmediate(false);
     }
@@ -42,6 +46,8 @@ public sealed class AquariumLighting : MonoBehaviour
         Shader.SetGlobalFloat("_AquariumLightingActive",1);
         Shader.SetGlobalFloat("_AquariumNight",t);
         Shader.SetGlobalColor("_AquariumAmbientColor",ambient);
+        if (viewCamera != null)
+            viewCamera.backgroundColor = Color.Lerp(new Color(.045f,.24f,.29f), new Color(.018f,.055f,.11f), t);
         if (sun != null)
         {
             sun.color = Color.Lerp(new Color(1,.95f,.83f), new Color(.46f,.66f,1),t);
@@ -57,6 +63,7 @@ public sealed class AquariumLighting : MonoBehaviour
         Shader.SetGlobalFloat("_AquariumLightingActive",oldActive);
         Shader.SetGlobalFloat("_AquariumNight",oldNight);
         Shader.SetGlobalColor("_AquariumAmbientColor",oldShaderAmbient);
+        if (viewCamera != null) viewCamera.backgroundColor = oldBackground;
         if (sun != null) { sun.color = oldLightColor; sun.intensity = oldIntensity; sun.transform.rotation = oldRotation; }
         if (nightBackdrop != null) nightBackdrop.color = new Color(1,1,1,0);
     }

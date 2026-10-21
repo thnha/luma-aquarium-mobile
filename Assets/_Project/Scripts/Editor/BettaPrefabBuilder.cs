@@ -58,8 +58,10 @@ public static class BettaPrefabBuilder
         mat.SetFloat("_Smoothness", 1f);
         mat.EnableKeyword("_METALLICSPECGLOSSMAP");
         mat.SetTexture("_BumpMap", Tex("BETTA_Normal_OpenGL"));
+        mat.SetFloat("_BumpScale", 0.22f);
         mat.EnableKeyword("_NORMALMAP");
         mat.SetTexture("_OcclusionMap", Tex("BETTA_Mixed_AO"));
+        mat.SetFloat("_OcclusionStrength", 0.35f);
         mat.EnableKeyword("_OCCLUSIONMAP");
         // Per-fish colours come from BettaAppearance (MaterialPropertyBlock), not this material.
         mat.SetTexture("_VariantMask", variantMask);
@@ -72,7 +74,22 @@ public static class BettaPrefabBuilder
         mat.renderQueue = (int)RenderQueue.AlphaTest;
         mat.SetOverrideTag("RenderType", "TransparentCutout");
         EditorUtility.SetDirty(mat);
+        SaveMembraneMaterial(mat);
         return mat;
+    }
+
+    static void SaveMembraneMaterial(Material skin)
+    {
+        const string folder = "Assets/_Project/Resources";
+        const string path = folder + "/BettaMembrane.mat";
+        if (!AssetDatabase.IsValidFolder(folder)) AssetDatabase.CreateFolder("Assets/_Project", "Resources");
+        Material template = BettaFinSurface.Membrane(skin);
+        BettaFinSurface.Configure(template, skin);
+        Material material = AssetDatabase.LoadAssetAtPath<Material>(path);
+        if (!material) { material = new Material(template); AssetDatabase.CreateAsset(material, path); }
+        else EditorUtility.CopySerialized(template, material);
+        material.name = "BettaMembrane";
+        EditorUtility.SetDirty(material);
     }
 
     static Texture2D Tex(string name) => AssetDatabase.LoadAssetAtPath<Texture2D>(ArtDir + "/Textures/" + name + ".png");

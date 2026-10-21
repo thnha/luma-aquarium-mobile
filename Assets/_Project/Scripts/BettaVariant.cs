@@ -23,8 +23,9 @@ public class BettaVariant : ScriptableObject
     [Range(0f, 1f)] public float silverSheen = 1f;
 
     [Header("Proportions")]
+    [Tooltip("Head proportions relative to the fuller shared skull shape; blended smoothly into the neck.")]
     [Range(0.8f, 1.3f)] public float headScale = 1f;
-    [Tooltip("Eye size on top of the head scale (the eyes are children of Head).")]
+    [Tooltip("Uniform eye size. Eye anchors follow the skull shape without stretching the eyeballs.")]
     [Range(0.8f, 1.6f)] public float eyeScale = 1f;
     [Range(0.6f, 1.4f)] public float finLength = 1f;
 

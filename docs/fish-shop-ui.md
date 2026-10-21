@@ -10,7 +10,7 @@ Trong `MainAquarium`, nhấn **Mua cá** dưới hai nút Cài đặt / Ẩn UI 
 
 Chọn thẻ cá để xem ảnh lớn, mô tả và giá. Chỉ khi nhấn **Xác nhận mua**, shop mới trừ xu, ghi quyền sở hữu và áp dụng biến thể lên cá trong hồ. **Chọn lại** hoặc quay về không trừ xu. Cá đã mua có nút **Dùng cá này** để đổi miễn phí; cá đang dùng hiển thị **Đang trong hồ**. Không đủ xu thì nút mua bị khóa. Phím Escape đóng hộp xác nhận trước, rồi mới đóng shop.
 
-Ví khởi đầu có **1.250 xu trong game**. Ví, danh sách cá đã mua và cá đang dùng lưu chung tại PlayerPrefs `Lumaquarium.FishShop.v1`, khôi phục khi mở hồ lại. Hiện chưa có kiếm xu, nạp tiền thật, máy chủ hay đồng bộ tài khoản. Đây là dữ liệu cục bộ trên thiết bị. Mỗi biến thể chỉ mua một lần; mỗi hồ vẫn có một cá đang được chọn.
+Ví khởi đầu có **1.250 xu trong game**. Ví, danh sách cá đã mua và cá đang dùng lưu chung tại PlayerPrefs `Lumaquarium.FishShop.v1`, khôi phục khi mở hồ lại. Ví này cũng dùng chung với [cửa hàng cây, lũa và đá](decoration-shop.md). Đồ trang trí mua theo từng món và được mua nhiều lần; quyền sở hữu cá vẫn mua một lần. Hiện chưa có kiếm xu, nạp tiền thật, máy chủ hay đồng bộ tài khoản. Đây là dữ liệu cục bộ trên thiết bị. Mỗi biến thể chỉ mua một lần; mỗi hồ vẫn có một cá đang được chọn.
 
 Khi mở shop, HUD hồ bị ẩn, camera bị khóa và thao tác trang trí đang làm được hủy. Khi quay lại, HUD và camera được khôi phục. Việc xem cá trong tiệm không thay đổi cá trong hồ trước khi mua hoặc chọn dùng.
 

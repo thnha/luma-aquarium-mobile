@@ -96,6 +96,7 @@ public static class FishShopScreenBuilder
                 && entry.onClick.GetPersistentMethodName(i) == "Open") // null: a target lost when the prefab was rebuilt
                 UnityEventTools.RemovePersistentListener(entry.onClick, i);
         UnityEventTools.AddPersistentListener(entry.onClick, shop.Open);
+        DecorShopScreenBuilder.Connect(aquarium);
         EditorUtility.SetDirty(shop);
         EditorUtility.SetDirty(entry);
         if (PrefabUtility.IsPartOfPrefabInstance(shop)) PrefabUtility.RecordPrefabInstancePropertyModifications(shop);
@@ -318,6 +319,7 @@ public static class FishShopScreenBuilder
         var cameraObject = new GameObject("ShopPortraitBakeCamera");
         var previous = RenderTexture.active;
         var target = RenderTexture.GetTemporary(640, 400, 24, RenderTextureFormat.ARGB32);
+        var bakedMeshes = new System.Collections.Generic.List<Mesh>();
         Texture2D texture = null;
         try
         {
@@ -339,17 +341,26 @@ public static class FishShopScreenBuilder
             foreach (var renderer in renderers)
             {
                 var mesh = new Mesh();
-                try
+                bakedMeshes.Add(mesh);
+                renderer.BakeMesh(mesh);
+                foreach (var vertex in mesh.vertices)
                 {
-                    renderer.BakeMesh(mesh);
-                    foreach (var vertex in mesh.vertices)
-                    {
-                        var world = renderer.transform.TransformPoint(vertex);
-                        if (first) { bounds = new Bounds(world, Vector3.zero); first = false; }
-                        else bounds.Encapsulate(world);
-                    }
+                    var world = renderer.transform.TransformPoint(vertex);
+                    if (first) { bounds = new Bounds(world, Vector3.zero); first = false; }
+                    else bounds.Encapsulate(world);
                 }
-                finally { UnityEngine.Object.DestroyImmediate(mesh); }
+                // Render the CPU-skinned pose, including eye anchors changed in this call.
+                // The SkinnedMeshRenderer's GPU pose may still be from the previous frame.
+                var snapshot = new GameObject(renderer.name + "Portrait", typeof(MeshFilter), typeof(MeshRenderer));
+                snapshot.layer = 31;
+                snapshot.transform.SetParent(renderer.transform, false);
+                snapshot.GetComponent<MeshFilter>().sharedMesh = mesh;
+                var snapshotRenderer = snapshot.GetComponent<MeshRenderer>();
+                snapshotRenderer.sharedMaterials = renderer.sharedMaterials;
+                var block = new MaterialPropertyBlock();
+                renderer.GetPropertyBlock(block);
+                snapshotRenderer.SetPropertyBlock(block);
+                renderer.enabled = false;
             }
             var camera = cameraObject.AddComponent<Camera>();
             camera.cullingMask = 1 << 31;
@@ -364,6 +375,19 @@ public static class FishShopScreenBuilder
             RenderTexture.active = target;
             texture = new Texture2D(640, 400, TextureFormat.RGBA32, false);
             texture.ReadPixels(new UnityEngine.Rect(0, 0, 640, 400), 0, 0);
+            // The transparent camera target contains premultiplied colour. PNG sprites
+            // use straight alpha; undo the blend so the UI won't darken the new membranes twice.
+            var pixels = texture.GetPixels();
+            bool linear = QualitySettings.activeColorSpace == ColorSpace.Linear;
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                float alpha = pixels[i].a;
+                if (alpha <= 0.001f || alpha >= 0.999f) continue;
+                Color colour = linear ? pixels[i].linear : pixels[i];
+                colour.r /= alpha; colour.g /= alpha; colour.b /= alpha;
+                pixels[i] = linear ? colour.gamma : colour;
+            }
+            texture.SetPixels(pixels);
             texture.Apply();
             File.WriteAllBytes(path, texture.EncodeToPNG());
             camera.targetTexture = null;
@@ -375,6 +399,7 @@ public static class FishShopScreenBuilder
             if (texture != null) UnityEngine.Object.DestroyImmediate(texture);
             UnityEngine.Object.DestroyImmediate(cameraObject);
             UnityEngine.Object.DestroyImmediate(clone);
+            foreach (var mesh in bakedMeshes) UnityEngine.Object.DestroyImmediate(mesh);
         }
     }
 

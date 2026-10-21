@@ -15,7 +15,7 @@ try
     var d=decorations[0];var lighting=d.GetComponent<AquariumLighting>();
     check(lighting!=null,"Approved day/night lighting installed");
     check(d.storageKey=="Lumaquarium.Decoration.Main.v1","Main layouts isolated from preview");
-    check(d.prefabs.Select(x=>x.name).SequenceEqual(new[]{"AquaticPlantNatural","RiverRockNatural","BranchingDriftwoodNatural"}),"Approved natural prefab inventory");
+    check(d.prefabs.Take(3).Select(x=>x.name).SequenceEqual(new[]{"AquaticPlantNatural","RiverRockNatural","BranchingDriftwoodNatural"}),"Approved natural prefab inventory");
     check(d.itemsRoot.GetComponentsInChildren<AquariumDecorItem>().Length==5,"Five seed decorations retained");
     check(d.screen.decoration==d && d.screen.fish==d.water.fish.GetComponent<BettaFishAI>() && d.screen.feeding.fish==d.screen.fish,"Existing fish feeding and new visuals linked");
     check(d.screen.orbit==d.orbit && d.viewCamera==d.orbit.GetComponent<UnityEngine.Camera>() && lighting.sun.gameObject.scene==scene,"Camera and lighting reference main scene");

@@ -6,6 +6,11 @@ public sealed class AquariumDecorItem : MonoBehaviour
     public float footprint = .15f;
     public Transform foliage;
     public float phase;
+    public string instanceId;
+    public bool floats;
+    public bool attachable;
+    public bool supportsPlants;
+    public Vector3[] plantMounts = new Vector3[0];
 
     private void LateUpdate()
     {

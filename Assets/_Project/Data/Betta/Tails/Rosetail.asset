@@ -58,9 +58,9 @@ MonoBehaviour:
   - Anal_Crown_10_01
   - Anal_Crown_11_01
   ruffle:
-    depth: 0.04
-    wavelength: 0.2
-    start: 0.5
+    depth: 0.015
+    wavelength: 0.3
+    start: 0.6
   caudal:
     rootStiffness: 0.1
     tipStiffness: 0.035

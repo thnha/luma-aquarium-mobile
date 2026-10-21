@@ -190,6 +190,7 @@ namespace Lumaquarium.UI
 
         private void Refresh()
         {
+            inventory.Reload();
             balanceLabel.text = Money(inventory.Balance);
             for (int i = 0; i < offers.Length; i++)
             {

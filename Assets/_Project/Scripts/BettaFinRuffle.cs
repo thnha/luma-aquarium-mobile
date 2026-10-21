@@ -29,9 +29,13 @@ public static class BettaFinRuffle
     const int HarmonicIterations = 400;
 
     static readonly Dictionary<(Mesh, float, float, float), Mesh> Cache = new Dictionary<(Mesh, float, float, float), Mesh>();
+    static readonly Dictionary<Mesh, Mesh> Sources = new Dictionary<Mesh, Mesh>();
+
+    public static Mesh Source(Mesh mesh) => Sources.TryGetValue(mesh, out Mesh source) ? source : mesh;
 
     public static Mesh Get(Mesh source, Transform[] bones, Settings settings)
     {
+        source = Source(source);
         var key = (source, settings.depth, settings.wavelength, settings.start);
         if (Cache.TryGetValue(key, out Mesh mesh) && mesh) return mesh;
         if (!source.isReadable)
@@ -41,6 +45,7 @@ public static class BettaFinRuffle
         }
         mesh = Build(source, bones, settings);
         Cache[key] = mesh;
+        if (mesh != source) Sources[mesh] = source;
         return mesh;
     }
 

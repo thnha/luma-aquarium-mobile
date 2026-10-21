@@ -1,0 +1,76 @@
+{
+  "checks": [
+    {
+      "script": "approved-assets-editmode",
+      "success": true,
+      "passed": 11
+    },
+    {
+      "script": "decor-catalog-scene",
+      "success": true,
+      "passed": 83
+    },
+    {
+      "script": "decor-placement-input",
+      "success": true,
+      "passed": 6
+    },
+    {
+      "script": "decor-portraits",
+      "success": true,
+      "passed": 54
+    },
+    {
+      "script": "decor-shop-inventory",
+      "success": true,
+      "passed": 13
+    },
+    {
+      "script": "decor-shop-playmode",
+      "success": true,
+      "passed": 30
+    },
+    {
+      "script": "decor-shop-teardown",
+      "success": true,
+      "passed": 1
+    },
+    {
+      "script": "decoration-playmode",
+      "success": true,
+      "passed": 27
+    },
+    {
+      "script": "fish-shop-inventory",
+      "success": true,
+      "passed": 15
+    },
+    {
+      "script": "fish-shop-playmode",
+      "success": true,
+      "passed": 29
+    },
+    {
+      "script": "fish-shop-scene",
+      "success": true,
+      "passed": 10
+    },
+    {
+      "script": "lighting-playmode",
+      "success": true,
+      "passed": 12
+    },
+    {
+      "script": "main-aquarium-playmode",
+      "success": true,
+      "passed": 6
+    },
+    {
+      "script": "water-background-playmode",
+      "success": true,
+      "passed": 4
+    }
+  ],
+  "total": 301,
+  "allPassed": true
+}

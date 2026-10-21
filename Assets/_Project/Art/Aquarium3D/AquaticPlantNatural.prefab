@@ -50,6 +50,11 @@ MonoBehaviour:
   footprint: 0.14
   foliage: {fileID: 5031015437596779678}
   phase: 2.37
+  instanceId: 
+  floats: 0
+  attachable: 1
+  supportsPlants: 0
+  plantMounts: []
 --- !u!65 &8919110239140388376
 BoxCollider:
   m_ObjectHideFlags: 0

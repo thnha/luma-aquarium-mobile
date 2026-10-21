@@ -10,12 +10,18 @@ try
     for(int i=0;i<3;i++)
     {
         d.screen.decoratePanel.transform.Find("Inventory"+i).GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
-        check(d.Editing && d.Selected!=null && d.Selected.kind==i,"Inventory callback selects installed kind "+i);
-        d.Cancel();
+        var shop=UnityEngine.Object.FindFirstObjectByType<Lumaquarium.UI.DecorShopScreen>();
+        if(shop!=null)
+        {
+            var expected=i==0?AquariumDecorCategory.Plants:i==1?AquariumDecorCategory.Rocks:AquariumDecorCategory.Wood;
+            check(shop.IsOpen && !d.Editing && shop.catalog.offers[shop.SelectedIndex].category==expected,"Inventory callback opens shop category "+i);
+            shop.Close();
+        }
+        else { check(d.Editing && d.Selected!=null && d.Selected.kind==i,"Inventory callback selects installed kind "+i); d.Cancel(); }
     }
     int pellets=UnityEngine.Object.FindObjectsByType<FoodPellet>(UnityEngine.FindObjectsSortMode.None).Length;
     d.screen.toolbar.transform.Find("FeedButton").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
     check(UnityEngine.Object.FindObjectsByType<FoodPellet>(UnityEngine.FindObjectsSortMode.None).Length==pellets+1,"Approved HUD feeds existing fish system");
 }
-finally {d.Cancel();d.screen.ClosePanels();}
+finally {UnityEngine.Object.FindFirstObjectByType<Lumaquarium.UI.DecorShopScreen>()?.Close();d.Cancel();d.screen.ClosePanels();}
 return new{passed=checks.Count,checks};

@@ -5366,8 +5366,8 @@ Transform:
   m_GameObject: {fileID: 633860500}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.28, z: -0.6}
-  m_LocalScale: {x: 1, y: 1, z: 1.375}
+  m_LocalPosition: {x: 0, y: 0.28, z: 1.2}
+  m_LocalScale: {x: 2.222222, y: 1, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2080354081}
@@ -10930,7 +10930,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &788234397
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13858,7 +13858,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.06, g: 0.09, b: 0.12, a: 1}
+  m_BackGroundColor: {r: 0.045, g: 0.24, b: 0.29, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -17303,7 +17303,7 @@ MonoBehaviour:
   selectionRing: {fileID: 585402137}
   water: {fileID: 2080354079}
   min: {x: -0.74, y: -0.5}
-  max: {x: 0.74, y: 0.55}
+  max: {x: 0.74, y: 2.4}
   floorY: 0.31
   capacity: 24
   storageKey: Lumaquarium.Decoration.Preview.v1

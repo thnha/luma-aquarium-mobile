@@ -18,7 +18,11 @@ namespace Lumaquarium.UI
             public int balance = 1250;
             public List<string> ownedIds = new List<string>();
             public string activeId = "";
+            public List<DecorStock> decor = new List<DecorStock>();
+            public bool starterDecorImported;
         }
+
+        [Serializable] private sealed class DecorStock { public string id; public int count; }
 
         public int Balance => data.balance;
         public string ActiveId => data.activeId;
@@ -27,6 +31,11 @@ namespace Lumaquarium.UI
         {
             if (string.IsNullOrWhiteSpace(storageKey)) throw new ArgumentException("A storage key is required.", nameof(storageKey));
             this.storageKey = storageKey;
+            Reload();
+        }
+
+        public void Reload()
+        {
             data = new SaveData();
             if (!PlayerPrefs.HasKey(storageKey)) return;
             try
@@ -35,6 +44,10 @@ namespace Lumaquarium.UI
                 if (saved == null || saved.version != 1 || saved.balance < 0 || saved.ownedIds == null
                     || saved.ownedIds.Exists(string.IsNullOrWhiteSpace)
                     || (!string.IsNullOrEmpty(saved.activeId) && !saved.ownedIds.Contains(saved.activeId))) return;
+                if (saved.decor == null) saved.decor = new List<DecorStock>();
+                var seen = new HashSet<string>();
+                foreach (var stock in saved.decor)
+                    if (stock == null || string.IsNullOrWhiteSpace(stock.id) || stock.count < 0 || !seen.Add(stock.id)) return;
                 data = saved;
             }
             catch (ArgumentException) { /* Keep a usable wallet when local data is malformed. */ }
@@ -44,6 +57,7 @@ namespace Lumaquarium.UI
 
         public bool TryPurchase(string id, int price)
         {
+            Reload();
             if (string.IsNullOrWhiteSpace(id) || price < 0 || Owns(id) || price > data.balance) return false;
             var next = Copy();
             next.balance -= price;
@@ -55,6 +69,7 @@ namespace Lumaquarium.UI
 
         public bool SelectOwned(string id)
         {
+            Reload();
             if (!Owns(id)) return false;
             if (data.activeId == id) return true;
             var next = Copy();
@@ -63,11 +78,45 @@ namespace Lumaquarium.UI
             return true;
         }
 
+        public int DecorCount(string id) => data.decor.Find(x => x.id == id)?.count ?? 0;
+
+        // Existing layouts keep their placed starter items when moving from free placement to stock.
+        public void ImportStarterDecor(Dictionary<string, int> starter)
+        {
+            Reload();
+            if (data.starterDecorImported) return;
+            var next = Copy();
+            foreach (var pair in starter)
+                if (!string.IsNullOrWhiteSpace(pair.Key) && pair.Value > 0)
+                {
+                    var stock = next.decor.Find(x => x.id == pair.Key);
+                    if (stock == null) next.decor.Add(new DecorStock { id = pair.Key, count = pair.Value });
+                    else stock.count = Math.Max(stock.count, pair.Value);
+                }
+            next.starterDecorImported = true;
+            Save(next);
+        }
+
+        public bool TryPurchaseDecor(string id, int price)
+        {
+            Reload();
+            if (string.IsNullOrWhiteSpace(id) || price < 0 || price > data.balance || DecorCount(id) == int.MaxValue) return false;
+            var next = Copy();
+            next.balance -= price;
+            var stock = next.decor.Find(x => x.id == id);
+            if (stock == null) next.decor.Add(new DecorStock { id = id, count = 1 });
+            else stock.count++;
+            Save(next);
+            return true;
+        }
+
         private SaveData Copy() => new SaveData
         {
             balance = data.balance,
             ownedIds = new List<string>(data.ownedIds),
-            activeId = data.activeId
+            activeId = data.activeId,
+            decor = data.decor.ConvertAll(x => new DecorStock { id = x.id, count = x.count }),
+            starterDecorImported = data.starterDecorImported
         };
 
         private void Save(SaveData next)

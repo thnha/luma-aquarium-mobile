@@ -95,7 +95,7 @@ Material:
     - _AlphaToMask: 1
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
-    - _BumpScale: 1
+    - _BumpScale: 0.22
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 0
@@ -109,7 +109,7 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Metallic: 0
-    - _OcclusionStrength: 1
+    - _OcclusionStrength: 0.35
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
@@ -125,10 +125,10 @@ Material:
     - _VariantDetail: 0.6
     - _VariantDetailGain: 2.5
     - _VariantIridescence: 0
-    - _VariantSilver: 1
     - _VariantOn: 0
     - _VariantPattern: 0
     - _VariantSeed: 0
+    - _VariantSilver: 1
     - _VariantSpot: 0.58
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1

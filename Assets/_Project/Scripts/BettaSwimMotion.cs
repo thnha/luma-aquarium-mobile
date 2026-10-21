@@ -30,7 +30,7 @@ public class BettaSwimMotion : MonoBehaviour
 
     [Header("Propulsion")]
     [Range(0f, 1f)] public float thrustPulse = 0.3f; // how much forward speed surges with each stroke
-    public float headRecoil = 2f;            // degrees the head swings against the tail
+    public float headRecoil = 0.6f;          // subtle recoil keeps the cheek aligned with the body
 
     [Header("Turning")]
     public float segmentFollowRate = 7f;     // 1/s; lower = body trails the head longer
@@ -44,7 +44,7 @@ public class BettaSwimMotion : MonoBehaviour
     public float pectoralTurnBias = 0.5f;    // outer fin beats harder in a turn
     public float gillRestFrequency = 0.7f;   // breathing slows when resting
     public float gillActiveFrequency = 1.6f; // and speeds up after exertion
-    public float gillAmplitude = 4f;
+    public float gillAmplitude = 1.2f;
 
     struct Bone
     {

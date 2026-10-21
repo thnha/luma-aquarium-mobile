@@ -25,7 +25,7 @@ Muốn mỗi lần chơi ra một con cá khác: để trống **Variant** và g
 | Lớp | Ở đâu | Cách hoạt động |
 |---|---|---|
 | Rig | `Betta.fbx` | 80 bone và 4 clip dùng chung. Không đổi tên bone, vì `BettaFinPhysics` và `BettaSwimMotion` tìm bone theo tên. |
-| Hình dáng | `BettaAppearance`, `BettaFinPhysics` | Scale bone `Head`, `Gill_*_01`, `Eye_*` (Eye Scale, nhân thêm trên Head Scale vì mắt là con của `Head`) và gốc các chuỗi vây, gán lại mỗi `LateUpdate` vì clip có key scale cho mọi bone. Độ xòe và độ rủ của đuôi xoay gốc các chuỗi `Tail_*`. Mỗi kiểu đuôi có preset fin physics riêng. |
+| Hình dáng | `BettaBodyProfile`, `BettaHeadShape`, `BettaAppearance`, `BettaFinPhysics` | Các tiết diện thân–đầu dùng chung đường bao cong liên tục: đầy phía trước, thu nhỏ về cuống đuôi và miệng. Má/cằm được làm tròn; mang khép theo má khi nghỉ và vẫn mở có giới hạn trong Flare. Tâm mắt và gốc vây đi theo hình mới; mép vây tự do giữ nguyên. Xương đầu/mang giữ scale 1, mắt chỉ scale đều theo Eye Scale. Vị trí mắt và tư thế mang được gán lại mỗi `LateUpdate` vì clip có key cho mọi bone. Độ xòe, độ rủ và physics giữ theo kiểu đuôi. |
 | Màu | `Shaders/BettaVariant.hlsl` | Texture gốc chỉ còn giữ độ sáng tối (vảy, tia vây, AO). Màu lấy từ 3 màu của variant, trộn theo mask. Truyền qua `MaterialPropertyBlock`, nên mọi con cá dùng chung một material. |
 
 ### Mask `BETTA_VariantMask.png`
@@ -107,16 +107,39 @@ Butterfly và Pearl có hai trường **Butterfly Band** (vị trí dải, 0 là
 
 Variant **Aqua Pearl Rosetail** (thân trắng sữa, vây trắng ở gốc và viền xanh ngọc ở nửa ngoài) dùng hoa văn Pearl trên đuôi Rosetail. Để ra trắng sữa chứ không phải trắng bạc, variant này đặt:
 
-- **Silver Sheen** 0: bỏ độ kim loại (0.18) và độ bóng (0.77) mà `BETTA_MetallicSmoothness.png` cho cả thân lẫn vây, thay bằng bề mặt satin không kim loại (độ bóng 0.5). Mặc định 1, giữ như texture.
+- **Silver Sheen** 0: bề mặt satin không kim loại, độ bóng 0.58. Mặc định 1 vẫn dùng vân ánh kim của texture nhưng độ kim loại được giảm còn 30%, độ bóng giới hạn 0.45–0.72 để không giống kim loại thô.
 - **Iridescence** 0.1: chỉ còn chút bóng trên thân.
 - **Texture Detail** 0.3: vân vảy và tia vây của texture gốc mờ hơn (mặc định 0.6).
-- **Head Scale** 1.3 và **Eye Scale** 1.25: đầu to hơn, mắt to và rõ hơn, gần với cá thật. Xương `Head` nằm ở cổ nên đầu dài ra phía trước; vùng đầu trong mesh chỉ chiếm khoảng 10% chiều dài cá, nên Head Scale tối đa 1.3 chỉ làm đầu to hơn vừa phải.
+- **Head Scale** 1 và **Eye Scale** 1.25: sọ rộng và đầy hơn, trán cong, mõm ngắn hơn. `BettaHeadShape` làm mềm hình học và normal của vùng má–mang trên các đỉnh đã ghép theo vị trí, rồi nối dần về thân. Mắt đi theo hình sọ bằng vị trí xương, nhãn cầu giữ tỉ lệ đều. Xương đầu và mang không bị phóng độc lập. Mesh nguồn, UV và trọng số skin được giữ nguyên; cache tối đa 26 mức trong khoảng Head Scale 0.8–1.3.
+
+## Da và màng vây dùng chung
+
+`Betta.mat` dùng normal strength 0.22 và AO strength 0.35 để vảy còn rõ nhưng bớt sần. `BettaPrefabBuilder` giữ các giá trị này khi build lại.
+
+`BettaFinSurface` tách tam giác BODY thành hai submesh theo UV island: da đục và màng vây ngực/bụng có alpha blend. Các mesh `Fin_*` cũng dùng màng vây với normal strength 0.12, alpha cut 0.08, không ghi depth và không dùng alpha-to-coverage. Cách phân vùng được dùng chung với `BettaMaskBaker`; các mảng bụng do xương gốc vây dẫn vẫn là da đục. `Resources/BettaMembrane.mat` giữ shader variant trong bản player build. Ảnh tiệm cá được bake lại với alpha thẳng để UI không làm vây tối thêm lần nữa.
+
+`BettaFinPhysics.maxAngle` hiện giới hạn tổng độ uốn bổ sung trên cả đường từ gốc đến ngọn, kể cả nhánh vây ngực và tia Crowntail. Các tia lân cận dùng sóng có pha gần nhau; ngọn trễ hơn gốc. Rosetail dùng ruffle depth 0.015, wavelength 0.3, start 0.6 để nếp gợn nhẹ hơn. Chuyển động mang mặc định 1.2°, recoil đầu 0.6°; scene MainAquarium đã lưu các giá trị này.
+
+![Đối chiếu cùng góc máy và ánh sáng](previews/BettaNaturalModel/before-after.png)
+
+Các file của lần chỉnh theo mẫu video: `BettaHeadShape.cs`, `BettaAppearance.cs`, `BettaFinSurface.cs`, `BettaFinPhysics.cs`, `BettaFinRuffle.cs`, `BettaSwimMotion.cs`; shader `BettaVariant.hlsl`; các editor builder/baker `BettaPrefabBuilder.cs`, `BettaVariantPresets.cs`, `BettaMaskBaker.cs`, `FishShopScreenBuilder.cs`. Asset đã lưu gồm `Art/Betta/Betta.mat`, `Resources/BettaMembrane.mat`, `Data/Betta/Tails/Rosetail.asset`, `Scenes/MainAquarium.unity` (hai thông số recoil/mang) và năm ảnh `UI/Portraits/Shop/*.png`. Các đường dẫn asset/code đều tương đối với `Assets/_Project/`.
+
+Ảnh kiểm tra thêm: [góc trước](previews/BettaNaturalModel/front.png), [tư thế khi đang bơi](previews/BettaNaturalModel/swimming.png), [Game View dọc](previews/BettaNaturalModel/game.png). Không đổi FBX nguồn; hình học chung được tạo trên bản sao mesh, dùng lại qua cache khi cá được áp variant.
+
+## Form đầu–mang–thân liền nhau
+
+![Đường bao trước và sau khi chỉnh form chung](previews/BettaOvalProfile/before-after.png)
+
+`BettaBodyProfile.cs` dựng đường bao từ các tiết diện đo trên BODY nguồn, nội suy đơn điệu để tránh lõm trước đầu. Thân có khối bầu dục, đầy ở phần trước rồi thu nhỏ dần về cuống đuôi; lưng nối qua trán và thuôn về miệng. `BettaHeadShape.cs` áp cùng phép biến đổi cho má/cằm và vùng gốc vây, pha mềm ra mép vây. `BettaAppearance.cs` giữ mang theo khối đầu khi nghỉ, với góc mở Flare tối đa 8° mỗi bên. Năm ảnh tiệm cá đã được bake lại. Lần chỉnh này tập trung vào form chung, giữ FBX, UV, topology và trọng số skin nguồn.
+
+Ảnh kiểm tra hình khối: [nhìn ngang](previews/BettaOvalProfile/side.png), [góc chéo](previews/BettaOvalProfile/three-quarter.png), [vật liệu xám](previews/BettaOvalProfile/clay.png), [tư thế bơi](previews/BettaOvalProfile/swimming.png).
 
 Độ hiếm của một variant = trọng số đuôi × trọng số hoa văn / 10000. Trên 8% là Common, trên 3% là Uncommon, trên 0.8% là Rare, còn lại là Legendary.
 
 ## Giới hạn hiện tại
 
-- Mesh Double Tail và Crowntail mới được xem trong Blender, chưa kiểm tra khi chạy trong Unity, và chưa thử đổi kiểu đuôi lúc đang chạy game.
-- Mép gợn sóng Rosetail mới được kiểm tra ngoài Unity, chưa chạy trong Unity.
-- Các giá trị độ xòe, độ rủ và fin physics là điểm khởi đầu. Cần chỉnh lại sau khi xem cá bơi trong Unity.
+- Dáng đầu chung đã được kiểm tra trên 10 biến thể trong Unity, đổi qua lại không tăng biến dạng. Năm clip được lấy mẫu trong Play Mode để kiểm tra mắt và đường nối da; đây chưa phải đánh giá mỹ thuật cho mọi khung hình chuyển động.
+- Chạy các phép kiểm bằng `unity command eval_file --caller plugin --skill unity-cli --format json -- --file <file> --timeout 15000`: Edit Mode có `docs/tests/betta-head-shape.cs` (66 checks) và `docs/tests/betta-natural-model.cs`; Play Mode có `docs/tests/betta-head-animation.cs` (150 checks) và `docs/tests/betta-fin-continuity.cs` (48 đường xương gồm cả các nhánh).
+- Form mới có thêm `docs/tests/betta-oval-silhouette.cs` (122 kiểm tra trên 10 biến thể: đường bao, độ đầy thân, mang nghỉ/Flare) và `docs/tests/betta-profile-jacobian.cs` (21.204 mẫu trên BODY và vây ở ba mức Head Scale; định thức nhỏ nhất 0.4518, không lật tiết diện).
+- Đã đối chiếu ba góc của model và các tư thế đang bơi trong Unity. Chưa kiểm tra bản player trên điện thoại. Alpha blend có thể khác đôi chút khi nhiều màng vây chồng lên nhau hoặc với cấu hình renderer khác.
 - Thuộc tính variant nằm ngoài `UnityPerMaterial`, nên Betta Lit không dùng được SRP Batcher. Với số cá trong một bể thì không đáng kể.

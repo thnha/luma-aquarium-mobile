@@ -40,7 +40,7 @@ public static class BettaVariantPresets
         var doubletail = Tail("DoubleTail", "Double Tail", 0.95f, 1f, 1f, 1f, 4f, 0f, 0.15f, 0.035f, 22f, 5f);
         // A Halfmoon with so many ray branches that the edge folds: Halfmoon meshes, folded by BettaFinRuffle.
         var rosetail = Tail("Rosetail", "Rosetail", 1.05f, 1.05f, 1.05f, 1f, 6f, 0f, 0.18f, 0.035f, 22f, 4f);
-        rosetail.ruffle = new BettaFinRuffle.Settings { depth = 0.04f, wavelength = 0.2f, start = 0.5f };
+        rosetail.ruffle = new BettaFinRuffle.Settings { depth = 0.015f, wavelength = 0.3f, start = 0.6f };
         // Own fin meshes in Betta.fbx, so no alpha-cut base map. The Double Tail dorsal mesh is already
         // the long one, so dorsalLength stays 1. Only the Crowntail meshes use the *_Crown_* spike bones.
         // The Double Tail slit hides the middle Tail_ ray: the lobes keep their own rays (Top/UpMid, LowMid/Low/Bot).
@@ -91,8 +91,8 @@ public static class BettaVariantPresets
             Variant("Copper Dragon Double Tail", doubletail, dragon, "#8A2A1A", "#B5562C", "#E9C9A0", 0.9f, 1.12f, 0.95f, 14),
             Variant("Blue Marble Halfmoon", halfmoon, marble, "#2B3A8F", "#EDE6DA", "#C2185B", 0.5f, 1f, 1f, 33),
             // Milky white, not silver: no metallic shine from the painted map, a faint sheen, soft texture detail.
-            // Bigger head and clearer eyes, like the reference photo.
-            Variant("Aqua Pearl Rosetail", rosetail, pearl, "#F6F1E4", "#2EC4C6", "#BFF5F2", 0.1f, 1.3f, 1.12f, 7, 0.3f, 0f, 1.25f),
+            // Keep the rig's head/gill proportions: enlarging these bones stretches the neck skin.
+            Variant("Aqua Pearl Rosetail", rosetail, pearl, "#F6F1E4", "#2EC4C6", "#BFF5F2", 0.1f, 1f, 1.12f, 7, 0.3f, 0f, 1.25f),
         };
 
         var library = Load<BettaVariantLibrary>(LibraryPath);

@@ -73,13 +73,13 @@ inline void BettaVariantSurfaceData(float2 uv, out SurfaceData outSurfaceData)
     // Silver: the painted metallic/smoothness map gives body and fins a silvery shine; 0 turns it into
     // a satin, non-metal finish (milky white instead of silver).
     half silver = lerp(1.0h, _VariantSilver, _VariantOn);
-    outSurfaceData.metallic *= silver;
-    outSurfaceData.smoothness = lerp(0.5h, outSurfaceData.smoothness, silver);
+    outSurfaceData.metallic *= silver * 0.3h;
+    outSurfaceData.smoothness = lerp(0.58h, clamp(outSurfaceData.smoothness, 0.45h, 0.72h), silver);
     // Iridescence: a metallic, glossy body tints its reflections with the fish colour.
     half body = SAMPLE_TEXTURE2D(_VariantMask, sampler_VariantMask, uv).r;
     half sheen = _VariantIridescence * _VariantOn;
-    outSurfaceData.metallic = lerp(outSurfaceData.metallic, max(outSurfaceData.metallic, 0.7h * body), sheen);
-    outSurfaceData.smoothness = lerp(outSurfaceData.smoothness, max(outSurfaceData.smoothness, 0.85h), sheen);
+    outSurfaceData.metallic = lerp(outSurfaceData.metallic, max(outSurfaceData.metallic, 0.25h * body), sheen);
+    outSurfaceData.smoothness = lerp(outSurfaceData.smoothness, max(outSurfaceData.smoothness, 0.72h), sheen);
 }
 
 // The stock pass files call InitializeStandardLitSurfaceData; route them through the wrapper.

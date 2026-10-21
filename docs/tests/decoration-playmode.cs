@@ -6,6 +6,15 @@ var results = new System.Collections.Generic.List<string>();
 System.Action<bool,string> check = (ok,name) => { if (!ok) throw new System.Exception("FAIL: " + name); results.Add(name); };
 bool persistence = d.persistLayout;
 string originalKey = d.storageKey;
+string originalInventoryKey = d.inventoryStorageKey;
+d.inventoryStorageKey = "Lumaquarium.Test.Stock." + System.Guid.NewGuid();
+if (d.catalog != null)
+{
+    var stock = new Lumaquarium.UI.FishShopInventory(d.inventoryStorageKey);
+    for (int kind = 0; kind < 2; kind++)
+        for (int n = 0; n <= d.itemsRoot.GetComponentsInChildren<AquariumDecorItem>().Count(x => x.kind == kind); n++)
+            stock.TryPurchaseDecor(d.catalog.Find(kind).id, 1);
+}
 d.storageKey = "Lumaquarium.Test." + System.Guid.NewGuid();
 d.persistLayout = true;
 int before = d.Count;
@@ -68,6 +77,8 @@ finally
     d.Cancel();
     if(added!=null) { d.EditExisting(); d.Select(added); d.Delete(); }
     UnityEngine.PlayerPrefs.DeleteKey(d.storageKey);
+    UnityEngine.PlayerPrefs.DeleteKey(d.inventoryStorageKey);
+    d.inventoryStorageKey=originalInventoryKey;
     d.storageKey=originalKey; d.persistLayout=persistence;
 }
 return new {passed=results.Count, checks=results};
