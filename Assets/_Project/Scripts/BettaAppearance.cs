@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 // Shows a BettaVariant on the aquarium fish:
 // - instantiates the variant's own model (a pipeline fish from Art/Fish, see PipelineFishImporter)
@@ -27,8 +28,18 @@ public class BettaAppearance : MonoBehaviour
     static readonly int BandSoftnessId = Shader.PropertyToID("_VariantBandSoftness");
     static readonly int EdgeId = Shader.PropertyToID("_VariantEdge");
     static readonly int SpeckleId = Shader.PropertyToID("_VariantSpeckle");
+    static readonly int GlossId = Shader.PropertyToID("_Gloss");
+    static readonly int HeadId = Shader.PropertyToID("_VariantHead");
+    static readonly int TailId = Shader.PropertyToID("_VariantTail");
+    static readonly int DepthId = Shader.PropertyToID("_VariantDepth");
+    static readonly int FinEdgeAlphaId = Shader.PropertyToID("_FinEdgeAlpha");
+    static readonly int FinEdgeCaudalId = Shader.PropertyToID("_FinEdgeCaudal");
+    static readonly int FinEdgePassId = Shader.PropertyToID("_FinEdgePass");
     static readonly int BaseMapId = Shader.PropertyToID("_BaseMap");
     static readonly int VariantMaskId = Shader.PropertyToID("_VariantMask");
+
+    // Transparent copy of each fish material that draws only the clear fin rims (Betta Lit _FinEdgePass).
+    static readonly Dictionary<Material, Material> rimMaterials = new Dictionary<Material, Material>();
 
     MaterialPropertyBlock block;
     GameObject modelInstance;
@@ -98,7 +109,64 @@ public class BettaAppearance : MonoBehaviour
             block.SetVector(SpeckleId, new Vector4(p ? p.speckleScale : 220f, p ? p.speckleDensity : 0.35f, 0f, 0f));
             Texture baseMap = r.sharedMaterial && r.sharedMaterial.HasProperty(BaseMapId) ? r.sharedMaterial.GetTexture(BaseMapId) : null;
             if (baseMap) block.SetTexture(BaseMapId, baseMap);
+            block.SetFloat(GlossId, variant.gloss);
+            BodyAxis(r, out Vector3 head, out Vector3 tail);
+            block.SetVector(HeadId, head);
+            block.SetVector(TailId, tail);
+            block.SetVector(DepthId, new Vector4(0f, 0f, variant.pigmentDepth, variant.finEdgeClear));
+            block.SetVector(FinEdgeAlphaId, new Vector4(variant.finRim.x, variant.finRimAlpha, variant.finRim.y, 0f));
+            block.SetVector(FinEdgeCaudalId, new Vector4(variant.caudalRim.x, variant.caudalRim.y, variant.caudalStart, 0f));
             r.SetPropertyBlock(block);
+            SetRimMaterial(r, variant.finRimAlpha < 0.999f);
         }
+    }
+
+    // Front and back of the fish in the shader's object space, from the mesh bounds (mesh data is not
+    // readable in builds). A skinned mesh is drawn relative to its root bone (position and rotation, no
+    // scale); the fish swims along this object's forward.
+    void BodyAxis(Renderer r, out Vector3 head, out Vector3 tail)
+    {
+        head = tail = Vector3.zero;
+        var skinned = r as SkinnedMeshRenderer;
+        var filter = skinned ? null : r.GetComponent<MeshFilter>();
+        Mesh mesh = skinned ? skinned.sharedMesh : filter ? filter.sharedMesh : null;
+        if (!mesh) return;
+        // Along the swim direction (the model itself is pitched), as far as the mesh bounds reach.
+        Bounds b = mesh.bounds;
+        Vector3 f = r.transform.InverseTransformDirection(transform.forward);
+        Vector3 e = b.extents;
+        Vector3 reach = f * (Mathf.Abs(f.x) * e.x + Mathf.Abs(f.y) * e.y + Mathf.Abs(f.z) * e.z);
+        Transform space = skinned && skinned.rootBone ? skinned.rootBone : r.transform;
+        Matrix4x4 toObject = Matrix4x4.TRS(space.position, space.rotation, Vector3.one).inverse * r.transform.localToWorldMatrix;
+        head = toObject.MultiplyPoint3x4(b.center + reach);
+        tail = toObject.MultiplyPoint3x4(b.center - reach);
+    }
+
+    static void SetRimMaterial(Renderer r, bool on)
+    {
+        Material body = r.sharedMaterials.Length > 0 ? r.sharedMaterials[0] : null;
+        if (!body) return;
+        if (!on)
+        {
+            if (r.sharedMaterials.Length > 1) r.sharedMaterials = new[] { body };
+            return;
+        }
+        if (!rimMaterials.TryGetValue(body, out Material rim) || !rim)
+        {
+            rim = new Material(body) { name = body.name + " (Clear Rims)", renderQueue = (int)RenderQueue.Transparent };
+            rim.SetFloat(FinEdgePassId, 1f);
+            rim.SetFloat("_Surface", 1f);
+            rim.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+            rim.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+            rim.SetFloat("_SrcBlendAlpha", 1f);
+            rim.SetFloat("_DstBlendAlpha", (float)BlendMode.OneMinusSrcAlpha);
+            rim.SetFloat("_ZWrite", 0f);
+            rim.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            rim.SetShaderPassEnabled("ShadowCaster", false);
+            rim.SetShaderPassEnabled("DepthOnly", false);
+            rim.SetShaderPassEnabled("DepthNormals", false);
+            rimMaterials[body] = rim;
+        }
+        r.sharedMaterials = new[] { body, rim };
     }
 }

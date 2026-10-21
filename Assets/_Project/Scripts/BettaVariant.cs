@@ -24,6 +24,24 @@ public class BettaVariant : ScriptableObject
     [Tooltip("Silvery shine of the painted metallic map on body and fins. 1 = as painted; 0 = satin, non-metal (milky white).")]
     [Range(0f, 1f)] public float silverSheen = 1f;
 
+    [Header("Surface")]
+    [Tooltip("Scales every smoothness. Below 1 softens glazed, porcelain-like highlights into satin skin.")]
+    [Range(0f, 1.5f)] public float gloss = 1f;
+    [Tooltip("Pigment is thickest on the head and gills and thins out towards the tail: darker, deeper head; clearer, brighter tail. 0 = even.")]
+    [Range(0f, 1f)] public float pigmentDepth;
+    [Tooltip("How much clearer and brighter the fin edges are (new growth, thin pigment). 0 = off.")]
+    [Range(0f, 2f)] public float finEdgeClear;
+
+    [Header("Clear fin rims")]
+    [Tooltip("Opacity left where the fin rims are clearest. 1 = opaque fins (off).")]
+    [Range(0f, 1f)] public float finRimAlpha = 1f;
+    [Tooltip("Rim of the dorsal, anal, pectoral and pelvic fins: where it starts and where it is clearest (fin root 0 -> edge 1).")]
+    public Vector2 finRim = new Vector2(0.9f, 1f);
+    [Tooltip("Rim of the caudal fin, same units. Its mask peaks lower than the other fins'.")]
+    public Vector2 caudalRim = new Vector2(0.62f, 0.8f);
+    [Tooltip("Where along the fish (snout 0 -> tail tip 1) the caudal fin begins.")]
+    [Range(0f, 1f)] public float caudalStart = 0.55f;
+
     [Tooltip("Moves the Marble/Koi spots; same seed = same spots.")]
     public int seed;
 }

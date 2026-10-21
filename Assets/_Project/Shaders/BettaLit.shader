@@ -90,6 +90,18 @@ Shader "Lumaquarium/Betta Lit"
         // Detail map B = random value per scale: small normal tilt and gloss change per scale
         _ScaleTilt("Scale Tilt", Range(0.0, 0.6)) = 0.08
         _IridescenceShift("Iridescence Hue Shift", Range(0.0, 4.0)) = 1.6
+        // Scales every smoothness: below 1 turns glazed highlights into satin skin
+        _Gloss("Gloss", Range(0.0, 1.5)) = 1.0
+        // Snout and tail tip in object space (set per fish), and pigment depth: z deeper head / paler tail, w paler fin edges
+        _VariantHead("Variant Head", Vector) = (0,0,0,0)
+        _VariantTail("Variant Tail", Vector) = (0,0,0,0)
+        _VariantDepth("Variant Pigment Depth", Vector) = (0,0,0,0)
+        // Clear fin edges: x start, z clearest (fin root 0 -> edge 1), y alpha there (1 = off)
+        _FinEdgeAlpha("Fin Edge Alpha", Vector) = (0.6,1,1,0)
+        // Caudal fin rim: x start, y clearest, z where it begins along the fish (head 0 -> tail tip 1)
+        _FinEdgeCaudal("Fin Edge Caudal", Vector) = (0.6,0.9,2,0)
+        // 1 on the fish's second, transparent material that draws only the clear fin edges
+        [HideInInspector] _FinEdgePass("Fin Edge Pass", Float) = 0.0
         // Fins are thin membranes: light from behind shines through, more towards the edge
         _FinTranslucency("Fin Translucency", Range(0.0, 2.0)) = 0.8
         // Editmode props
@@ -225,6 +237,7 @@ Shader "Lumaquarium/Betta Lit"
                 half3 direct = light.color * (light.distanceAttenuation * light.shadowAttenuation * behind * (0.35h + 0.65h * into));
                 half3 ambient = SampleSH(-normalWS) * 0.6h;
                 half thin = lerp(0.35h, 1.0h, gBettaEdge) * lerp(0.25h, 1.0h, gBettaFolds);
+                thin *= 1.0h + 1.5h * gBettaClear;   // thin pigment is clearer
                 // light filtered by the membrane comes out deeper in colour than the lit surface
                 half3 tint = gBettaAlbedo * sqrt(gBettaAlbedo) * 1.3h;
                 return tint * (direct + ambient) * (thin * fin);
@@ -254,12 +267,17 @@ Shader "Lumaquarium/Betta Lit"
                 gBettaViewWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
                 gBettaHasView = 1.0h;
             #endif
+                gBettaPositionOS = TransformWorldToObject(input.positionWS);
+                gBettaHasPos = 1.0h;
+                half edgeAlpha = BettaFinEdgeClip(input.uv);
                 LitPassFragment(input, outColor
             #ifdef _WRITE_RENDERING_LAYERS
                     , outRenderingLayers
             #endif
                 );
                 outColor.rgb += BettaFinTransmission(input.positionWS, normalize(input.normalWS));
+                if (_FinEdgePass > 0.5h)
+                    outColor.a = edgeAlpha;
             }
             ENDHLSL
         }
@@ -424,7 +442,7 @@ Shader "Lumaquarium/Betta Lit"
             // -------------------------------------
             // Shader Stages
             #pragma vertex DepthOnlyVertex
-            #pragma fragment DepthOnlyFragment
+            #pragma fragment BettaDepthOnlyFragment
 
             // -------------------------------------
             // Material Keywords
@@ -444,6 +462,16 @@ Shader "Lumaquarium/Betta Lit"
             // Includes
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
+            #include "BettaVariant.hlsl"
+
+            // Clear fin edges write no depth (the uv is only there with alpha test on).
+            half BettaDepthOnlyFragment(Varyings input) : SV_TARGET
+            {
+            #if defined(_ALPHATEST_ON)
+                BettaFinEdgeClip(input.uv);
+            #endif
+                return DepthOnlyFragment(input);
+            }
             ENDHLSL
         }
 
@@ -494,6 +522,7 @@ Shader "Lumaquarium/Betta Lit"
             // Includes
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitDepthNormalsPass.hlsl"
+            #include "BettaVariant.hlsl"
 
             // Back faces of the fins write the flipped normal too, so SSAO sees the side facing the camera.
             void BettaDepthNormalsFragment(
@@ -512,6 +541,9 @@ Shader "Lumaquarium/Betta Lit"
                     input.tangentWS = -input.tangentWS;
                 #endif
                 }
+            #if defined(_ALPHATEST_ON) || defined(_PARALLAXMAP) || defined(_NORMALMAP) || defined(_DETAIL)
+                BettaFinEdgeClip(input.uv);   // clear fin edges stay out of SSAO
+            #endif
                 DepthNormalsFragment(input, outNormalWS
             #ifdef _WRITE_RENDERING_LAYERS
                     , outRenderingLayers

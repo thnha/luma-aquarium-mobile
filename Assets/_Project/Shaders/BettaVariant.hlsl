@@ -21,6 +21,8 @@
 TEXTURE2D(_VariantMask);    SAMPLER(sampler_VariantMask);
 TEXTURE2D(_ScaleMap);       SAMPLER(sampler_ScaleMap);
 TEXTURE2D(_PatternMask);
+// Scale ids must not be filtered: a blend of two ids is a random third value (speckles at scale borders).
+SAMPLER(sampler_betta_point_clamp);
 half _VariantOn;
 half4 _VariantPrimary;
 half4 _VariantSecondary;
@@ -41,6 +43,21 @@ half _Cavity;
 half _AlbedoAO;
 half _ScaleTilt;
 half _IridescenceShift;
+half _Gloss;
+// Snout and tail tip in object space (a skinned fish's object space follows its root bone), set per fish
+// by BettaAppearance: the head (0) -> tail (1) coordinate for pigment depth and the caudal rim.
+float4 _VariantHead;
+float4 _VariantTail;
+// Pigment depth: z = how much deeper the head is (and paler the tail), w = how much paler fin edges are. 0: off.
+float4 _VariantDepth;
+// Clear fin edges: x = where on the fin (0 root -> 1 edge) the membrane starts to clear, z = where it is
+// clearest (the caudal mask peaks near 0.9), y = alpha there (1 = off). Set per fish (property block).
+half4 _FinEdgeAlpha;
+// Caudal fin rim: x start, y clearest, z where along the fish (0 head -> 1 tail tip) the caudal fin begins.
+half4 _FinEdgeCaudal;
+// Set on the material: 0 = the fish's opaque material (cuts the clear part out), 1 = its second,
+// transparent material (draws only the clear part, blended).
+half _FinEdgePass;
 // Set by BettaPassFragment (forward pass) before the surface is built: the view direction and the
 // tangent frame, so the scale sheen can follow the normal-mapped surface. Zero in other passes.
 static half gBettaHasView = 0.0h;
@@ -52,6 +69,11 @@ static half3 gBettaAlbedo = half3(0.0h, 0.0h, 0.0h);
 static half gBettaFin = 0.0h;
 static half gBettaEdge = 0.0h;
 static half gBettaFolds = 1.0h;   // cavity x AO: fin rays and folds pass less light
+static half gBettaScaleGlint = 0.0h;   // Koi Galaxy: per-scale metallic glint, kept out of _Gloss
+// Set by BettaPassFragment: the fragment in object space, for the pigment depth along the body.
+static half gBettaHasPos = 0.0h;
+static half gBettaClear = 0.0h;   // thin pigment (0..1): fins pass more light, see BettaFinTransmission
+static float3 gBettaPositionOS = float3(0.0, 0.0, 0.0);
 
 // Dots scattered in UV space: x = dot, y = its bright core. Each cell holds at most one dot placed
 // anywhere in it, and the 3x3 neighbourhood is searched so dots overlap cell borders: no visible grid.
@@ -74,6 +96,52 @@ half2 BettaGalaxySpeckles(float2 uv, float scale, half density, half seed)
         core = max(core, 1.0h - smoothstep(radius * 0.4h - aa, radius * 0.4h + aa, d));
     }
     return half2(dotMask, core);
+}
+
+bool BettaHasAxis()
+{
+    float3 d = _VariantTail.xyz - _VariantHead.xyz;
+    return gBettaHasPos > 0.5h && dot(d, d) > 1e-8;
+}
+
+// Head (0) -> tail tip (1) along the fish; 0 where the position or the axis is unknown.
+half BettaBodyT()
+{
+    if (!BettaHasAxis())
+        return 0.0h;
+    float3 d = _VariantTail.xyz - _VariantHead.xyz;
+    return (half)saturate(dot(gBettaPositionOS - _VariantHead.xyz, d) / dot(d, d));
+}
+
+half BettaFinEdgeAlpha(float2 uv)
+{
+    if (_FinEdgeAlpha.y >= 0.999h)
+        return 1.0h;
+    half2 m = SAMPLE_TEXTURE2D(_VariantMask, sampler_VariantMask, uv).rg;
+    // The caudal fin (behind _FinEdgeCaudal.z along the fish) gets its own, wider rim: its mask peaks
+    // lower than the other fins'. Passes without the position (depth) use the other fins' rim.
+    half caudal = smoothstep(_FinEdgeCaudal.z - 0.05h, _FinEdgeCaudal.z + 0.05h, BettaBodyT());
+    half2 band = lerp(_FinEdgeAlpha.xz, _FinEdgeCaudal.xy, caudal);
+    return lerp(1.0h, _FinEdgeAlpha.y, smoothstep(band.x, band.y, m.g) * (1.0h - m.r));
+}
+
+// Each material keeps its own part of the fin, so the two meet without a gap or overlap.
+half BettaFinEdgeClip(float2 uv)
+{
+    half alpha = BettaFinEdgeAlpha(uv);
+    clip(_FinEdgePass > 0.5h ? 0.999h - alpha : alpha - 0.999h);
+    return alpha;
+}
+
+// Three random values per scale from the detail map's scale ids (B, fish_bake.scale_ids); 0.5 without one.
+half3 BettaScaleRandom(float2 uv)
+{
+#if defined(_OCCLUSIONMAP)
+    float id = SAMPLE_TEXTURE2D_LOD(_OcclusionMap, sampler_betta_point_clamp, uv, 0).b;
+    return (half3)frac(id * float3(12.9898, 78.233, 37.719) * 43.7585);
+#else
+    return half3(0.5h, 0.5h, 0.5h);
+#endif
 }
 
 half3 BettaVariantAlbedo(half3 original, float2 uv)
@@ -149,29 +217,50 @@ half3 BettaVariantAlbedo(half3 original, float2 uv)
         half3 F = _VariantEdge.rgb;
         half head = smoothstep(0.3h, 0.6h, g.r);
         half n2 = saturate(0.5h + (m.a - 0.5h) * c - (m.b - 0.5h) * s);
-        // Pearl body with red to orange patches; the head is mostly pearl with orange cheeks.
-        half3 patch = lerp(A, half3(1.0h, 0.62h, 0.12h), smoothstep(0.45h, 0.62h, n) * 0.7h);
-        half3 skin = lerp(P, patch, smoothstep(0.5h, 0.58h, n2));
-        skin = lerp(skin, lerp(patch, P, smoothstep(0.35h, 0.5h, m.a)), head);
-        // Dark metallic scales packed on the back and towards the tail: a solid dark patch with blue
-        // glinting scales inside, single dark scales scattered around its border.
-        half zone = smoothstep(_VariantSpot - 0.1h, _VariantSpot + 0.1h, n + (g.b - 0.5h) * 0.6h) * (1.0h - head * 0.7h);
-        half solid = smoothstep(0.35h, 0.75h, zone);
-        half2 scales = BettaGalaxySpeckles(uv, _VariantSpeckle.x * 0.5, saturate(zone * 2.5h), _VariantSeed + 1.7h);
-        half3 scaleColor = lerp(S, lerp(S, F, 0.55h), solid);
-        // Pale blue glitter on the light skin.
-        half2 glitter = BettaGalaxySpeckles(uv, _VariantSpeckle.x, saturate(_VariantSpeckle.y * (1.0h - zone)), _VariantSeed);
-        skin = lerp(lerp(skin, F, glitter.x * 0.7h), S, solid);
-        bodyColor = lerp(skin, scaleColor, scales.x);
-        // Pale blue fins with white streaks along the rays and a few orange ones; dark blue at the
-        // roots on the back, big red patches with a yellow base on the lower fins; dark rim.
-        half3 fin = lerp(F, half3(0.95h, 0.97h, 1.0h), smoothstep(0.45h, 0.7h, g.g) * 0.8h);
+        // Every scale makes its own colour decision (thresholds jittered per scale id), so patch borders
+        // step from scale to scale like a real koi mosaic instead of following the smooth noise.
+        half3 r = BettaScaleRandom(uv);
+        half3 jr = (r - 0.5h) * body;
+        half nj = n + jr.x * 0.16h;
+        half n2j = n2 + jr.y * 0.09h;   // smaller: red and yellow scales mix less at patch borders
+        // Pearl skin is never plain white: each scale leans pink, lavender or pale blue.
+        half3 tint = r.z < 0.33h ? half3(1.0h, 0.8h, 0.88h) : (r.z < 0.66h ? half3(0.86h, 0.82h, 1.0h) : half3(0.8h, 0.92h, 1.0h));
+        half3 pearl = P * lerp(half3(1.0h, 1.0h, 1.0h), tint, 0.4h * body);
+        // Red patches run red -> orange, with a fringe of yellow-orange scales where they meet the pearl.
+        half3 patch = lerp(A, half3(1.0h, 0.5h, 0.1h), saturate(smoothstep(0.42h, 0.65h, n) * 0.8h + jr.z * 0.3h));
+        half3 fringe = lerp(pearl, half3(1.0h, 0.76h, 0.22h), 0.8h);
+        half3 skin = lerp(pearl, fringe, smoothstep(0.46h, 0.5h, n2j));
+        skin = lerp(skin, patch, smoothstep(0.5h, 0.56h, n2j));
+        // White gill covers; red below them (the membrane under the gills) along the lower head.
+        half underGill = 1.0h - smoothstep(0.25h, 0.38h, g.b + jr.x * 0.1h);
+        skin = lerp(skin, lerp(pearl, A, underGill), head);
+        // Dark metallic scales gathered in solid clusters on the back and towards the tail, their borders
+        // stepping scale by scale; none on the head. Near black, a few scales glint cool silver (in linear
+        // colour even a small share reads bright); _VariantSpeckle.y scales the glint (0 = plain dark).
+        half zone = smoothstep(_VariantSpot - 0.1h, _VariantSpot + 0.1h, nj + (g.b - 0.5h) * 0.6h) * (1.0h - head);
+        half darkScale = smoothstep(0.45h, 0.55h, zone + jr.y * 0.12h) * body;
+        half r8 = r.x * r.x; r8 *= r8; r8 *= r8;
+        half glint = saturate(_VariantSpeckle.y * 2.5h) * 0.3h * r8;
+        half3 scaleColor = lerp(S, half3(0.5h, 0.56h, 0.66h), glint);
+        bodyColor = lerp(skin, scaleColor, darkScale);
+        // Each scale a little lighter or darker than its neighbours.
+        bodyColor *= 1.0h + jr.z * 0.22h;
+        gBettaScaleGlint = darkScale * glint + (1.0h - darkScale) * body * 0.25h * r.x;
+        // Fins: a few orange streaks, dark blue at the roots on the back, big bright red patches with a
+        // yellow base on the lower fins, dark rim. Fin colour strands along the rays on a pale membrane: single strands in some places, in others
+        // many strands merging into a solid patch (a third blend of the spot noises picks where).
+        half n3 = saturate(0.5h + (m.b - 0.5h) * s + (m.a - 0.5h) * c);
+        half strandCut = lerp(0.68h, 0.22h, smoothstep(0.4h, 0.65h, n3));
+        half strands = smoothstep(strandCut - 0.04h, strandCut + 0.04h, g.g);
+        half3 fin = lerp(lerp(F, half3(0.95h, 0.97h, 1.0h), 0.65h), F, strands);
         fin = lerp(fin, patch, smoothstep(0.7h, 0.8h, g.g) * smoothstep(0.5h, 0.6h, n2) * 0.8h);
         half root = 1.0h - smoothstep(0.1h, 0.35h, edge);
         fin = lerp(fin, lerp(S, F, 0.35h), root * smoothstep(0.5h, 0.7h, g.b));
         half lower = 1.0h - smoothstep(0.3h, 0.5h, g.b);
         fin = lerp(fin, half3(1.0h, 0.78h, 0.2h), root * lower * 0.8h);
-        fin = lerp(fin, A, smoothstep(0.42h, 0.49h, n) * lower * (1.0h - edge * 0.4h));
+        // Solid red, not blended into the pale membrane (half-blended red reads pink).
+        half redPatch = smoothstep(0.42h, 0.47h, n) * smoothstep(0.35h, 0.6h, lower);
+        fin = lerp(fin, A, redPatch);
         half rim = smoothstep(_VariantBand - _VariantBandSoftness, _VariantBand + _VariantBandSoftness, edge + (g.g - 0.5h) * 0.1h);
         fin = lerp(fin, S, rim);
         // Pelvic fins: red with pale streaks.
@@ -180,7 +269,20 @@ half3 BettaVariantAlbedo(half3 original, float2 uv)
     // G on body texels marks the eye in one-piece pipeline fish (betta-splendens/pipeline): keep its
     // own colour. The shared Betta's mask has G = 0 on the body (its eyes are a separate renderer).
     half eye = saturate(edge * body);
-    return lerp(original, lerp(lerp(finColor, bodyColor, body) * shade, original, eye), _VariantOn);
+    half3 color = lerp(finColor, bodyColor, body);
+    // Pigment is thickest on the head and gills and thins out towards the tail; fin edges are new growth
+    // with the least pigment. Thick pigment is darker and deeper (pow keeps white white); thin pigment
+    // stays the same hue but turns clear: brighter, and its fins let more light through (gBettaClear).
+    if (BettaHasAxis())
+    {
+        half t = BettaBodyT();
+        half depth = _VariantDepth.z * (1.0h - 2.0h * t) - _VariantDepth.w * edge * (1.0h - body);
+        color = pow(max(color, 1e-3h), exp2(max(depth, 0.0h)));
+        half clear = saturate(-depth);
+        color = min(color * (1.0h + 0.45h * clear), 1.0h);
+        gBettaClear = clear * _VariantOn;
+    }
+    return lerp(original, lerp(color * shade, original, eye), _VariantOn);
 }
 
 inline void BettaVariantSurfaceData(float2 uv, out SurfaceData outSurfaceData)
@@ -259,6 +361,12 @@ inline void BettaVariantSurfaceData(float2 uv, out SurfaceData outSurfaceData)
     gBettaAlbedo = outSurfaceData.albedo;
     gBettaFin = fin;
     gBettaEdge = finMask.g * fin;
+    // Overall gloss: below 1 softens the wet, glazed highlights (a porcelain look) into a satin skin.
+    outSurfaceData.smoothness *= _Gloss;
+    // Glinting scales stay polished and metallic, so single scales flash instead of the whole body.
+    half glint = gBettaScaleGlint * _VariantOn;
+    outSurfaceData.metallic = lerp(outSurfaceData.metallic, 0.6h, glint);
+    outSurfaceData.smoothness = lerp(outSurfaceData.smoothness, 0.72h, glint);
 }
 
 // The stock pass files call InitializeStandardLitSurfaceData; route them through the wrapper.

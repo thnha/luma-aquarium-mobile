@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BettaPattern
   displayName: Koi Galaxy
   kind: 7
-  spotThreshold: 0.56
+  spotThreshold: 0.48
   accentThreshold: 0.3
   butterflyBand: 0.88
   butterflyBandSoftness: 0.05

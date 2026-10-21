@@ -15,16 +15,17 @@ MonoBehaviour:
   displayName: Plakat Galaxy
   inShop: 1
   shopId: plakat-galaxy
-  description: "Koi Galaxy: th\xE2n tr\u1EAFng ng\u1ECDc m\u1EA3ng cam \u0111\u1ECF,
-    v\u1EA3y xanh \u0111en, v\xE2y xanh nh\u1EA1t vi\u1EC1n xanh \u0111\u1EADm"
+  description: "Koi Galaxy: th\xE2n tr\u1EAFng ng\u1ECDc m\u1EA3ng \u0111\u1ECF t\u01B0\u01A1i,
+    l\u01B0ng v\u1EA3y \u0111en, mang tr\u1EAFng vi\u1EC1n \u0111\u1ECF, v\xE2y v\xE0ng
+    ngh\u1EC7"
   price: 0
   size: 2
   pattern: {fileID: 11400000, guid: 9c31507e348de46669991b4d0d773ea2, type: 2}
-  primary: {r: 0.95, g: 0.93, b: 0.9, a: 1}
-  secondary: {r: 0.04, g: 0.07, b: 0.22, a: 1}
-  accent: {r: 0.95, g: 0.28, b: 0.06, a: 1}
-  finEdge: {r: 0.62, g: 0.85, b: 1, a: 1}
-  iridescence: 0.7
+  primary: {r: 0.92, g: 0.92, b: 0.94, a: 1}
+  secondary: {r: 0.02, g: 0.03, b: 0.09, a: 1}
+  accent: {r: 1, g: 0.03, b: 0.03, a: 1}
+  finEdge: {r: 1, g: 0.66, b: 0.04, a: 1}
+  iridescence: 0.25
   seed: 3
   bodySwimAmplitude: 3
   strokeSwimAmplitude: 8
