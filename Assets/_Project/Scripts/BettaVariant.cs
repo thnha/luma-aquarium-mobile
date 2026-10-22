@@ -27,6 +27,10 @@ public class BettaVariant : ScriptableObject
     [Header("Surface")]
     [Tooltip("Scales every smoothness. Below 1 softens glazed, porcelain-like highlights into satin skin.")]
     [Range(0f, 1.5f)] public float gloss = 1f;
+    [Tooltip("Koi Galaxy: dark scales and dark fin rims turn deep black, non-metal and highly polished (lacquer black). 0 = off.")]
+    [Range(0f, 1f)] public float blackGloss;
+    [Tooltip("Koi Galaxy: share of the dark scales that are white instead, scattered one by one. 0 = none.")]
+    [Range(0f, 0.5f)] public float whiteScales;
     [Tooltip("Pigment is thickest on the head and gills and thins out towards the tail: darker, deeper head; clearer, brighter tail. 0 = even.")]
     [Range(0f, 1f)] public float pigmentDepth;
     [Tooltip("How much clearer and brighter the fin edges are (new growth, thin pigment). 0 = off.")]

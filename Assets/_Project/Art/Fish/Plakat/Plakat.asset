@@ -22,6 +22,7 @@ MonoBehaviour:
   primary: {r: 1, g: 0.6, b: 0.12, a: 1}
   secondary: {r: 0.82, g: 0.08, b: 0.06, a: 1}
   accent: {r: 0.05, g: 0.15, b: 0.6, a: 1}
+  finEdge: {r: 1, g: 0.82, b: 0.2, a: 1}
   iridescence: 0.4
   seed: 3
   bodySwimAmplitude: 3

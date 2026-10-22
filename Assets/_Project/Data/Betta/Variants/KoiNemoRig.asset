@@ -22,4 +22,13 @@ MonoBehaviour:
   iridescence: 0.4
   textureDetail: 0.6
   silverSheen: 1
+  gloss: 1
+  blackGloss: 0
+  whiteScales: 0
+  pigmentDepth: 0
+  finEdgeClear: 0
+  finRimAlpha: 1
+  finRim: {x: 0.9, y: 1}
+  caudalRim: {x: 0.62, y: 0.8}
+  caudalStart: 0.55
   seed: 0

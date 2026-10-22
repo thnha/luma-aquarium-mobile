@@ -1,0 +1,45 @@
+{
+  "build": {
+    "input": "input/PlakatGalaxy/2_beta.fbx",
+    "flip": false,
+    "faces": 30000,
+    "depth": 1,
+    "width": 1.5,
+    "fins": {},
+    "finThickness": 0.4,
+    "landmarks": "",
+    "bake": true
+  },
+  "shop": {
+    "displayName": "Plakat Galaxy",
+    "inShop": true,
+    "shopId": "plakat-galaxy",
+    "description": "Koi Galaxy: thân trắng ngọc mảng đỏ tươi, lưng vảy đen, mang trắng viền đỏ, vây vàng nghệ",
+    "price": 0
+  },
+  "model": {
+    "size": 2,
+    "bodySwimAmplitude": 3,
+    "strokeSwimAmplitude": 8
+  },
+  "look": {
+    "pattern": "KoiGalaxy",
+    "primary": [0.92, 0.92, 0.94],
+    "secondary": [0.005, 0.006, 0.012],
+    "accent": [1.0, 0.03, 0.03],
+    "finEdge": [1.0, 0.66, 0.04],
+    "iridescence": 0.25,
+    "textureDetail": 0.6,
+    "silverSheen": 0.4,
+    "gloss": 0.5,
+    "blackGloss": 0.5,
+    "whiteScales": 0.04,
+    "pigmentDepth": 0.35,
+    "finEdgeClear": 1,
+    "finRimAlpha": 0.88,
+    "finRim": [0.9, 1.0],
+    "caudalRim": [0.62, 0.8],
+    "caudalStart": 0.72,
+    "seed": 3
+  }
+}

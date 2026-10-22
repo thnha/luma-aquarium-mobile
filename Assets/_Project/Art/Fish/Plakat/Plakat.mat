@@ -100,6 +100,7 @@ Material:
     - _AlbedoAO: 0.5
     - _AlphaClip: 0
     - _AlphaToMask: 0
+    - _BlackGloss: 0
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -113,6 +114,9 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
+    - _FinEdgePass: 0
+    - _FinTranslucency: 0.8
+    - _Gloss: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -140,6 +144,7 @@ Material:
     - _VariantSeed: 0
     - _VariantSilver: 1
     - _VariantSpot: 0.58
+    - _WhiteScales: 0
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
@@ -147,11 +152,16 @@ Material:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _FinEdgeAlpha: {r: 0.6, g: 1, b: 1, a: 0}
+    - _FinEdgeCaudal: {r: 0.6, g: 0.9, b: 2, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _VariantAccent: {r: 1, g: 1, b: 1, a: 1}
+    - _VariantDepth: {r: 0, g: 0, b: 0, a: 0}
     - _VariantEdge: {r: 1, g: 0.82, b: 0.19999996, a: 1}
+    - _VariantHead: {r: 0, g: 0, b: 0, a: 0}
     - _VariantPrimary: {r: 1, g: 1, b: 1, a: 1}
     - _VariantSecondary: {r: 1, g: 1, b: 1, a: 1}
     - _VariantSpeckle: {r: 220, g: 0.35, b: 0, a: 0}
+    - _VariantTail: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

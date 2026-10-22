@@ -1,0 +1,45 @@
+{
+  "build": {
+    "input": "input/Plakat/Meshy_AI_Plakat_Betta_Straight_1021072128_generate.fbx",
+    "flip": false,
+    "faces": 30000,
+    "depth": 1,
+    "width": 1,
+    "fins": {},
+    "finThickness": 0.4,
+    "landmarks": "",
+    "bake": true
+  },
+  "shop": {
+    "displayName": "Plakat Koi",
+    "inShop": true,
+    "shopId": "plakat",
+    "description": "Đỏ, cam, xanh · Plakat đuôi ngắn",
+    "price": 0
+  },
+  "model": {
+    "size": 2,
+    "bodySwimAmplitude": 3,
+    "strokeSwimAmplitude": 8
+  },
+  "look": {
+    "pattern": "Koi",
+    "primary": [1.0, 0.6, 0.12],
+    "secondary": [0.82, 0.08, 0.06],
+    "accent": [0.05, 0.15, 0.6],
+    "finEdge": [1.0, 0.82, 0.2],
+    "iridescence": 0.4,
+    "textureDetail": 0.6,
+    "silverSheen": 1,
+    "gloss": 1,
+    "blackGloss": 0,
+    "whiteScales": 0,
+    "pigmentDepth": 0,
+    "finEdgeClear": 0,
+    "finRimAlpha": 1,
+    "finRim": [0.9, 1.0],
+    "caudalRim": [0.62, 0.8],
+    "caudalStart": 0.55,
+    "seed": 3
+  }
+}
