@@ -633,6 +633,18 @@ public class BettaFishAI : MonoBehaviour
     // Points along the body, snout to tail base; the rear ones also check where the fins hang.
     static readonly float[] BodySamples = { 0.15f, 0f, -0.35f, -0.7f, -1f };
 
+    // Stone and wood stacked on another piece leave a gap underneath that the fish would get
+    // wedged in (pushed down by the piece above, up by the one below), so each obstacle counts
+    // as solid all the way down: below its underside the footprint is extended straight down.
+    static Vector3 ClosestObstaclePoint(Collider col, Vector3 point)
+    {
+        float underside = col.bounds.min.y;
+        if (point.y >= underside) return col.ClosestPoint(point);
+        Vector3 closest = col.ClosestPoint(new Vector3(point.x, underside, point.z));
+        closest.y = point.y;
+        return closest;
+    }
+
     // Height the pivot needs for the body and hanging fins to clear this obstacle.
     float ClearHeight(Collider col) => col.bounds.max.y + FinHang + BodyRadius;
 
@@ -692,7 +704,7 @@ public class BettaFishAI : MonoBehaviour
                 for (int f = 0; f < 2; f++)
                 {
                     Vector3 point = f == 0 ? ahead : ahead + Vector3.down * FinHang;
-                    Vector3 away = point - col.ClosestPoint(point);
+                    Vector3 away = point - ClosestObstaclePoint(col, point);
                     float distance = away.magnitude;
                     if (distance >= reach) continue;
                     // Head-on, push straight sideways, away from the obstacle's centre.
@@ -733,7 +745,7 @@ public class BettaFishAI : MonoBehaviour
                 Vector3 point = f == 0 ? body : body + Vector3.down * FinHang;
                 foreach (var col in obstacles)
                 {
-                    Vector3 closest = col.ClosestPoint(point);
+                    Vector3 closest = ClosestObstaclePoint(col, point);
                     Vector3 away = point - closest;
                     float distance = away.magnitude;
                     float radius = i == 0 ? BodyRadius * 0.6f : BodyRadius;

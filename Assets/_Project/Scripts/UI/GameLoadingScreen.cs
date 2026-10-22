@@ -1,11 +1,16 @@
-using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 
 namespace Lumaquarium.UI
 {
+    // Downloads and opens the aquarium. MainAquarium with its fish and decor is remote content (Addressables,
+    // see Editor/RemoteContent): the first launch downloads it, later launches fetch only what changed, and
+    // with no network the cached copy opens.
     public sealed class GameLoadingScreen : MonoBehaviour
     {
         [SerializeField] private UnityEngine.UI.Image progressFill;
@@ -15,7 +20,6 @@ namespace Lumaquarium.UI
         [SerializeField] private UnityEngine.UI.Button retryButton;
         [SerializeField] private UnityEngine.UI.Button backButton;
         [SerializeField, Min(0)] private float minimumVisibleSeconds = 1.2f;
-        private AsyncOperation operation;
         private bool loading;
 
         private void Start()
@@ -29,8 +33,6 @@ namespace Lumaquarium.UI
         {
             retryButton.onClick.RemoveListener(Retry);
             backButton.onClick.RemoveListener(Back);
-            // A pending operation must not block Unity's async scene queue.
-            if (operation != null && !operation.isDone) operation.allowSceneActivation = true;
         }
 
         public void Retry()
@@ -40,52 +42,84 @@ namespace Lumaquarium.UI
 
         private IEnumerator LoadAquarium()
         {
-            errorActions.SetActive(false);
-            progressFill.fillAmount = 0;
-            progressLabel.text = "0%";
-            statusLabel.text = "Đang chuẩn bị hồ cá...";
-            if (!Application.CanStreamedLevelBeLoaded(FrontEndScenes.Aquarium))
-            {
-                ShowError();
-                yield break;
-            }
-
             loading = true;
-            Exception loadError = null;
-            try
-            {
-                operation = SceneManager.LoadSceneAsync(FrontEndScenes.Aquarium);
-                if (operation != null) operation.allowSceneActivation = false;
-            }
-            catch (Exception exception) { loadError = exception; }
+            errorActions.SetActive(false);
+            SetProgress(0);
+            statusLabel.text = "Đang chuẩn bị hồ cá...";
+            float startedAt = Time.realtimeSinceStartup;
 
-            if (loadError != null || operation == null)
+            // Also picks up a newer remote catalog; offline it keeps the cached one.
+            var init = Addressables.InitializeAsync(false);
+            yield return init;
+            bool initialized = init.Status == AsyncOperationStatus.Succeeded;
+            init.Release();
+            if (!initialized)
             {
                 ShowError();
                 yield break;
             }
 
-            float startedAt = Time.realtimeSinceStartup;
-            while (!operation.isDone)
+            var size = Addressables.GetDownloadSizeAsync(FrontEndScenes.Aquarium);
+            yield return size;
+            long bytes = size.Status == AsyncOperationStatus.Succeeded ? size.Result : -1;
+            size.Release();
+            if (bytes < 0)
             {
-                float progress = Mathf.Clamp01(operation.progress / 0.9f);
-                progressFill.fillAmount = progress;
-                progressLabel.text = $"{Mathf.RoundToInt(progress * 100)}%";
-                if (operation.progress >= 0.9f)
+                ShowError();
+                yield break;
+            }
+
+            // Downloading takes the first 80% of the bar, opening the scene the rest.
+            float opening = 0;
+            if (bytes > 0)
+            {
+                statusLabel.text = $"Đang tải nội dung mới ({bytes / 1048576f:0.#} MB)...";
+                var download = Addressables.DownloadDependenciesAsync(FrontEndScenes.Aquarium, false);
+                while (!download.IsDone)
                 {
-                    statusLabel.text = "Đang mở hồ cá...";
-                    if (Time.realtimeSinceStartup - startedAt >= minimumVisibleSeconds)
-                        operation.allowSceneActivation = true;
+                    SetProgress(download.GetDownloadStatus().Percent * 0.8f);
+                    yield return null;
                 }
+                bool downloaded = download.Status == AsyncOperationStatus.Succeeded;
+                download.Release();
+                if (!downloaded)
+                {
+                    ShowError();
+                    yield break;
+                }
+                opening = 0.8f;
+                statusLabel.text = "Đang chuẩn bị hồ cá...";
+            }
+
+            var scene = Addressables.LoadSceneAsync(FrontEndScenes.Aquarium, LoadSceneMode.Single, false);
+            while (!scene.IsDone)
+            {
+                SetProgress(opening + (1 - opening) * scene.PercentComplete);
                 yield return null;
             }
+            if (scene.Status != AsyncOperationStatus.Succeeded)
+            {
+                Addressables.Release(scene);
+                ShowError();
+                yield break;
+            }
+
+            SetProgress(1);
+            statusLabel.text = "Đang mở hồ cá...";
+            while (Time.realtimeSinceStartup - startedAt < minimumVisibleSeconds) yield return null;
+            yield return scene.Result.ActivateAsync();
+        }
+
+        private void SetProgress(float progress)
+        {
+            progressFill.fillAmount = progress;
+            progressLabel.text = $"{Mathf.RoundToInt(progress * 100)}%";
         }
 
         private void ShowError()
         {
             loading = false;
-            operation = null;
-            statusLabel.text = "Chưa tải được hồ cá. Bạn có thể thử lại.";
+            statusLabel.text = "Chưa tải được hồ cá. Kiểm tra kết nối mạng rồi thử lại.";
             errorActions.SetActive(true);
         }
 

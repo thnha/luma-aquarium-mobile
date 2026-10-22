@@ -105,6 +105,7 @@ Material:
     - _BlackSteel: 2
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
+    - _Brightness: 1
     - _BumpScale: 1
     - _Cavity: 1
     - _ClearCoatMask: 0
@@ -150,6 +151,7 @@ Material:
     - _VariantSeed: 0
     - _VariantSilver: 1
     - _VariantSpot: 0.58
+    - _Vibrance: 1
     - _WhiteScales: 0
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1

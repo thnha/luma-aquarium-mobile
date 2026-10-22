@@ -45,6 +45,10 @@ public class BettaVariant : ScriptableObject
     [Range(0f, 1f)] public float finBlack;
     [Tooltip("Brightness of the other fin colours. 1 = as painted, above 1 = lighter.")]
     [Range(0.5f, 2f)] public float finBrightness = 1f;
+    [Tooltip("Saturation of the whole lit fish. Underwater light makes it read dull; 1 = as lit.")]
+    [Range(0.5f, 2f)] public float vibrance = 1f;
+    [Tooltip("Brightness of the whole lit fish. 1 = as lit.")]
+    [Range(0.5f, 2f)] public float brightness = 1f;
 
     [Header("Clear fin rims")]
     [Tooltip("Opacity left where the fin rims are clearest. 1 = opaque fins (off).")]

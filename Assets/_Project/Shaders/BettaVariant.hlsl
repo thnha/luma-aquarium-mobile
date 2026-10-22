@@ -62,6 +62,9 @@ half _ScaleRelief;
 // body's black), and a brightness factor for the rest of the fin colour (1 = as painted).
 half _FinBlack;
 half _FinBrightness;
+// Lit colour of the whole fish (forward pass only): saturation and brightness, 1 = as lit.
+half _Vibrance;
+half _Brightness;
 // Snout and tail tip in object space (a skinned fish's object space follows its root bone), set per fish
 // by BettaAppearance: the head (0) -> tail (1) coordinate for pigment depth and the caudal rim.
 float4 _VariantHead;

@@ -65,6 +65,25 @@ public static class IosBuilder
         PlayerSettings.iOS.appleEnableAutomaticSigning = true;
         AssetDatabase.SaveAssets();
 
+        // Remote content (MainAquarium, fish, decor) is built for the active platform; switch back afterwards
+        // so a menu build leaves the editor on the platform it was on.
+        var previousTarget = EditorUserBuildSettings.activeBuildTarget;
+        if (previousTarget != BuildTarget.iOS)
+            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.iOS, BuildTarget.iOS);
+        try
+        {
+            if (!RemoteContent.Build()) return false;
+            return BuildPlayer(buildNumber);
+        }
+        finally
+        {
+            if (previousTarget != BuildTarget.iOS && !Application.isBatchMode)
+                EditorUserBuildSettings.SwitchActiveBuildTarget(BuildPipeline.GetBuildTargetGroup(previousTarget), previousTarget);
+        }
+    }
+
+    static bool BuildPlayer(string buildNumber)
+    {
         var options = new BuildPlayerOptions
         {
             scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray(),

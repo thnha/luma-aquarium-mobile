@@ -32,6 +32,8 @@ MonoBehaviour:
   scaleRelief: 0.55
   finBlack: 1
   finBrightness: 1.8
+  vibrance: 1.3
+  brightness: 1.12
   finRimAlpha: 0.6
   finRim: {x: 0.55, y: 1}
   caudalRim: {x: 0.3, y: 0.8}

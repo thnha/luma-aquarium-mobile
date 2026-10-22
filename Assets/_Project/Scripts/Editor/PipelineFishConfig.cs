@@ -53,6 +53,8 @@ public class PipelineFishConfig
         public float scaleRelief = 1f;
         public float finBlack;
         public float finBrightness = 1f;
+        public float vibrance = 1f;
+        public float brightness = 1f;
         public float finRimAlpha = 1f;
         public float[] finRim = { 0.9f, 1f };
         public float[] caudalRim = { 0.62f, 0.8f };
@@ -119,6 +121,8 @@ public class PipelineFishConfig
         variant.scaleRelief = look.scaleRelief;
         variant.finBlack = look.finBlack;
         variant.finBrightness = look.finBrightness;
+        variant.vibrance = look.vibrance;
+        variant.brightness = look.brightness;
         variant.finRimAlpha = look.finRimAlpha;
         variant.finRim = Range(look.finRim, "finRim", path);
         variant.caudalRim = Range(look.caudalRim, "caudalRim", path);

@@ -1,4 +1,5 @@
 using UnityEditor;
+using UnityEngine;
 
 // Import settings for the Blender-exported template rig (Assets/_Project/Art/Betta/Betta.fbx, source of the
 // shared animation clips) and the pipeline fish (Art/Fish, see PipelineFishImporter), which come from the same rig.
@@ -40,6 +41,17 @@ public class BettaAssetPostprocessor : AssetPostprocessor
             clip.name = clip.name.Contains("|") ? clip.name.Substring(clip.name.LastIndexOf('|') + 1) : clip.name;
         }
         model.clipAnimations = clips;
+    }
+
+    // BettaSwimMotion beats the pectorals at a rate that follows swim speed; the Swim clip's own fixed
+    // 1 s pectoral flap on top of it made the two fins beat out of step, so drop it from that clip.
+    void OnPostprocessAnimation(GameObject root, AnimationClip clip)
+    {
+        if (!IsRigged || !clip.name.ToLowerInvariant().Contains("swim")) return;
+        foreach (var binding in AnimationUtility.GetCurveBindings(clip))
+            if ((binding.path.EndsWith("Pectoral_L_01") || binding.path.EndsWith("Pectoral_R_01"))
+                && binding.propertyName.StartsWith("m_LocalRotation"))
+                AnimationUtility.SetEditorCurve(clip, binding, null);
     }
 
     void OnPreprocessTexture()

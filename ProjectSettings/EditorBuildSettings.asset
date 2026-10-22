@@ -14,9 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Project/Scenes/LoadingGame.unity
     guid: fde1cdc12d4ee4972879e99377d13b6f
-  - enabled: 1
-    path: Assets/_Project/Scenes/MainAquarium.unity
-    guid: 5370297910760458c8ae98f81017a9ea
   m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: 3a69f947728734189a40e32a8e3ad969, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

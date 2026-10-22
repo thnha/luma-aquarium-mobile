@@ -68,9 +68,12 @@ MonoBehaviour:
   maxSegmentPitchBend: 10
   turnTailKick: 0.08
   maxTailKick: 12
-  pectoralFrequency: 3.2
-  pectoralAmplitude: 18
-  pectoralTurnBias: 0.5
+  pectoralHoverFrequency: 2
+  pectoralCruiseFrequency: 1.1
+  pectoralHoverAmplitude: 16
+  pectoralCruiseAmplitude: 6
+  pectoralHoverLag: 0.1
+  pectoralTurnBoost: 0.3
   gillRestFrequency: 0.7
   gillActiveFrequency: 1.6
   gillOpenAngle: 12

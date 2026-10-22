@@ -44,9 +44,13 @@ public class BettaSwimMotion : MonoBehaviour
     public float maxTailKick = 12f;
 
     [Header("Fins")]
-    public float pectoralFrequency = 3.2f;
-    public float pectoralAmplitude = 18f;
-    public float pectoralTurnBias = 0.5f;    // outer fin beats harder in a turn
+    // Pectorals fan steadily when hovering and slow down / fold in as the fish swims faster.
+    public float pectoralHoverFrequency = 2f;
+    public float pectoralCruiseFrequency = 1.1f;
+    public float pectoralHoverAmplitude = 16f;
+    public float pectoralCruiseAmplitude = 6f;
+    [Range(0f, 0.5f)] public float pectoralHoverLag = 0.1f; // cycles the right fin trails the left when hovering
+    public float pectoralTurnBoost = 0.3f;   // outer fin beats harder in a turn
     public float gillRestFrequency = 0.7f;   // breathing slows when resting
     public float gillActiveFrequency = 1.6f; // and speeds up after exertion
     // Degrees the gill cover (Gill_*_02, as in the Flare clip) swings out about the body axis.
@@ -196,7 +200,9 @@ public class BettaSwimMotion : MonoBehaviour
         // Thrust peaks as the tail sweeps through the centre line (twice per beat);
         // mean stays 1 so average speed is unchanged.
         if (fish) fish.ThrustPulse = 1f + thrustPulse * effort * (Mathf.Abs(Mathf.Cos(caudalPhase)) * Mathf.PI * 0.5f - 1f);
-        finPhase += pectoralFrequency * TwoPi * dt;
+        // Swimming = moving or pushing with the tail: the faster, the slower and smaller the fanning.
+        float cruise = Mathf.Max(speed01, effort);
+        finPhase += Mathf.Lerp(pectoralHoverFrequency, pectoralCruiseFrequency, cruise) * TwoPi * dt;
         float rest = fish && fish.IsResting ? 0f : effort;
         exertion = Mathf.MoveTowards(exertion, rest, (rest > exertion ? 0.5f : 0.08f) * dt);
         gillPhase += Mathf.Lerp(gillRestFrequency, gillActiveFrequency, exertion) * TwoPi * dt;
@@ -241,12 +247,12 @@ public class BettaSwimMotion : MonoBehaviour
         // Head swings slightly against each tail stroke (recoil), which sells the push.
         Apply(ref head, Quaternion.AngleAxis(-Mathf.Sin(caudalPhase) * headRecoil * effort, up));
 
-        // Pectorals fan hardest when hovering; they tuck a little when the tail is working.
-        // Hovering bettas beat them alternately (half a cycle apart), drifting toward in-phase
-        // strokes while swimming; in a turn the outer fin beats harder.
-        float pectoral = pectoralAmplitude * Mathf.Lerp(1f, 0.5f, effort);
-        float offset = Mathf.PI * (1f - effort);
-        float turnBias = Mathf.Clamp(yawRate / 60f, -1f, 1f) * pectoralTurnBias; // + = turning right, left fin is outer
+        // Pectorals fan hardest when hovering and fold in while cruising. Both fins beat nearly
+        // together (a slight lag when hovering, in step when swimming); in a turn the outer fin
+        // beats harder.
+        float pectoral = Mathf.Lerp(pectoralHoverAmplitude, pectoralCruiseAmplitude, cruise);
+        float offset = pectoralHoverLag * TwoPi * (1f - cruise);
+        float turnBias = Mathf.Clamp(yawRate / 60f, -1f, 1f) * pectoralTurnBoost; // + = turning right, left fin is outer
         float left = Mathf.Sin(finPhase) * pectoral * (1f + turnBias);
         float right = Mathf.Sin(finPhase + offset) * pectoral * (1f - turnBias);
         for (int i = 0; i < pectoralL.Length; i++)

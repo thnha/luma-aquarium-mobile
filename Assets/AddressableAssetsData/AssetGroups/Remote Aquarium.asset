@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Remote Aquarium
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Remote Aquarium
+  m_GUID: 4fbed7c844acb4713ad03c162a2bb39e
+  m_SerializeEntries:
+  - m_GUID: 2081426f530b5447c94053cc5c66b91d
+    m_Address: Fish/PlakatGalaxy
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2a0236d69422c40cf83cc35531ff0d72
+    m_Address: Aquarium3D
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5370297910760458c8ae98f81017a9ea
+    m_Address: MainAquarium
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 583fadd897bf94bc2b34d7d80720fe87
+    m_Address: Betta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 884de8dcbf4664a0da8df7044211bf69
+    m_Address: Fish/Plakat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b0f2844b66e1d43a0b18b3db739de6df
+    m_Address: Fish/KoiNemoRig
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: f11d8dcd058ba4891bbfadbcd028ab86, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: ab660f4149e41493ca2baf54499ea104, type: 2}
+    - {fileID: 11400000, guid: 8029b0a806f00426492feaf3301056b2, type: 2}

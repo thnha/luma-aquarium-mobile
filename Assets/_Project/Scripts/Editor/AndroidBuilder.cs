@@ -52,6 +52,11 @@ public static class AndroidBuilder
         EditorUserBuildSettings.buildAppBundle = bundle;
         AssetDatabase.SaveAssets();
 
+        // Remote content (MainAquarium, fish, decor), uploaded to R2 by Tools/build_android.sh.
+        if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android)
+            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+        if (!RemoteContent.Build()) return false;
+
         Directory.CreateDirectory(OutputDir);
         var name = $"BettaFishAquarium3D-{PlayerSettings.bundleVersion}-{versionCode}.{(bundle ? "aab" : "apk")}";
         var options = new BuildPlayerOptions

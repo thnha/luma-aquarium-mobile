@@ -3,6 +3,7 @@
 #   default  .aab for Google Play -> Builds/Android/BettaFishAquarium3D-<version>-<code>.aab
 #   --apk    .apk to sideload instead
 #   --install  (with --apk) install it on the connected device with adb
+#   --no-content-upload  don't upload the remote content (ServerData/Android/<version>) to R2 after the build
 # The Unity editor must be closed; with it open, use Lumaquarium > Build > Android ... instead.
 # Env:
 #   BUILD_NUMBER  versionCode to use (default: current version code + 1)
@@ -14,11 +15,13 @@ OUT_DIR="$PROJECT_DIR/Builds/Android"
 LOG_DIR="$PROJECT_DIR/Builds/logs"
 FORMAT="aab"
 INSTALL=0
+CONTENT_UPLOAD=1
 
 for arg in "$@"; do
   case "$arg" in
     --apk) FORMAT="apk" ;;
     --install) INSTALL=1 ;;
+    --no-content-upload) CONTENT_UPLOAD=0 ;;
     *) echo "Unknown option: $arg" >&2; exit 2 ;;
   esac
 done
@@ -51,6 +54,11 @@ UNITY_ARGS=(-batchmode -quit -projectPath "$PROJECT_DIR" -buildTarget Android
 ARTIFACT="$(find "$OUT_DIR" -maxdepth 1 -name "*.$FORMAT" -newermt "@$STARTED" -print 2>/dev/null | sort | tail -1)"
 [[ -n "$ARTIFACT" ]] || { echo "Build finished but no .$FORMAT in $OUT_DIR" >&2; exit 1; }
 echo "==> Built $ARTIFACT"
+
+# The app downloads MainAquarium, fish and decor from R2 (see RemoteContent).
+if [[ $CONTENT_UPLOAD -eq 1 ]]; then
+  "$PROJECT_DIR/Tools/upload_content_r2.sh" Android
+fi
 
 if [[ $INSTALL -eq 1 ]]; then
   ADB="$UNITY_APP/PlaybackEngines/AndroidPlayer/SDK/platform-tools/adb"

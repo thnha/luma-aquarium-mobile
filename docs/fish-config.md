@@ -109,6 +109,8 @@ một màu tối pha 40% màu sáng vẫn trông khá xám.
 | `scaleRelief` | `1` | Độ nổi của vảy trên thân (0–1). `1` = như bản gốc (vảy cộm), thấp hơn = vảy **mỏng**, sát thân, rãnh giữa vảy nông hơn; vảy vẫn còn thấy ở mức thấp nhất. 3 cá hiện tại dùng `0.55`. |
 | `finBlack` | `0` | Phần đen trên vây (viền vây, gốc vây tối) đen sâu thêm, tách riêng khỏi màu đen của thân (0–1). `0` = như thân. PlakatGalaxy dùng `1`. |
 | `finBrightness` | `1` | Độ sáng các màu còn lại trên vây (0.5–2). `1` = như vẽ, `1.25` ≈ sáng thêm một tông, `1.8` = rất tươi (vàng ngả vàng chanh). PlakatGalaxy dùng `1.8`. |
+| `vibrance` | `1` | Độ tươi (bão hoà) của cả con cá sau khi tính ánh sáng (0.5–2). Ánh sáng xanh dưới nước làm màu nhạt đi; `1.3` = tươi rõ, `1.6` bắt đầu cháy màu đỏ. PlakatGalaxy dùng `1.3`. |
+| `brightness` | `1` | Độ sáng của cả con cá sau khi tính ánh sáng (0.5–2). PlakatGalaxy dùng `1.12`. |
 | `finRimAlpha` | `1` | Độ đục ở chỗ mép vây trong nhất. `1` = tắt (vây đục hoàn toàn). 3 cá hiện tại dùng `0.6`, kèm `finRim` `[0.55, 1.0]` và `caudalRim` `[0.3, 0.8]` cho nửa ngoài vây trong như màng. |
 | `finRim` | `[0.9, 1.0]` | Vùng mép trong của vây lưng, hậu môn, ngực, bụng: [bắt đầu, trong nhất], tính từ gốc vây 0 đến mép vây 1. |
 | `caudalRim` | `[0.62, 0.8]` | Như trên nhưng cho vây đuôi. |

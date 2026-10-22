@@ -41,6 +41,8 @@
     "scaleRelief": 1,
     "finBlack": 0,
     "finBrightness": 1,
+    "vibrance": 1,
+    "brightness": 1,
     "finRimAlpha": 1,
     "finRim": [0.9, 1.0],
     "caudalRim": [0.62, 0.8],

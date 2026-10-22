@@ -36,6 +36,8 @@ public class BettaAppearance : MonoBehaviour
     static readonly int ScaleReliefId = Shader.PropertyToID("_ScaleRelief");
     static readonly int FinBlackId = Shader.PropertyToID("_FinBlack");
     static readonly int FinBrightnessId = Shader.PropertyToID("_FinBrightness");
+    static readonly int VibranceId = Shader.PropertyToID("_Vibrance");
+    static readonly int BrightnessId = Shader.PropertyToID("_Brightness");
     static readonly int HeadId = Shader.PropertyToID("_VariantHead");
     static readonly int TailId = Shader.PropertyToID("_VariantTail");
     static readonly int DepthId = Shader.PropertyToID("_VariantDepth");
@@ -78,6 +80,25 @@ public class BettaAppearance : MonoBehaviour
 
     void ShowModel(GameObject prefab)
     {
+        // modelInstance isn't serialized: a model already under the fish (saved in a scene, or copied
+        // with the fish by Instantiate) is adopted if it is this one and removed otherwise, so two
+        // models never overlap (an unpainted white one showed through the painted one).
+        var children = new List<Transform>();
+        if (modelInstance == null)
+            foreach (Transform child in transform) children.Add(child);
+        foreach (var child in children)
+        {
+            if (!child.GetComponentInChildren<SkinnedMeshRenderer>(true)) continue;
+            if (modelInstance == null && child.name == prefab.name)
+            {
+                modelInstance = child.gameObject;
+                modelPrefab = prefab;
+                continue;
+            }
+            child.gameObject.SetActive(false);
+            if (Application.isPlaying) Destroy(child.gameObject);
+            else DestroyImmediate(child.gameObject);
+        }
         if (modelInstance != null && modelPrefab == prefab) return;
         if (modelInstance != null)
         {
@@ -124,6 +145,8 @@ public class BettaAppearance : MonoBehaviour
             block.SetFloat(ScaleReliefId, variant.scaleRelief);
             block.SetFloat(FinBlackId, variant.finBlack);
             block.SetFloat(FinBrightnessId, variant.finBrightness);
+            block.SetFloat(VibranceId, variant.vibrance);
+            block.SetFloat(BrightnessId, variant.brightness);
             BodyAxis(r, out Vector3 head, out Vector3 tail);
             block.SetVector(HeadId, head);
             block.SetVector(TailId, tail);

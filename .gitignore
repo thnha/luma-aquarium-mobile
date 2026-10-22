@@ -4,6 +4,9 @@
 /[Oo]bj/
 /[Bb]uild/
 /[Bb]uilds/
+# Remote content built by RemoteContent (uploaded to R2) and its upload keys
+/ServerData/
+/Tools/r2.env
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 /[Mm]emoryCaptures/

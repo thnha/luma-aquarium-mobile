@@ -119,6 +119,9 @@ Shader "Lumaquarium/Betta Lit"
         // Fins: dark parts deeper towards black (0 = as the body's black), brightness of the other fin colours (1 = as painted)
         _FinBlack("Fin Black", Range(0.0, 1.0)) = 0.0
         _FinBrightness("Fin Brightness", Range(0.5, 2.0)) = 1.0
+        // Lit colour of the whole fish: saturation and brightness (1 = as lit). Underwater light makes it read dull.
+        _Vibrance("Vibrance", Range(0.5, 2.0)) = 1.0
+        _Brightness("Brightness", Range(0.5, 2.0)) = 1.0
         // Editmode props
         _QueueOffset("Queue offset", Float) = 0.0
 
@@ -291,6 +294,8 @@ Shader "Lumaquarium/Betta Lit"
             #endif
                 );
                 outColor.rgb += BettaFinTransmission(input.positionWS, normalize(input.normalWS));
+                half luma = dot(outColor.rgb, half3(0.2126h, 0.7152h, 0.0722h));
+                outColor.rgb = max(lerp(luma.xxx, outColor.rgb, _Vibrance), 0.0h) * _Brightness;
                 if (_FinEdgePass > 0.5h)
                     outColor.a = edgeAlpha;
             }

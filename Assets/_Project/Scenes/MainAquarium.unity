@@ -23421,7 +23421,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b7d6ae397c6dd4c288af5630eaf4a91e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e4437c31d784e44ca9649d74221cd7f0, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -32214,7 +32214,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cf0bff738374b34b3ec05532c66f69d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BettaAppearance
-  variant: {fileID: 11400000, guid: d81b8f34f3980428d824586d35863f22, type: 2}
+  variant: {fileID: 11400000, guid: 6c339132a70a748ab9e999cc22658f90, type: 2}
 --- !u!1 &1295464192
 GameObject:
   m_ObjectHideFlags: 0
@@ -38651,7 +38651,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Plakat Koi
+  m_text: Plakat Galaxy
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d9526008dd48f4c898bdd593baaeddbb, type: 2}
   m_sharedMaterial: {fileID: 5496422397312358058, guid: d9526008dd48f4c898bdd593baaeddbb, type: 2}
@@ -50035,7 +50035,7 @@ MonoBehaviour:
   maxTapSeconds: 0.35
   maxTapMovePixels: 20
   tapDepthJitter: 0.12
-  fishTapRadius: 0.12
+  fishTapRadiusInches: 0.25
 --- !u!4 &2000553311
 Transform:
   m_ObjectHideFlags: 0

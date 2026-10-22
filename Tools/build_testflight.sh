@@ -3,6 +3,9 @@
 #   1. Unity batch mode -> Builds/iOS (Xcode project), via IosBuilder.BuildFromCommandLine
 #   2. xcodebuild archive -> Builds/Lumaquarium.xcarchive
 #   3. xcodebuild -exportArchive with destination=upload -> App Store Connect
+# Step 1 also builds the remote content (ServerData/iOS/<version>), uploaded to R2 before the app
+# (Tools/upload_content_r2.sh): the app downloads MainAquarium, fish and decor from there.
+# Content-only changes don't need this script: Tools/publish_content.sh ios.
 #
 # Usage: Tools/build_testflight.sh [--skip-unity] [--no-upload]
 #   --skip-unity  reuse Builds/iOS (e.g. exported from the open editor: Lumaquarium > Build > iOS Xcode Project)
@@ -52,6 +55,11 @@ if [[ $SKIP_UNITY -eq 0 ]]; then
 fi
 
 [[ -d "$XCODE_DIR" ]] || { echo "No Xcode project at $XCODE_DIR" >&2; exit 1; }
+
+# Content first: a TestFlight build whose content is not on R2 cannot open the aquarium.
+if [[ $UPLOAD -eq 1 ]]; then
+  "$PROJECT_DIR/Tools/upload_content_r2.sh" iOS
+fi
 
 # CocoaPods-based exports come with a workspace; plain ones only with the project.
 if [[ -d "$XCODE_DIR/Unity-iPhone.xcworkspace" ]]; then
