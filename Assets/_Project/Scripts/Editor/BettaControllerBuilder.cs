@@ -3,8 +3,8 @@ using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 
-// Builds Art/Betta/Betta.controller, the shared state machine (Idle/Swim/Nibble/Rest/Flare) driven by
-// BettaFishAI and BettaReactions. Its clips come from Art/Betta/Betta.fbx, the template rig exported from
+// Builds Art/Betta/Betta.controller, the shared state machine (Idle/Swim/Nibble/Rest/Flare/Gulp/Bubble/Yawn) driven by
+// BettaFishAI, BettaReactions and BettaMouth. Its clips come from Art/Betta/Betta.fbx, the template rig exported from
 // betta-splendens/source/Betta_Splendens_M3.blend; every pipeline fish plays it through an override
 // controller with its own same-named clips (PipelineFishImporter).
 // Menu: Lumaquarium > Fish > Rebuild Betta Animator Controller (safe to re-run).
@@ -80,6 +80,24 @@ public static class BettaControllerBuilder
             var toFlare = sm.AddAnyStateTransition(flare); toFlare.AddCondition(AnimatorConditionMode.If, 0, "Flare"); toFlare.duration = 0.1f; toFlare.canTransitionToSelf = false;
             var back = flare.AddTransition(idle); back.hasExitTime = true; back.exitTime = 0.95f; back.duration = 0.2f;
         }
+
+        // Mouth one-shots (betta-splendens/pipeline/mouth_clips.py): Gulp and Bubble from BettaFishAI at the
+        // surface, Yawn from BettaMouth while idling or resting.
+        OneShot(controller, sm, idle, clips, "Gulp", 0.9f, 0.15f);
+        OneShot(controller, sm, idle, clips, "Bubble", 0.9f, 0.15f);
+        OneShot(controller, sm, idle, clips, "Yawn", 0.92f, 0.25f);
         return controller;
+    }
+
+    // A trigger of the same name plays the clip once from any state, then returns to Idle.
+    static void OneShot(AnimatorController controller, AnimatorStateMachine sm, AnimatorState idle, AnimationClip[] clips,
+        string name, float exitTime, float blend)
+    {
+        controller.AddParameter(name, AnimatorControllerParameterType.Trigger);
+        var clip = clips.FirstOrDefault(c => c.name == name);
+        if (!clip) return;
+        var state = sm.AddState(name); state.motion = clip;
+        var to = sm.AddAnyStateTransition(state); to.AddCondition(AnimatorConditionMode.If, 0, name); to.duration = 0.1f; to.canTransitionToSelf = false;
+        var back = state.AddTransition(idle); back.hasExitTime = true; back.exitTime = exitTime; back.duration = blend;
     }
 }

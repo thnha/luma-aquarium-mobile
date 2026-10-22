@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1527155359198420988}
   - component: {fileID: 2794917001719069782}
   - component: {fileID: 7052492727105010685}
+  - component: {fileID: 2942803202648501865}
   - component: {fileID: 7956744952926261367}
   m_Layer: 0
   m_Name: Plakat
@@ -174,6 +175,25 @@ MonoBehaviour:
   flareCooldown: 2
   maxTapSeconds: 0.3
   maxTapMovePixels: 20
+--- !u!114 &2942803202648501865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 134537175129099451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d8e685ddcb334db4afc9b484018aeb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaMouth
+  skeletonRoot: {fileID: 366118080835766353}
+  bubbleMaterial: {fileID: 2100000, guid: f192f1ee71f1845f39788389f419341d, type: 2}
+  yawnMinInterval: 20
+  yawnMaxInterval: 50
+  bubbleSize: {x: 0.012, y: 0.022}
+  bubbleRiseSpeed: 0.22
+  surfaceFloatTime: {x: 4, y: 9}
 --- !u!114 &7956744952926261367
 MonoBehaviour:
   m_ObjectHideFlags: 0

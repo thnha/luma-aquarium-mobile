@@ -16,19 +16,24 @@ MonoBehaviour:
   modelPrefab: {fileID: 6207462310338228702, guid: df6d58eb0393f4763869fe41c19b115b, type: 3}
   pattern: {fileID: 11400000, guid: 9c31507e348de46669991b4d0d773ea2, type: 2}
   primary: {r: 0.92, g: 0.92, b: 0.94, a: 1}
-  secondary: {r: 0.005, g: 0.006, b: 0.012, a: 1}
+  secondary: {r: 0.22, g: 0.225, b: 0.24, a: 1}
   accent: {r: 1, g: 0.03, b: 0.03, a: 1}
   finEdge: {r: 1, g: 0.66, b: 0.04, a: 1}
   iridescence: 0.25
   textureDetail: 0.6
   silverSheen: 0.4
   gloss: 0.5
-  blackGloss: 0.5
+  blackGloss: 0.15
   whiteScales: 0.04
   pigmentDepth: 0.35
   finEdgeClear: 1
-  finRimAlpha: 0.88
-  finRim: {x: 0.9, y: 1}
-  caudalRim: {x: 0.62, y: 0.8}
+  finRelief: 0.5
+  finTranslucency: 1.2
+  scaleRelief: 0.55
+  finBlack: 1
+  finBrightness: 1.8
+  finRimAlpha: 0.6
+  finRim: {x: 0.55, y: 1}
+  caudalRim: {x: 0.3, y: 0.8}
   caudalStart: 0.72
   seed: 3

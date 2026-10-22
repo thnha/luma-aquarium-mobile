@@ -96,6 +96,10 @@ Shader "Lumaquarium/Betta Lit"
         _BlackGloss("Black Gloss", Range(0.0, 1.0)) = 0.0
         // Koi Galaxy: share of the dark scales that are white instead (0 = none)
         _WhiteScales("White Scales", Range(0.0, 0.5)) = 0.0
+        // Koi Galaxy black lacquer detail: per-scale polish, dull seams, steel-blue sheen (0 = flat coat)
+        _BlackDetail("Black Detail", Range(0.0, 1.0)) = 1.0
+        // Strength of the steel-blue sheen on black scales (1 = faint, 2 = clear steel blue)
+        _BlackSteel("Black Steel Sheen", Range(0.0, 4.0)) = 2.0
         // Snout and tail tip in object space (set per fish), and pigment depth: z deeper head / paler tail, w paler fin edges
         _VariantHead("Variant Head", Vector) = (0,0,0,0)
         _VariantTail("Variant Tail", Vector) = (0,0,0,0)
@@ -108,6 +112,13 @@ Shader "Lumaquarium/Betta Lit"
         [HideInInspector] _FinEdgePass("Fin Edge Pass", Float) = 0.0
         // Fins are thin membranes: light from behind shines through, more towards the edge
         _FinTranslucency("Fin Translucency", Range(0.0, 2.0)) = 0.8
+        // Depth of the grooves between fin rays (1 = as baked, lower = flatter, thinner-looking membrane)
+        _FinRelief("Fin Relief", Range(0.0, 1.0)) = 1.0
+        // Height of the body scales (1 = as authored, lower = thinner scales lying flat on the skin)
+        _ScaleRelief("Scale Relief", Range(0.0, 1.0)) = 1.0
+        // Fins: dark parts deeper towards black (0 = as the body's black), brightness of the other fin colours (1 = as painted)
+        _FinBlack("Fin Black", Range(0.0, 1.0)) = 0.0
+        _FinBrightness("Fin Brightness", Range(0.5, 2.0)) = 1.0
         // Editmode props
         _QueueOffset("Queue offset", Float) = 0.0
 
@@ -306,7 +317,7 @@ Shader "Lumaquarium/Betta Lit"
 
             // -------------------------------------
             // Shader Stages
-            #pragma vertex ShadowPassVertex
+            #pragma vertex BettaShadowPassVertex
             #pragma fragment ShadowPassFragment
 
             // -------------------------------------
@@ -333,6 +344,33 @@ Shader "Lumaquarium/Betta Lit"
             // Includes
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
+
+            // The fish's shadow is drawn this far behind it (away from the light), so the pleated fins and
+            // neighbouring folds stop shadowing each other: at mobile shadow texels (~1 cm) those small hard
+            // shadows flicker as the fins wave. Shadows on the sand and from decor onto the fish are kept.
+            #define BETTA_SHADOW_PUSH_BACK 0.05
+
+            Varyings BettaShadowPassVertex(Attributes input)
+            {
+                Varyings output;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+
+                #if defined(_ALPHATEST_ON)
+                output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
+                #endif
+
+                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
+            #if _CASTING_PUNCTUAL_LIGHT_SHADOW
+                float3 lightDirectionWS = normalize(_LightPosition - positionWS);
+            #else
+                float3 lightDirectionWS = _LightDirection;
+            #endif
+                positionWS = ApplyShadowBias(positionWS, normalWS, lightDirectionWS) - lightDirectionWS * BETTA_SHADOW_PUSH_BACK;
+                output.positionCS = ApplyShadowClamping(TransformWorldToHClip(positionWS));
+                return output;
+            }
             ENDHLSL
         }
 

@@ -100,7 +100,9 @@ Material:
     - _AlbedoAO: 0.5
     - _AlphaClip: 0
     - _AlphaToMask: 0
+    - _BlackDetail: 1
     - _BlackGloss: 0
+    - _BlackSteel: 2
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -114,7 +116,10 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
+    - _FinBlack: 0
+    - _FinBrightness: 1
     - _FinEdgePass: 0
+    - _FinRelief: 1
     - _FinTranslucency: 0.8
     - _Gloss: 1
     - _GlossMapScale: 0
@@ -126,6 +131,7 @@ Material:
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _ScaleRelief: 1
     - _ScaleTilt: 0.08
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0

@@ -7,7 +7,7 @@ using UnityEngine;
 // so it never slides sideways or snaps orientation.
 public class BettaFishAI : MonoBehaviour
 {
-    public enum State { Wander, Idle, SeekFood, Eat, Rest, Breathe }
+    public enum State { Wander, Idle, SeekFood, Eat, Rest, Breathe, SwimToTap, Flee }
     public State state = State.Wander;
     public BoxCollider swimBounds;
     public FeedingSystem feeding;
@@ -57,6 +57,8 @@ public class BettaFishAI : MonoBehaviour
     public float gulpDuration = 0.5f;
     public float waterSurfaceY = 2.35f;           // world height of the water surface
     public float gulpDepth = 0.04f;               // pivot depth below the surface when gulping or taking floating food
+    [Range(0f, 1f)] public float bubbleBlowChance = 0.5f; // after a gulp, sometimes blows a few bubbles before diving
+    public float bubbleBlowDuration = 1.1f;
 
     [Header("Resting")]
     [Range(0f, 1f)] public float bottomRestChance = 0.6f; // otherwise rests just under the surface
@@ -67,6 +69,22 @@ public class BettaFishAI : MonoBehaviour
     public float strikeRadius = 0.3f;             // close and lined up: dart at the pellet
     public float strikeSpeedMultiplier = 2.2f;
     public float mouthOffset = 0.04f;             // mouth distance ahead of the pivot
+    public float bottomFeedY = 0.55f;             // lowest pivot height nosing a pellet off the sand
+    public float seekGiveUpTime = 6f;             // gives up on a pellet it can't get closer to (wedged by decor)
+    public float tapSwimSpeedMultiplier = 2f;     // swimming over to where the player tapped
+    public float tapAccelerationMultiplier = 2.5f; // darts off right after the tap
+    public float tapExcitedSpeedMultiplier = 2.8f; // after several quick taps, or darting at a tap just ahead
+    [Range(-1f, 1f)] public float tapAheadCone = 0.5f; // cos of the half-angle that counts as "in front" (60 deg)
+    [Range(0f, 1f)] public float tapReflex = 0.6f; // quickness for any tap, held until it gets there
+    public float tapExcitementPerTap = 0.35f;     // each tap excites it more; it calms at tapCalmRate per second
+    public float tapCalmRate = 0.4f;
+    public float quickTurnRate = 220f;            // deg/s whipping round on the pectorals when excited
+
+    [Header("Startle")]
+    public float fleeSpeedMultiplier = 3.2f;      // a tap right on the fish: it bolts away
+    public float fleeDistance = 0.7f;             // how far it runs from the tap
+    public float fleeDive = 0.25f;                // and drops a little deeper
+    public float startleShyTime = 2.5f;           // ignores "come here" taps for a while afterwards
 
     [Header("Hovering")]
     public float hoverDrift = 0.012f;             // m/s of slow drift while hovering
@@ -103,6 +121,9 @@ public class BettaFishAI : MonoBehaviour
 
     static readonly int SpeedId = Animator.StringToHash("Speed");
     static readonly int NibbleId = Animator.StringToHash("Nibble");
+    static readonly int GulpId = Animator.StringToHash("Gulp");
+    static readonly int BubbleId = Animator.StringToHash("Bubble");
+    const float GulpClipSeconds = 20f / 24f;      // Gulp clip length (mouth_clips.py); a bubble blow waits for it
 
     private Vector3 destination;
     private FoodPellet food;
@@ -117,6 +138,7 @@ public class BettaFishAI : MonoBehaviour
     private float yaw, pitch;                     // heading kept as angles so turns never roll
     private float breatheTimer;
     private bool gulping;
+    private bool blowingBubbles;
     private float ceiling;                        // top of the allowed space; lowers gently after a gulp
     private float floor;                          // bottom of the allowed space; drops to the sand to rest
     private float noiseSeed;
@@ -127,14 +149,21 @@ public class BettaFishAI : MonoBehaviour
     private AquariumDecoration decoration;
     private float obstacleScanTimer;
     private bool climbingObstacle;
+    private float closestFoodDistance;
+    private float seekStuckTimer;
+    private float tapExcitement;                  // 0..1, built up by repeated taps
+    private float shyUntil;
 
     // True only once the fish has reached its rest spot and lies still.
     public bool IsResting => state == State.Rest && settled;
     // 0 calm .. 1 excited (feeding, breathing, flaring); -1 resting. Drives dorsal/anal fin posture.
     public float Arousal => state == State.SeekFood || state == State.Eat || state == State.Breathe ? 1f
+        : state == State.SwimToTap ? Mathf.Lerp(0.5f, 1f, tapExcitement) : state == State.Flee ? 1f
         : state == State.Rest ? (settled ? -1f : -0.3f) : state == State.Idle ? 0.2f : 0.35f;
 
     public float CurrentSpeed => currentSpeed;
+    // Fired when the Gulp / Bubble clips start, so BettaMouth can let bubbles out in time with them.
+    public event System.Action Gulped, BlowingBubbles;
     // Gills to tail base in metres; set by BettaSwimMotion from the model's rig.
     public float BodyLength { get; set; } = 0.3f;
     // 0 = hovering/gliding, 1 = actively beating the tail. Drives the caudal fin.
@@ -157,11 +186,13 @@ public class BettaFishAI : MonoBehaviour
     {
         if (swimBounds == null) return;
         hunger = Mathf.Clamp01(hunger + hungerPerSecond * Time.deltaTime);
+        tapExcitement = Mathf.MoveTowards(tapExcitement, 0f, tapCalmRate * Time.deltaTime);
         stateTimer -= Time.deltaTime;
 
-        if (state != State.SeekFood && state != State.Eat) LookForFood();
+        if (state != State.SeekFood && state != State.Eat && state != State.Flee) LookForFood();
         breatheTimer -= Time.deltaTime;
-        if (breatheTimer <= 0f && (state == State.Wander || state == State.Idle)) EnterBreathe();
+        // A frightened fish stays down rather than heading up for air straight away.
+        if (breatheTimer <= 0f && (state == State.Wander || state == State.Idle) && Time.time >= shyUntil) EnterBreathe();
 
         switch (state)
         {
@@ -192,6 +223,32 @@ public class BettaFishAI : MonoBehaviour
                     transform.position = Vector3.MoveTowards(transform.position, destination, 0.03f * Time.deltaTime);
                 if (stateTimer <= 0f) EnterWander();
                 break;
+            case State.SwimToTap:
+                targetEffort = 1f;
+                // A tap right in front gets an instant dart, like a strike at food; repeated
+                // taps excite it so it whips round and rushes over wherever they are.
+                Vector3 toTap = destination - transform.position;
+                bool tapInFront = Vector3.Dot(transform.forward, toTap.normalized) > tapAheadCone;
+                float quickness = Mathf.Max(tapExcitement, tapInFront ? Mathf.Max(0.8f, tapReflex) : tapReflex);
+                bool dart = tapInFront && toTap.magnitude > slowdownRadius * 0.5f;
+                SwimTowards(destination, swimSpeed * Mathf.Lerp(tapSwimSpeedMultiplier, tapExcitedSpeedMultiplier, quickness),
+                    dart, tapAccelerationMultiplier, quickness);
+                // Hover there a moment, as if checking out the finger on the glass.
+                if (Arrived(destination) || stateTimer <= 0f) EnterIdle();
+                break;
+            case State.Flee:
+                // C-start: whip round on the spot, then bolt flat out with no easing.
+                targetEffort = 1f;
+                Vector3 toSafety = destination - transform.position;
+                bool facingAway = Vector3.Dot(transform.forward, toSafety.normalized) > 0.5f;
+                SwimTowards(destination, swimSpeed * fleeSpeedMultiplier,
+                    facingAway && toSafety.magnitude > slowdownRadius * 0.3f, 4f, 1f);
+                if (Arrived(destination) || stateTimer <= 0f)
+                {
+                    EnterIdle();
+                    stateTimer += startleShyTime;     // holds still a bit longer, wary
+                }
+                break;
             case State.Idle:
                 targetEffort = 0.1f;
                 SwimTowards(transform.position + transform.forward, 0f);
@@ -200,13 +257,23 @@ public class BettaFishAI : MonoBehaviour
             case State.SeekFood:
                 if (food == null) { LookForFood(); if (food == null) EnterWander(); break; }
                 targetEffort = 1f;
-                Vector3 target = ClampToBounds(food.transform.position, SurfaceTop());
+                Vector3 target = ClampToBounds(food.transform.position, SurfaceTop(), FeedBottom());
                 Vector3 toFood = target - transform.position;
                 bool strike = toFood.magnitude < strikeRadius && Vector3.Dot(transform.forward, toFood.normalized) > 0.7f;
                 SwimTowards(target, swimSpeed * (strike ? strikeSpeedMultiplier : seekSpeedMultiplier), strike);
                 // Measured from the mouth, a little ahead of the pivot (which sits at the gills).
                 Vector3 mouth = transform.position + transform.forward * mouthOffset;
-                if (Arrived(target) || (food.transform.position - mouth).sqrMagnitude <= arrivalRadius * arrivalRadius) EnterEat();
+                float foodDistance = (food.transform.position - mouth).magnitude;
+                if (Arrived(target) || foodDistance <= arrivalRadius) { EnterEat(); break; }
+                // No closer for a while: it lies where the body can't fit, leave it be.
+                if (foodDistance < closestFoodDistance - 0.03f) { closestFoodDistance = foodDistance; seekStuckTimer = 0f; }
+                else if ((seekStuckTimer += Time.deltaTime) > seekGiveUpTime)
+                {
+                    food.Unreachable = true;
+                    food = null;
+                    LookForFood();
+                    if (food == null) EnterWander();
+                }
                 break;
             case State.Breathe:
                 if (!gulping)
@@ -225,8 +292,9 @@ public class BettaFishAI : MonoBehaviour
                     if (Arrived(destination) || transform.position.y >= destination.y - 0.02f)
                     {
                         gulping = true;
-                        stateTimer = gulpDuration;
-                        if (animator) animator.SetTrigger(NibbleId);
+                        stateTimer = Mathf.Max(gulpDuration, GulpClipSeconds);
+                        if (animator) animator.SetTrigger(GulpId);
+                        Gulped?.Invoke();
                     }
                 }
                 else
@@ -234,7 +302,16 @@ public class BettaFishAI : MonoBehaviour
                     // Hold the snout tipped up into the surface while gulping.
                     targetEffort = 0.2f;
                     SwimTowards(transform.position + Vector3.up * 0.1f + Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized * 0.2f, 0f);
-                    if (stateTimer <= 0f) EnterDive();
+                    if (stateTimer > 0f) break;
+                    // Bettas often blow a bubble or two at the surface (nest building) before diving.
+                    if (!blowingBubbles && Random.value < bubbleBlowChance)
+                    {
+                        blowingBubbles = true;
+                        stateTimer = bubbleBlowDuration;
+                        if (animator) animator.SetTrigger(BubbleId);
+                        BlowingBubbles?.Invoke();
+                    }
+                    else EnterDive();
                 }
                 break;
             case State.Eat:
@@ -255,7 +332,9 @@ public class BettaFishAI : MonoBehaviour
         bool surfaceAllowed = state == State.Breathe || state == State.SeekFood || state == State.Eat;
         ceiling = surfaceAllowed ? SurfaceTop() : Mathf.Max(normalTop, Mathf.Min(ceiling, transform.position.y));
         float normalBottom = NormalBottom();
-        floor = state == State.Rest && restOnBottom ? Mathf.Min(normalBottom, bottomRestY) : Mathf.Min(normalBottom, Mathf.Max(floor, transform.position.y));
+        floor = state == State.Rest && restOnBottom ? Mathf.Min(normalBottom, bottomRestY)
+            : state == State.SeekFood || state == State.Eat ? FeedBottom()
+            : Mathf.Min(normalBottom, Mathf.Max(floor, transform.position.y));
         transform.position = ClampToBounds(transform.position, ceiling, floor);
         ResolveObstacles();
         if (animator) animator.SetFloat(SpeedId, currentSpeed);
@@ -273,8 +352,60 @@ public class BettaFishAI : MonoBehaviour
     public void Seek(FoodPellet pellet)
     {
         if (pellet == null || state == State.Eat) return;
+        if (pellet != food) { closestFoodDistance = float.MaxValue; seekStuckTimer = 0f; }
         food = pellet;
         state = State.SeekFood;
+    }
+
+    // Swim over to a point in the tank (a tap on the glass). Food and a gulp in progress come first.
+    public void SwimTo(Vector3 point)
+    {
+        tapExcitement = Mathf.Clamp01(tapExcitement + tapExcitementPerTap);
+        // Food comes first; a gulp of air is only cut short by insistent tapping.
+        // Just after a fright it won't come over.
+        if (state == State.SeekFood || state == State.Eat || state == State.Flee || Time.time < shyUntil) return;
+        if (state == State.Breathe && gulping && tapExcitement < 0.6f) return;
+        state = State.SwimToTap;
+        settled = false;
+        destination = AboveObstacles(ClampToBounds(point));
+        stateTimer = 4f + Vector3.Distance(transform.position, destination) / Mathf.Max(0.05f, swimSpeed);
+    }
+
+    // A tap right on the fish: it bolts to the side of the tank away from the finger
+    // (or the roomier side when the tap is dead centre), diving a little.
+    public void Startle(Vector3 tapPoint)
+    {
+        if (state == State.Eat) return;
+        food = null;
+        tapExcitement = 0f;
+        shyUntil = Time.time + startleShyTime + 1.5f;
+        Bounds b = swimBounds ? swimBounds.bounds : new Bounds(transform.position, Vector3.one);
+        Vector3 here = transform.position;
+        float side = here.x - tapPoint.x;
+        // Away from the finger along the length of the tank.
+        float dir = Mathf.Abs(side) > 0.03f ? Mathf.Sign(side) : (here.x < b.center.x ? 1f : -1f);
+        float room = dir > 0f ? b.max.x - boundsInset - here.x : here.x - (b.min.x + boundsInset);
+        if (room < fleeDistance * 0.5f) dir = -dir;   // cornered: dart past the finger to the open end
+        Vector3 target = here + new Vector3(dir * fleeDistance, -fleeDive, Random.Range(-0.1f, 0.1f));
+        state = State.Flee;
+        settled = false;
+        gulping = false;
+        destination = AboveObstacles(ClampToBounds(target));
+        stateTimer = 3f;
+    }
+
+    // Top of the solid decoration under this spot, so sinking food lands on rocks and wood.
+    public float GroundHeight(Vector3 position)
+    {
+        ScanObstacles();
+        float top = float.MinValue;
+        foreach (var col in obstacles)
+        {
+            Bounds b = col.bounds;
+            if (position.x >= b.min.x && position.x <= b.max.x && position.z >= b.min.z && position.z <= b.max.z)
+                top = Mathf.Max(top, b.max.y);
+        }
+        return top;
     }
 
     void LookForFood()
@@ -283,7 +414,8 @@ public class BettaFishAI : MonoBehaviour
         if (nearest != null) Seek(nearest);
     }
 
-    void SwimTowards(Vector3 target, float targetSpeed, bool strike = false)
+    // quickness 0..1: an excited fish turns on its pectorals and only slows right at the target.
+    void SwimTowards(Vector3 target, float targetSpeed, bool strike = false, float accelerationBoost = 1f, float quickness = 0f)
     {
         Vector3 direction = target - transform.position;
         if (targetSpeed > 0f) direction = AvoidObstacles(direction);
@@ -297,7 +429,7 @@ public class BettaFishAI : MonoBehaviour
         {
             // Straight above/below the heading is meaningless; keep the current one.
             if (horizontal > 0.03f) targetYaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-            float limit = state == State.SeekFood ? feedMaxPitch : state == State.Rest ? restMaxPitch
+            float limit = state == State.SeekFood ? feedMaxPitch : state == State.Rest || state == State.SwimToTap || state == State.Flee ? restMaxPitch
                 : state == State.Breathe ? breatheMaxPitch : maxPitch;
             if (climbingObstacle) limit = Mathf.Max(limit, climbMaxPitch);
             if (targetSpeed > 0f || state == State.Breathe)
@@ -319,7 +451,7 @@ public class BettaFishAI : MonoBehaviour
             // above (steeper than the pitch limit) doesn't stall the fish.
             Vector3 reachable = Quaternion.Euler(targetPitch, targetYaw, 0f) * Vector3.forward;
             float alignment = Vector3.Dot(transform.forward, reachable) * 0.5f + 0.5f;
-            float approach = Mathf.Clamp01(direction.magnitude / slowdownRadius);
+            float approach = Mathf.Clamp01(direction.magnitude / (slowdownRadius * (1f - 0.6f * quickness)));
             targetSpeed *= Mathf.Max(minTurnSpeedFactor, alignment * alignment) * Mathf.Max(0.2f, approach);
             braking = approach < 1f || alignment < 0.6f;
             // Coming out of a big turn the tail sweeps through and pushes the fish off.
@@ -334,7 +466,7 @@ public class BettaFishAI : MonoBehaviour
             targetSpeed = Mathf.Max(targetSpeed, turnGlideSpeed * offHeading);
         }
         // A strike is a short dart; the fish then brakes hard with its pectorals.
-        float rate = targetSpeed > currentSpeed ? acceleration * (strike ? 4f : 1f)
+        float rate = targetSpeed > currentSpeed ? acceleration * (strike ? 4f : accelerationBoost)
             : braking ? acceleration * (currentSpeed > swimSpeed * 1.2f ? 3f : 1f) : deceleration;
         currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, rate * Time.deltaTime);
 
@@ -352,9 +484,10 @@ public class BettaFishAI : MonoBehaviour
             float turnRadius = Mathf.Max(0.01f, turnRadiusBodyLengths * BodyLength);
             turnRadius = Mathf.Max(turnRadius * closeTurnRadiusFactor, Mathf.Min(turnRadius, horizontal * 0.5f));
             float maxRate = targetSpeed > 0f ? Mathf.Min(currentSpeed / turnRadius * Mathf.Rad2Deg, headTurnRate) : hoverHeadTurnRate;
+            maxRate = Mathf.Max(maxRate, quickTurnRate * quickness);
             desiredYawVelocity = Mathf.Clamp(yawError * headTurnGain, -maxRate, maxRate);
         }
-        yawVelocity = Mathf.MoveTowards(yawVelocity, desiredYawVelocity, headTurnAcceleration * Time.deltaTime);
+        yawVelocity = Mathf.MoveTowards(yawVelocity, desiredYawVelocity, headTurnAcceleration * (1f + 2f * quickness) * Time.deltaTime);
         yaw += yawVelocity * Time.deltaTime;
         if (Mathf.Abs(yawError) > 100f) bigTurn = true;
         else if (bigTurn && Mathf.Abs(yawError) < 25f)
@@ -413,6 +546,7 @@ public class BettaFishAI : MonoBehaviour
     {
         state = State.Breathe;
         gulping = false;
+        blowingBubbles = false;
         breatheTimer = Random.Range(breatheMinInterval, breatheMaxInterval);
         Vector3 ahead = transform.position + Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized * 0.2f;
         destination = ClampToBounds(ahead);
@@ -433,7 +567,10 @@ public class BettaFishAI : MonoBehaviour
 
     float NormalBottom() => swimBounds ? swimBounds.bounds.min.y + boundsInset : float.MinValue;
 
-    float NormalTop() => swimBounds ? swimBounds.bounds.max.y - boundsInset : float.MaxValue;
+    // Sinking pellets end up on the sand, below the normal swimming space.
+    float FeedBottom() => Mathf.Min(NormalBottom(), bottomFeedY);
+
+    float NormalTop() =>swimBounds ? swimBounds.bounds.max.y - boundsInset : float.MaxValue;
 
     // Bettas rest on the bottom (or on leaves) or hang just under the surface.
     void EnterRest()
@@ -526,13 +663,16 @@ public class BettaFishAI : MonoBehaviour
 
         // Over: rise early enough to clear what lies ahead, and hold the height until the
         // tail and its fins have passed (the stretch behind the snout is checked too).
+        // Picking food off the bottom it dips nose-down with the tail held high, so only
+        // what lies ahead counts; ResolveObstacles still pushes the tilted body out of decor.
+        float trailFrom = state == State.SeekFood && food != null && food.OnBottom ? 0f : -BodyLength * 1.15f;
         float slope = float.NegativeInfinity;
         foreach (var col in obstacles)
         {
             if (!ClimbOver(col)) continue;
             Bounds b = col.bounds;
             float needed = ClearHeight(col) - transform.position.y;
-            for (float d = -BodyLength * 1.15f; d <= climbLookAhead; d += 0.05f)
+            for (float d = trailFrom; d <= climbLookAhead; d += 0.05f)
             {
                 Vector3 p = snout + forward * d;
                 if (p.x < b.min.x - r || p.x > b.max.x + r || p.z < b.min.z - r || p.z > b.max.z + r) continue;

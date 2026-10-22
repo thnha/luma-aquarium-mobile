@@ -201,7 +201,7 @@ public static class MainAquariumScreenBuilder
         layout.childControlWidth = layout.childControlHeight = true;
         layout.childForceExpandWidth = layout.childForceExpandHeight = true;
         controller.toolbar = dock.gameObject;
-        Wire(Stone("FeedButton", dock, "action_feed", out _, out _), controller.Feed);
+        Wire(Stone("FeedButton", dock, "action_feed", out controller.feedGlow, out controller.feedLift), controller.Feed);
         Wire(Stone("CareButton", dock, "action_care", out controller.careGlow, out controller.careLift), controller.ToggleCare);
         Wire(Stone("DecorateButton", dock, "action_decorate", out controller.decorateGlow, out controller.decorateLift), controller.ToggleDecorate);
         Wire(Stone("ShopButton", dock, "action_shop", out _, out _), controller.OpenShop);

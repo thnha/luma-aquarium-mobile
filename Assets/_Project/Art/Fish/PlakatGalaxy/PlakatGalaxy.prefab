@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3150960136288381476}
   - component: {fileID: 7560441506026521490}
   - component: {fileID: 6861943154521974456}
+  - component: {fileID: 4060578768050635601}
   - component: {fileID: 7708764418832649915}
   m_Layer: 0
   m_Name: PlakatGalaxy
@@ -174,6 +175,25 @@ MonoBehaviour:
   flareCooldown: 2
   maxTapSeconds: 0.3
   maxTapMovePixels: 20
+--- !u!114 &4060578768050635601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6207462310338228702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d8e685ddcb334db4afc9b484018aeb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaMouth
+  skeletonRoot: {fileID: 2544556807694195574}
+  bubbleMaterial: {fileID: 2100000, guid: f192f1ee71f1845f39788389f419341d, type: 2}
+  yawnMinInterval: 20
+  yawnMaxInterval: 50
+  bubbleSize: {x: 0.012, y: 0.022}
+  bubbleRiseSpeed: 0.22
+  surfaceFloatTime: {x: 4, y: 9}
 --- !u!114 &7708764418832649915
 MonoBehaviour:
   m_ObjectHideFlags: 0

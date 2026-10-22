@@ -19,6 +19,7 @@ public static class PipelineFishImporter
     public const string FishDir = "Assets/_Project/Art/Fish";
     const string VariantDir = "Assets/_Project/Data/Betta/Variants";
     const string BettaController = "Assets/_Project/Art/Betta/Betta.controller";
+    const string BubbleMaterial = "Assets/_Project/Art/Aquarium3D/Bubbles.mat";
     // The template rig lies pitched in its FBX; tilt the model level in the tank.
     const float PitchCorrection = 20f;
 
@@ -86,6 +87,9 @@ public static class PipelineFishImporter
             fins.skippedChains = BettaFinPhysics.CrownChainRoots;
             var reactions = root.AddComponent<BettaReactions>();
             reactions.animator = animator;
+            var mouth = root.AddComponent<BettaMouth>();
+            mouth.skeletonRoot = instance.transform;
+            mouth.bubbleMaterial = AssetDatabase.LoadAssetAtPath<Material>(BubbleMaterial);
             var binding = root.AddComponent<BettaRiggedModel>();
             binding.animator = animator;
             binding.reactions = reactions;

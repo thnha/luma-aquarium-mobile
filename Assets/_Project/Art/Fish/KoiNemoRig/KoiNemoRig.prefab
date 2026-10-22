@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4997156812271065360}
   - component: {fileID: 2244958699811770886}
   - component: {fileID: 278845263562653368}
+  - component: {fileID: 4501355544896206842}
   - component: {fileID: 1434085762955997503}
   m_Layer: 0
   m_Name: KoiNemoRig
@@ -174,6 +175,25 @@ MonoBehaviour:
   flareCooldown: 2
   maxTapSeconds: 0.3
   maxTapMovePixels: 20
+--- !u!114 &4501355544896206842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6706469586767245113}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d8e685ddcb334db4afc9b484018aeb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaMouth
+  skeletonRoot: {fileID: 362913637529476620}
+  bubbleMaterial: {fileID: 2100000, guid: f192f1ee71f1845f39788389f419341d, type: 2}
+  yawnMinInterval: 20
+  yawnMaxInterval: 50
+  bubbleSize: {x: 0.012, y: 0.022}
+  bubbleRiseSpeed: 0.22
+  surfaceFloatTime: {x: 4, y: 9}
 --- !u!114 &1434085762955997503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -248,11 +268,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -5733192931781592470, guid: 14a570338b3884c448c8ea342ba72dd1, type: 3}
+    - target: {fileID: -2030210765910273770, guid: 14a570338b3884c448c8ea342ba72dd1, type: 3}
       propertyPath: m_Quality
       value: 4
       objectReference: {fileID: 0}
-    - target: {fileID: -5733192931781592470, guid: 14a570338b3884c448c8ea342ba72dd1, type: 3}
+    - target: {fileID: -2030210765910273770, guid: 14a570338b3884c448c8ea342ba72dd1, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 7fe4b825f43ab448bbd55c76e175ff29, type: 2}

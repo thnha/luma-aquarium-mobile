@@ -77,7 +77,7 @@ public class BettaReactions : MonoBehaviour
 
     // Bounds test instead of colliders: SwimBounds is a trigger box around the fish
     // and would swallow physics raycasts.
-    bool IsOnFish(Vector2 screenPosition)
+    public bool IsOnFish(Vector2 screenPosition)
     {
         Camera cam = viewCamera ? viewCamera : Camera.main;
         if (cam == null) return false;

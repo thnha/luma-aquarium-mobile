@@ -26,9 +26,14 @@ MonoBehaviour:
   blackGloss: 0
   whiteScales: 0
   pigmentDepth: 0
-  finEdgeClear: 0
-  finRimAlpha: 1
-  finRim: {x: 0.9, y: 1}
-  caudalRim: {x: 0.62, y: 0.8}
+  finEdgeClear: 1
+  finRelief: 0.5
+  finTranslucency: 1.2
+  scaleRelief: 0.55
+  finBlack: 0
+  finBrightness: 1
+  finRimAlpha: 0.6
+  finRim: {x: 0.55, y: 1}
+  caudalRim: {x: 0.3, y: 0.8}
   caudalStart: 0.55
   seed: 3

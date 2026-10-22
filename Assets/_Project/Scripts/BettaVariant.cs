@@ -35,6 +35,16 @@ public class BettaVariant : ScriptableObject
     [Range(0f, 1f)] public float pigmentDepth;
     [Tooltip("How much clearer and brighter the fin edges are (new growth, thin pigment). 0 = off.")]
     [Range(0f, 2f)] public float finEdgeClear;
+    [Tooltip("Depth of the grooves between fin rays. 1 = as baked, lower = a flatter, thinner-looking membrane.")]
+    [Range(0f, 1f)] public float finRelief = 1f;
+    [Tooltip("Light from behind shining through the fins, more towards the edge. 0 = off.")]
+    [Range(0f, 2f)] public float finTranslucency = 0.8f;
+    [Tooltip("Height of the body scales. 1 = as authored, lower = thinner scales lying flat on the skin.")]
+    [Range(0f, 1f)] public float scaleRelief = 1f;
+    [Tooltip("Dark fin parts (rims, dark roots) deeper towards black, apart from the body's black. 0 = as the body.")]
+    [Range(0f, 1f)] public float finBlack;
+    [Tooltip("Brightness of the other fin colours. 1 = as painted, above 1 = lighter.")]
+    [Range(0.5f, 2f)] public float finBrightness = 1f;
 
     [Header("Clear fin rims")]
     [Tooltip("Opacity left where the fin rims are clearest. 1 = opaque fins (off).")]

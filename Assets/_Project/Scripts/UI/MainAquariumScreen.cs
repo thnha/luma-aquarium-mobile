@@ -42,8 +42,10 @@ namespace Lumaquarium.UI
         // Icon-on-stone dock: the open sheet's icon lifts over a sage glow instead of swapping tiles.
         public GameObject careGlow;
         public GameObject decorateGlow;
+        public GameObject feedGlow;
         public RectTransform careLift;
         public RectTransform decorateLift;
+        public RectTransform feedLift;
         public float activeLift = 18;
 
         private Vector3 defaultView;
@@ -60,6 +62,18 @@ namespace Lumaquarium.UI
                 orbit.FitToScreen();
                 defaultView = new Vector3(orbit.yaw, orbit.pitch, orbit.distance);
             }
+            // Scenes built before feed mode existed: find the Feed stone's glow and lift by name.
+            if (feedGlow == null && toolbar != null)
+            {
+                Transform button = toolbar.transform.Find("FeedButton");
+                if (button != null)
+                {
+                    Transform glow = button.Find("Glow");
+                    if (glow != null) feedGlow = glow.gameObject;
+                    feedLift = button.Find("Lift") as RectTransform;
+                }
+            }
+            if (feeding != null) feeding.FeedModeChanged += _ => UpdateTiles();
             UpdateMuteLabel();
             UpdateTiles();
         }
@@ -86,6 +100,8 @@ namespace Lumaquarium.UI
                     BettaFishAI.State.Rest => "Đang nghỉ",
                     BettaFishAI.State.Breathe => "Đang lên mặt nước",
                     BettaFishAI.State.Idle => "Đang thả mình",
+                    BettaFishAI.State.SwimToTap => "Đang bơi tới chỗ bạn chạm",
+                    BettaFishAI.State.Flee => "Giật mình bỏ chạy",
                     _ => "Đang bơi thong thả"
                 };
             }
@@ -125,11 +141,14 @@ namespace Lumaquarium.UI
             if (fishShop != null) fishShop.Open();
         }
 
+        // Toggles feed mode: while it is on a tap on the tank drops food, otherwise the fish swims to the tap.
         public void Feed()
         {
             decoration?.Cancel();
             ClosePanels();
-            if (feeding != null) feeding.Feed();
+            if (feeding == null) return;
+            feeding.SetFeedMode(!feeding.FeedMode);
+            Notify(feeding.FeedMode ? "Chạm vào bể để thả thức ăn" : "Đã tắt chế độ cho ăn");
         }
 
         public void ToggleCare() => TogglePanel(carePanel);
@@ -147,6 +166,7 @@ namespace Lumaquarium.UI
             decoration?.Cancel();
             bool open = !panel.activeSelf;
             ClosePanels();
+            if (open && feeding != null) feeding.SetFeedMode(false);
             panel.SetActive(open);
             if (orbit != null) orbit.enabled = !open;
             UpdateTiles();
@@ -167,6 +187,7 @@ namespace Lumaquarium.UI
         {
             Highlight(careGlow, careLift, carePanel.activeSelf);
             Highlight(decorateGlow, decorateLift, decoratePanel.activeSelf);
+            Highlight(feedGlow, feedLift, feeding != null && feeding.FeedMode);
             if (tileNormal == null || tileActive == null) return;
             if (careTile != null) careTile.sprite = carePanel.activeSelf ? tileActive : tileNormal;
             if (decorateTile != null) decorateTile.sprite = decoratePanel.activeSelf ? tileActive : tileNormal;

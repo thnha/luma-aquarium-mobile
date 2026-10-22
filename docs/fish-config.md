@@ -65,7 +65,7 @@ Ví dụ tên cá là `RedDragon` (tên = tên thư mục = tên file, không d�
 | `depth` | `1` | Độ cao thân (lưng–bụng). `1.2` = thân cao hơn 20%. |
 | `width` | `1` | Độ dày thân (hai bên hông). Dùng khi nhìn thẳng mặt thấy cá bị dẹt. PlakatGalaxy dùng `1.5`. |
 | `fins` | `{}` | Co/giãn chiều dài vây theo nhóm, ví dụ `{"caudal": 0.8, "dorsal": 1.25, "ventral": 0.55}`. `caudal` = đuôi, `dorsal` = lưng, `ventral` = vây hậu môn + vây bụng. Nhỏ hơn 1 là ngắn lại. |
-| `finThickness` | `1` (template: `0.4`) | Độ dày vây so với mesh gốc. `1` = giữ nguyên. `0.4` thực tế giảm còn khoảng một nửa, vì những chỗ vây bị ép tới mức hai mặt chạm nhau thì pipeline tự giảm lực ép. |
+| `finThickness` | `1` (template: `0.4`) | Độ dày vây so với mesh gốc. `1` = giữ nguyên. `0.4` thực tế giảm còn khoảng một nửa, vì những chỗ vây bị ép tới mức hai mặt chạm nhau thì pipeline tự giảm lực ép. 3 cá hiện tại dùng `0.2`. Vây trông dày chủ yếu do đục và rãnh sâu: chỉnh `finRelief`, `finTranslucency`, `finRimAlpha` trước. |
 | `landmarks` | `""` | File JSON chỉnh lại vị trí mắt, mang, hàm, gốc vây (xem phần "Landmarks" trong `betta-splendens/pipeline/README.md`). |
 | `bake` | `true` | Bake normal map và AO từ mesh gốc. Chỉ tắt khi thử nhanh. |
 
@@ -100,11 +100,16 @@ một màu tối pha 40% màu sáng vẫn trông khá xám.
 | `textureDetail` | `0.6` | Mức vảy và tia vây làm tối màu. Thấp = màu mịn, sữa. |
 | `silverSheen` | `1` | Ánh bạc của bản đồ kim loại. `0` = satin, không kim loại (trắng sữa). |
 | `gloss` | `1` | Nhân độ bóng (0–1.5). Dưới 1 làm vệt sáng bớt kiểu sứ. |
-| `blackGloss` | `0` | Chỉ cho `KoiGalaxy`: vảy đen và viền vây đen thành **đen tuyền** (từ 0.25 trở lên: đen hơn, bỏ ánh bạc, bỏ ánh ngũ sắc), số càng cao càng bóng: `0.25` satin, `0.5` bóng nhẹ, `1` sơn mài. Không bị ảnh hưởng bởi `gloss`. PlakatGalaxy dùng `0.5`, kèm `secondary` gần đen tuyệt đối `[0.005, 0.006, 0.012]`. |
+| `blackGloss` | `0` | Chỉ cho `KoiGalaxy`: vảy đen và viền vây đen thành **đen tuyền** (từ 0.25 trở lên: đen hơn, bỏ ánh bạc, bỏ ánh ngũ sắc), số càng cao càng bóng: `0.25` satin, `0.5` bóng nhẹ, `1` sơn mài. Không bị ảnh hưởng bởi `gloss`. PlakatGalaxy dùng `0.15` (dưới 0.25 bóng giảm thêm nhưng mảng đen cũng ngả xám than, có ánh bạc mờ), kèm `secondary` đen than `[0.22, 0.225, 0.24]`. |
 | `whiteScales` | `0` | Chỉ cho `KoiGalaxy`: tỉ lệ vảy đen hoá thành **vảy trắng** ngọc trai, rải lẻ tẻ từng vảy (0–0.5). `0.04` = rất thưa, `0.08` thấy rõ, `0.15` khá dày. PlakatGalaxy dùng `0.04`. |
 | `pigmentDepth` | `0` | Sắc tố đậm ở đầu, nhạt dần về đuôi (0–1). `0` = đều màu. |
 | `finEdgeClear` | `0` | Mép vây trong và sáng hơn (0–2). |
-| `finRimAlpha` | `1` | Độ đục ở chỗ mép vây trong nhất. `1` = tắt (vây đục hoàn toàn). PlakatGalaxy dùng `0.88`. |
+| `finRelief` | `1` | Độ sâu rãnh giữa các tia vây (0–1). `1` = như bản bake, thấp hơn = vây phẳng, trông **mỏng** hơn. 3 cá hiện tại dùng `0.5`. |
+| `finTranslucency` | `0.8` | Ánh sáng xuyên qua vây từ phía sau (0–2), sáng hơn về phía mép. 3 cá hiện tại dùng `1.2`. |
+| `scaleRelief` | `1` | Độ nổi của vảy trên thân (0–1). `1` = như bản gốc (vảy cộm), thấp hơn = vảy **mỏng**, sát thân, rãnh giữa vảy nông hơn; vảy vẫn còn thấy ở mức thấp nhất. 3 cá hiện tại dùng `0.55`. |
+| `finBlack` | `0` | Phần đen trên vây (viền vây, gốc vây tối) đen sâu thêm, tách riêng khỏi màu đen của thân (0–1). `0` = như thân. PlakatGalaxy dùng `1`. |
+| `finBrightness` | `1` | Độ sáng các màu còn lại trên vây (0.5–2). `1` = như vẽ, `1.25` ≈ sáng thêm một tông, `1.8` = rất tươi (vàng ngả vàng chanh). PlakatGalaxy dùng `1.8`. |
+| `finRimAlpha` | `1` | Độ đục ở chỗ mép vây trong nhất. `1` = tắt (vây đục hoàn toàn). 3 cá hiện tại dùng `0.6`, kèm `finRim` `[0.55, 1.0]` và `caudalRim` `[0.3, 0.8]` cho nửa ngoài vây trong như màng. |
 | `finRim` | `[0.9, 1.0]` | Vùng mép trong của vây lưng, hậu môn, ngực, bụng: [bắt đầu, trong nhất], tính từ gốc vây 0 đến mép vây 1. |
 | `caudalRim` | `[0.62, 0.8]` | Như trên nhưng cho vây đuôi. |
 | `caudalStart` | `0.55` | Vây đuôi bắt đầu ở đâu dọc thân cá (mõm 0, chóp đuôi 1). |

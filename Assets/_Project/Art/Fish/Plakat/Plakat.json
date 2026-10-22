@@ -6,7 +6,7 @@
     "depth": 1,
     "width": 1,
     "fins": {},
-    "finThickness": 0.4,
+    "finThickness": 0.2,
     "landmarks": "",
     "bake": true
   },
@@ -35,10 +35,13 @@
     "blackGloss": 0,
     "whiteScales": 0,
     "pigmentDepth": 0,
-    "finEdgeClear": 0,
-    "finRimAlpha": 1,
-    "finRim": [0.9, 1.0],
-    "caudalRim": [0.62, 0.8],
+    "finEdgeClear": 1,
+    "finRelief": 0.5,
+    "finTranslucency": 1.2,
+    "scaleRelief": 0.55,
+    "finRimAlpha": 0.6,
+    "finRim": [0.55, 1.0],
+    "caudalRim": [0.3, 0.8],
     "caudalStart": 0.55,
     "seed": 3
   }

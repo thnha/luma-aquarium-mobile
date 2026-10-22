@@ -34,7 +34,7 @@ public class BettaAssetPostprocessor : AssetPostprocessor
         var clips = model.defaultClipAnimations;
         foreach (var clip in clips)
         {
-            // Swim / Rest / Idle loop; Turn, Nibble and Flare are one-shots.
+            // Swim / Rest / Idle loop; Turn, Nibble, Flare, Gulp, Bubble and Yawn are one-shots.
             string n = clip.name.ToLowerInvariant();
             clip.loopTime = n.Contains("idle") || n.Contains("swim") || n.Contains("rest");
             clip.name = clip.name.Contains("|") ? clip.name.Substring(clip.name.LastIndexOf('|') + 1) : clip.name;

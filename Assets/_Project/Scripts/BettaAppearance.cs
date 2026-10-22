@@ -31,6 +31,11 @@ public class BettaAppearance : MonoBehaviour
     static readonly int GlossId = Shader.PropertyToID("_Gloss");
     static readonly int BlackGlossId = Shader.PropertyToID("_BlackGloss");
     static readonly int WhiteScalesId = Shader.PropertyToID("_WhiteScales");
+    static readonly int FinReliefId = Shader.PropertyToID("_FinRelief");
+    static readonly int FinTranslucencyId = Shader.PropertyToID("_FinTranslucency");
+    static readonly int ScaleReliefId = Shader.PropertyToID("_ScaleRelief");
+    static readonly int FinBlackId = Shader.PropertyToID("_FinBlack");
+    static readonly int FinBrightnessId = Shader.PropertyToID("_FinBrightness");
     static readonly int HeadId = Shader.PropertyToID("_VariantHead");
     static readonly int TailId = Shader.PropertyToID("_VariantTail");
     static readonly int DepthId = Shader.PropertyToID("_VariantDepth");
@@ -114,6 +119,11 @@ public class BettaAppearance : MonoBehaviour
             block.SetFloat(GlossId, variant.gloss);
             block.SetFloat(BlackGlossId, variant.blackGloss);
             block.SetFloat(WhiteScalesId, variant.whiteScales);
+            block.SetFloat(FinReliefId, variant.finRelief);
+            block.SetFloat(FinTranslucencyId, variant.finTranslucency);
+            block.SetFloat(ScaleReliefId, variant.scaleRelief);
+            block.SetFloat(FinBlackId, variant.finBlack);
+            block.SetFloat(FinBrightnessId, variant.finBrightness);
             BodyAxis(r, out Vector3 head, out Vector3 tail);
             block.SetVector(HeadId, head);
             block.SetVector(TailId, tail);
@@ -164,7 +174,10 @@ public class BettaAppearance : MonoBehaviour
             rim.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
             rim.SetFloat("_SrcBlendAlpha", 1f);
             rim.SetFloat("_DstBlendAlpha", (float)BlendMode.OneMinusSrcAlpha);
-            rim.SetFloat("_ZWrite", 0f);
+            // Front faces only, with depth: a thin fin is two close sheets, and blending both in triangle
+            // order (no sorting inside one mesh) showed the far sheet through the near one in shards.
+            rim.SetFloat("_Cull", (float)CullMode.Back);
+            rim.SetFloat("_ZWrite", 1f);
             rim.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
             rim.SetShaderPassEnabled("ShadowCaster", false);
             rim.SetShaderPassEnabled("DepthOnly", false);

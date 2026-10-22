@@ -48,6 +48,11 @@ public class PipelineFishConfig
         public float whiteScales;
         public float pigmentDepth;
         public float finEdgeClear;
+        public float finRelief = 1f;
+        public float finTranslucency = 0.8f;
+        public float scaleRelief = 1f;
+        public float finBlack;
+        public float finBrightness = 1f;
         public float finRimAlpha = 1f;
         public float[] finRim = { 0.9f, 1f };
         public float[] caudalRim = { 0.62f, 0.8f };
@@ -109,6 +114,11 @@ public class PipelineFishConfig
         variant.whiteScales = look.whiteScales;
         variant.pigmentDepth = look.pigmentDepth;
         variant.finEdgeClear = look.finEdgeClear;
+        variant.finRelief = look.finRelief;
+        variant.finTranslucency = look.finTranslucency;
+        variant.scaleRelief = look.scaleRelief;
+        variant.finBlack = look.finBlack;
+        variant.finBrightness = look.finBrightness;
         variant.finRimAlpha = look.finRimAlpha;
         variant.finRim = Range(look.finRim, "finRim", path);
         variant.caudalRim = Range(look.caudalRim, "caudalRim", path);
