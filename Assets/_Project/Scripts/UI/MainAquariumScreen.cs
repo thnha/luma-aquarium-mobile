@@ -145,7 +145,7 @@ namespace Lumaquarium.UI
         // Toggles feed mode: while it is on a tap on the tank drops food, otherwise the fish swims to the tap.
         public void Feed()
         {
-            decoration?.Cancel();
+            decoration?.Leave();
             ClosePanels();
             if (feeding == null) return;
             feeding.SetFeedMode(!feeding.FeedMode);
@@ -165,7 +165,7 @@ namespace Lumaquarium.UI
 
         private void TogglePanel(GameObject panel)
         {
-            decoration?.Cancel();
+            decoration?.Leave();
             bool open = !panel.activeSelf;
             ClosePanels();
             if (open && feeding != null) feeding.SetFeedMode(false);
@@ -204,7 +204,7 @@ namespace Lumaquarium.UI
 
         public void ToggleHud()
         {
-            decoration?.Cancel();
+            decoration?.Leave();
             ClosePanels();
             hidden = !hidden;
             header.SetActive(!hidden);
@@ -234,7 +234,7 @@ namespace Lumaquarium.UI
         public void TakePhoto()
         {
             if (capturing) return;
-            decoration?.Cancel();
+            decoration?.Leave();
             ClosePanels();
             StartCoroutine(CapturePhoto());
         }

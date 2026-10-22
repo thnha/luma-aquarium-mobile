@@ -116,7 +116,7 @@ namespace Lumaquarium.UI
         public void Open()
         {
             if (IsOpen) return;
-            aquarium.decoration?.Cancel();
+            aquarium.decoration?.Leave();
             aquarium.ClosePanels();
             previousHudAlpha = aquarium.hud.alpha;
             previousHudInteractable = aquarium.hud.interactable;

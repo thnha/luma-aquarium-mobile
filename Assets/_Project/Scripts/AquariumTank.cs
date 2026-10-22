@@ -24,8 +24,9 @@ public sealed class AquariumTank : MonoBehaviour
         new Spec { id = "tank_wide", displayName = "Hồ rộng", description = "Rộng 1,5 màn hình · vuốt ngang để xem", widthScreens = 1.5f, depthScreens = 1.5f, price = 2500, capacity = 48 },
     };
 
-    // Inner face of the front glass (world z), just above the toolbar; the sand runs on toward the camera from here.
-    public float front = -.85f;
+    // Inner face of the front glass (world z), where the sand meets the bottom of the screen, so the fish
+    // and the decorations reach right up to the viewer; the sand runs on toward the camera from here.
+    public float front = -1.55f;
     // The tank's depth is measured from here, so the back glass stays put while the front reaches forward.
     public float depthFrom = -.55f;
     // How far the sand reaches toward the camera, under the front of the view.
@@ -42,6 +43,12 @@ public sealed class AquariumTank : MonoBehaviour
     private Mesh sandMesh, wallMesh;
     private Material wallMaterial;
     private readonly List<GameObject> pebbleTiles = new List<GameObject>();
+    private struct Look { public Texture map; public Color color; public float tiling; }
+    private Material sandMaterial, pebbleMaterial, stoneSource;
+    private Look wallLook, sandLook;
+    private Color pebbleColor = Color.white;
+    private AquariumSubstrateStyle substrate;
+    private AquariumSurfaceCatalog Surfaces => decoration != null ? decoration.surfaces : null;
 
     public static Spec Find(string id) => Array.Find(Specs, x => x.id == id);
 
@@ -51,10 +58,13 @@ public sealed class AquariumTank : MonoBehaviour
         decoration = owner;
         sand = Child("SandBed3D");
         pebbles = Child("PebbleBed3D");
+        PrepareMaterials();
         surface = decoration.water != null && decoration.water.surface != null ? decoration.water.surface.transform : null;
         if (surface != null) { surfacePosition = surface.position; surfaceScale = surface.localScale; }
         var inventory = new Lumaquarium.UI.FishShopInventory(decoration.inventoryStorageKey);
         Build(Find(inventory.ActiveTank) ?? Specs[0]);
+        ApplyWall(inventory.ActiveWall);
+        ApplySubstrate(inventory.ActiveSubstrate);
     }
 
     // Switches to another tank while playing: the layout keeps its positions, and pieces outside the
@@ -63,7 +73,7 @@ public sealed class AquariumTank : MonoBehaviour
     {
         var spec = Find(id);
         if (spec == null || spec == Current || decoration == null) return;
-        decoration.Cancel();
+        decoration.Leave();
         Build(spec);
         decoration.Refit();
         var fish = decoration.screen != null ? decoration.screen.fish : null;
@@ -161,7 +171,7 @@ public sealed class AquariumTank : MonoBehaviour
             go.transform.SetParent(transform, false);
             walls = go.GetComponent<MeshRenderer>();
             walls.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            var stone = pebbles != null ? pebbles.GetComponent<Renderer>()?.sharedMaterial : null;
+            var stone = stoneSource;
             if (stone == null && sand != null) stone = sand.GetComponent<Renderer>().sharedMaterial;
             if (stone != null)
             {
@@ -169,6 +179,7 @@ public sealed class AquariumTank : MonoBehaviour
                 if (wallMaterial.HasProperty("_BaseColor"))
                     wallMaterial.SetColor("_BaseColor", wallMaterial.GetColor("_BaseColor") * wallTint);
                 walls.sharedMaterial = wallMaterial;
+                wallLook = Capture(wallMaterial);
             }
             wallMesh = new Mesh { name = "TankWalls" };
             go.GetComponent<MeshFilter>().sharedMesh = wallMesh;
@@ -217,6 +228,75 @@ public sealed class AquariumTank : MonoBehaviour
                 tile.transform.position = pebbles.position + new Vector3(i * size.x, 0, k * size.y);
                 pebbleTiles.Add(tile);
             }
+        ShowPebbles();
+    }
+
+    // Shows a wall style from the surface catalog; style 0 (no texture) is the tank's own stone.
+    public void ApplyWall(string id)
+    {
+        if (wallMaterial == null) return;
+        var style = Surfaces != null ? Surfaces.Wall(id) : null;
+        Show(wallMaterial, style != null && style.albedo != null
+            ? new Look { map = style.albedo, color = style.tint, tiling = style.tiling } : wallLook);
+    }
+
+    // Shows a floor style: the sand texture, the pebble colour and whether the loose pebbles show at all.
+    public void ApplySubstrate(string id)
+    {
+        substrate = Surfaces != null ? Surfaces.Substrate(id) : null;
+        bool custom = substrate != null && substrate.albedo != null;
+        if (sandMaterial != null)
+            Show(sandMaterial, custom ? new Look { map = substrate.albedo, color = substrate.tint, tiling = substrate.tiling } : sandLook);
+        if (pebbleMaterial != null) pebbleMaterial.SetColor("_BaseColor", custom ? substrate.pebbleTint : pebbleColor);
+        ShowPebbles();
+    }
+
+    // forceRenderingOff keeps the renderer bounds that TilePebbles measures when the tank size changes.
+    // It is a runtime flag that Instantiate does not copy, so new tiles get it from TilePebbles too.
+    private void ShowPebbles()
+    {
+        bool on = substrate == null || substrate.pebbles;
+        void Set(GameObject go)
+        {
+            var r = go != null ? go.GetComponent<Renderer>() : null;
+            if (r != null) r.forceRenderingOff = !on;
+        }
+        if (pebbles != null) Set(pebbles.gameObject);
+        foreach (var tile in pebbleTiles) Set(tile);
+    }
+
+    // The sand and pebbles get their own material copies so a floor style never changes the shared assets
+    // (the pebble material is also the decoration stones'). The copies start as the original look.
+    private void PrepareMaterials()
+    {
+        var pebbleRenderer = pebbles != null ? pebbles.GetComponent<Renderer>() : null;
+        stoneSource = pebbleRenderer != null ? pebbleRenderer.sharedMaterial : null;
+        if (stoneSource != null && stoneSource.HasProperty("_BaseColor"))
+        {
+            pebbleMaterial = new Material(stoneSource) { name = "TankPebbles" };
+            pebbleColor = pebbleMaterial.GetColor("_BaseColor");
+            pebbleRenderer.sharedMaterial = pebbleMaterial;
+        }
+        var sandRenderer = sand != null ? sand.GetComponent<Renderer>() : null;
+        if (sandRenderer != null && sandRenderer.sharedMaterial != null && sandRenderer.sharedMaterial.HasProperty("_Tiling"))
+        {
+            sandMaterial = new Material(sandRenderer.sharedMaterial) { name = "TankSand" };
+            sandLook = Capture(sandMaterial);
+            sandRenderer.sharedMaterial = sandMaterial;
+        }
+    }
+
+    private static Look Capture(Material material) => new Look
+    {
+        map = material.GetTexture("_BaseMap"), color = material.GetColor("_BaseColor"),
+        tiling = material.HasProperty("_Tiling") ? material.GetFloat("_Tiling") : 3
+    };
+
+    private static void Show(Material material, Look look)
+    {
+        material.SetTexture("_BaseMap", look.map);
+        material.SetColor("_BaseColor", look.color);
+        if (material.HasProperty("_Tiling")) material.SetFloat("_Tiling", look.tiling);
     }
 
     private Transform Child(string name)
@@ -230,5 +310,7 @@ public sealed class AquariumTank : MonoBehaviour
         if (sandMesh != null) Destroy(sandMesh);
         if (wallMesh != null) Destroy(wallMesh);
         if (wallMaterial != null) Destroy(wallMaterial);
+        if (sandMaterial != null) Destroy(sandMaterial);
+        if (pebbleMaterial != null) Destroy(pebbleMaterial);
     }
 }

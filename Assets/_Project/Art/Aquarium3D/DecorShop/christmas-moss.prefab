@@ -237,6 +237,9 @@ MonoBehaviour:
   plantMounts: []
   wallMounted: 0
   wallSize: {x: 0, y: 0}
+  points: 1
+  tiltable: 0
+  carpet: 0
 --- !u!65 &8210795645021497450
 BoxCollider:
   m_ObjectHideFlags: 0

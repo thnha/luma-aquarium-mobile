@@ -748,7 +748,7 @@ public class BettaFishAI : MonoBehaviour
         {
             if (item.floats || item.wallMounted) continue;
             var offer = decoration && decoration.catalog ? decoration.catalog.Find(item.kind) : null;
-            bool solid = offer != null ? offer.category != AquariumDecorCategory.Plants : item.foliage == null;
+            bool solid = offer != null ? !AquariumDecorCatalog.IsPlant(offer.category) : item.foliage == null;
             var col = item.GetComponent<Collider>();
             if (solid && col && col.enabled) obstacles.Add(col);
         }

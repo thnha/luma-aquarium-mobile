@@ -2,11 +2,15 @@ Shader "Lumaquarium/Aquarium Glow"
 {
     // Additive light in the water: sun shafts (a soft band, brightest under the surface) or, with
     // Round on, floating motes. Both fade out at night unless the top lamp is on, which tints them.
-    // Round 2 is the backlight panel behind the tank: brightest along the sand, kept at night.
+    // Round 2 is the backlight panel behind the tank: brightest along the sand, kept at night. It lights the
+    // stone behind it (Src DstColor, Dst One: wall * (1 + lamp)) rather than laying colour over it, so the
+    // wall keeps its texture and reads clearer, tinted by the lamp.
     Properties
     {
         _Color("Color", Color) = (.75,.95,1,.2)
         _Round("Round mote", Float) = 0
+        [HideInInspector] _SrcBlend("Src blend", Float) = 1
+        [HideInInspector] _DstBlend("Dst blend", Float) = 1
     }
     SubShader
     {
@@ -14,7 +18,7 @@ Shader "Lumaquarium/Aquarium Glow"
         Pass
         {
             Tags { "LightMode"="UniversalForward" }
-            Blend One One
+            Blend [_SrcBlend] [_DstBlend]
             ZWrite Off
             Cull Off
             HLSLPROGRAM
@@ -41,7 +45,15 @@ Shader "Lumaquarium/Aquarium Glow"
                 float glow;
                 // Unset globals read 0, so without the lighting component the lamp leaves everything as it was.
                 half3 tint=lerp(half3(1,1,1),_AquariumLampColor.rgb,_AquariumLamp);
-                if(_Round>1.5) { glow=pow(sin(i.uv.x*3.14159),.6)*(pow(1-i.uv.y,1.8)*.85+(1-i.uv.y)*.15); tint=1; }
+                if(_Round>1.5)
+                {
+                    glow=pow(sin(i.uv.x*3.14159),.45)*(pow(1-i.uv.y,1.4)*.85+(1-i.uv.y)*.15);
+                    // Alpha is .55 at full strength (AquariumLighting) and fades the light in and out.
+                    float on=saturate(_Color.a/.55);
+                    // Some light reaches the top of the wall too, so the whole back reads clearer. At night the
+                    // stone it multiplies is far darker, so the lamp works harder to light it as brightly.
+                    return half4(_Color.rgb*(glow*1.6+.25)*on*(1+_AquariumNight*2.5),1);
+                }
                 else if(_Round>.5) glow=pow(saturate(1-length(i.uv*2-1)),2)*i.color.a*max(1-_AquariumNight*.7,_AquariumLamp*.6);
                 else
                 {

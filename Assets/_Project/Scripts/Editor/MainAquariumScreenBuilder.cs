@@ -458,7 +458,7 @@ public static class MainAquariumScreenBuilder
         Ui3D.Edges((RectTransform)inventory.shopButton.transform, new Vector2(.5f, 0), new Vector2(1, 0), new Vector2(8, 44), new Vector2(-44, 194));
     }
 
-    // Instruction chip above a tray of Xoay / Cất / Hủy and the primary Đặt.
+    // Instruction chip above a tray of Xoay / Cất / Hủy and the primary Đặt, or Thêm / Hoàn tác / Xong while nothing is selected.
     private static void BuildPlacementDock(AquariumDecoration decoration, RectTransform safe)
     {
         var dock = Ui3D.Image("PlacementDock", safe, "ui3d_dock");
@@ -481,6 +481,14 @@ public static class MainAquariumScreenBuilder
         decoration.tiltButton = ContextButton(dock.transform, "PlacementTilt", "Nghiêng", decoration.Tilt, 1);
         decoration.trimButton = ContextButton(dock.transform, "PlacementTrim", "Tỉa", decoration.Trim, 2);
         decoration.growButton = ContextButton(dock.transform, "PlacementGrow", "Mọc", decoration.Grow, 3);
+        // Thêm / Hoàn tác / Xong take the dock while nothing is selected.
+        decoration.addButton = ContextButton(dock.transform, "PlacementAdd", "Thêm", decoration.Add, 7);
+        decoration.undoButton = ContextButton(dock.transform, "PlacementUndo", "Hoàn tác", decoration.UndoLast, 8);
+        var done = Ui3D.Button("PlacementDone", dock.transform, "Xong", Ui3D.Style.Primary, 44);
+        done.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1.6f;
+        Wire(done, decoration.Finish);
+        done.gameObject.SetActive(false);
+        decoration.doneButton = done.gameObject;
         var chip = Ui3D.Image("InstructionChip", dock.transform, "ui3d_hint");
         chip.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().ignoreLayout = true;
         Ui3D.At(chip.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 0), new Vector2(0, 24), new Vector2(940, 104));

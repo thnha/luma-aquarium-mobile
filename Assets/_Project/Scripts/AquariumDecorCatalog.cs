@@ -1,7 +1,8 @@
 using System;
 using UnityEngine;
 
-public enum AquariumDecorCategory { Plants, Wood, Rocks, Coral }
+// Moss and Floating were added after the first four; keep this order, catalogs store the numbers.
+public enum AquariumDecorCategory { Plants, Wood, Rocks, Coral, Moss, Floating }
 
 [Serializable]
 public sealed class AquariumDecorOffer
@@ -19,5 +20,11 @@ public sealed class AquariumDecorOffer
 public sealed class AquariumDecorCatalog : ScriptableObject
 {
     public AquariumDecorOffer[] offers = new AquariumDecorOffer[0];
+    // The Trang trí sheet keeps its four groups: moss and floating plants sit with the plants there.
+    public static AquariumDecorCategory InventoryGroup(AquariumDecorCategory category) =>
+        category > AquariumDecorCategory.Coral ? AquariumDecorCategory.Plants : category;
+    // Plants, moss and floating plants are soft: the fish swims through them.
+    public static bool IsPlant(AquariumDecorCategory category) => InventoryGroup(category) == AquariumDecorCategory.Plants;
+
     public AquariumDecorOffer Find(int kind) => Array.Find(offers, x => x.prefab != null && x.prefab.kind == kind);
 }

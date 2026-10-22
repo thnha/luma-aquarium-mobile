@@ -150,6 +150,9 @@ MonoBehaviour:
   - {x: 0.0814904, y: 0.23613563, z: -0.013893807}
   wallMounted: 0
   wallSize: {x: 0, y: 0}
+  points: 1
+  tiltable: 0
+  carpet: 0
 --- !u!65 &7453091196688484483
 BoxCollider:
   m_ObjectHideFlags: 0

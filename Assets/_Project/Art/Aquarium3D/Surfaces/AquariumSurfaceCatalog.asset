@@ -1,0 +1,124 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d354418b7c7704a938a5f038db2c09ed, type: 3}
+  m_Name: AquariumSurfaceCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::AquariumSurfaceCatalog
+  walls:
+  - id: wall_river
+    displayName: "\u0110\xE1 s\u1ECFi"
+    description: "V\xE1ch \u0111\xE1 s\u1ECFi t\u1EF1 nhi\xEAn c\u1EE7a h\u1ED3"
+    price: 0
+    albedo: {fileID: 0}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 3
+    portrait: {fileID: 21300000, guid: 7f77f92f5ea6043bf8d8d332988d7aee, type: 3}
+  - id: wall_slate
+    displayName: "\u0110\xE1 x\xE1m"
+    description: "V\xE1ch \u0111\xE1 phi\u1EBFn x\xE1m c\xF3 v\xE2n n\u1EE9t"
+    price: 300
+    albedo: {fileID: 2800000, guid: 2b544e256dd9a46e38cfda096636a5d2, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 1.5
+    portrait: {fileID: 21300000, guid: 6ac6d2cb6f6c04a8d91cc6231a779036, type: 3}
+  - id: wall_brick
+    displayName: "G\u1EA1ch nung"
+    description: "V\xE1ch g\u1EA1ch \u0111\u1ECF x\u1EBFp so le"
+    price: 350
+    albedo: {fileID: 2800000, guid: fa2f69d2bef5346768d74bf126c48a3c, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 1.2
+    portrait: {fileID: 21300000, guid: ad4b8e09e51b341c1a817bf635dca882, type: 3}
+  - id: wall_planks
+    displayName: "V\xE1n g\u1ED7"
+    description: "V\xE1ch v\xE1n g\u1ED7 d\u1ECDc \u1EA5m \xE1p"
+    price: 400
+    albedo: {fileID: 2800000, guid: 65277ba49e1af4beb996b31345e25ab2, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 1
+    portrait: {fileID: 21300000, guid: 3edbdb5b5af1a40029aed35ba7d9de20, type: 3}
+  - id: wall_gold
+    displayName: "Hoa v\u0103n v\xE0ng"
+    description: "Hoa v\u0103n v\xE0ng n\u1ED5i tr\xEAn n\u1EC1n xanh \u0111\u1EADm"
+    price: 450
+    albedo: {fileID: 2800000, guid: c676dea9a32664ef19e940d914c7a044, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 1.2
+    portrait: {fileID: 21300000, guid: a6a9332ccf7e74452b21a3cc05e5cf9b, type: 3}
+  - id: wall_jade
+    displayName: "Hoa v\u0103n xanh ng\u1ECDc"
+    description: "Hoa v\u0103n xanh ng\u1ECDc tr\xEAn n\u1EC1n s\xE1ng"
+    price: 450
+    albedo: {fileID: 2800000, guid: 63040a02d4e5740639657ffc3a11c77c, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 1.2
+    portrait: {fileID: 21300000, guid: cde01150a9724437e844206a9ca587e3, type: 3}
+  substrates:
+  - id: sand_river
+    displayName: "C\xE1t v\xE0ng"
+    description: "C\xE1t s\xF4ng v\xE0ng k\xE8m s\u1ECFi nh\u1ECF"
+    price: 0
+    albedo: {fileID: 0}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 5
+    pebbles: 1
+    pebbleTint: {r: 1, g: 1, b: 1, a: 1}
+    portrait: {fileID: 21300000, guid: 70f12c907369f4f7890d7f3dfd2988b6, type: 3}
+  - id: sand_white
+    displayName: "C\xE1t tr\u1EAFng"
+    description: "C\xE1t tr\u1EAFng m\u1ECBn, h\u1ED3 s\xE1ng h\u01A1n"
+    price: 150
+    albedo: {fileID: 2800000, guid: 66415abc14cf443baa5bdae4208593ec, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 5
+    pebbles: 1
+    pebbleTint: {r: 0.9098039, g: 0.89411765, b: 0.85490197, a: 1}
+    portrait: {fileID: 21300000, guid: 74270ec927c4442bf8da529a21caedd6, type: 3}
+  - id: sand_black
+    displayName: "C\xE1t \u0111en"
+    description: "C\xE1t \u0111en l\xE0m n\u1ED5i m\xE0u c\xE1"
+    price: 200
+    albedo: {fileID: 2800000, guid: a1bf7721c28a14eb39f778993fb5812d, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 5
+    pebbles: 1
+    pebbleTint: {r: 0.33333334, g: 0.33333334, b: 0.3529412, a: 1}
+    portrait: {fileID: 21300000, guid: b7d8c08c6f0324fa4abd27415f9e4292, type: 3}
+  - id: sand_pink
+    displayName: "C\xE1t h\u1ED3ng"
+    description: "C\xE1t h\u1ED3ng san h\xF4 m\u1ECBn"
+    price: 250
+    albedo: {fileID: 2800000, guid: f53ba037351fe4943bdeb3229f73d9d6, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 5
+    pebbles: 0
+    pebbleTint: {r: 1, g: 1, b: 1, a: 1}
+    portrait: {fileID: 21300000, guid: 1f7a12bca4e6045f593a798eccb495d6, type: 3}
+  - id: gravel_river
+    displayName: "S\u1ECFi su\u1ED1i"
+    description: "S\u1ECFi su\u1ED1i tr\xF2n nhi\u1EC1u m\xE0u"
+    price: 300
+    albedo: {fileID: 2800000, guid: 57b2712a678d14a0c91f72b4ae4a27a6, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 3
+    pebbles: 1
+    pebbleTint: {r: 1, g: 1, b: 1, a: 1}
+    portrait: {fileID: 21300000, guid: 43da296f9a1c442e798ef460e2c91922, type: 3}
+  - id: gravel_black
+    displayName: "S\u1ECFi \u0111en"
+    description: "S\u1ECFi \u0111en b\xF3ng"
+    price: 300
+    albedo: {fileID: 2800000, guid: 0ebca023ac56b42089933fee87a4f9a7, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 3
+    pebbles: 0
+    pebbleTint: {r: 1, g: 1, b: 1, a: 1}
+    portrait: {fileID: 21300000, guid: 71f3dd0fd3efa47868f05be0053d2138, type: 3}

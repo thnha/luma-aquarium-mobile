@@ -110,7 +110,7 @@ public static partial class AquariumDecorCatalogBuilder
         for(int i=0;i<carpetIds.Length;i++)
         {
             int species=i+1;string id=carpetIds[i];
-            AddPiece(offers,id,carpetNames[i],carpetPrices[i],AquariumDecorCategory.Plants,
+            AddPiece(offers,id,carpetNames[i],carpetPrices[i],AquariumDecorCategory.Moss,
                 $"Gói {AquariumCarpet.PackCells} ô thảm tiền cảnh · Chọn rồi kéo trên cát để trải, Tẩy để xoá · Không tính điểm",kind++,0,item =>
                 {
                     item.carpet=species;item.footprint=.1f;

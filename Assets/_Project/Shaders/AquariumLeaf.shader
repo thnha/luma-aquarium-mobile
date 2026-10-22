@@ -65,7 +65,8 @@ Shader "Lumaquarium/Aquarium Leaf"
                 half3 pigment=tex.rgb*_BaseColor.rgb*i.color.rgb;
                 half3 lighting=lerp(half3(.32,.4,.26),_AquariumAmbientColor.rgb,_AquariumLightingActive)+light.color*(diffuse*.85*light.shadowAttenuation+transmission);
                 float fresnel=pow(1-saturate(dot(normal,view)),4);
-                half3 backlight=AquariumBackLight(normal,view,i.world,.6)*(pigment*.7+.3);
+                // Light through a leaf comes out its own green; untinted it hazed every leaf in the lamp colour.
+                half3 backlight=AquariumBackLight(normal,view,i.world,.6)*(pigment*.85+.06);
                 return half4(AquariumDepthFog(pigment*lighting+light.color*gloss+pigment*fresnel*.12+backlight,i.world),1);
             }
             ENDHLSL

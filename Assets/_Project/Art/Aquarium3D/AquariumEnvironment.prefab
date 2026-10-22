@@ -1160,6 +1160,9 @@ MonoBehaviour:
   plantMounts: []
   wallMounted: 0
   wallSize: {x: 0, y: 0}
+  points: 1
+  tiltable: 0
+  carpet: 0
 --- !u!65 &6250851500478805330
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4664,6 +4667,9 @@ MonoBehaviour:
   plantMounts: []
   wallMounted: 0
   wallSize: {x: 0, y: 0}
+  points: 1
+  tiltable: 0
+  carpet: 0
 --- !u!65 &8060492432861549068
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6229,22 +6235,71 @@ MonoBehaviour:
   - {fileID: 7220260656153194921, guid: a16c5c582e62c44679473d73415a3d17, type: 3}
   - {fileID: 5614675725701440680, guid: 47720d66f965741588405ea43c20b92d, type: 3}
   - {fileID: 1540067837692001380, guid: 6f426f2b8b6e242979a9758702090750, type: 3}
+  - {fileID: 4890290598972252958, guid: 397e2426a29844c41a530cff4b87935a, type: 3}
+  - {fileID: 4803363077485251982, guid: facbfa1d9b8be49bd8c3eb9fd8186b9e, type: 3}
+  - {fileID: 7858097464372383227, guid: 7c7c862df8f5a429a9aadb809415874f, type: 3}
+  - {fileID: 7243342584966017779, guid: a36d930d03e304614a8dd8196b1b33d6, type: 3}
+  - {fileID: 8010785741570723442, guid: 7e03ac748370c4fd3857347109367d57, type: 3}
+  - {fileID: 7711788165433918034, guid: d57d12142ab4843de8e857d7ec994e46, type: 3}
+  - {fileID: 52752538262720092, guid: 7417286e8731c444f898b054c294371f, type: 3}
+  - {fileID: 380035876544503626, guid: 818480c4c98eb4d87a0ed8f80f89e956, type: 3}
+  - {fileID: 640040022578163200, guid: 914735e0be82242f9b2eb3588a8c4307, type: 3}
+  - {fileID: 582199462719602289, guid: b08909a925eeb451c85cba2a78195f6e, type: 3}
+  - {fileID: 8385945406301542050, guid: 956323a3fe71d4ad784cce3d4dffbff3, type: 3}
+  - {fileID: 6009256796965494290, guid: f9204cf7600b74e20849c4b9bd1a67f9, type: 3}
+  - {fileID: 2479808644306018352, guid: 625045cde42a94e4097122c41e56c7d6, type: 3}
+  - {fileID: 6035184124729511749, guid: 003d17963b8884811b698a85540cdf19, type: 3}
+  - {fileID: 4215258521128461989, guid: 8dd77116f1e3c41c58df84c183cb856e, type: 3}
+  - {fileID: 7802931194817573575, guid: a82c72d76eaa1461e995cd01dbacec6a, type: 3}
+  - {fileID: 4212726252308193873, guid: 2fff86e53b9db464fb65868685105915, type: 3}
+  - {fileID: 6712890784386967797, guid: 547997828562541c4a3e461f4c1f5c9f, type: 3}
+  - {fileID: 6209917315114048151, guid: 6498031728ff94651b52b52b74014f04, type: 3}
+  - {fileID: 3484269133661095009, guid: 65ddf31b4aa2e40159346b6ee86df928, type: 3}
+  - {fileID: 1400713473559314290, guid: 74b62411556c0473fa0ec5a6d8adc016, type: 3}
+  - {fileID: 1308027101727314285, guid: ba6f881d741e04a5393d30f8b51a9d48, type: 3}
+  - {fileID: 2591711538354299020, guid: 688153df5ad7f449aba7a721309b553a, type: 3}
+  - {fileID: 152325872886205670, guid: 889e6021061aa4c10943a40a9a83a147, type: 3}
+  - {fileID: 5467938737133182166, guid: 1015752092f524472bc986d32cbb46f0, type: 3}
+  - {fileID: 9151220892726878122, guid: 50a9f232b2bbb4f3da670563dc98c286, type: 3}
+  - {fileID: 3773246465415160288, guid: 048cf08d56fce4577bdb21da98712e2d, type: 3}
+  - {fileID: 7682208394736300865, guid: e9551851341534df6900570a247664d0, type: 3}
+  - {fileID: 3535287558515641278, guid: 927e1d11af7734edb8cc4dcc2a858dbf, type: 3}
+  - {fileID: 7534099933583264499, guid: c69d1bc6b7f1540f18ba3d5aa4ba5fce, type: 3}
+  - {fileID: 7751952769058292919, guid: 1e55906599c224d15b6a6ce4938d4748, type: 3}
+  - {fileID: 449814110420035448, guid: 20eb2d4e3d3384baca8499eb26cd7b0e, type: 3}
+  - {fileID: 1528550579210965698, guid: 7b3a9d227a9a44e2db04760fb8508d51, type: 3}
+  - {fileID: 5373629577678123050, guid: c394827908f5142c0b1adbe0d49f234e, type: 3}
+  - {fileID: 3989047059476645257, guid: 61026824b39b64684abee47d28a54201, type: 3}
+  - {fileID: 372091871193312422, guid: 0a16100a156e04c339a3951fbd799348, type: 3}
+  - {fileID: 1043661354643398393, guid: 3ec7c82008ec14344934462368824d56, type: 3}
   catalog: {fileID: 11400000, guid: 7794c97f9f0e3470b936e1d249cf6cb7, type: 2}
+  surfaces: {fileID: 11400000, guid: 9f3416f1039e34e4e8bfe19bbb6bba2a, type: 2}
   inventoryStorageKey: Lumaquarium.FishShop.v1
   itemsRoot: {fileID: 3540554829139068634}
   viewCamera: {fileID: 0}
   orbit: {fileID: 0}
   screen: {fileID: 2240077689928130848}
   dock: {fileID: 2506339565525535441}
+  tiltButton: {fileID: 0}
+  trimButton: {fileID: 0}
+  growButton: {fileID: 0}
+  addButton: {fileID: 0}
+  undoButton: {fileID: 0}
+  doneButton: {fileID: 0}
   instruction: {fileID: 5495338255700021643}
   selectionRing: {fileID: 2907905595299774683}
   water: {fileID: 3355497037398684170}
   min: {x: -0.74, y: -0.5}
   max: {x: 0.74, y: 2.4}
   floorY: 0.31
+  sandRise: 0
+  sandRiseFrom: 0.3
+  sandRiseTo: 2.2
   capacity: 24
   storageKey: Lumaquarium.Decoration.Main.v1
   persistLayout: 1
+  placementPitch: 50
+  footprintOverlap: 0.35
 --- !u!114 &3355497037398684170
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6279,6 +6334,14 @@ MonoBehaviour:
   sun: {fileID: 0}
   nightBackdrop: {fileID: 6027614241904162801}
   label: {fileID: 4842579800999121772}
+  depthFog: 0.22
+  fogNear: 0
+  fogFar: 2.6
+  glowShader: {fileID: 0}
+  lampIntensity: 2
+  backlightStrength: 0.75
+  storageKey: Lumaquarium.Lighting.v1
+  persist: 1
 --- !u!1 &4139353103397086710
 GameObject:
   m_ObjectHideFlags: 0
@@ -6426,6 +6489,9 @@ MonoBehaviour:
   plantMounts: []
   wallMounted: 0
   wallSize: {x: 0, y: 0}
+  points: 1
+  tiltable: 0
+  carpet: 0
 --- !u!65 &4478879099379782812
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6954,6 +7020,9 @@ MonoBehaviour:
   plantMounts: []
   wallMounted: 0
   wallSize: {x: 0, y: 0}
+  points: 1
+  tiltable: 0
+  carpet: 0
 --- !u!65 &5574089760435468601
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -15350,6 +15419,9 @@ MonoBehaviour:
   plantMounts: []
   wallMounted: 0
   wallSize: {x: 0, y: 0}
+  points: 1
+  tiltable: 0
+  carpet: 0
 --- !u!65 &5270793071365292429
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -17359,6 +17431,8 @@ MonoBehaviour:
   carePanel: {fileID: 804179965859764757}
   decoratePanel: {fileID: 6232332518748395523}
   settingsPanel: {fileID: 85771046060310814}
+  lightingPanel: {fileID: 0}
+  tankPanel: {fileID: 0}
   hungerLabel: {fileID: 2757937806941147215}
   hungerFill: {fileID: 3805765329162918634}
   behaviourLabel: {fileID: 2188172689002660548}
@@ -17381,8 +17455,10 @@ MonoBehaviour:
   tileActive: {fileID: 0}
   careGlow: {fileID: 0}
   decorateGlow: {fileID: 0}
+  feedGlow: {fileID: 0}
   careLift: {fileID: 0}
   decorateLift: {fileID: 0}
+  feedLift: {fileID: 0}
   activeLift: 18
 --- !u!225 &5281912746202035024
 CanvasGroup:

@@ -23,6 +23,7 @@ namespace Lumaquarium.UI
         public TMP_Text summary;
         public UnityEngine.UI.Button arrangeButton, shopButton;
         private AquariumDecorCategory category;
+        private bool picking;
 
         private AquariumDecoration Decoration => aquarium != null ? aquarium.decoration : null;
 
@@ -43,7 +44,23 @@ namespace Lumaquarium.UI
             if (shopButton != null) shopButton.onClick.AddListener(() => OpenShop(-1));
         }
 
-        private void OnEnable() => Refresh();
+        private void OnEnable()
+        {
+            if (arrangeButton != null) arrangeButton.gameObject.SetActive(!picking);
+            Refresh();
+        }
+
+        // Opened from Thêm in the arrange screen: a card adds that piece to the session, so Sắp xếp lại is hidden.
+        // The button is hidden here too in case the sheet is already open (OnEnable then does not run).
+        public void Pick()
+        {
+            picking = true;
+            if (arrangeButton != null) arrangeButton.gameObject.SetActive(false);
+            gameObject.SetActive(true);
+        }
+
+        // The button is not touched here: Unity refuses to activate children while the sheet is deactivating.
+        private void OnDisable() => picking = false;
 
         // A sheet built before newer catalog items gets their cards copied from the first card.
         private void AddMissingCards()
@@ -98,7 +115,7 @@ namespace Lumaquarium.UI
             for (int i = 0; i < cards.Length; i++)
             {
                 var offer = catalog != null && i < catalog.offers.Length ? catalog.offers[i] : null;
-                int available = offer != null && offer.prefab != null && offer.category == category
+                int available = offer != null && offer.prefab != null && AquariumDecorCatalog.InventoryGroup(offer.category) == category
                     ? decoration.Available(offer.prefab.kind) : 0;
                 cards[i].SetActive(available > 0);
                 if (available <= 0) continue;
@@ -119,8 +136,9 @@ namespace Lumaquarium.UI
             if (decoration == null || decoration.catalog == null || index < 0 || index >= decoration.catalog.offers.Length) return;
             var offer = decoration.catalog.offers[index];
             if (offer.prefab == null) return;
-            if (decoration.Available(offer.prefab.kind) > 0) decoration.Begin(offer.prefab.kind);
-            else OpenShop(index);
+            if (decoration.Available(offer.prefab.kind) <= 0) { OpenShop(index); return; }
+            if (picking) aquarium.ClosePanels();
+            decoration.Begin(offer.prefab.kind);
         }
 
         public void Arrange()

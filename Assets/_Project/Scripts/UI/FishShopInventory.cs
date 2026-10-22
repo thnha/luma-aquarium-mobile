@@ -23,6 +23,10 @@ namespace Lumaquarium.UI
             public bool starterDecorImported;
             public List<string> ownedTanks = new List<string>();
             public string activeTank = "";
+            public List<string> ownedWalls = new List<string>();
+            public string activeWall = "";
+            public List<string> ownedSubstrates = new List<string>();
+            public string activeSubstrate = "";
         }
 
         [Serializable] private sealed class DecorStock { public string id; public int count; }
@@ -30,6 +34,8 @@ namespace Lumaquarium.UI
         public int Balance => data.balance;
         public string ActiveId => data.activeId;
         public string ActiveTank => data.activeTank;
+        public string ActiveWall => data.activeWall;
+        public string ActiveSubstrate => data.activeSubstrate;
 
         public FishShopInventory(string storageKey = DefaultStorageKey)
         {
@@ -51,6 +57,10 @@ namespace Lumaquarium.UI
                 if (saved.decor == null) saved.decor = new List<DecorStock>();
                 if (saved.ownedTanks == null) saved.ownedTanks = new List<string>();
                 if (saved.activeTank == null) saved.activeTank = "";
+                if (saved.ownedWalls == null) saved.ownedWalls = new List<string>();
+                if (saved.activeWall == null) saved.activeWall = "";
+                if (saved.ownedSubstrates == null) saved.ownedSubstrates = new List<string>();
+                if (saved.activeSubstrate == null) saved.activeSubstrate = "";
                 var seen = new HashSet<string>();
                 foreach (var stock in saved.decor)
                     if (stock == null || string.IsNullOrWhiteSpace(stock.id) || stock.count < 0 || !seen.Add(stock.id)) return;
@@ -142,6 +152,37 @@ namespace Lumaquarium.UI
             return true;
         }
 
+        // Wall and floor styles (AquariumSurfaceCatalog): bought once, then put into use. Style 0 is free.
+        public bool OwnsWall(string id) => !string.IsNullOrWhiteSpace(id) && data.ownedWalls.Contains(id);
+        public bool OwnsSubstrate(string id) => !string.IsNullOrWhiteSpace(id) && data.ownedSubstrates.Contains(id);
+        public bool TryPurchaseWall(string id, int price) => TryPurchaseStyle(id, price, true);
+        public bool TryPurchaseSubstrate(string id, int price) => TryPurchaseStyle(id, price, false);
+        public bool SelectWall(string id, bool free) => SelectStyle(id, free, true);
+        public bool SelectSubstrate(string id, bool free) => SelectStyle(id, free, false);
+
+        private bool TryPurchaseStyle(string id, int price, bool wall)
+        {
+            Reload();
+            if (string.IsNullOrWhiteSpace(id) || price < 0 || price > data.balance || (wall ? OwnsWall(id) : OwnsSubstrate(id))) return false;
+            var next = Copy();
+            next.balance -= price;
+            if (wall) { next.ownedWalls.Add(id); next.activeWall = id; }
+            else { next.ownedSubstrates.Add(id); next.activeSubstrate = id; }
+            Save(next);
+            return true;
+        }
+
+        private bool SelectStyle(string id, bool free, bool wall)
+        {
+            Reload();
+            if (string.IsNullOrWhiteSpace(id) || (!free && !(wall ? OwnsWall(id) : OwnsSubstrate(id)))) return false;
+            if ((wall ? data.activeWall : data.activeSubstrate) == id) return true;
+            var next = Copy();
+            if (wall) next.activeWall = id; else next.activeSubstrate = id;
+            Save(next);
+            return true;
+        }
+
         private SaveData Copy() => new SaveData
         {
             balance = data.balance,
@@ -150,7 +191,11 @@ namespace Lumaquarium.UI
             decor = data.decor.ConvertAll(x => new DecorStock { id = x.id, count = x.count }),
             starterDecorImported = data.starterDecorImported,
             ownedTanks = new List<string>(data.ownedTanks),
-            activeTank = data.activeTank
+            activeTank = data.activeTank,
+            ownedWalls = new List<string>(data.ownedWalls),
+            activeWall = data.activeWall,
+            ownedSubstrates = new List<string>(data.ownedSubstrates),
+            activeSubstrate = data.activeSubstrate
         };
 
         private void Save(SaveData next)

@@ -51,7 +51,8 @@ public static partial class AquariumDecorCatalogBuilder
                 collider.center=bounds.center; collider.size=bounds.size + Vector3.one*.025f;
                 var prefab = PrefabUtility.SaveAsPrefabAsset(root, Root + "/" + Ids[i] + ".prefab").GetComponent<AquariumDecorItem>();
                 offers.Add(new AquariumDecorOffer { id=Ids[i], displayName=Names[i], price=Prices[i], prefab=prefab,
-                    category=i<12?AquariumDecorCategory.Plants:i<18?AquariumDecorCategory.Wood:AquariumDecorCategory.Rocks,
+                    category=i<6?AquariumDecorCategory.Plants:i<9?AquariumDecorCategory.Moss:i<12?AquariumDecorCategory.Floating
+                        :i<18?AquariumDecorCategory.Wood:AquariumDecorCategory.Rocks,
                     description=i>=12&&i<18?"Lũa tự nhiên · Có 3 vị trí gắn ráy, dương xỉ hoặc rêu":
                         item.floats?"Bèo nổi trên mặt nước · Kéo để sắp xếp từng cụm":
                         item.attachable?"Trồng trên nền hoặc kéo lên lũa, đá để gắn":i<12?"Cây thủy sinh trồng nền · Lá đung đưa theo dòng nước":
@@ -102,7 +103,7 @@ public static partial class AquariumDecorCatalogBuilder
                 collider.center=bounds.center; collider.size=bounds.size + Vector3.one*.025f;
                 var prefab = PrefabUtility.SaveAsPrefabAsset(root, Root + "/" + species.id + ".prefab").GetComponent<AquariumDecorItem>();
                 offers.Add(new AquariumDecorOffer { id=species.id, displayName=species.name, price=species.price, prefab=prefab,
-                    category=AquariumDecorCategory.Plants, description=species.description, portrait=Portrait(prefab.gameObject,species.id) });
+                    category=AquariumDecorCategory.Moss, description=species.description, portrait=Portrait(prefab.gameObject,species.id) });
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }
@@ -126,7 +127,7 @@ public static partial class AquariumDecorCatalogBuilder
                 collider.center=bounds.center; collider.size=bounds.size + Vector3.one*.025f;
                 var prefab = PrefabUtility.SaveAsPrefabAsset(root, Root + "/" + wall.id + ".prefab").GetComponent<AquariumDecorItem>();
                 offers.Add(new AquariumDecorOffer { id=wall.id, displayName=wall.name, price=wall.price, prefab=prefab,
-                    category=AquariumDecorCategory.Plants, description=wall.description, portrait=Portrait(prefab.gameObject,wall.id) });
+                    category=AquariumDecorCategory.Moss, description=wall.description, portrait=Portrait(prefab.gameObject,wall.id) });
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }
