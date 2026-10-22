@@ -19,7 +19,7 @@ Shader "Lumaquarium/Aquarium Hardscape"
         half4 _BaseColor;
         float _Tiling, _UVMode, _Roughness;
         CBUFFER_END
-        float _AquariumLightingActive, _AquariumNight;
+        float _AquariumLightingActive, _AquariumNight, _AquariumLamp;
         half4 _AquariumAmbientColor;
         struct Attributes { float4 positionOS:POSITION; float3 normalOS:NORMAL; float2 uv:TEXCOORD0; half4 color:COLOR; };
         struct Varyings { float4 positionCS:SV_POSITION; float3 world:TEXCOORD0; float3 normal:TEXCOORD1; float2 uv:TEXCOORD2; half4 color:COLOR; };
@@ -62,11 +62,13 @@ Shader "Lumaquarium/Aquarium Hardscape"
                 float spec=pow(saturate(dot(n,normalize(light.direction+view))),lerp(100,22,_Roughness));
                 float a=sin(i.world.x*21+sin(i.world.z*17+_Time.y*.6)*2);
                 float b=cos(i.world.z*23-_Time.y*.5+sin(i.world.x*14));
-                // Caustics fall from the surface, so they show brightest on the sand and the tops of stones.
-                float caustic=pow(saturate(1-abs(a+b)*.7),12)*lerp(.1,.34,saturate(n.y))*(1-_AquariumNight*.85);
+                // Caustics fall from the surface, so they show brightest on the sand and the tops of stones;
+                // they fade at night unless the top lamp is on.
+                float caustic=pow(saturate(1-abs(a+b)*.7),12)*lerp(.1,.34,saturate(n.y))*max(1-_AquariumNight*.85,_AquariumLamp*.8);
                 half3 ambient=lerp(half3(.29,.36,.29),_AquariumAmbientColor.rgb,_AquariumLightingActive);
                 half3 color=tex*_BaseColor.rgb*i.color.rgb*(ambient+light.color*(.15+diffuse*.8)*light.shadowAttenuation+caustic);
                 color+=light.color*spec*(1-_Roughness)*.22*light.shadowAttenuation;
+                color+=AquariumBackLight(n,view,i.world,0)*(tex*_BaseColor.rgb*.7+.3);
                 return half4(AquariumDepthFog(color,i.world),1);
             }
             ENDHLSL

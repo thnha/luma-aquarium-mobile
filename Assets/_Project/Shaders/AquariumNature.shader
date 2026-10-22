@@ -53,6 +53,7 @@ Shader "Lumaquarium/Aquarium Nature"
                 float caustic = pow(saturate(1 - abs(ca + cb) * .7), 10) * .3;
                 float3 lighting = lerp(float3(.23,.38,.33),_AquariumAmbientColor.rgb,_AquariumLightingActive) + light.color * (.25 + lambert * .65) * light.shadowAttenuation;
                 float3 result = base * (lighting + caustic * float3(.9,1,.68));
+                result += AquariumBackLight(normal, normalize(_WorldSpaceCameraPos - p), p, .3) * (base * .7 + .3);
                 // Gentle distance absorption keeps the foreground legible under water.
                 float fog = saturate((distance(p, _WorldSpaceCameraPos) - 3) * .1);
                 return half4(AquariumDepthFog(lerp(result, float3(.035,.2,.21), fog), p),1);

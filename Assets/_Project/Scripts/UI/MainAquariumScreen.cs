@@ -17,6 +17,7 @@ namespace Lumaquarium.UI
         public GameObject carePanel;
         public GameObject decoratePanel;
         public GameObject settingsPanel;
+        public GameObject lightingPanel;
         public TMP_Text hungerLabel;
         public UnityEngine.UI.Image hungerFill;
         public TMP_Text behaviourLabel;
@@ -134,6 +135,7 @@ namespace Lumaquarium.UI
         public void ToggleCare() => TogglePanel(carePanel);
         public void ToggleDecorate() => TogglePanel(decoratePanel);
         public void ToggleSettings() => TogglePanel(settingsPanel);
+        public void ToggleLighting() { if (lightingPanel != null) TogglePanel(lightingPanel); }
 
         public void OpenDecorate()
         {
@@ -155,6 +157,7 @@ namespace Lumaquarium.UI
             carePanel.SetActive(false);
             decoratePanel.SetActive(false);
             settingsPanel.SetActive(false);
+            if (lightingPanel != null) lightingPanel.SetActive(false);
             if (orbit != null) orbit.enabled = true;
             UpdateTiles();
         }

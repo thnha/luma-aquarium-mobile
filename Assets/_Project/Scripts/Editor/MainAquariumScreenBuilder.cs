@@ -79,6 +79,7 @@ public static class MainAquariumScreenBuilder
         BuildDock(controller, safe);
         BuildCare(controller, safe);
         var dayNight = BuildSettings(controller, safe);
+        var lightingSheet = BuildLighting(controller, safe);
         BuildDecorate(controller, safe, decoration);
 
         var restore = Ui3D.RoundButton("RestoreHudButton", safe, "utility_hide");
@@ -106,7 +107,9 @@ public static class MainAquariumScreenBuilder
             Undo.RecordObject(lighting, "Wire lighting switch");
             lighting.label = dayNight.GetComponentInChildren<TMP_Text>();
             Wire(dayNight, lighting.Toggle);
+            lighting.glowShader = Shader.Find("Lumaquarium/Aquarium Glow");
             Saved(lighting);
+            lightingSheet.lighting = lighting;
         }
         else dayNight.interactable = false;
         controller.ClosePanels();
@@ -243,7 +246,7 @@ public static class MainAquariumScreenBuilder
     // Returns the day/night button so the lighting component can drive its label.
     private static UnityEngine.UI.Button BuildSettings(MainAquariumScreen controller, RectTransform safe)
     {
-        var panel = Sheet("SettingsPanel", safe, "Cài đặt", 900, controller);
+        var panel = Sheet("SettingsPanel", safe, "Cài đặt", 1040, controller);
         controller.settingsPanel = panel.gameObject;
         var mute = Row(panel, 0, "Âm thanh", "Bật hoặc tắt tiếng hồ", "MuteButton", "Đang bật");
         controller.muteLabel = mute.GetComponentInChildren<TMP_Text>();
@@ -251,10 +254,57 @@ public static class MainAquariumScreenBuilder
         var dayNight = Row(panel, 1, "Ánh sáng hồ", "Đổi ngày và đêm cho hồ", "DayNightButton", "Ban ngày");
         Wire(Row(panel, 2, "Góc nhìn", "Đưa camera về vị trí đầu", "ResetViewButton", "Đặt lại"), controller.ResetView);
         Wire(Row(panel, 3, "Ẩn giao diện", "Chỉ giữ nút hiện lại ở góc", "HideUiButton", "Ẩn"), controller.ToggleHud);
-        var profile = RowFrame(panel, 4, "Hồ sơ khách", "Lưu trên thiết bị này", false);
+        Wire(Row(panel, 4, "Đèn hồ", "Đèn trên, đèn nền và màu đèn", "LightingButton", "Tùy chỉnh"), controller.ToggleLighting);
+        var profile = RowFrame(panel, 5, "Hồ sơ khách", "Lưu trên thiết bị này", false);
         var soon = Ui3D.Badge("Soon", profile, "Đăng nhập · Sắp có", true, out _);
         Ui3D.At(soon.rectTransform, new Vector2(1, .5f), new Vector2(1, .5f), Vector2.zero, new Vector2(340, 66));
         return dayNight;
+    }
+
+    // Light from above (daylight or the lamp), the lamp's colour and the backlight behind the tank.
+    private static LightingPanel BuildLighting(MainAquariumScreen controller, RectTransform safe)
+    {
+        var panel = Sheet("LightingPanel", safe, "Ánh sáng", 860, controller);
+        controller.lightingPanel = panel.gameObject;
+        var sheet = panel.gameObject.AddComponent<LightingPanel>();
+        sheet.topButtons = Tabs(panel, 0, "Chiếu từ trên xuống", "Nắng tự nhiên hoặc đèn treo trên hồ", "Top", "Ban ngày", "Đèn");
+        sheet.colorButtons = Tabs(panel, 1, "Màu đèn trên", "Chọn màu là bật đèn", "Color", "Trắng", "Xanh", "Đỏ");
+        sheet.backButtons = Tabs(panel, 2, "Đèn nền phía sau", "Viền sáng cây, đá và cá từ phía sau", "Back", "Tắt", "Trắng", "Xanh", "Đỏ");
+        sheet.labelOn = Ui3D.Cream;
+        sheet.labelOff = Ui3D.Hex("4A503F");
+        return sheet;
+    }
+
+    // A titled row with a tray of tabs under it, as in the decorate sheet; LightingPanel lights the selected tab.
+    private static UnityEngine.UI.Button[] Tabs(RectTransform panel, int index, string title, string subtitle, string name, params string[] labels)
+    {
+        var row = Ui3D.Rect(name + "Row", panel);
+        Ui3D.TopStrip(row, 56, 56, 150 + index * 220, 220);
+        var heading = Ui3D.Text("Title", row, title, 40, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.TopStrip(heading.rectTransform, 0, 0, 0, 52);
+        var detail = Ui3D.Text("Detail", row, subtitle, 30, Ui3D.Muted, false, TextAlignmentOptions.MidlineLeft);
+        Ui3D.TopStrip(detail.rectTransform, 0, 0, 52, 42);
+        var tray = Ui3D.Image("Tabs", row, "ui3d_tab_tray_light");
+        Ui3D.TopStrip(tray.rectTransform, -12, -12, 98, 112);
+        var layout = tray.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>();
+        layout.padding = new RectOffset(10, 10, 10, 16);
+        layout.spacing = 6;
+        layout.childControlWidth = layout.childControlHeight = true;
+        layout.childForceExpandWidth = layout.childForceExpandHeight = true;
+        var buttons = new UnityEngine.UI.Button[labels.Length];
+        for (int i = 0; i < labels.Length; i++)
+        {
+            var tab = Ui3D.Image(name + i, tray.transform, "ui3d_button_primary");
+            tab.color = Color.clear;
+            tab.raycastTarget = true;
+            var button = tab.gameObject.AddComponent<UnityEngine.UI.Button>();
+            button.targetGraphic = tab;
+            button.transition = UnityEngine.UI.Selectable.Transition.None;
+            var label = Ui3D.Text("Label", tab.transform, labels[i], 36, Ui3D.Ink, true);
+            Ui3D.Edges(label.rectTransform, Vector2.zero, Vector2.one, new Vector2(6, 12), new Vector2(-6, -4));
+            buttons[i] = button;
+        }
+        return buttons;
     }
 
     // Owned decorations by group. Cards follow the catalog order so their index is the offer index.

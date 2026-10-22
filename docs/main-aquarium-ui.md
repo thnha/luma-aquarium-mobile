@@ -7,7 +7,7 @@ Màn `Assets/_Project/Scenes/MainAquarium.unity` dùng HUD theo mẫu `../medias
 - HUD theo [redesign 2.5D](ui-redesign.md): chip cá (chân dung render từ model, tên, độ no), ví xu, nút Cài đặt và Ẩn UI, dock 5 icon không chữ đứng trên tảng đá rêu: Cho ăn · Chăm sóc · Trang trí · Cửa hàng · Ảnh.
 - Canvas tham chiếu 1080 × 1920, co theo chiều rộng, toolbar dùng HorizontalLayoutGroup và SafeArea hiện có.
 - Cho ăn gọi FeedingSystem, giữ cooldown và giới hạn viên thức ăn. Panel Chăm sóc đọc độ no và trạng thái thật từ BettaFishAI.
-- Ẩn UI giữ nút hiện lại. Sheet Cài đặt có Âm thanh, Ánh sáng ngày/đêm, Góc nhìn, Ẩn giao diện và Hồ sơ khách. Camera bị khóa khi mở sheet.
+- Ẩn UI giữ nút hiện lại. Sheet Cài đặt có Âm thanh, Ánh sáng ngày/đêm, Góc nhìn, Ẩn giao diện, Đèn hồ và Hồ sơ khách. **Đèn hồ → Tùy chỉnh** mở sheet Ánh sáng: chiếu từ trên xuống (Ban ngày = nắng xiên theo đồng hồ ngày/đêm, Đèn = đèn treo chiếu thẳng xuống, giữ độ sáng cả ban đêm), màu đèn trên (Trắng / Xanh / Đỏ; chọn màu là bật đèn) và đèn nền phía sau (Tắt / Trắng / Xanh / Đỏ: một tấm sáng mờ trên nước phía sau, viền sáng trên cây, lũa, đá qua shader và một đèn point cho cá). Lựa chọn đèn được lưu trong PlayerPrefs (`Lumaquarium.Lighting.v1`); ngày/đêm vẫn không lưu. Camera bị khóa khi mở sheet.
 - Ảnh được chụp sau khi ẩn HUD, lưu PNG vào `Application.persistentDataPath/Photos`, rồi hiện lại HUD. Thông báo thành công chỉ xuất hiện sau khi ghi file; chưa xuất vào thư viện ảnh điện thoại hoặc chia sẻ.
 
 ## Phạm vi hình ảnh
