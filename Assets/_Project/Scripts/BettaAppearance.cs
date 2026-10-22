@@ -29,6 +29,8 @@ public class BettaAppearance : MonoBehaviour
     static readonly int EdgeId = Shader.PropertyToID("_VariantEdge");
     static readonly int SpeckleId = Shader.PropertyToID("_VariantSpeckle");
     static readonly int GlossId = Shader.PropertyToID("_Gloss");
+    static readonly int BlackGlossId = Shader.PropertyToID("_BlackGloss");
+    static readonly int WhiteScalesId = Shader.PropertyToID("_WhiteScales");
     static readonly int HeadId = Shader.PropertyToID("_VariantHead");
     static readonly int TailId = Shader.PropertyToID("_VariantTail");
     static readonly int DepthId = Shader.PropertyToID("_VariantDepth");
@@ -110,6 +112,8 @@ public class BettaAppearance : MonoBehaviour
             Texture baseMap = r.sharedMaterial && r.sharedMaterial.HasProperty(BaseMapId) ? r.sharedMaterial.GetTexture(BaseMapId) : null;
             if (baseMap) block.SetTexture(BaseMapId, baseMap);
             block.SetFloat(GlossId, variant.gloss);
+            block.SetFloat(BlackGlossId, variant.blackGloss);
+            block.SetFloat(WhiteScalesId, variant.whiteScales);
             BodyAxis(r, out Vector3 head, out Vector3 tail);
             block.SetVector(HeadId, head);
             block.SetVector(TailId, tail);

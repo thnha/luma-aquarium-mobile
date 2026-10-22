@@ -1,0 +1,45 @@
+{
+  "build": {
+    "input": "input/KoiNemo/meshy_zip/Meshy_AI_Koi_Betta_Fish_1021050451_image-to-3d-texture_fbx/Meshy_AI_Koi_Betta_Fish_1021050451_image-to-3d-texture.fbx",
+    "flip": false,
+    "faces": 30000,
+    "depth": 1,
+    "width": 1,
+    "fins": {},
+    "finThickness": 0.4,
+    "landmarks": "",
+    "bake": true
+  },
+  "shop": {
+    "displayName": "Koi Nemo Betta",
+    "inShop": true,
+    "shopId": "koi-nemo",
+    "description": "Xanh dương, trắng, đen · Koi Nemo đuôi tròn",
+    "price": 0
+  },
+  "model": {
+    "size": 2.4,
+    "bodySwimAmplitude": 3,
+    "strokeSwimAmplitude": 8
+  },
+  "look": {
+    "pattern": "Butterfly",
+    "primary": [0.1, 0.25, 0.85],
+    "secondary": [0.95, 0.95, 0.95],
+    "accent": [0.09, 0.09, 0.09],
+    "finEdge": [1.0, 0.82, 0.2],
+    "iridescence": 0.4,
+    "textureDetail": 0.6,
+    "silverSheen": 1,
+    "gloss": 1,
+    "blackGloss": 0,
+    "whiteScales": 0,
+    "pigmentDepth": 0,
+    "finEdgeClear": 0,
+    "finRimAlpha": 1,
+    "finRim": [0.9, 1.0],
+    "caudalRim": [0.62, 0.8],
+    "caudalStart": 0.55,
+    "seed": 0
+  }
+}

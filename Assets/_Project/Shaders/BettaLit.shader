@@ -92,6 +92,10 @@ Shader "Lumaquarium/Betta Lit"
         _IridescenceShift("Iridescence Hue Shift", Range(0.0, 4.0)) = 1.6
         // Scales every smoothness: below 1 turns glazed highlights into satin skin
         _Gloss("Gloss", Range(0.0, 1.5)) = 1.0
+        // Koi Galaxy: dark scales and fin rims turn deep black; polish 0.25 satin -> 1 lacquer (0 = off)
+        _BlackGloss("Black Gloss", Range(0.0, 1.0)) = 0.0
+        // Koi Galaxy: share of the dark scales that are white instead (0 = none)
+        _WhiteScales("White Scales", Range(0.0, 0.5)) = 0.0
         // Snout and tail tip in object space (set per fish), and pigment depth: z deeper head / paler tail, w paler fin edges
         _VariantHead("Variant Head", Vector) = (0,0,0,0)
         _VariantTail("Variant Tail", Vector) = (0,0,0,0)

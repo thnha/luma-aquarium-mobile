@@ -44,6 +44,11 @@ half _AlbedoAO;
 half _ScaleTilt;
 half _IridescenceShift;
 half _Gloss;
+// Black lacquer: dark scales and dark fin rims turn deep black and non-metal (fully from 0.25 up);
+// the value sets their polish, 0.25 satin -> 1 lacquer. 0 = off.
+half _BlackGloss;
+// Koi Galaxy: share of the dark scales that are white instead, scattered one by one (0 = none).
+half _WhiteScales;
 // Snout and tail tip in object space (a skinned fish's object space follows its root bone), set per fish
 // by BettaAppearance: the head (0) -> tail (1) coordinate for pigment depth and the caudal rim.
 float4 _VariantHead;
@@ -70,6 +75,7 @@ static half gBettaFin = 0.0h;
 static half gBettaEdge = 0.0h;
 static half gBettaFolds = 1.0h;   // cavity x AO: fin rays and folds pass less light
 static half gBettaScaleGlint = 0.0h;   // Koi Galaxy: per-scale metallic glint, kept out of _Gloss
+static half gBettaDark = 0.0h;   // Koi Galaxy: dark scales and fin rims (0..1), for _BlackGloss
 // Set by BettaPassFragment: the fragment in object space, for the pigment depth along the body.
 static half gBettaHasPos = 0.0h;
 static half gBettaClear = 0.0h;   // thin pigment (0..1): fins pass more light, see BettaFinTransmission
@@ -241,8 +247,11 @@ half3 BettaVariantAlbedo(half3 original, float2 uv)
         half darkScale = smoothstep(0.45h, 0.55h, zone + jr.y * 0.12h) * body;
         half r8 = r.x * r.x; r8 *= r8; r8 *= r8;
         half glint = saturate(_VariantSpeckle.y * 2.5h) * 0.3h * r8;
-        half3 scaleColor = lerp(S, half3(0.5h, 0.56h, 0.66h), glint);
-        bodyColor = lerp(skin, scaleColor, darkScale);
+        half3 scaleColor = lerp(S, half3(0.5h, 0.56h, 0.66h), glint * (1.0h - saturate(_BlackGloss * 4.0h)));   // silver scales read grey on black
+        // A few single pearl scales scattered through the dark clusters (a scale's own random picks it).
+        half white = step(frac(r.x * 3.7h + r.z * 5.3h), _WhiteScales) * darkScale;
+        bodyColor = lerp(lerp(skin, scaleColor, darkScale), pearl, white);
+        darkScale -= white;
         // Each scale a little lighter or darker than its neighbours.
         bodyColor *= 1.0h + jr.z * 0.22h;
         gBettaScaleGlint = darkScale * glint + (1.0h - darkScale) * body * 0.25h * r.x;
@@ -265,6 +274,7 @@ half3 BettaVariantAlbedo(half3 original, float2 uv)
         fin = lerp(fin, S, rim);
         // Pelvic fins: red with pale streaks.
         finColor = lerp(fin, lerp(A, P, smoothstep(0.6h, 0.8h, g.g) * 0.6h), g.a);
+        gBettaDark = lerp(rim * (1.0h - g.a), darkScale, body);
     }
     // G on body texels marks the eye in one-piece pipeline fish (betta-splendens/pipeline): keep its
     // own colour. The shared Betta's mask has G = 0 on the body (its eyes are a separate renderer).
@@ -348,7 +358,7 @@ inline void BettaVariantSurfaceData(float2 uv, out SurfaceData outSurfaceData)
         half luma = dot(outSurfaceData.albedo, half3(0.299h, 0.587h, 0.114h));
         half3 filmColor = thin * (luma * 1.6h + 0.05h);
         half amount = saturate(_VariantIridescence * 2.0h) * _VariantOn * (1.0h - eyeMask) * lerp(0.3h, 1.0h, bodyEye.r)
-            * cavity * smoothstep(0.15h, 0.85h, film);
+            * cavity * smoothstep(0.15h, 0.85h, film) * (1.0h - saturate(_BlackGloss * 4.0h) * gBettaDark);
         outSurfaceData.albedo = lerp(outSurfaceData.albedo, filmColor, amount);
         outSurfaceData.metallic = max(outSurfaceData.metallic, amount * 0.4h);
     }
@@ -367,6 +377,12 @@ inline void BettaVariantSurfaceData(float2 uv, out SurfaceData outSurfaceData)
     half glint = gBettaScaleGlint * _VariantOn;
     outSurfaceData.metallic = lerp(outSurfaceData.metallic, 0.6h, glint);
     outSurfaceData.smoothness = lerp(outSurfaceData.smoothness, 0.72h, glint);
+    // Black lacquer: a rough black surface spreads its reflection into a grey haze and a black metal
+    // reflects tinted grey, so the dark parts go deeper, non-metal and polished: black with small sharp highlights.
+    half lacquer = gBettaDark * saturate(_BlackGloss * 4.0h) * _VariantOn;
+    outSurfaceData.albedo *= 1.0h - 0.6h * lacquer;
+    outSurfaceData.metallic = lerp(outSurfaceData.metallic, 0.0h, lacquer);
+    outSurfaceData.smoothness = lerp(outSurfaceData.smoothness, lerp(0.5h, 0.88h, saturate((_BlackGloss - 0.25h) / 0.75h)), lacquer);
 }
 
 // The stock pass files call InitializeStandardLitSurfaceData; route them through the wrapper.

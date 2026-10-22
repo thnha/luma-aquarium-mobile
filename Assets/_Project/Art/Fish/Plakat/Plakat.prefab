@@ -72,7 +72,7 @@ MonoBehaviour:
   pectoralTurnBias: 0.5
   gillRestFrequency: 0.7
   gillActiveFrequency: 1.6
-  gillAmplitude: 1.2
+  gillOpenAngle: 12
 --- !u!114 &2794917001719069782
 MonoBehaviour:
   m_ObjectHideFlags: 0

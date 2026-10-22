@@ -100,6 +100,7 @@ Material:
     - _AlbedoAO: 0.8
     - _AlphaClip: 0
     - _AlphaToMask: 0
+    - _BlackGloss: 0
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -143,6 +144,7 @@ Material:
     - _VariantSeed: 0
     - _VariantSilver: 1
     - _VariantSpot: 0.58
+    - _WhiteScales: 0
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1

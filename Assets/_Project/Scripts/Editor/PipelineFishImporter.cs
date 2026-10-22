@@ -12,6 +12,8 @@ using UnityEngine;
 //   <Name>.overrideController  the shared Betta.controller playing this fish's own clips
 //   <Name>.prefab           FBX + swim/fin/reaction components, as BettaVariant.modelPrefab
 //   Data/Betta/Variants/<Name>.asset   the shop's variant (FishShopScreenBuilder lists every inShop fish)
+// When Art/Fish/<Name>/<Name>.json exists (PipelineFishConfig) it is the source of every setting: it is
+// written into <Name>.asset and the variant first, so edits made in the Inspector are overwritten.
 public static class PipelineFishImporter
 {
     public const string FishDir = "Assets/_Project/Art/Fish";
@@ -25,6 +27,7 @@ public static class PipelineFishImporter
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             throw new InvalidOperationException("Exit Play Mode before importing pipeline fish.");
+        PipelineFishConfig.CreateMissingAssets(FishDir);
         foreach (var fish in All()) Build(fish);
         AssetDatabase.SaveAssets();
         FishShopScreenBuilder.Build();
@@ -40,6 +43,9 @@ public static class PipelineFishImporter
     {
         string dir = Path.GetDirectoryName(AssetDatabase.GetAssetPath(fish)).Replace('\\', '/');
         string source = dir + "/" + fish.name;
+        string configPath = PipelineFishConfig.PathFor(dir, fish.name);
+        var config = PipelineFishConfig.Load(configPath);
+        config?.ApplyTo(fish, configPath);
         var model = AssetDatabase.LoadAssetAtPath<GameObject>(source + ".fbx");
         var mask = AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_VariantMask.png");
         var baseColor = AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_BaseColor.png");
@@ -103,6 +109,7 @@ public static class PipelineFishImporter
         variant.finEdge = fish.finEdge;
         variant.iridescence = fish.iridescence;
         variant.seed = fish.seed;
+        config?.ApplyTo(variant, configPath);
         EditorUtility.SetDirty(variant);
         Debug.Log("[Lumaquarium] Built pipeline fish " + source + ".prefab");
         return variant;
