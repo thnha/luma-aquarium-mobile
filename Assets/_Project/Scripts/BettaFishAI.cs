@@ -42,6 +42,10 @@ public class BettaFishAI : MonoBehaviour
     public float arrivalRadius = 0.12f;
     public float slowdownRadius = 0.5f;
     public float boundsInset = 0.15f;
+    // The tank walls stop the whole fish, not just its gills: the tail and caudal fin reach this far
+    // behind the pivot and the fins sway this far to the side (both in body lengths).
+    public float tailReachBodyLengths = 1.3f;
+    public float wallClearanceBodyLengths = 0.12f;
 
     [Header("Burst and coast")]
     public float burstMinTime = 0.7f;
@@ -98,10 +102,10 @@ public class BettaFishAI : MonoBehaviour
     public float obstacleLookAhead = 0.3f;        // metres ahead of the snout
     public float bodyRadiusBodyLengths = 0.12f;   // half the body depth, in body lengths
     public float finHangBodyLengths = 0.4f;       // long anal/pelvic fins hang this far below the body
-    public float obstacleClearance = 0.04f;       // extra room it keeps while steering
+    public float obstacleClearance = 0.02f;       // extra room it keeps while steering
     public float avoidStrength = 2.5f;
     public float maxClimb = 0.3f;                 // lower obstacles are swum over, taller ones around
-    public float climbLookAhead = 0.8f;           // metres ahead it starts rising to clear something
+    public float climbLookAhead = 0.45f;          // metres ahead it starts rising to clear something
     public float climbMaxPitch = 40f;             // may tilt this steeply while rising over decor
 
     [Header("Timing")]
@@ -337,6 +341,7 @@ public class BettaFishAI : MonoBehaviour
             : Mathf.Min(normalBottom, Mathf.Max(floor, transform.position.y));
         transform.position = ClampToBounds(transform.position, ceiling, floor);
         ResolveObstacles();
+        KeepBodyInside();
         if (animator) animator.SetFloat(SpeedId, currentSpeed);
     }
 
@@ -538,7 +543,7 @@ public class BettaFishAI : MonoBehaviour
         state = State.Wander;
         Bounds b = swimBounds ? swimBounds.bounds : new Bounds(transform.position, Vector3.one);
         float y = transform.position.y + Random.Range(-wanderHeightRange, wanderHeightRange);
-        destination = AboveObstacles(ClampToBounds(new Vector3(Random.Range(b.min.x, b.max.x), y, Random.Range(b.min.z, b.max.z))));
+        destination = AboveObstacles(ClampToBounds(new Vector3(Random.Range(b.min.x, b.max.x), y, TowardFront(b))));
         stateTimer = Random.Range(wanderMinTime, wanderMaxTime);
     }
 
@@ -559,7 +564,7 @@ public class BettaFishAI : MonoBehaviour
         state = State.Wander;
         Bounds b = swimBounds ? swimBounds.bounds : new Bounds(transform.position, Vector3.one);
         float y = transform.position.y - Random.Range(0.3f, 0.6f);
-        destination = AboveObstacles(ClampToBounds(new Vector3(Random.Range(b.min.x, b.max.x), y, Random.Range(b.min.z, b.max.z))));
+        destination = AboveObstacles(ClampToBounds(new Vector3(Random.Range(b.min.x, b.max.x), y, TowardFront(b))));
         stateTimer = Random.Range(wanderMinTime, wanderMaxTime);
     }
 
@@ -796,5 +801,37 @@ public class BettaFishAI : MonoBehaviour
         return new Vector3(Mathf.Clamp(position.x, b.min.x + boundsInset, b.max.x - boundsInset),
             Mathf.Clamp(position.y, bottom, top),
             Mathf.Clamp(position.z, b.min.z + boundsInset, b.max.z - boundsInset));
+    }
+
+    // Somewhere across the depth of the tank, more often toward the front glass where the player sees it best.
+    static float TowardFront(Bounds b) => Mathf.Lerp(b.min.z, b.max.z, Mathf.Pow(Random.value, 1.6f));
+
+    // The pivot is clamped above; this pushes it away from the side, back and front glass until the
+    // snout, the body and the tail tip, with their sideways sway, are all inside too.
+    void KeepBodyInside()
+    {
+        if (swimBounds == null) return;
+        Bounds b = swimBounds.bounds;
+        float margin = wallClearanceBodyLengths * BodyLength;
+        Vector3 here = transform.position, forward = transform.forward;
+        float pushX = 0f, pushZ = 0f;
+        for (int i = 0; i <= BodySamples.Length; i++)
+        {
+            float along = i < BodySamples.Length ? BodySamples[i] : -tailReachBodyLengths;
+            Vector3 p = here + forward * (along * BodyLength);
+            pushX = Push(pushX, p.x, b.min.x + margin, b.max.x - margin);
+            // Only the stone walls need the clearance; at the open front the fish may brush the glass.
+            pushZ = Push(pushZ, p.z, b.min.z + .02f, b.max.z - margin);
+        }
+        if (pushX != 0f || pushZ != 0f) transform.position = here + new Vector3(pushX, 0f, pushZ);
+
+        // The largest push needed in either direction; a fish longer than the tank stays centred.
+        static float Push(float push, float value, float min, float max)
+        {
+            if (min > max) return push;
+            if (value < min) return Mathf.Max(push, min - value);
+            if (value > max) return Mathf.Min(push, max - value);
+            return push;
+        }
     }
 }

@@ -34,6 +34,10 @@ public class BettaAppearance : MonoBehaviour
     static readonly int FinReliefId = Shader.PropertyToID("_FinRelief");
     static readonly int FinTranslucencyId = Shader.PropertyToID("_FinTranslucency");
     static readonly int ScaleReliefId = Shader.PropertyToID("_ScaleRelief");
+    static readonly int ScaleEdgeId = Shader.PropertyToID("_ScaleEdge");
+    static readonly int ScaleEdgeWidthId = Shader.PropertyToID("_ScaleEdgeWidth");
+    static readonly int ScaleEdgeDarkId = Shader.PropertyToID("_ScaleEdgeDark");
+    static readonly int ScaleEdgeLightId = Shader.PropertyToID("_ScaleEdgeLight");
     static readonly int FinBlackId = Shader.PropertyToID("_FinBlack");
     static readonly int FinBrightnessId = Shader.PropertyToID("_FinBrightness");
     static readonly int VibranceId = Shader.PropertyToID("_Vibrance");
@@ -143,6 +147,10 @@ public class BettaAppearance : MonoBehaviour
             block.SetFloat(FinReliefId, variant.finRelief);
             block.SetFloat(FinTranslucencyId, variant.finTranslucency);
             block.SetFloat(ScaleReliefId, variant.scaleRelief);
+            block.SetFloat(ScaleEdgeId, variant.scaleEdge);
+            block.SetFloat(ScaleEdgeWidthId, variant.scaleEdgeWidth);
+            block.SetColor(ScaleEdgeDarkId, variant.scaleEdgeDark);
+            block.SetColor(ScaleEdgeLightId, variant.scaleEdgeLight);
             block.SetFloat(FinBlackId, variant.finBlack);
             block.SetFloat(FinBrightnessId, variant.finBrightness);
             block.SetFloat(VibranceId, variant.vibrance);
@@ -190,7 +198,9 @@ public class BettaAppearance : MonoBehaviour
         }
         if (!rimMaterials.TryGetValue(body, out Material rim) || !rim)
         {
-            rim = new Material(body) { name = body.name + " (Clear Rims)", renderQueue = (int)RenderQueue.Transparent };
+            // Last of the opaque queue rather than transparent: drawn after everything opaque behind it, but
+            // before the depth copy, so depth of field finds the fin there instead of blurring it as background.
+            rim = new Material(body) { name = body.name + " (Clear Rims)", renderQueue = (int)RenderQueue.GeometryLast };
             rim.SetFloat(FinEdgePassId, 1f);
             rim.SetFloat("_Surface", 1f);
             rim.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);

@@ -112,7 +112,10 @@ namespace Lumaquarium.UI
 
         private void SetProgress(float progress)
         {
-            progressFill.fillAmount = progress;
+            // The fill is a sliced pill resized by its anchor so the rounded ends keep their shape.
+            var rect = progressFill.rectTransform;
+            rect.anchorMax = new Vector2(Mathf.Clamp01(progress), rect.anchorMax.y);
+            progressFill.enabled = progress > .005f;
             progressLabel.text = $"{Mathf.RoundToInt(progress * 100)}%";
         }
 

@@ -68,6 +68,8 @@ Shader "Lumaquarium/Betta Lit"
         [NoScaleOffset] _VariantMask("Variant Mask", 2D) = "black" {}
         [NoScaleOffset] _ScaleMap("Ordered Body Scales", 2D) = "gray" {}
         [NoScaleOffset] _PatternMask("Pattern Mask (Galaxy: R head, G fin streaks, B height, A pelvic)", 2D) = "black" {}
+        // Scale cells: RG = scale centre UV, B = 1 inside a scale (pipeline/scale_edges.py); black = off
+        [NoScaleOffset] _ScaleCellMap("Scale Cells", 2D) = "black" {}
         _VariantOn("Variant On", Float) = 0.0
         _VariantPrimary("Variant Primary", Color) = (1,1,1,1)
         _VariantSecondary("Variant Secondary", Color) = (1,1,1,1)
@@ -116,6 +118,12 @@ Shader "Lumaquarium/Betta Lit"
         _FinRelief("Fin Relief", Range(0.0, 1.0)) = 1.0
         // Height of the body scales (1 = as authored, lower = thinner scales lying flat on the skin)
         _ScaleRelief("Scale Relief", Range(0.0, 1.0)) = 1.0
+        // Seams between body scales in their own colour: amount (0 = off), width in from the seam,
+        // rim colour on dark scales, and a factor on the light scales' own colour
+        _ScaleEdge("Scale Edge", Range(0.0, 1.0)) = 0.0
+        _ScaleEdgeWidth("Scale Edge Width", Range(0.0, 1.0)) = 0.4
+        _ScaleEdgeDark("Scale Edge On Dark", Color) = (0.35,0.3,0.25,1)
+        _ScaleEdgeLight("Scale Edge On Light", Color) = (0.55,0.55,0.6,1)
         // Fins: dark parts deeper towards black (0 = as the body's black), brightness of the other fin colours (1 = as painted)
         _FinBlack("Fin Black", Range(0.0, 1.0)) = 0.0
         _FinBrightness("Fin Brightness", Range(0.5, 2.0)) = 1.0
@@ -244,7 +252,8 @@ Shader "Lumaquarium/Betta Lit"
             // ambient from behind, tinted by the fin colour and stronger where the membrane thins out.
             half3 BettaFinTransmission(float3 positionWS, half3 normalWS)
             {
-                half fin = gBettaFin * _FinTranslucency;
+                // black pigment (dark fin rims) lets no light through
+                half fin = gBettaFin * _FinTranslucency * (1.0h - saturate(gBettaDark));
                 if (fin <= 0.001h)
                     return half3(0.0h, 0.0h, 0.0h);
                 half3 viewWS = GetWorldSpaceNormalizeViewDir(positionWS);

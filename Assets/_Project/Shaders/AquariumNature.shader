@@ -55,8 +55,8 @@ Shader "Lumaquarium/Aquarium Nature"
                 float3 result = base * (lighting + caustic * float3(.9,1,.68));
                 result += AquariumBackLight(normal, normalize(_WorldSpaceCameraPos - p), p, .3) * (base * .7 + .3);
                 // Gentle distance absorption keeps the foreground legible under water.
-                float fog = saturate((distance(p, _WorldSpaceCameraPos) - 3) * .1);
-                return half4(AquariumDepthFog(lerp(result, float3(.035,.2,.21), fog), p),1);
+                float fog = saturate((distance(p, _WorldSpaceCameraPos) - 3) * .05);
+                return half4(AquariumDepthFog(lerp(result, float3(.1,.36,.4), fog), p),1);
             }
             ENDHLSL
         }

@@ -21,6 +21,7 @@ Shader "Lumaquarium/Aquarium Water"
             TEXTURE2D(_EnvironmentTex); SAMPLER(sampler_EnvironmentTex);
             TEXTURE2D(_NightEnvironmentTex); SAMPLER(sampler_NightEnvironmentTex);
             float _AquariumNight;
+            float4 _AquariumWaterColor;
             CBUFFER_START(UnityPerMaterial)
             float _Strength;
             float4 _Ripples[4];
@@ -30,11 +31,11 @@ Shader "Lumaquarium/Aquarium Water"
             // Unequal directions and periods avoid a repeated grid on the surface.
             float3 Waves(float2 p, float time)
             {
-                float4 phase=float4(dot(p,float2(6.1,3.7))+time*.78,
-                    dot(p,float2(-8.4,9.2))-time*.91,
-                    dot(p,float2(14.8,-5.3))+time*1.14,
-                    dot(p,float2(22.7,19.1))-time*1.43);
-                float4 amplitude=float4(.008,.004,.0025,.0012)*_Strength;
+                float4 phase=float4(dot(p,float2(6.1,3.7))+time*.3,
+                    dot(p,float2(-8.4,9.2))-time*.35,
+                    dot(p,float2(14.8,-5.3))+time*.44,
+                    dot(p,float2(22.7,19.1))-time*.55);
+                float4 amplitude=float4(.006,.003,.0015,.0006)*_Strength;
                 float4 derivative=cos(phase)*amplitude;
                 return float3(dot(sin(phase),amplitude),dot(derivative,float4(6.1,-8.4,14.8,22.7)),
                     dot(derivative,float4(3.7,9.2,-5.3,19.1)));
@@ -70,9 +71,23 @@ Shader "Lumaquarium/Aquarium Water"
                 reflected=lerp(reflected,SAMPLE_TEXTURE2D(_NightEnvironmentTex,sampler_NightEnvironmentTex,saturate(uv)).rgb,_AquariumNight);
                 Light sun=GetMainLight();
                 float sparkle=pow(saturate(dot(reflect(-normalize(sun.direction),normal),view)),110);
-                half3 color=lerp(lerp(half3(.06,.3,.31),half3(.015,.055,.12),_AquariumNight),reflected,fresnel*.7+.3)+sun.color*sparkle*.5;
+                // A few faint bands of light that drift slowly with the waves, in the sun's or the lamp's
+                // colour, dimmer at night.
+                float a=sin(p.x*7+sin(p.y*6+_Time.y*.2)*2+slope.x*20);
+                float b=cos(p.y*8-_Time.y*.16+sin(p.x*5)+slope.y*20);
+                float shimmer=pow(saturate(1-abs(a+b)*.8),16)*(1-_AquariumNight*.7);
+                if(_WorldSpaceCameraPos.y<i.world.y)
+                {
+                    // Seen from under the water the surface is never a window onto what lies above the tank.
+                    // It takes the deep-water colour behind the tank, so the water seems to run on up to the
+                    // top of the screen, with only a soft, slow swell and the rings of a tap moving across it.
+                    half swell=dot(slope,float2(.9,1.3))+impulse*.25;
+                    return half4(_AquariumWaterColor.rgb*(1+swell)+sun.color*shimmer*.04,1);
+                }
+                half3 body=lerp(half3(.2,.55,.6),half3(.03,.09,.17),_AquariumNight);
+                half3 color=lerp(body,reflected,fresnel*.7+.3)+sun.color*(sparkle*.5+shimmer*.12);
                 float fade=1-smoothstep(.2,2.6,p.y);
-                float alpha=(.045+fresnel*.26+sparkle*.18+impulse*.035)*fade*_Strength;
+                float alpha=(.07+fresnel*.26+sparkle*.18+shimmer*.05+impulse*.035)*fade*_Strength;
                 return half4(color,saturate(alpha));
             }
             ENDHLSL

@@ -14,10 +14,10 @@ public sealed class AquariumLighting : MonoBehaviour
     public Image nightBackdrop;
     public TMP_Text label;
     // Depth tint toward the water colour (AquariumDepth.hlsl): none at fogNear, depthFog at fogFar (world z).
-    public float depthFog = .5f, fogNear = 0, fogFar = 2.6f;
+    public float depthFog = .22f, fogNear = 0, fogFar = 2.6f;
     // Aquarium Glow, for the soft panel of light behind the tank. Found by name when left empty.
     public Shader glowShader;
-    public float lampIntensity = 1.4f, backlightStrength = .6f;
+    public float lampIntensity = 2f, backlightStrength = .75f;
     public string storageKey = "Lumaquarium.Lighting.v1";
     public bool persist = true;
     public bool IsNight { get; private set; }
@@ -99,7 +99,7 @@ public sealed class AquariumLighting : MonoBehaviour
         float t = Mathf.SmoothStep(0, 1, NightBlend);
         float lamp = Mathf.SmoothStep(0, 1, LampBlend);
         float back = Mathf.SmoothStep(0, 1, BackBlend);
-        Color ambient = Color.Lerp(new Color(.29f,.36f,.29f), new Color(.065f,.10f,.17f), t);
+        Color ambient = Color.Lerp(new Color(.40f,.46f,.44f), new Color(.10f,.14f,.22f), t);
         // The lamp's colour fills the shadows a little; the tank stays readable under red or blue.
         ambient = Color.Lerp(ambient, ambient * .7f + LampNow * .1f, lamp);
         RenderSettings.ambientLight = ambient;
@@ -110,13 +110,16 @@ public sealed class AquariumLighting : MonoBehaviour
         Shader.SetGlobalFloat("_AquariumLamp",lamp);
         Shader.SetGlobalColor("_AquariumLampColor",LampNow);
         Shader.SetGlobalColor("_AquariumBackLightColor",BackNow * (back * backlightStrength));
-        Color water = Color.Lerp(new Color(.045f,.24f,.29f), new Color(.018f,.055f,.11f), t);
+        // Clear, bright water by day; the deep blue of a dark room at night.
+        Color water = Color.Lerp(new Color(.13f,.45f,.52f), new Color(.03f,.09f,.17f), t);
         water = Color.Lerp(water, water * .8f + LampNow * .05f, lamp);
         // A backlight makes the water behind the tank glow in its colour.
         water += BackNow * (.12f * back);
         water.a = 1;
         if (viewCamera != null) viewCamera.backgroundColor = water;
-        Shader.SetGlobalColor("_AquariumWaterColor", water);
+        // The camera converts its background to linear but a global colour reaches the shader as given:
+        // passing it in linear keeps the far sand fading into the same colour as the water behind it.
+        Shader.SetGlobalColor("_AquariumWaterColor", water.linear);
         Shader.SetGlobalFloat("_AquariumFogAmount", depthFog);
         Shader.SetGlobalFloat("_AquariumFogNear", fogNear);
         Shader.SetGlobalFloat("_AquariumFogFar", fogFar);
@@ -125,7 +128,7 @@ public sealed class AquariumLighting : MonoBehaviour
             // Daylight slants in and follows the clock; the lamp hangs over the tank and keeps its strength at night.
             Color daylight = Color.Lerp(new Color(1,.95f,.83f), new Color(.46f,.66f,1),t);
             sun.color = Color.Lerp(daylight, LampNow, lamp);
-            sun.intensity = Mathf.Lerp(Mathf.Lerp(1.35f,.62f,t), lampIntensity, lamp);
+            sun.intensity = Mathf.Lerp(Mathf.Lerp(1.7f,.75f,t), lampIntensity, lamp);
             var daylightRotation = Quaternion.Slerp(Quaternion.Euler(52,-28,0),Quaternion.Euler(65,32,0),t);
             sun.transform.rotation = Quaternion.Slerp(daylightRotation, Quaternion.Euler(84,-12,0), lamp);
         }
@@ -143,8 +146,20 @@ public sealed class AquariumLighting : MonoBehaviour
         if (nightBackdrop != null) nightBackdrop.color = new Color(1,1,1,t);
     }
 
+    // Another tank size moves the depth tint and the backlight to its back glass (AquariumTank).
+    public void Retank()
+    {
+        var decoration = GetComponent<AquariumDecoration>();
+        if (decoration == null) return;
+        // As far past the back glass as the first tank's tint reached past its own.
+        fogFar = decoration.max.y + 1.45f;
+        ClearBacklight();
+        BuildBacklight(decoration);
+        Apply();
+    }
+
     // A point light behind the tank (the fish shader takes additional lights) and a soft panel of light
-    // on the back water. The plant, wood and stone shaders read the same colour as a rim (AquariumDepth.hlsl).
+    // on the back glass. The plant, wood and stone shaders read the same colour as a rim (AquariumDepth.hlsl).
     private void BuildBacklight(AquariumDecoration decoration)
     {
         if (decoration == null || backFill != null) return;
@@ -155,7 +170,8 @@ public sealed class AquariumLighting : MonoBehaviour
         fill.transform.position = new Vector3(centre, decoration.floorY + .9f, decoration.max.y + .9f);
         backFill = fill.AddComponent<Light>();
         backFill.type = LightType.Point;
-        backFill.range = 3.2f;
+        // Reaches the front glass of a deep tank too.
+        backFill.range = Mathf.Max(3.2f, decoration.max.y - decoration.min.y + 1.6f);
         backFill.shadows = LightShadows.None;
         backFill.enabled = false;
 
@@ -165,7 +181,8 @@ public sealed class AquariumLighting : MonoBehaviour
         panelMaterial.SetFloat("_Round", 2);
         var panel = new GameObject("BacklightPanel", typeof(MeshFilter), typeof(MeshRenderer)) { hideFlags = HideFlags.DontSave };
         panel.transform.SetParent(transform, false);
-        float z = fogFar + .35f, width = decoration.max.x - decoration.min.x + 3.2f;
+        // Just in front of the back wall (AquariumTank), across the whole glass.
+        float z = decoration.max.y + .03f, width = decoration.max.x - decoration.min.x + .1f;
         panel.transform.position = new Vector3(centre, decoration.floorY - .1f, z);
         panel.transform.rotation = Quaternion.identity;
         panel.GetComponent<MeshFilter>().sharedMesh = Quad(width, top - decoration.floorY + .3f);
@@ -220,6 +237,11 @@ public sealed class AquariumLighting : MonoBehaviour
         if (viewCamera != null) viewCamera.backgroundColor = oldBackground;
         if (sun != null) { sun.color = oldLightColor; sun.intensity = oldIntensity; sun.transform.rotation = oldRotation; }
         if (nightBackdrop != null) nightBackdrop.color = new Color(1,1,1,0);
+        ClearBacklight();
+    }
+
+    private void ClearBacklight()
+    {
         if (backFill != null) Destroy(backFill.gameObject);
         if (backPanel != null)
         {

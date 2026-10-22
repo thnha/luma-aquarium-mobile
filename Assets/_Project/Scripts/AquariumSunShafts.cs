@@ -14,8 +14,14 @@ public sealed class AquariumSunShafts : MonoBehaviour
     private Transform[] shafts;
     private Vector3 axis;
 
-    private void Start()
+    private void Start() => Rebuild();
+
+    // Spreads the shafts over the placement area again, as after the tank changes size (AquariumTank).
+    public void Rebuild()
     {
+        OnDestroy();
+        foreach (Transform child in transform) Destroy(child.gameObject);
+        shafts = null;
         if (material == null || decoration == null) return;
         float top = water != null ? water.surfaceY : decoration.floorY + 2.1f;
         float length = (top - decoration.floorY) / Mathf.Cos(slant * Mathf.Deg2Rad);

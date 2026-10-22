@@ -18,14 +18,30 @@ public sealed class AquariumCarpet : MonoBehaviour
 
     private string StorageKey => decoration.storageKey + ".Carpet";
 
+    // Called again when the tank changes size: the grid follows the new placement area and keeps the
+    // cells that still fit, lined up on the centre and the front glass.
     public void Init(AquariumDecoration owner)
     {
         decoration = owner;
+        byte[] before = cells;
+        int beforeColumns = columns, beforeRows = rows;
         columns = Mathf.Max(1, Mathf.CeilToInt((decoration.max.x - decoration.min.x) / cellSize));
         rows = Mathf.Max(1, Mathf.CeilToInt((decoration.max.y - decoration.min.y) / cellSize));
         cells = new byte[columns * rows];
-        if (decoration.persistLayout) Load();
+        if (before.Length > 0) CopyFrom(before, beforeColumns, beforeRows);
+        else if (decoration.persistLayout) Load();
         dirty = true;
+    }
+
+    private void CopyFrom(IReadOnlyList<byte> from, int fromColumns, int fromRows)
+    {
+        int shift = (fromColumns - columns) / 2;
+        for (int z = 0; z < rows && z < fromRows; z++)
+            for (int x = 0; x < columns; x++)
+            {
+                int source = x + shift;
+                if (source >= 0 && source < fromColumns) cells[z * columns + x] = from[z * fromColumns + source];
+            }
     }
 
     public int Count(int species)
@@ -81,14 +97,19 @@ public sealed class AquariumCarpet : MonoBehaviour
 
     private void Load()
     {
+        // A save from a grid of another size (another tank) keeps the cells that fit this one.
         string text = PlayerPrefs.GetString(StorageKey, "");
-        string header = columns + "x" + rows + ":";
-        if (!text.StartsWith(header) || text.Length != header.Length + cells.Length) return;
-        for (int i = 0; i < cells.Length; i++)
+        int colon = text.IndexOf(':'), times = text.IndexOf('x');
+        if (times <= 0 || colon <= times || !int.TryParse(text.Substring(0, times), out int savedColumns) ||
+            !int.TryParse(text.Substring(times + 1, colon - times - 1), out int savedRows) ||
+            savedColumns <= 0 || savedRows <= 0 || text.Length != colon + 1 + savedColumns * savedRows) return;
+        var saved = new byte[savedColumns * savedRows];
+        for (int i = 0; i < saved.Length; i++)
         {
-            int cell = text[header.Length + i] - '0';
-            cells[i] = (byte)(cell >= 0 && cell <= 9 ? cell : 0);
+            int cell = text[colon + 1 + i] - '0';
+            saved[i] = (byte)(cell >= 0 && cell <= 9 ? cell : 0);
         }
+        CopyFrom(saved, savedColumns, savedRows);
     }
 
     private void LateUpdate()

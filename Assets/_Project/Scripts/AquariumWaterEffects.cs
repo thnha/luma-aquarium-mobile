@@ -28,7 +28,8 @@ public sealed class AquariumWaterEffects : MonoBehaviour
 
     public void Ripple(Vector3 point)
     {
-        ripples[nextRipple] = new Vector4(Mathf.Clamp(point.x, -.9f, .9f), point.z, strength, Time.time);
+        float edge = decoration != null ? decoration.max.x + .05f : .9f;
+        ripples[nextRipple] = new Vector4(Mathf.Clamp(point.x, -edge, edge), point.z, strength, Time.time);
         nextRipple = (nextRipple + 1) % ripples.Length;
         RippleCount++;
     }

@@ -41,6 +41,14 @@ public class BettaVariant : ScriptableObject
     [Range(0f, 2f)] public float finTranslucency = 0.8f;
     [Tooltip("Height of the body scales. 1 = as authored, lower = thinner scales lying flat on the skin.")]
     [Range(0f, 1f)] public float scaleRelief = 1f;
+    [Tooltip("Seams between body scales in their own colour, apart from the scale relief. 0 = off.")]
+    [Range(0f, 1f)] public float scaleEdge;
+    [Tooltip("How far in from the seam the scale edge colour reaches.")]
+    [Range(0f, 1f)] public float scaleEdgeWidth = 0.5f;
+    [Tooltip("Scale edge colour on dark scales.")]
+    public Color scaleEdgeDark = new Color(0.62f, 0.42f, 0.22f);
+    [Tooltip("Scale edge on light scales: a factor on the scale's own colour (below 1 = darker edge).")]
+    public Color scaleEdgeLight = new Color(0.5f, 0.5f, 0.55f);
     [Tooltip("Dark fin parts (rims, dark roots) deeper towards black, apart from the body's black. 0 = as the body.")]
     [Range(0f, 1f)] public float finBlack;
     [Tooltip("Brightness of the other fin colours. 1 = as painted, above 1 = lighter.")]

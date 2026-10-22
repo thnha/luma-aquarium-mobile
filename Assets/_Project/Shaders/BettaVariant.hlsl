@@ -21,6 +21,10 @@
 TEXTURE2D(_VariantMask);    SAMPLER(sampler_VariantMask);
 TEXTURE2D(_ScaleMap);       SAMPLER(sampler_ScaleMap);
 TEXTURE2D(_PatternMask);
+// Scale cells (pipeline/scale_edges.py): RG = the scale's centre UV, B = .02 + .98 x its random value (0 outside),
+// uncompressed. Koi Galaxy picks each scale's colour at its centre, so a scale is one colour and patches step
+// along the rims. Black = off (scale ids then come from the detail map's B).
+TEXTURE2D(_ScaleCellMap);
 // Scale ids must not be filtered: a blend of two ids is a random third value (speckles at scale borders).
 SAMPLER(sampler_betta_point_clamp);
 half _VariantOn;
@@ -58,6 +62,13 @@ half _BlackSteel;
 half _FinRelief;
 // Height of the body scales (normal, shading, seams, tilt): 1 = as authored, lower = thinner scales lying flat on the skin.
 half _ScaleRelief;
+// Scale edges: the seams between body scales in their own colour, apart from the scale relief.
+// _ScaleEdge = amount (0 = off), _ScaleEdgeWidth = how far in from the seam (0..1), rim colour on dark
+// scales (_ScaleEdgeDark, the colour itself) and on light scales (_ScaleEdgeLight, times the scale colour).
+half _ScaleEdge;
+half _ScaleEdgeWidth;
+half4 _ScaleEdgeDark;
+half4 _ScaleEdgeLight;
 // Fins on their own: how much deeper the dark fin parts (rims, dark roots) go towards black (0 = as the
 // body's black), and a brightness factor for the rest of the fin colour (1 = as painted).
 half _FinBlack;
@@ -96,6 +107,7 @@ static half2 gBettaDarkRand = half2(0.5h, 0.5h);   // their scale's randoms: pol
 static half gBettaHeight = 1.0h;   // Koi Galaxy: belly 0 -> back 1 (_PatternMask B)
 static half gBettaCrease = 1.0h;   // detail cavity: seam between scales 0 -> scale face 1
 static half gBettaSteel = 0.0h;    // steel-blue grazing sheen on black scales
+static half gBettaScaleEdge = 0.0h;   // body scale seams (0 face -> 1 seam), for _ScaleEdge
 // Set by BettaPassFragment: the fragment in object space, for the pigment depth along the body.
 static half gBettaHasPos = 0.0h;
 static half gBettaClear = 0.0h;   // thin pigment (0..1): fins pass more light, see BettaFinTransmission
@@ -148,7 +160,16 @@ half BettaFinEdgeAlpha(float2 uv)
     // lower than the other fins'. Passes without the position (depth) use the other fins' rim.
     half caudal = smoothstep(_FinEdgeCaudal.z - 0.05h, _FinEdgeCaudal.z + 0.05h, BettaBodyT());
     half2 band = lerp(_FinEdgeAlpha.xz, _FinEdgeCaudal.xy, caudal);
-    return lerp(1.0h, _FinEdgeAlpha.y, smoothstep(band.x, band.y, m.g) * (1.0h - m.r));
+    half clear = smoothstep(band.x, band.y, m.g) * (1.0h - m.r);
+    // Koi Galaxy's dark fin rim is dense black pigment, not clear membrane: it stays opaque
+    // (same rim as in BettaVariantAlbedo, so the opaque and clear parts meet where the colour turns).
+    if (_VariantPattern > 6.5h)
+    {
+        half4 g = SAMPLE_TEXTURE2D(_PatternMask, sampler_VariantMask, uv);
+        half rim = smoothstep(_VariantBand - _VariantBandSoftness, _VariantBand + _VariantBandSoftness, m.g + (g.g - 0.5h) * 0.1h);
+        clear *= 1.0h - rim * (1.0h - g.a) * _VariantOn;
+    }
+    return lerp(1.0h, _FinEdgeAlpha.y, clear);
 }
 
 // Each material keeps its own part of the fin, so the two meet without a gap or overlap.
@@ -159,11 +180,24 @@ half BettaFinEdgeClip(float2 uv)
     return alpha;
 }
 
-// Three random values per scale from the detail map's scale ids (B, fish_bake.scale_ids); 0.5 without one.
+// The scale's id (0..1): from the scale cell map, else the detail map's B; 0.5 without either.
+float BettaScaleId(float2 uv)
+{
+    float cell = SAMPLE_TEXTURE2D_LOD(_ScaleCellMap, sampler_betta_point_clamp, uv, 0).b;
+    if (cell > 0.01)
+        return (cell - 0.02) / 0.98;
+#if defined(_OCCLUSIONMAP)
+    return SAMPLE_TEXTURE2D_LOD(_OcclusionMap, sampler_betta_point_clamp, uv, 0).b;
+#else
+    return 0.5;
+#endif
+}
+
+// Three random values per scale from its id; 0.5 without one.
 half3 BettaScaleRandom(float2 uv)
 {
 #if defined(_OCCLUSIONMAP)
-    float id = SAMPLE_TEXTURE2D_LOD(_OcclusionMap, sampler_betta_point_clamp, uv, 0).b;
+    float id = BettaScaleId(uv);
     return (half3)frac(id * float3(12.9898, 78.233, 37.719) * 43.7585);
 #else
     return half3(0.5h, 0.5h, 0.5h);
@@ -241,29 +275,37 @@ half3 BettaVariantAlbedo(half3 original, float2 uv)
     {
         half4 g = SAMPLE_TEXTURE2D(_PatternMask, sampler_VariantMask, uv);
         half3 F = _VariantEdge.rgb;
-        half head = smoothstep(0.3h, 0.6h, g.r);
-        half n2 = saturate(0.5h + (m.a - 0.5h) * c - (m.b - 0.5h) * s);
+        // Body colour decisions are read at the scale's centre (fins keep their own texel).
+        float2 cuv = uv;
+        half4 cell = SAMPLE_TEXTURE2D_LOD(_ScaleCellMap, sampler_betta_point_clamp, uv, 0);
+        if (cell.b > 0.01h && body > 0.5h)
+            cuv = cell.rg;
+        half4 mc = SAMPLE_TEXTURE2D_LOD(_VariantMask, sampler_VariantMask, cuv, 0);
+        half4 gc = SAMPLE_TEXTURE2D_LOD(_PatternMask, sampler_VariantMask, cuv, 0);
+        half nc = saturate(0.5h + (mc.b - 0.5h) * c + (mc.a - 0.5h) * s);
+        half head = smoothstep(0.3h, 0.6h, gc.r);
+        half n2 = saturate(0.5h + (mc.a - 0.5h) * c - (mc.b - 0.5h) * s);
         // Every scale makes its own colour decision (thresholds jittered per scale id), so patch borders
         // step from scale to scale like a real koi mosaic instead of following the smooth noise.
         half3 r = BettaScaleRandom(uv);
         half3 jr = (r - 0.5h) * body;
-        half nj = n + jr.x * 0.16h;
+        half nj = nc + jr.x * 0.16h;
         half n2j = n2 + jr.y * 0.09h;   // smaller: red and yellow scales mix less at patch borders
         // Pearl skin is never plain white: each scale leans pink, lavender or pale blue.
         half3 tint = r.z < 0.33h ? half3(1.0h, 0.8h, 0.88h) : (r.z < 0.66h ? half3(0.86h, 0.82h, 1.0h) : half3(0.8h, 0.92h, 1.0h));
         half3 pearl = P * lerp(half3(1.0h, 1.0h, 1.0h), tint, 0.4h * body);
         // Red patches run red -> orange, with a fringe of yellow-orange scales where they meet the pearl.
-        half3 patch = lerp(A, half3(1.0h, 0.5h, 0.1h), saturate(smoothstep(0.42h, 0.65h, n) * 0.8h + jr.z * 0.3h));
+        half3 patch = lerp(A, half3(1.0h, 0.5h, 0.1h), saturate(smoothstep(0.42h, 0.65h, nc) * 0.8h + jr.z * 0.3h));
         half3 fringe = lerp(pearl, half3(1.0h, 0.76h, 0.22h), 0.8h);
         half3 skin = lerp(pearl, fringe, smoothstep(0.46h, 0.5h, n2j));
         skin = lerp(skin, patch, smoothstep(0.5h, 0.56h, n2j));
         // White gill covers; red below them (the membrane under the gills) along the lower head.
-        half underGill = 1.0h - smoothstep(0.25h, 0.38h, g.b + jr.x * 0.1h);
+        half underGill = 1.0h - smoothstep(0.25h, 0.38h, gc.b + jr.x * 0.1h);
         skin = lerp(skin, lerp(pearl, A, underGill), head);
         // Dark metallic scales gathered in solid clusters on the back and towards the tail, their borders
         // stepping scale by scale; none on the head. Near black, a few scales glint cool silver (in linear
         // colour even a small share reads bright); _VariantSpeckle.y scales the glint (0 = plain dark).
-        half zone = smoothstep(_VariantSpot - 0.1h, _VariantSpot + 0.1h, nj + (g.b - 0.5h) * 0.6h) * (1.0h - head);
+        half zone = smoothstep(_VariantSpot - 0.1h, _VariantSpot + 0.1h, nj + (gc.b - 0.5h) * 0.6h) * (1.0h - head);
         half darkScale = smoothstep(0.45h, 0.55h, zone + jr.y * 0.12h) * body;
         half r8 = r.x * r.x; r8 *= r8; r8 *= r8;
         half glint = saturate(_VariantSpeckle.y * 2.5h) * 0.3h * r8;
@@ -346,31 +388,37 @@ inline void BettaVariantSurfaceData(float2 uv, out SurfaceData outSurfaceData)
     // Fin relief: shallower ray grooves read as a thin membrane instead of a pleated slab.
     half finFlat = (1.0h - body) * (1.0h - _FinRelief) * _VariantOn;
     // Thin scales: pipeline fish bake their scales into the normal map and cavity (their _ScaleMap is
-    // empty), so those flatten too; some relief stays so the scales still read.
-    half scaleFlat = body * (1.0h - _ScaleRelief) * 0.7h * _VariantOn;
+    // empty), so those flatten too; some relief stays so the scales still read. Below 0.25 it flattens
+    // further, down to a faint relief at 0 (values from 0.25 up are unchanged).
+    half scaleFlat = body * ((1.0h - _ScaleRelief) * 0.7h + 0.22h * saturate(1.0h - _ScaleRelief * 4.0h)) * _VariantOn;
     outSurfaceData.normalTS = normalize(lerp(outSurfaceData.normalTS, half3(0.0h, 0.0h, 1.0h), finFlat + scaleFlat));
     outSurfaceData.occlusion = lerp(outSurfaceData.occlusion, 1.0h, finFlat + scaleFlat);
 #if defined(_OCCLUSIONMAP)
     // Pipeline fish (fish_bake.py): R = cavity darkens and roughens the seams between scales and the
     // grooves between fin rays, so paint no longer hides them. URP applies AO (G) to ambient light only;
     // part of it also goes on albedo so folds and fin roots stay shaded under the key light.
-    half3 detail = SAMPLE_TEXTURE2D(_OcclusionMap, sampler_OcclusionMap, uv).rgb;
+    half4 detail = SAMPLE_TEXTURE2D(_OcclusionMap, sampler_OcclusionMap, uv);
     half cavity = lerp(1.0h, saturate((detail.r - 0.3h) / 0.55h), _Cavity * (1.0h - finFlat) * (1.0h - scaleFlat));
     outSurfaceData.albedo *= cavity * lerp(1.0h, detail.g, _AlbedoAO * (1.0h - finFlat) * (1.0h - scaleFlat));
     outSurfaceData.smoothness *= lerp(0.6h, 1.0h, cavity);
     half rays = saturate((detail.r - 0.3h) / 0.55h);
     gBettaFolds = rays * rays * detail.g;
-    gBettaCrease = rays;
+    // thin scales: shallower seams also even out the black polish and steel sheen between scales
+    gBettaCrease = lerp(rays, 1.0h, scaleFlat);
     half blackOn = gBettaDark * saturate(_BlackGloss * 4.0h) * _BlackDetail * _VariantOn;
     // Body scales a little glossier than the fin membranes.
     half2 bodyEye = SAMPLE_TEXTURE2D(_VariantMask, sampler_VariantMask, uv).rg;
     half eyeMask = saturate(bodyEye.r * bodyEye.g);
     half onScales = bodyEye.r * (1.0h - eyeMask) * _VariantOn;
+    // A = distance to the border of the scale's own cell (pipeline/scale_edges.py: 0 on the border,
+    // 1 a few texels in), the same cells the per-scale colour uses; 1 everywhere on maps without it.
+    // Independent of the relief, so thin scales keep coloured edges.
+    gBettaScaleEdge = (1.0h - smoothstep(0.0h, max(_ScaleEdgeWidth, 0.01h), detail.a)) * onScales;
     outSurfaceData.smoothness *= lerp(0.8h, 1.0h, bodyEye.r);
 #if defined(_NORMALMAP)
     // B = one random value per scale (fish_bake.scale_ids): every scale tilts and polishes a little
     // differently, so highlights jump from scale to scale as the fish turns instead of sliding.
-    float2 rnd = frac(detail.b * float2(12.9898, 78.233) * 43.7585) - 0.5;
+    float2 rnd = frac(BettaScaleId(uv) * float2(12.9898, 78.233) * 43.7585) - 0.5;
     half3 n = outSurfaceData.normalTS;
     n.xy += (half2)rnd * _ScaleTilt * _ScaleRelief * onScales;
     // Black scales tilt more: on a near-mirror surface that is what makes each scale catch the light on its own.
@@ -395,7 +443,7 @@ inline void BettaVariantSurfaceData(float2 uv, out SurfaceData outSurfaceData)
         outSurfaceData.albedo = lerp(outSurfaceData.albedo, filmColor, amount);
         outSurfaceData.metallic = max(outSurfaceData.metallic, amount * 0.4h);
         // Black bettas read steel blue away from the straight-on view: stronger on some scales, none in the seams.
-        gBettaSteel = blackOn * smoothstep(0.1h, 0.75h, film) * lerp(0.3h, 1.0h, step(0.55h, gBettaDarkRand.y)) * rays;
+        gBettaSteel = blackOn * smoothstep(0.1h, 0.75h, film) * lerp(0.3h, 1.0h, step(0.55h, gBettaDarkRand.y)) * gBettaCrease;
     }
 #endif
 #endif
@@ -431,6 +479,12 @@ inline void BettaVariantSurfaceData(float2 uv, out SurfaceData outSurfaceData)
     half steel = gBettaSteel * _BlackSteel;
     outSurfaceData.albedo += half3(0.02h, 0.055h, 0.1h) * steel;
     outSurfaceData.metallic = max(outSurfaceData.metallic, saturate(steel) * 0.5h);
+    // Scale edges last, so the black lacquer does not darken a light rim on a black scale.
+    half dark = saturate(gBettaDark) * (1.0h - fin);
+    half3 edgeColor = lerp(outSurfaceData.albedo * _ScaleEdgeLight.rgb, _ScaleEdgeDark.rgb, dark);
+    half edgeOn = gBettaScaleEdge * _ScaleEdge;
+    outSurfaceData.albedo = lerp(outSurfaceData.albedo, edgeColor, edgeOn);
+    outSurfaceData.smoothness = lerp(outSurfaceData.smoothness, min(outSurfaceData.smoothness, 0.6h), edgeOn * dark);
 }
 
 // The stock pass files call InitializeStandardLitSurfaceData; route them through the wrapper.

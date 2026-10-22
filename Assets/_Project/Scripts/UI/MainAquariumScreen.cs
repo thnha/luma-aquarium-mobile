@@ -18,6 +18,7 @@ namespace Lumaquarium.UI
         public GameObject decoratePanel;
         public GameObject settingsPanel;
         public GameObject lightingPanel;
+        public GameObject tankPanel;
         public TMP_Text hungerLabel;
         public UnityEngine.UI.Image hungerFill;
         public TMP_Text behaviourLabel;
@@ -155,6 +156,7 @@ namespace Lumaquarium.UI
         public void ToggleDecorate() => TogglePanel(decoratePanel);
         public void ToggleSettings() => TogglePanel(settingsPanel);
         public void ToggleLighting() { if (lightingPanel != null) TogglePanel(lightingPanel); }
+        public void ToggleTanks() { if (tankPanel != null) TogglePanel(tankPanel); }
 
         public void OpenDecorate()
         {
@@ -178,6 +180,7 @@ namespace Lumaquarium.UI
             decoratePanel.SetActive(false);
             settingsPanel.SetActive(false);
             if (lightingPanel != null) lightingPanel.SetActive(false);
+            if (tankPanel != null) tankPanel.SetActive(false);
             if (orbit != null) orbit.enabled = true;
             UpdateTiles();
         }
@@ -224,6 +227,7 @@ namespace Lumaquarium.UI
             orbit.yaw = defaultView.x;
             orbit.pitch = defaultView.y;
             orbit.distance = defaultView.z;
+            orbit.pan = 0;
             ClosePanels();
         }
 

@@ -38,7 +38,7 @@ public static class AquariumAmbienceBuilder
             Motes(Child(root, "FloatingMotes"), decoration, top);
 
             var lighting = decoration.GetComponent<AquariumLighting>();
-            if (lighting != null) { lighting.depthFog = .5f; lighting.fogNear = 0; lighting.fogFar = 2.6f; }
+            if (lighting != null) { lighting.depthFog = .22f; lighting.fogNear = 0; lighting.fogFar = 2.6f; }
             PrefabUtility.SaveAsPrefabAsset(root, EnvironmentPath);
         }
         finally { PrefabUtility.UnloadPrefabContents(root); }

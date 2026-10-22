@@ -56,7 +56,8 @@ public static class PipelineFishImporter
         var material = FishMaterial(source, mask, baseColor,
             AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_PatternMask.png"),
             AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_Normal.png"),
-            AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_Detail.png"));
+            AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_Detail.png"),
+            AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_ScaleCells.png"));
         var controller = Controller(source, model);
 
         var root = new GameObject(fish.name);
@@ -119,7 +120,7 @@ public static class PipelineFishImporter
         return variant;
     }
 
-    static Material FishMaterial(string source, Texture2D mask, Texture2D baseColor, Texture2D pattern, Texture2D normal, Texture2D detail)
+    static Material FishMaterial(string source, Texture2D mask, Texture2D baseColor, Texture2D pattern, Texture2D normal, Texture2D detail, Texture2D cells)
     {
         string path = source + ".mat";
         var shader = Shader.Find("Lumaquarium/Betta Lit");
@@ -141,6 +142,8 @@ public static class PipelineFishImporter
         material.SetTexture("_OcclusionMap", detail);
         material.SetFloat("_OcclusionStrength", 1f);
         SetKeyword(material, "_OCCLUSIONMAP", detail);
+        // Optional: each scale's centre, so a scale takes one colour (pipeline/scale_edges.py).
+        material.SetTexture("_ScaleCellMap", cells);
         // The ordered scale atlas follows the shared Betta's UVs; a transparent map turns it off.
         material.SetTexture("_ScaleMap", NoScales());
         // Meshy fins are thin shells: draw both faces.

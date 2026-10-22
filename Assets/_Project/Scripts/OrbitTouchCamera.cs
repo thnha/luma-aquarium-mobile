@@ -24,6 +24,9 @@ public class OrbitTouchCamera : MonoBehaviour
     [Tooltip("Half the tank width to keep in view on narrow portrait screens. 0 = use distance as-is.")]
     public float fitHalfWidth = 1.55f;
     public float fitDepthOffset = 0.55f;
+    [Tooltip("How far the view slides sideways from the target in a tank wider than the screen (AquariumTank). 0 = no slide.")]
+    public float panLimit;
+    public float pan;
 
     void Start() { FitToScreen(); }
 
@@ -51,7 +54,7 @@ public class OrbitTouchCamera : MonoBehaviour
         {
             Touch touch = touches[0];
             if (!IsOverUI() && touch.phase == UnityEngine.InputSystem.TouchPhase.Moved)
-                Rotate(touch.delta * rotateSensitivity);
+                Drag(touch.delta, rotateSensitivity);
         }
         else if (touches.Count == 2)
         {
@@ -63,14 +66,24 @@ public class OrbitTouchCamera : MonoBehaviour
         else if (Mouse.current != null)
         {
             if (Mouse.current.leftButton.isPressed && !IsOverUI())
-                Rotate(Mouse.current.delta.ReadValue() * mouseRotateSensitivity);
+                Drag(Mouse.current.delta.ReadValue(), mouseRotateSensitivity);
             float scroll = Mouse.current.scroll.ReadValue().y;
             if (Mathf.Abs(scroll) > 0.01f) Zoom(Mathf.Sign(scroll) * 0.25f);
         }
 
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0);
-        transform.position = target.position - rotation * Vector3.forward * distance;
+        transform.position = target.position + Vector3.right * pan - rotation * Vector3.forward * distance;
         transform.rotation = rotation;
+    }
+
+    // In a tank wider than the screen a sideways swipe slides along the glass, the sand following the
+    // finger; otherwise it turns the view a little. Up and down always tilt.
+    void Drag(Vector2 pixels, float sensitivity)
+    {
+        if (panLimit <= 0f) { Rotate(pixels * sensitivity); return; }
+        float worldPerPixel = fitHalfWidth * 2f / Mathf.Max(1, Screen.width);
+        pan = Mathf.Clamp(pan - pixels.x * worldPerPixel, -panLimit, panLimit);
+        Rotate(new Vector2(0, pixels.y) * sensitivity);
     }
 
     void Rotate(Vector2 delta)

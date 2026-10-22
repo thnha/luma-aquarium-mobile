@@ -80,6 +80,7 @@ public static class MainAquariumScreenBuilder
         BuildCare(controller, safe);
         var dayNight = BuildSettings(controller, safe);
         var lightingSheet = BuildLighting(controller, safe);
+        BuildTanks(controller, safe);
         BuildDecorate(controller, safe, decoration);
 
         var restore = Ui3D.RoundButton("RestoreHudButton", safe, "utility_hide");
@@ -152,7 +153,7 @@ public static class MainAquariumScreenBuilder
         controller.hudFullnessLabel = percent;
 
         var portrait = Ui3D.Image("BettaPortrait", header, "BettaPortrait", false);
-        Ui3D.At(portrait.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, -14), new Vector2(124, 124));
+        Ui3D.At(portrait.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(-4, -16), new Vector2(124, 124));
         var ring = Ui3D.Image("PortraitRing", portrait.transform, "ui3d_ring", false);
         Ui3D.Stretch(ring.rectTransform, -10);
         controller.fishPortrait = portrait;
@@ -246,7 +247,7 @@ public static class MainAquariumScreenBuilder
     // Returns the day/night button so the lighting component can drive its label.
     private static UnityEngine.UI.Button BuildSettings(MainAquariumScreen controller, RectTransform safe)
     {
-        var panel = Sheet("SettingsPanel", safe, "Cài đặt", 1040, controller);
+        var panel = Sheet("SettingsPanel", safe, "Cài đặt", SettingsHeight, controller);
         controller.settingsPanel = panel.gameObject;
         var mute = Row(panel, 0, "Âm thanh", "Bật hoặc tắt tiếng hồ", "MuteButton", "Đang bật");
         controller.muteLabel = mute.GetComponentInChildren<TMP_Text>();
@@ -258,7 +259,62 @@ public static class MainAquariumScreenBuilder
         var profile = RowFrame(panel, 5, "Hồ sơ khách", "Lưu trên thiết bị này", false);
         var soon = Ui3D.Badge("Soon", profile, "Đăng nhập · Sắp có", true, out _);
         Ui3D.At(soon.rectTransform, new Vector2(1, .5f), new Vector2(1, .5f), Vector2.zero, new Vector2(340, 66));
+        TankRow(controller, panel);
         return dayNight;
+    }
+
+    private const float SettingsHeight = 1180;
+
+    private static void TankRow(MainAquariumScreen controller, RectTransform settings) =>
+        Wire(Row(settings, 6, "Hồ cá", "Mua hoặc đổi kích thước hồ", "TanksButton", "Đổi hồ"), controller.ToggleTanks);
+
+    // Adds the tank sheet and its Settings row to a HUD built before tanks existed, or rebuilds them.
+    [MenuItem("Lumaquarium/UI/Build Tank Sheet")]
+    public static void BuildTankSheet()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            throw new InvalidOperationException("Exit Play mode before building the tank sheet.");
+        var scene = SceneManager.GetActiveScene();
+        var controller = UnityEngine.Object.FindFirstObjectByType<MainAquariumScreen>(FindObjectsInactive.Include);
+        if (scene.path != ScenePath || controller == null || controller.settingsPanel == null)
+            throw new InvalidOperationException("Open MainAquarium with its built HUD first.");
+        Ui3D.LoadFonts();
+        Undo.IncrementCurrentGroup();
+        int group = Undo.GetCurrentGroup();
+        var safe = (RectTransform)controller.settingsPanel.transform.parent;
+        var old = safe.Find("TankPanel");
+        if (old != null) Undo.DestroyObjectImmediate(old.gameObject);
+        var settings = (RectTransform)controller.settingsPanel.transform;
+        Undo.RecordObject(settings, "Fit tank row");
+        settings.sizeDelta = new Vector2(settings.sizeDelta.x, SettingsHeight);
+        var oldRow = settings.Find("Row6");
+        if (oldRow != null) Undo.DestroyObjectImmediate(oldRow.gameObject);
+        TankRow(controller, settings);
+        Undo.RegisterCreatedObjectUndo(settings.Find("Row6").gameObject, "Create tank row");
+        Undo.RecordObject(controller, "Wire tank sheet");
+        BuildTanks(controller, safe);
+        Undo.RegisterCreatedObjectUndo(controller.tankPanel, "Create tank sheet");
+        controller.tankPanel.SetActive(false);
+        Undo.CollapseUndoOperations(group);
+        EditorUtility.SetDirty(controller);
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        Debug.Log("[Lumaquarium] Tank sheet built.");
+    }
+
+    // One row per tank size (AquariumTank.Specs) with its buy / use button, and a line of feedback.
+    private static void BuildTanks(MainAquariumScreen controller, RectTransform safe)
+    {
+        var specs = AquariumTank.Specs;
+        var panel = Sheet("TankPanel", safe, "Hồ cá", 220 + specs.Length * 140 + 120, controller);
+        controller.tankPanel = panel.gameObject;
+        var sheet = panel.gameObject.AddComponent<TankShopPanel>();
+        sheet.aquarium = controller;
+        sheet.buttons = new UnityEngine.UI.Button[specs.Length];
+        for (int i = 0; i < specs.Length; i++)
+            sheet.buttons[i] = Row(panel, i, specs[i].displayName, specs[i].description, "Tank" + i, "Dùng");
+        sheet.feedback = Ui3D.Text("Feedback", panel, "", 32, Ui3D.Forest, false, TextAlignmentOptions.MidlineLeft);
+        Ui3D.TopStrip(sheet.feedback.rectTransform, 56, 56, 170 + specs.Length * 140, 70);
     }
 
     // Light from above (daylight or the lamp), the lamp's colour and the backlight behind the tank.
@@ -539,7 +595,7 @@ public static class MainAquariumScreenBuilder
         orbit.pitch = 0;
         orbit.yaw = 0;
         orbit.maxYaw = 15;
-        orbit.minPitch = -8;
+        orbit.minPitch = 0;
         orbit.maxPitch = 8;
         orbit.minDistance = 2.2f;
         orbit.FitToScreen();

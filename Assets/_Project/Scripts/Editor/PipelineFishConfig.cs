@@ -51,6 +51,10 @@ public class PipelineFishConfig
         public float finRelief = 1f;
         public float finTranslucency = 0.8f;
         public float scaleRelief = 1f;
+        public float scaleEdge;
+        public float scaleEdgeWidth = 0.5f;
+        public float[] scaleEdgeDark = { 0.62f, 0.42f, 0.22f };
+        public float[] scaleEdgeLight = { 0.5f, 0.5f, 0.55f };
         public float finBlack;
         public float finBrightness = 1f;
         public float vibrance = 1f;
@@ -119,6 +123,10 @@ public class PipelineFishConfig
         variant.finRelief = look.finRelief;
         variant.finTranslucency = look.finTranslucency;
         variant.scaleRelief = look.scaleRelief;
+        variant.scaleEdge = look.scaleEdge;
+        variant.scaleEdgeWidth = look.scaleEdgeWidth;
+        variant.scaleEdgeDark = Colour(look.scaleEdgeDark, "scaleEdgeDark", path);
+        variant.scaleEdgeLight = Colour(look.scaleEdgeLight, "scaleEdgeLight", path);
         variant.finBlack = look.finBlack;
         variant.finBrightness = look.finBrightness;
         variant.vibrance = look.vibrance;

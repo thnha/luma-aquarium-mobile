@@ -194,11 +194,14 @@ public static class FrontEndScreenBuilder
         Ui3D.TopStrip(percent.rectTransform, 700, 60, 60, 70);
         var track = Ui3D.Image("ProgressTrack", card.transform, "ui3d_track");
         Ui3D.TopStrip(track.rectTransform, 60, 60, 150, 48);
-        var fill = Ui3D.Image("ProgressFill", track.transform, "ui3d_fill", false);
-        Stretch(fill.rectTransform, 6);
-        fill.type = UnityEngine.UI.Image.Type.Filled;
-        fill.fillMethod = UnityEngine.UI.Image.FillMethod.Horizontal;
-        fill.fillAmount = 0;
+        // A sliced pill whose width follows the progress; a Filled image would pinch both rounded ends.
+        var fillArea = Ui3D.Rect("ProgressFillArea", track.transform);
+        Stretch(fillArea, 6);
+        var fill = Ui3D.Image("ProgressFill", fillArea, "ui3d_fill");
+        Stretch(fill.rectTransform);
+        fill.pixelsPerUnitMultiplier = 40f / 36; // 18 px caps = half the bar height
+        fill.rectTransform.anchorMax = new Vector2(0, 1);
+        fill.enabled = false;
         var tip = Ui3D.Text("LoadingTip", card.transform, "Bạn có thể xoay góc nhìn để ngắm hồ", 36, Ui3D.Muted);
         Ui3D.TopStrip(tip.rectTransform, 50, 50, 225, 50);
         var actions = Ui3D.Rect("ErrorActions", card.transform);

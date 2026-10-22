@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace Lumaquarium.UI
 {
-    // A single local save holds the wallet, owned variants and the fish equipped in the tank.
+    // A single local save holds the wallet, owned variants, the fish equipped in the tank, decor stock
+    // and the tanks bought (AquariumTank) with the one in use.
     public sealed class FishShopInventory
     {
         public const string DefaultStorageKey = "Lumaquarium.FishShop.v1";
@@ -20,12 +21,15 @@ namespace Lumaquarium.UI
             public string activeId = "";
             public List<DecorStock> decor = new List<DecorStock>();
             public bool starterDecorImported;
+            public List<string> ownedTanks = new List<string>();
+            public string activeTank = "";
         }
 
         [Serializable] private sealed class DecorStock { public string id; public int count; }
 
         public int Balance => data.balance;
         public string ActiveId => data.activeId;
+        public string ActiveTank => data.activeTank;
 
         public FishShopInventory(string storageKey = DefaultStorageKey)
         {
@@ -45,6 +49,8 @@ namespace Lumaquarium.UI
                     || saved.ownedIds.Exists(string.IsNullOrWhiteSpace)
                     || (!string.IsNullOrEmpty(saved.activeId) && !saved.ownedIds.Contains(saved.activeId))) return;
                 if (saved.decor == null) saved.decor = new List<DecorStock>();
+                if (saved.ownedTanks == null) saved.ownedTanks = new List<string>();
+                if (saved.activeTank == null) saved.activeTank = "";
                 var seen = new HashSet<string>();
                 foreach (var stock in saved.decor)
                     if (stock == null || string.IsNullOrWhiteSpace(stock.id) || stock.count < 0 || !seen.Add(stock.id)) return;
@@ -110,13 +116,41 @@ namespace Lumaquarium.UI
             return true;
         }
 
+        public bool OwnsTank(string id) => !string.IsNullOrWhiteSpace(id) && data.ownedTanks.Contains(id);
+
+        // A bought tank goes into use at once. A free tank (price 0) counts as owned from the start.
+        public bool TryPurchaseTank(string id, int price)
+        {
+            Reload();
+            if (string.IsNullOrWhiteSpace(id) || price < 0 || OwnsTank(id) || price > data.balance) return false;
+            var next = Copy();
+            next.balance -= price;
+            next.ownedTanks.Add(id);
+            next.activeTank = id;
+            Save(next);
+            return true;
+        }
+
+        public bool SelectTank(string id, bool free)
+        {
+            Reload();
+            if (string.IsNullOrWhiteSpace(id) || (!free && !OwnsTank(id))) return false;
+            if (data.activeTank == id) return true;
+            var next = Copy();
+            next.activeTank = id;
+            Save(next);
+            return true;
+        }
+
         private SaveData Copy() => new SaveData
         {
             balance = data.balance,
             ownedIds = new List<string>(data.ownedIds),
             activeId = data.activeId,
             decor = data.decor.ConvertAll(x => new DecorStock { id = x.id, count = x.count }),
-            starterDecorImported = data.starterDecorImported
+            starterDecorImported = data.starterDecorImported,
+            ownedTanks = new List<string>(data.ownedTanks),
+            activeTank = data.activeTank
         };
 
         private void Save(SaveData next)

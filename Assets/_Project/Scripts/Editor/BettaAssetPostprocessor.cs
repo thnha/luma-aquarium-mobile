@@ -68,6 +68,16 @@ public class BettaAssetPostprocessor : AssetPostprocessor
             mask.textureCompression = TextureImporterCompression.CompressedHQ;
             return;
         }
+        // Scale cells (scale_edges.py): exact centre UVs per scale, read point-sampled.
+        if (assetPath.EndsWith("_ScaleCells.png"))
+        {
+            mask.sRGBTexture = false;
+            mask.mipmapEnabled = false;
+            mask.filterMode = FilterMode.Point;
+            mask.maxTextureSize = 2048;
+            mask.textureCompression = TextureImporterCompression.Uncompressed;
+            return;
+        }
         mask.maxTextureSize = 1024;
         mask.sRGBTexture = assetPath.Contains("BaseColor");
         // Body/fin and eye edges sit in R/G: block compression would smear them.
