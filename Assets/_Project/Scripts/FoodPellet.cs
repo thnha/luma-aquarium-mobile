@@ -6,13 +6,14 @@ public class FoodPellet : MonoBehaviour
 {
     public float fallSpeed = 0.09f;
     public float minY = 0.4f;
-    public float lifetime = 90f;                  // safety cap from the drop
-    public float bottomLifetime = 20f;            // time on the sand before it dissolves
+    public float lifetime = 180f;                 // safety cap from the drop
+    public float bottomLifetime = 60f;            // time on the sand before it dissolves
     public float minFloatTime = 3f;
     public float maxFloatTime = 6f;
     public float bobAmplitude = 0.004f;
     public float sinkWobble = 0.01f;              // sideways sway while sinking, metres
     public float dissolveTime = 1f;
+    public float unreachableRetryTime = 8f;       // the fish tries again this long after giving up on it
 
     float floatTimer;
     float sinkSpeed;
@@ -22,11 +23,17 @@ public class FoodPellet : MonoBehaviour
     float bottomTimer;
     Vector3 baseScale;
     Vector3 lastWobble;
+    float unreachableUntil;
 
     // True once it has reached the bottom (or come to rest on a rock).
     public bool OnBottom { get; private set; }
-    // Set by the fish when it can't reach it, so it stops going after it.
-    public bool Unreachable { get; set; }
+    // Set by the fish when it can't reach it, so it leaves it be for a while; it is cleared
+    // once the pellet settles somewhere new, so a pellet given up on near the glass isn't ignored for good.
+    public bool Unreachable
+    {
+        get => Time.time < unreachableUntil;
+        set => unreachableUntil = value ? Time.time + unreachableRetryTime : 0f;
+    }
     // Height of whatever solid lies under a spot (FeedingSystem passes the fish's decor scan).
     public System.Func<Vector3, float> groundHeight;
 
@@ -62,7 +69,7 @@ public class FoodPellet : MonoBehaviour
         lastWobble = wobble;
         float ground = minY;
         if (groundHeight != null) ground = Mathf.Max(ground, groundHeight(position) + transform.localScale.y * 0.5f);
-        if (position.y <= ground) { position.y = ground; OnBottom = true; }
+        if (position.y <= ground) { position.y = ground; OnBottom = true; Unreachable = false; }
         transform.position = position;
     }
 

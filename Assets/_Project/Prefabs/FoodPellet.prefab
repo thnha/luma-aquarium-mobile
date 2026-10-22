@@ -105,8 +105,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FoodPellet
   fallSpeed: 0.09
   minY: 0.4
-  lifetime: 90
-  bottomLifetime: 20
+  lifetime: 180
+  bottomLifetime: 60
   minFloatTime: 3
   maxFloatTime: 6
   bobAmplitude: 0.004

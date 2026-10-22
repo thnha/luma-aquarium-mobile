@@ -172,6 +172,8 @@ public class BettaFishAI : MonoBehaviour
     private float wallContact;                    // how far the body was pushed off the walls last frame
     private float tapExcitement;                  // 0..1, built up by repeated taps
     private float shyUntil;
+    private bool tapWasInFront;                   // the tap being swum to landed ahead of the fish
+    private bool bolting;                         // fleeing: turned away and running flat out
 
     // True only once the fish has reached its rest spot and lies still.
     public bool IsResting => state == State.Rest && settled;
@@ -189,6 +191,9 @@ public class BettaFishAI : MonoBehaviour
     public float Effort { get; private set; }
     // Set each frame by BettaSwimMotion so forward motion surges with each tail stroke.
     public float ThrustPulse { get; set; } = 1f;
+    // The body as drawn, set each frame by BettaSwimMotion: offsets from the pivot to the spine
+    // joints as they bend along the path (without the tail stroke), then to the caudal fin tip.
+    public Vector3[] BodyLine { get; set; }
 
     void Start()
     {
@@ -248,22 +253,25 @@ public class BettaFishAI : MonoBehaviour
                 targetEffort = 1f;
                 // A tap right in front gets an instant dart, like a strike at food; repeated
                 // taps excite it so it whips round and rushes over wherever they are.
+                // Whether the tap was in front is decided when it lands: judged every frame, the
+                // heading wobbling across the cone's edge would switch the dart on and off.
                 Vector3 toTap = destination - transform.position;
-                bool tapInFront = Vector3.Dot(transform.forward, toTap.normalized) > tapAheadCone;
-                float quickness = Mathf.Max(tapExcitement, tapInFront ? Mathf.Max(0.8f, tapReflex) : tapReflex);
-                bool dart = tapInFront && toTap.magnitude > slowdownRadius * 0.5f;
+                float quickness = Mathf.Max(tapExcitement, tapWasInFront ? Mathf.Max(0.8f, tapReflex) : tapReflex);
+                // Not over the last stretch, so it eases in instead of braking hard on arrival.
+                bool dart = tapWasInFront && toTap.magnitude > slowdownRadius;
                 SwimTowards(destination, swimSpeed * Mathf.Lerp(tapSwimSpeedMultiplier, tapExcitedSpeedMultiplier, quickness),
                     dart, tapAccelerationMultiplier, quickness);
                 // Hover there a moment, as if checking out the finger on the glass.
                 if (Arrived(destination) || stateTimer <= 0f || Stuck()) EnterIdle();
                 break;
             case State.Flee:
-                // C-start: whip round on the spot, then bolt flat out with no easing.
+                // C-start: whip round on the spot, then bolt flat out, gliding out over the last stretch.
                 targetEffort = 1f;
                 Vector3 toSafety = destination - transform.position;
-                bool facingAway = Vector3.Dot(transform.forward, toSafety.normalized) > 0.5f;
+                // Once it has whipped round it keeps bolting, even if the heading wobbles back a little.
+                bolting |= Vector3.Dot(transform.forward, toSafety.normalized) > 0.5f;
                 SwimTowards(destination, swimSpeed * fleeSpeedMultiplier,
-                    facingAway && toSafety.magnitude > slowdownRadius * 0.3f, 4f, 1f);
+                    bolting && toSafety.magnitude > slowdownRadius, 4f, 1f); // then glides to a stop
                 if (Arrived(destination) || stateTimer <= 0f)
                 {
                     EnterIdle();
@@ -389,6 +397,7 @@ public class BettaFishAI : MonoBehaviour
         state = State.SwimToTap;
         settled = false;
         destination = AboveObstacles(ClampToBounds(point));
+        tapWasInFront = Vector3.Dot(transform.forward, (destination - transform.position).normalized) > tapAheadCone;
         stateTimer = 4f + Vector3.Distance(transform.position, destination) / Mathf.Max(0.05f, swimSpeed);
     }
 
@@ -409,6 +418,7 @@ public class BettaFishAI : MonoBehaviour
         if (room < fleeDistance * 0.5f) dir = -dir;   // cornered: dart past the finger to the open end
         Vector3 target = here + new Vector3(dir * fleeDistance, -fleeDive, Random.Range(-0.1f, 0.1f));
         state = State.Flee;
+        bolting = false;
         settled = false;
         gulping = false;
         destination = AboveObstacles(ClampToBounds(target));
@@ -472,11 +482,14 @@ public class BettaFishAI : MonoBehaviour
             // above (steeper than the pitch limit) doesn't stall the fish.
             Vector3 reachable = Quaternion.Euler(targetPitch, targetYaw, 0f) * Vector3.forward;
             float alignment = Vector3.Dot(transform.forward, reachable) * 0.5f + 0.5f;
-            float approach = Mathf.Clamp01(direction.magnitude / (slowdownRadius * (1f - 0.6f * quickness)));
+            // A fast fish starts easing off early enough to stop without slamming on its pectorals.
+            // Scaled by the requested speed, not the current one, which would feed back into itself.
+            float approach = Mathf.Clamp01(direction.magnitude / Mathf.Max(slowdownRadius * (1f - 0.6f * quickness), targetSpeed * 0.5f));
             targetSpeed *= Mathf.Max(minTurnSpeedFactor, alignment * alignment) * Mathf.Max(0.2f, approach);
             braking = approach < 1f || alignment < 0.6f;
             // Coming out of a big turn the tail sweeps through and pushes the fish off.
-            if (turnExitTimer > 0f)
+            // Not on the final approach, where it would arrive too fast and stop with a jolt.
+            if (turnExitTimer > 0f && approach >= 1f)
             {
                 targetSpeed *= turnExitBoost;
                 braking = false;
@@ -534,6 +547,10 @@ public class BettaFishAI : MonoBehaviour
         // Level out while hovering, and don't pitch steeply in the middle of a sharp turn.
         // (Unless the target is nearly overhead/below, where the yaw error barely matters.)
         float turnFactor = horizontal < 0.15f ? 1f : Mathf.Clamp01(1f - Mathf.Abs(Mathf.DeltaAngle(yaw, targetYaw)) / 90f);
+        // Food well above or below: keep climbing or diving through the turn, spiralling to it
+        // instead of circling level at the same height and never getting closer.
+        if (state == State.SeekFood && direction.sqrMagnitude > 0.0001f)
+            turnFactor = Mathf.Max(turnFactor, Mathf.Abs(direction.y) / direction.magnitude);
         pitch = Mathf.MoveTowards(pitch, targetPitch * turnFactor, pitchDegreesPerSecond * Time.deltaTime);
         // Lying on the bottom the fish settles onto one side a little.
         float targetRoll = IsResting && restOnBottom ? restRoll : 0f;
@@ -709,7 +726,21 @@ public class BettaFishAI : MonoBehaviour
     }
 
     // Points along the body, snout to tail base; the rear ones also check where the fins hang.
+    // Until BettaSwimMotion reports the bent body these lie straight behind the gills.
     static readonly float[] BodySamples = { 0.15f, 0f, -0.35f, -0.7f, -1f };
+
+    // Snout, gills, the spine as drawn, and last the tail tip. Walls and decor test the real
+    // bent body: right after turning away from the glass the tail still follows the path inside,
+    // where a straight line behind the new heading would poke through and shove the fish sideways.
+    int BodyPointCount => BodyLine != null ? BodyLine.Length + 2 : BodySamples.Length + 1;
+
+    Vector3 BodyPoint(int i)
+    {
+        Vector3 here = transform.position;
+        if (BodyLine == null || i == 0)
+            return here + transform.forward * ((i < BodySamples.Length ? BodySamples[i] : -tailReachBodyLengths) * BodyLength);
+        return i == 1 ? here : here + BodyLine[i - 2];
+    }
 
     // Stone and wood stacked on another piece leave a gap underneath that the fish would get
     // wedged in (pushed down by the piece above, up by the one below), so each obstacle counts
@@ -861,9 +892,9 @@ public class BettaFishAI : MonoBehaviour
     Vector3 ObstaclePush(Collider col)
     {
         Vector3 push = Vector3.zero;
-        for (int i = 0; i < BodySamples.Length; i++)
+        for (int i = 0; i < BodyPointCount - 1; i++)
         {
-            Vector3 body = transform.position + transform.forward * (BodySamples[i] * BodyLength);
+            Vector3 body = BodyPoint(i);
             for (int f = 0; f < (i == 0 ? 1 : 2); f++)
             {
                 Vector3 point = f == 0 ? body : body + Vector3.down * FinHang;
@@ -929,12 +960,10 @@ public class BettaFishAI : MonoBehaviour
         if (swimBounds == null) return Vector3.zero;
         Bounds b = swimBounds.bounds;
         float margin = wallClearanceBodyLengths * BodyLength - allowance;
-        Vector3 here = transform.position, forward = transform.forward;
         float pushX = 0f, pushZ = 0f;
-        for (int i = 0; i <= BodySamples.Length; i++)
+        for (int i = 0; i < BodyPointCount; i++)
         {
-            float along = i < BodySamples.Length ? BodySamples[i] : -tailReachBodyLengths;
-            Vector3 p = here + forward * (along * BodyLength);
+            Vector3 p = BodyPoint(i);
             pushX = Push(pushX, p.x, b.min.x + margin, b.max.x - margin);
             // Only the stone walls need the clearance; at the open front the fish may brush the glass.
             pushZ = Push(pushZ, p.z, b.min.z + .02f - allowance, b.max.z - margin);

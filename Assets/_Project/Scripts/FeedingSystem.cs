@@ -26,6 +26,7 @@ public class FeedingSystem : MonoBehaviour
     public float maxTapSeconds = 0.35f;
     public float maxTapMovePixels = 20f;
     public float fishTapRadiusInches = 0.25f;     // how close to a bone (body or fin) a tap must land, on screen
+    public float pelletWallInset = 0.04f;         // how close to the glass a pellet may float
 
     private readonly List<FoodPellet> pellets = new List<FoodPellet>();
     private float nextFeedTime;
@@ -98,9 +99,10 @@ public class FeedingSystem : MonoBehaviour
         return point.x >= b.min.x && point.x <= b.max.x;
     }
 
-    // Where a feed tap goes: the tap ray is followed into the water (the swim bounds up to the surface).
-    // Entering through the surface it is that very spot; entering through the glass it is a random
-    // point on the ray's stretch inside the water, which Drop then lifts to the surface.
+    // Where a feed tap goes: the tap ray is followed through the water (the swim bounds up to the surface).
+    // If it crosses the surface inside the tank, going in from above or out from below (the camera
+    // usually sits under the waterline), it is that very spot; otherwise it went in and out through
+    // the glass and it is a random point on that stretch, which Drop then lifts to the surface.
     bool TapToWater(Vector2 screenPosition, out Vector3 point)
     {
         point = default;
@@ -112,8 +114,9 @@ public class FeedingSystem : MonoBehaviour
         water.SetMinMax(b.min, new Vector3(b.max.x, Mathf.Max(surface, b.min.y), b.max.z));
         Ray ray = cam.ScreenPointToRay(screenPosition);
         if (!RayThroughBox(ray, water, out float enter, out float exit)) return false;
-        point = ray.GetPoint(enter);
-        if (point.y < water.max.y - 1e-3f) point = ray.GetPoint(Random.Range(enter, exit));
+        Vector3 inPoint = ray.GetPoint(enter), outPoint = ray.GetPoint(exit);
+        float top = water.max.y - 1e-3f;
+        point = inPoint.y >= top ? inPoint : outPoint.y >= top ? outPoint : ray.GetPoint(Random.Range(enter, exit));
         return true;
     }
 
@@ -177,7 +180,7 @@ public class FeedingSystem : MonoBehaviour
     {
         if (fish == null || fish.swimBounds == null) return position;
         Bounds b = fish.swimBounds.bounds;
-        float inset = fish.boundsInset;
+        float inset = pelletWallInset;
         position.x = Mathf.Clamp(position.x, b.min.x + inset, b.max.x - inset);
         position.z = Mathf.Clamp(position.z, b.min.z + inset, b.max.z - inset);
         return position;

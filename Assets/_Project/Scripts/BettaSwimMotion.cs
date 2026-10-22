@@ -83,6 +83,8 @@ public class BettaSwimMotion : MonoBehaviour
     float pathLength;                        // distance the head has travelled
     Vector3 lastPosition;
     float[] segmentDistance;                 // local units from the head pivot to each segment's middle
+    float[] jointDistance;                   // local units from the head pivot to each segment's joint
+    Vector3[] bodyLine;
     float[] jointBend, jointPitch;
     float bodyPhase, caudalPhase, finPhase, gillPhase, lastYaw, yawRate;
     float gillSideL, gillSideR;              // +1 on the fish's right, -1 on its left: the opening direction
@@ -114,9 +116,12 @@ public class BettaSwimMotion : MonoBehaviour
         // between its joint and the next one (the last segment extends as far again).
         float scale = Mathf.Max(0.0001f, transform.lossyScale.x);
         segmentDistance = new float[spine.Length];
+        jointDistance = new float[spine.Length];
+        bodyLine = new Vector3[spine.Length + 1];
         for (int i = 0; i < spine.Length; i++)
         {
             float start = spine[i].t ? Vector3.Distance(transform.position, spine[i].t.position) / scale : 0f;
+            jointDistance[i] = start;
             float end = i + 1 < spine.Length && spine[i + 1].t ? Vector3.Distance(transform.position, spine[i + 1].t.position) / scale
                 : start + (i > 0 ? start - segmentDistance[i - 1] : 0.02f);
             segmentDistance[i] = (start + end) * 0.5f;
@@ -231,6 +236,25 @@ public class BettaSwimMotion : MonoBehaviour
 
         Vector3 up = transform.up;
         Vector3 side = transform.right;
+
+        // Tell the AI where the body is for walls and decor: the joints laid out along the bent
+        // spine, then the caudal fin tip. The stroke and body wave are left out (the AI keeps a
+        // margin for them), so the check doesn't flicker with every beat.
+        if (fish)
+        {
+            Vector3 point = -transform.forward * (jointDistance[0] * scale);
+            float turn = 0f;
+            for (int i = 0; i < spine.Length; i++)
+            {
+                bodyLine[i] = point;
+                turn += jointBend[i];
+                float next = i + 1 < spine.Length ? jointDistance[i + 1]
+                    : Mathf.Max(jointDistance[i], fish.tailReachBodyLengths * fish.BodyLength / Mathf.Max(0.0001f, scale));
+                point -= Quaternion.AngleAxis(turn, up) * transform.forward * ((next - jointDistance[i]) * scale);
+            }
+            bodyLine[spine.Length] = point;
+            fish.BodyLine = bodyLine;
+        }
 
         // The peduncle makes the active stroke; turning adds a stronger kick.
         float bodyAmplitude = Mathf.Lerp(bodyIdleAmplitude, bodySwimAmplitude, effort);
