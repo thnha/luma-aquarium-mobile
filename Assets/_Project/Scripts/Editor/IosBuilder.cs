@@ -37,6 +37,20 @@ public static class IosBuilder
         EditorApplication.Exit(Build(buildNumber) ? 0 : 1);
     }
 
+    // App Store Connect rejects uploads without a 1024x1024 icon; Unity scales the default icon to every
+    // iOS and Android size. Shared with AndroidBuilder.
+    public static bool ApplyAppIcon()
+    {
+        var icon = AssetDatabase.LoadAssetAtPath<Texture2D>(AppIconPath);
+        if (!icon)
+        {
+            Debug.LogError("[Lumaquarium] Missing " + AppIconPath + " (1024x1024 PNG, no alpha).");
+            return false;
+        }
+        PlayerSettings.SetIcons(NamedBuildTarget.Unknown, new[] { icon }, IconKind.Any);
+        return true;
+    }
+
     static bool Build(string buildNumber)
     {
         if (string.IsNullOrEmpty(PlayerSettings.iOS.appleDeveloperTeamID))
@@ -45,14 +59,7 @@ public static class IosBuilder
             return false;
         }
 
-        // App Store Connect rejects uploads without a 1024x1024 icon; Unity scales the default icon to every iOS size.
-        var icon = AssetDatabase.LoadAssetAtPath<Texture2D>(AppIconPath);
-        if (!icon)
-        {
-            Debug.LogError("[Lumaquarium] Missing " + AppIconPath + " (1024x1024 PNG, no alpha).");
-            return false;
-        }
-        PlayerSettings.SetIcons(NamedBuildTarget.Unknown, new[] { icon }, IconKind.Any);
+        if (!ApplyAppIcon()) return false;
 
         PlayerSettings.iOS.buildNumber = buildNumber;
         PlayerSettings.iOS.appleEnableAutomaticSigning = true;
