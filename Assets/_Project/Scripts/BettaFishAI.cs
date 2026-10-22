@@ -37,6 +37,8 @@ public class BettaFishAI : MonoBehaviour
     public float maxPitch = 15f;                  // while wandering; bettas mostly swim level
     public float feedMaxPitch = 60f;              // darting up to floating food is steep
     public float restMaxPitch = 35f;              // gliding down to a rest spot
+    public float tapMaxPitch = 55f;               // heading up to a tap by the surface or down to the sand, or bolting
+    public float steepClimbAssist = 0.3f;         // m/s it may rise/sink on the pectorals for a target steeper than that
     public float pitchDegreesPerSecond = 25f;
     public float wanderHeightRange = 0.35f;       // max height change per wander leg
     public float arrivalRadius = 0.12f;
@@ -173,6 +175,8 @@ public class BettaFishAI : MonoBehaviour
     private float tapExcitement;                  // 0..1, built up by repeated taps
     private float shyUntil;
     private bool tapWasInFront;                   // the tap being swum to landed ahead of the fish
+    private Collider detourAround;                // decor it is going round, and which way round
+    private float detourSide;
     private bool bolting;                         // fleeing: turned away and running flat out
 
     // True only once the fish has reached its rest spot and lies still.
@@ -448,26 +452,32 @@ public class BettaFishAI : MonoBehaviour
     // quickness 0..1: an excited fish turns on its pectorals and only slows right at the target.
     void SwimTowards(Vector3 target, float targetSpeed, bool strike = false, float accelerationBoost = 1f, float quickness = 0f)
     {
-        Vector3 direction = target - transform.position;
+        Vector3 aim = targetSpeed > 0f ? Detour(target) : target;
+        Vector3 direction = aim - transform.position;
+        // Measured the whole way round, so it doesn't slow down as if arriving at the detour corner.
+        if (aim != target) direction = direction.normalized * (direction.magnitude + Vector3.Distance(aim, target));
         if (targetSpeed > 0f) direction = AvoidObstacles(direction);
         // Heading the fish can actually swim: yaw toward the target, pitch within the
         // limit for this state. Yaw and pitch are steered separately and rebuilt with zero
         // roll; slerping the whole rotation takes a shortcut that banks the fish mid-turn.
         float targetYaw = yaw, targetPitch = 0f;
         bool tooSteep = false;
+        float steepness = 0f;                     // rise or drop per metre across, when steeper than the pitch limit
         float horizontal = new Vector2(direction.x, direction.z).magnitude;
         if (direction.sqrMagnitude > 0.0001f)
         {
-            // Straight above/below the heading is meaningless; keep the current one.
-            if (horizontal > 0.03f) targetYaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-            float limit = state == State.SeekFood ? feedMaxPitch : state == State.Rest || state == State.SwimToTap || state == State.Flee ? restMaxPitch
-                : state == State.Breathe ? breatheMaxPitch : maxPitch;
+            // Straight above/below the heading is meaningless; keep the current one. The further up or
+            // down the target, the wider that cone, so passing just under it doesn't spin the fish round.
+            if (horizontal > Mathf.Max(0.03f, Mathf.Abs(direction.y) * 0.15f)) targetYaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+            float limit = state == State.SeekFood ? feedMaxPitch : state == State.SwimToTap || state == State.Flee ? tapMaxPitch
+                : state == State.Rest ? restMaxPitch : state == State.Breathe ? breatheMaxPitch : maxPitch;
             if (climbingObstacle) limit = Mathf.Max(limit, climbMaxPitch);
             if (targetSpeed > 0f || state == State.Breathe)
             {
                 float rawPitch = -Mathf.Atan2(direction.y, horizontal) * Mathf.Rad2Deg;
                 targetPitch = Mathf.Clamp(rawPitch, -limit, limit);
                 tooSteep = Mathf.Abs(rawPitch) > limit && horizontal < 0.2f;
+                if (Mathf.Abs(rawPitch) > limit) steepness = Mathf.Abs(direction.y) / Mathf.Max(0.01f, horizontal);
             }
         }
 
@@ -499,6 +509,10 @@ public class BettaFishAI : MonoBehaviour
             float offHeading = Mathf.Clamp01((Mathf.Abs(Mathf.DeltaAngle(yaw, targetYaw)) - 15f) / 30f);
             targetSpeed = Mathf.Max(targetSpeed, turnGlideSpeed * offHeading);
         }
+        // Target steeper than it may tilt: travel across more slowly, so the climb or dive (helped
+        // on the pectorals below) gets there before it passes underneath or over the spot.
+        if (steepness > 0f && targetSpeed > 0f)
+            targetSpeed *= Mathf.Clamp(Mathf.Tan(Mathf.Abs(targetPitch) * Mathf.Deg2Rad) / steepness, 0.15f, 1f);
         // A strike is a short dart; the fish then brakes hard with its pectorals.
         float rate = targetSpeed > currentSpeed ? acceleration * (strike ? 4f : accelerationBoost)
             : braking ? acceleration * (currentSpeed > swimSpeed * 1.2f ? 3f : 1f) : deceleration;
@@ -547,19 +561,31 @@ public class BettaFishAI : MonoBehaviour
         // Level out while hovering, and don't pitch steeply in the middle of a sharp turn.
         // (Unless the target is nearly overhead/below, where the yaw error barely matters.)
         float turnFactor = horizontal < 0.15f ? 1f : Mathf.Clamp01(1f - Mathf.Abs(Mathf.DeltaAngle(yaw, targetYaw)) / 90f);
-        // Food well above or below: keep climbing or diving through the turn, spiralling to it
+        // Food or a tap well above or below: keep climbing or diving through the turn, spiralling to it
         // instead of circling level at the same height and never getting closer.
-        if (state == State.SeekFood && direction.sqrMagnitude > 0.0001f)
+        if ((state == State.SeekFood || state == State.SwimToTap || state == State.Flee) && direction.sqrMagnitude > 0.0001f)
             turnFactor = Mathf.Max(turnFactor, Mathf.Abs(direction.y) / direction.magnitude);
-        pitch = Mathf.MoveTowards(pitch, targetPitch * turnFactor, pitchDegreesPerSecond * Time.deltaTime);
+        // An excited fish tips its head up or down as quickly as it swings round.
+        pitch = Mathf.MoveTowards(pitch, targetPitch * turnFactor, pitchDegreesPerSecond * (1f + 2f * quickness) * Time.deltaTime);
         // Lying on the bottom the fish settles onto one side a little.
         float targetRoll = IsResting && restOnBottom ? restRoll : 0f;
         roll = Mathf.MoveTowards(roll, targetRoll, 8f * Time.deltaTime);
         transform.rotation = Quaternion.Euler(pitch, yaw, roll);
         transform.position += transform.forward * currentSpeed * ThrustPulse * Time.deltaTime;
-        // Target almost straight above/below: rise or sink on the pectorals instead of circling.
-        if (tooSteep)
-            transform.position += Vector3.up * Mathf.Clamp(direction.y, -verticalHoverSpeed * Time.deltaTime, verticalHoverSpeed * Time.deltaTime);
+        // Target steeper than it may tilt: rise or sink on the pectorals for the rest of the slope, so
+        // it heads straight there instead of passing it and circling up or down around it.
+        // Almost straight above/below it does so even when barely moving.
+        if (steepness > 0f)
+        {
+            Vector3 velocity = transform.forward * currentSpeed * ThrustPulse;
+            float needed = new Vector2(velocity.x, velocity.z).magnitude * steepness * Mathf.Sign(direction.y);
+            float assist = Mathf.Clamp(needed - velocity.y, -steepClimbAssist, steepClimbAssist);
+            if (assist * direction.y < 0f) assist = 0f;
+            // An excited fish rises briskly toward a tap overhead rather than drifting up.
+            float hoverRise = Mathf.Max(verticalHoverSpeed, steepClimbAssist * quickness);
+            if (tooSteep && Mathf.Abs(assist) < hoverRise) assist = hoverRise * Mathf.Sign(direction.y);
+            transform.position += Vector3.up * Mathf.Clamp(direction.y, -Mathf.Abs(assist) * Time.deltaTime, Mathf.Abs(assist) * Time.deltaTime);
+        }
 
         // A hovering betta is never pinned in place: it drifts and bobs a few millimetres
         // and lets its heading wander while the pectorals keep correcting.
@@ -705,6 +731,9 @@ public class BettaFishAI : MonoBehaviour
 
     float BodyRadius => bodyRadiusBodyLengths * BodyLength;
     float FinHang => finHangBodyLengths * BodyLength;
+    // Nosing a pellet off a rock or driftwood top the long fins just drape over it, so they don't hold
+    // the body up (otherwise the mouth stays a fin's length above the pellet and never reaches it).
+    bool FinsDrape => state == State.SeekFood && food != null && food.OnBottom;
 
     void ScanObstacles()
     {
@@ -755,7 +784,7 @@ public class BettaFishAI : MonoBehaviour
     }
 
     // Height the pivot needs for the body and hanging fins to clear this obstacle.
-    float ClearHeight(Collider col) => col.bounds.max.y + FinHang + BodyRadius;
+    float ClearHeight(Collider col) => col.bounds.max.y + (FinsDrape ? 0f : FinHang) + BodyRadius;
 
     // Swim over it when it is low, or when the tank is too shallow front to back to pass
     // beside it (and it isn't taller than the swimming space); otherwise go around.
@@ -769,6 +798,97 @@ public class BettaFishAI : MonoBehaviour
         bool roomInFront = b.min.z - r > swim.min.z + boundsInset;
         bool roomBehind = b.max.z + r < swim.max.z - boundsInset;
         return !roomInFront && !roomBehind;
+    }
+
+    // The straight way to the target runs into decor it has to go round (too tall to swim over):
+    // aim for the near corner of it first. Steering away only once the snout is at the rock gets
+    // cancelled by the pull toward the target, and the fish keeps nosing into the rock.
+    // Corner by corner round the footprint, keeping to the side it chose for that piece.
+    Vector3 Detour(Vector3 target)
+    {
+        ScanObstacles();
+        Vector3 here = transform.position;
+        float pad = BodyRadius + obstacleClearance + 0.05f;
+        Bounds swim = swimBounds ? swimBounds.bounds : new Bounds(here, Vector3.one * 100f);
+        for (int pass = 0; pass < 3; pass++)
+        {
+            Vector2 from = new Vector2(here.x, here.z), to = new Vector2(target.x, target.z);
+            Collider blocking = null;
+            Rect blockingRect = default;
+            float nearest = float.MaxValue;
+            foreach (var col in obstacles)
+            {
+                if (ClimbOver(col) || Mathf.Min(here.y, target.y) > ClearHeight(col)) continue;
+                Bounds b = col.bounds;
+                Rect rect = Rect.MinMaxRect(b.min.x - pad, b.min.z - pad, b.max.x + pad, b.max.z + pad);
+                // A target right beside it is left to the close-range steering.
+                if (rect.Contains(to)) continue;
+                // Already rounding it (inside the margin): blocked only if the way on cuts into the piece
+                // itself, or every way out would count and it would carry on round past the target.
+                Rect test = rect.Contains(from) ? Rect.MinMaxRect(b.min.x - BodyRadius, b.min.z - BodyRadius, b.max.x + BodyRadius, b.max.z + BodyRadius) : rect;
+                if (SegmentEntersRect(from, to, test, out float enter) && enter < nearest)
+                {
+                    nearest = enter;
+                    blocking = col;
+                    blockingRect = rect;
+                }
+            }
+            if (blocking == null) return target;
+
+            // The outermost corner on each side of the line, a little further out.
+            Vector2 line = (to - from).normalized;
+            Vector2 left = default, right = default;
+            float mostLeft = float.NegativeInfinity, mostRight = float.PositiveInfinity;
+            foreach (var c in new[] { blockingRect.min, blockingRect.max, new Vector2(blockingRect.xMin, blockingRect.yMax), new Vector2(blockingRect.xMax, blockingRect.yMin) })
+            {
+                float across = line.x * (c.y - from.y) - line.y * (c.x - from.x);
+                if (across > mostLeft) { mostLeft = across; left = c; }
+                if (across < mostRight) { mostRight = across; right = c; }
+            }
+            left += (left - blockingRect.center).normalized * 0.05f;
+            right += (right - blockingRect.center).normalized * 0.05f;
+            bool leftOk = Inside(left), rightOk = Inside(right);
+            if (!leftOk && !rightOk) return target;
+            // Which way round: the side of its path the piece stays on (sign of the cross product).
+            // Remembered that way, not as left or right of the line to the target, which turns
+            // as the fish goes round.
+            float leftWay = Mathf.Sign(Cross(left - from, blockingRect.center - from));
+            bool takeLeft = blocking == detourAround && (leftWay == detourSide ? leftOk : rightOk) ? leftWay == detourSide
+                : !rightOk || leftOk && (left - from).magnitude + (to - left).magnitude <= (right - from).magnitude + (to - right).magnitude;
+            detourAround = blocking;
+            detourSide = takeLeft ? leftWay : -leftWay;
+            Vector2 corner = takeLeft ? left : right;
+            float share = (corner - from).magnitude / Mathf.Max(0.01f, (corner - from).magnitude + (to - corner).magnitude);
+            target = new Vector3(corner.x, Mathf.Lerp(here.y, target.y, share), corner.y);
+        }
+        return target;
+
+        bool Inside(Vector2 p) => p.x > swim.min.x + boundsInset && p.x < swim.max.x - boundsInset
+            && p.y > swim.min.z + boundsInset && p.y < swim.max.z - boundsInset;
+        static float Cross(Vector2 a, Vector2 b) => a.x * b.y - a.y * b.x;
+    }
+
+    // Liang-Barsky: whether the segment enters the rect, and how far along (0 when it starts inside).
+    static bool SegmentEntersRect(Vector2 from, Vector2 to, Rect rect, out float enter)
+    {
+        enter = 0f;
+        float exit = 1f;
+        Vector2 d = to - from;
+        for (int axis = 0; axis < 2; axis++)
+        {
+            float o = from[axis], v = d[axis], min = rect.min[axis], max = rect.max[axis];
+            if (Mathf.Abs(v) < 1e-6f)
+            {
+                if (o < min || o > max) return false;
+                continue;
+            }
+            float t0 = (min - o) / v, t1 = (max - o) / v;
+            if (t0 > t1) (t0, t1) = (t1, t0);
+            enter = Mathf.Max(enter, t0);
+            exit = Mathf.Min(exit, t1);
+            if (enter > exit) return false;
+        }
+        return true;
     }
 
     // Steers the swim direction around or over decorations ahead.
@@ -895,7 +1015,7 @@ public class BettaFishAI : MonoBehaviour
         for (int i = 0; i < BodyPointCount - 1; i++)
         {
             Vector3 body = BodyPoint(i);
-            for (int f = 0; f < (i == 0 ? 1 : 2); f++)
+            for (int f = 0; f < (i == 0 || FinsDrape ? 1 : 2); f++)
             {
                 Vector3 point = f == 0 ? body : body + Vector3.down * FinHang;
                 Vector3 closest = ClosestObstaclePoint(col, point);
@@ -923,15 +1043,19 @@ public class BettaFishAI : MonoBehaviour
     }
 
     // Lifts a spot so the fish (and its hanging fins) clears any decoration under it.
+    // Next to a low piece too, within the reach of the body and fins: down in the slot beside a
+    // rock (or behind it, against the glass) the long-finned fish can't get in from above, and
+    // would circle over the rock instead; it hovers over the rock there. Beside a tall piece the
+    // spot stays where it is, and the fish goes round.
     Vector3 AboveObstacles(Vector3 position)
     {
         ScanObstacles();
-        float r = BodyRadius;
         foreach (var col in obstacles)
         {
             Bounds b = col.bounds;
+            float r = b.max.y + FinHang + BodyRadius <= NormalTop() ? BodyRadius + FinHang : BodyRadius;
             if (position.x < b.min.x - r || position.x > b.max.x + r || position.z < b.min.z - r || position.z > b.max.z + r) continue;
-            position.y = Mathf.Max(position.y, Mathf.Min(b.max.y + FinHang + r, NormalTop()));
+            position.y = Mathf.Max(position.y, Mathf.Min(b.max.y + FinHang + BodyRadius, NormalTop()));
         }
         return position;
     }

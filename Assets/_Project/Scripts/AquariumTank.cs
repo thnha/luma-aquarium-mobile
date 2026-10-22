@@ -85,12 +85,15 @@ public sealed class AquariumTank : MonoBehaviour
         float top = decoration.water != null ? decoration.water.surfaceY : decoration.floorY + 2.1f;
         BuildSand(x);
         BuildWalls(x, top);
+        // The water surface mirrors the inside of the glass (Aquarium Water).
+        Shader.SetGlobalVector("_AquariumTankBox", new Vector4(x, front, Back + .05f, decoration.floorY));
         TilePebbles(x);
         if (surface != null)
         {
-            // The surface mesh is centred on its pivot; stretch it from its front edge to past the back glass.
+            // The surface mesh is centred on its pivot; stretch it from over the near sand, so it fills the top
+            // of the screen, to past the back glass.
             var bounds = surface.GetComponent<Renderer>().localBounds;
-            float frontZ = Mathf.Min(surfacePosition.z + bounds.min.z * surfaceScale.z, front - .3f), backZ = Back + .3f;
+            float frontZ = Mathf.Min(surfacePosition.z + bounds.min.z * surfaceScale.z, sandFront), backZ = Back + .3f;
             surface.localScale = new Vector3(Mathf.Max(surfaceScale.x, (x + .3f) * 2 / bounds.size.x), surfaceScale.y, (backZ - frontZ) / bounds.size.z);
             surface.position = new Vector3(surfacePosition.x, surfacePosition.y, (frontZ + backZ) / 2);
         }

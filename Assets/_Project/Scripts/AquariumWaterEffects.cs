@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.Universal;
 
 // Bounded visual simulation: one surface material, four impulses, and one bubble emitter.
 public sealed class AquariumWaterEffects : MonoBehaviour
@@ -24,6 +25,8 @@ public sealed class AquariumWaterEffects : MonoBehaviour
     {
         properties = new MaterialPropertyBlock();
         for (int i = 0; i < ripples.Length; i++) ripples[i].w = -100;
+        // The underside of the surface mirrors the tank from the opaque scene colour.
+        if (viewCamera != null) viewCamera.GetUniversalAdditionalCameraData().requiresColorOption = CameraOverrideOption.On;
     }
 
     public void Ripple(Vector3 point)

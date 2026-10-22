@@ -3,6 +3,7 @@ Shader "Lumaquarium/Aquarium Water"
     Properties
     {
         _Strength("Wave strength", Range(0,2)) = 1
+        _Clarity("Surface clarity from below", Range(0,1)) = 1
         _NightEnvironmentTex("Night environment", 2D) = "gray" {}
         _EnvironmentTex("Aquarium reflection", 2D) = "gray" {}
     }
@@ -18,12 +19,16 @@ Shader "Lumaquarium/Aquarium Water"
             #pragma vertex Vert
             #pragma fragment Frag
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareOpaqueTexture.hlsl"
             TEXTURE2D(_EnvironmentTex); SAMPLER(sampler_EnvironmentTex);
             TEXTURE2D(_NightEnvironmentTex); SAMPLER(sampler_NightEnvironmentTex);
             float _AquariumNight;
             float4 _AquariumWaterColor;
+            // Inside of the glass (AquariumTank): x half width, y front z, z back z, w floor y.
+            float4 _AquariumTankBox;
             CBUFFER_START(UnityPerMaterial)
             float _Strength;
+            float _Clarity;
             float4 _Ripples[4];
             CBUFFER_END
             struct Attributes { float4 positionOS:POSITION; };
@@ -78,11 +83,33 @@ Shader "Lumaquarium/Aquarium Water"
                 float shimmer=pow(saturate(1-abs(a+b)*.8),16)*(1-_AquariumNight*.7);
                 if(_WorldSpaceCameraPos.y<i.world.y)
                 {
-                    // Seen from under the water the surface is never a window onto what lies above the tank.
-                    // It takes the deep-water colour behind the tank, so the water seems to run on up to the
-                    // top of the screen, with only a soft, slow swell and the rings of a tap moving across it.
+                    // Seen from under the water at this shallow angle the surface is a mirror (total internal
+                    // reflection): it shows the walls, sand and plants of the tank, bent by the waves. The
+                    // reflected ray is traced to the inside of the glass and that point is read back from the
+                    // opaque scene; where it leaves the screen the read folds back in from the edge, so the
+                    // mirror carries on with the walls and sand next to it instead of a flat colour.
+                    float3 under=normalize(float3(slope.x*4,-1,slope.y*4));
+                    float3 r=reflect(-view,under);
+                    // At grazing angles a steep wave can tip the ray upward; it meets the surface again and is
+                    // sent back down, so it never shows what lies above the walls.
+                    r.y=-max(abs(r.y),.02);
+                    float3 hit=float3(
+                        ((r.x>0?_AquariumTankBox.x:-_AquariumTankBox.x)-i.world.x)/(abs(r.x)>1e-4?r.x:1e-4),
+                        (_AquariumTankBox.w-i.world.y)/min(r.y,-1e-4),
+                        ((r.z>0?_AquariumTankBox.z:_AquariumTankBox.y)-i.world.z)/(abs(r.z)>1e-4?r.z:1e-4));
+                    float t=max(0,min(hit.x,min(hit.y,hit.z)));
+                    float4 clip=TransformWorldToHClip(i.world+r*t);
+                    float2 suv=clip.xy/max(clip.w,1e-4)*float2(.5,.5*_ProjectionParams.x)+.5;
+                    suv=clip.w>0?1-abs(1-abs(suv)):float2(suv.x,.02);
+                    half3 water=_AquariumWaterColor.rgb;
+                    half3 mirror=lerp(SampleSceneColor(saturate(suv)),water,saturate(t*.03));
+                    half3 color=lerp(water,mirror,_Clarity);
+                    // Light from above breaks through the moving surface as bright glints, strongest overhead.
+                    half overhead=smoothstep(.15,.5,-view.y);
+                    half glint=pow(saturate(1-abs(a+b)*.6),6);
+                    half3 glare=sun.color*(overhead*.15+shimmer*(.15+.35*overhead)+glint*.12+impulse*.2)*(1-_AquariumNight*.7);
                     half swell=dot(slope,float2(.9,1.3))+impulse*.25;
-                    return half4(_AquariumWaterColor.rgb*(1+swell)+sun.color*shimmer*.04,1);
+                    return half4(color*(1+swell)+glare,1);
                 }
                 half3 body=lerp(half3(.2,.55,.6),half3(.03,.09,.17),_AquariumNight);
                 half3 color=lerp(body,reflected,fresnel*.7+.3)+sun.color*(sparkle*.5+shimmer*.12);
