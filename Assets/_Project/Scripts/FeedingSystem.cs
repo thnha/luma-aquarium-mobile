@@ -3,8 +3,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
-// Taps on the tank: in feed mode (the Feed button toggles it) a tap drops a pellet on the
-// surface above the tapped spot; otherwise the fish swims over to where you tapped,
+// Taps on the tank: in feed mode (the Feed button toggles it) a tap on the water drops a pellet
+// right where it touched, and a tap through the glass drops one on the surface above a random spot
+// along the line the tap makes straight into the tank; otherwise the fish swims over to where you tapped,
 // and a tap right on the fish startles it into darting away.
 // A tap is a short press that barely moves, so orbit drags on OrbitTouchCamera don't count.
 public class FeedingSystem : MonoBehaviour
@@ -24,7 +25,6 @@ public class FeedingSystem : MonoBehaviour
     public int maxTapPellets = 6;
     public float maxTapSeconds = 0.35f;
     public float maxTapMovePixels = 20f;
-    public float tapDepthJitter = 0.12f;          // spread of dropped pellets front to back
     public float fishTapRadiusInches = 0.25f;     // how close to a bone (body or fin) a tap must land, on screen
 
     private readonly List<FoodPellet> pellets = new List<FoodPellet>();
@@ -52,15 +52,13 @@ public class FeedingSystem : MonoBehaviour
     {
         if (!TryGetTap(out Vector2 screenPosition)) return;
         if (decoration != null && decoration.Editing) return;
-        if (!FeedMode && fish != null && TapHitsFish(screenPosition, out Vector3 hit)) { fish.Startle(hit); return; }
-        if (!TapToTank(screenPosition, out Vector3 point)) return;
         if (FeedMode)
         {
-            // The tap only fixes left/right; spread the drops front to back.
-            point.z += Random.Range(-tapDepthJitter, tapDepthJitter);
-            if (tapToFeed) FeedAt(point);
+            if (tapToFeed && TapToWater(screenPosition, out Vector3 drop)) FeedAt(drop);
+            return;
         }
-        else if (tapToSwim && fish != null) fish.SwimTo(point);
+        if (fish != null && TapHitsFish(screenPosition, out Vector3 hit)) { fish.Startle(hit); return; }
+        if (tapToSwim && fish != null && TapToTank(screenPosition, out Vector3 point)) fish.SwimTo(point);
     }
 
     public void Feed()
@@ -98,6 +96,47 @@ public class FeedingSystem : MonoBehaviour
         if (!new Plane(Vector3.forward, b.center).Raycast(ray, out float distance)) return false;
         point = ray.GetPoint(distance);
         return point.x >= b.min.x && point.x <= b.max.x;
+    }
+
+    // Where a feed tap goes: the tap ray is followed into the water (the swim bounds up to the surface).
+    // Entering through the surface it is that very spot; entering through the glass it is a random
+    // point on the ray's stretch inside the water, which Drop then lifts to the surface.
+    bool TapToWater(Vector2 screenPosition, out Vector3 point)
+    {
+        point = default;
+        Camera cam = viewCamera ? viewCamera : Camera.main;
+        if (cam == null || fish == null || fish.swimBounds == null) return false;
+        Bounds b = fish.swimBounds.bounds;
+        float surface = spawnPoint != null ? spawnPoint.position.y : b.max.y;
+        Bounds water = new Bounds();
+        water.SetMinMax(b.min, new Vector3(b.max.x, Mathf.Max(surface, b.min.y), b.max.z));
+        Ray ray = cam.ScreenPointToRay(screenPosition);
+        if (!RayThroughBox(ray, water, out float enter, out float exit)) return false;
+        point = ray.GetPoint(enter);
+        if (point.y < water.max.y - 1e-3f) point = ray.GetPoint(Random.Range(enter, exit));
+        return true;
+    }
+
+    // Slab test: the distances along the ray where it enters and leaves the box.
+    static bool RayThroughBox(Ray ray, Bounds box, out float enter, out float exit)
+    {
+        enter = 0f;
+        exit = float.MaxValue;
+        for (int i = 0; i < 3; i++)
+        {
+            float o = ray.origin[i], d = ray.direction[i];
+            if (Mathf.Abs(d) < 1e-6f)
+            {
+                if (o < box.min[i] || o > box.max[i]) return false;
+                continue;
+            }
+            float t0 = (box.min[i] - o) / d, t1 = (box.max[i] - o) / d;
+            if (t0 > t1) (t0, t1) = (t1, t0);
+            enter = Mathf.Max(enter, t0);
+            exit = Mathf.Min(exit, t1);
+            if (enter > exit) return false;
+        }
+        return true;
     }
 
     // Tests the tap against the fish's skeleton in screen space: every bone (spine, fin rays out
