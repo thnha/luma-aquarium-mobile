@@ -28,6 +28,7 @@ namespace Lumaquarium.UI
         public AquariumDecoration decoration;
         // Redesigned HUD (docs/ui-redesign.md). All optional so older scenes keep working.
         public FishShopScreen fishShop;
+        public ShopScreen shop;
         public TMP_Text walletLabel;
         public UnityEngine.UI.Image hudFullnessFill;
         public TMP_Text hudFullnessLabel;
@@ -139,7 +140,16 @@ namespace Lumaquarium.UI
 
         public void OpenShop()
         {
-            if (fishShop != null) fishShop.Open();
+            if (shop != null) shop.Open();
+            else if (fishShop != null) fishShop.Open();
+        }
+
+        // Đổi cá: the shop on the Cá tab with the active fish selected.
+        public void OpenFishShop()
+        {
+            if (shop == null) { OpenShop(); return; }
+            string key = decoration != null ? decoration.inventoryStorageKey : FishShopInventory.DefaultStorageKey;
+            shop.OpenTab(ShopTab.Fish, new FishShopInventory(key).ActiveId);
         }
 
         // Toggles feed mode: while it is on a tap on the tank drops food, otherwise the fish swims to the tap.

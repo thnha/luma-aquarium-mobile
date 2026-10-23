@@ -106,6 +106,15 @@ public sealed class AquariumDecoration : MonoBehaviour
         return Mathf.Max(0, inventory.DecorCount(offer.id) - items.FindAll(x => x != null && x.kind == kind).Count);
     }
 
+    // How many of each kind are placed; the shop reads this once per refresh instead of calling Available per card.
+    public Dictionary<int, int> PlacedCounts()
+    {
+        var counts = new Dictionary<int, int>();
+        foreach (var item in items)
+            if (item != null) counts[item.kind] = counts.TryGetValue(item.kind, out int n) ? n + 1 : 1;
+        return counts;
+    }
+
     // Height of the sand at a point; the sand bed mesh is shaped with the same curve.
     public float SandAt(Vector3 p) => floorY + sandRise * Mathf.SmoothStep(0, 1, Mathf.InverseLerp(sandRiseFrom, sandRiseTo, p.z));
 
@@ -254,10 +263,12 @@ public sealed class AquariumDecoration : MonoBehaviour
 
     private void OpenShop(int category)
     {
-        var shop = FindFirstObjectByType<Lumaquarium.UI.DecorShopScreen>();
-        if (shop == null) { Begin(category == 0 ? 0 : category == 2 ? 1 : 2); return; }
-        shop.Open();
-        shop.SelectCategory(category);
+        var shop = FindFirstObjectByType<Lumaquarium.UI.ShopScreen>(FindObjectsInactive.Include);
+        if (shop != null) { shop.OpenTab(Lumaquarium.UI.ShopEntry.TabOf((AquariumDecorCategory)category)); return; }
+        var old = FindFirstObjectByType<Lumaquarium.UI.DecorShopScreen>();
+        if (old == null) { Begin(category == 0 ? 0 : category == 2 ? 1 : 2); return; }
+        old.Open();
+        old.SelectCategory(category);
     }
 
     public bool Begin(int kind)

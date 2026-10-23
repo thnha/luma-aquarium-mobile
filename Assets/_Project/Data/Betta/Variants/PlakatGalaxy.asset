@@ -24,16 +24,16 @@ MonoBehaviour:
   silverSheen: 0.4
   gloss: 0.5
   blackGloss: 0.15
-  whiteScales: 0.04
+  whiteScales: 0
   pigmentDepth: 0.35
   finEdgeClear: 1
   finRelief: 0.5
   finTranslucency: 1.2
   scaleRelief: 0
   scaleEdge: 1
-  scaleEdgeWidth: 0.35
+  scaleEdgeWidth: 0.4
   scaleEdgeDark: {r: 0.62, g: 0.42, b: 0.22, a: 1}
-  scaleEdgeLight: {r: 0.3, g: 0.3, b: 0.33, a: 1}
+  scaleEdgeLight: {r: 1, g: 0.45, b: 0.5, a: 1}
   finBlack: 1
   finBrightness: 1.8
   vibrance: 1.3

@@ -3,11 +3,14 @@ using UnityEngine;
 
 // Lightweight FSM from the GDD: Wander, Idle, SeekFood, Eat, Rest, plus Breathe
 // (bettas are labyrinth fish and rise to gulp air at the surface every few minutes).
+// Mood follows hunger: a well-fed fish facing the viewer flares at a tap on the glass as at a
+// rival (Display); a hungry one tires (slower, fins folding now and then), picks at the sand,
+// the glass and the decor for food (Forage) and goes up for air more often.
 // The fish always swims along its own forward axis and turns gradually,
 // so it never slides sideways or snaps orientation.
 public class BettaFishAI : MonoBehaviour
 {
-    public enum State { Wander, Idle, SeekFood, Eat, Rest, Breathe, SwimToTap, Flee }
+    public enum State { Wander, Idle, SeekFood, Eat, Rest, Breathe, SwimToTap, Flee, Display, Forage }
     public State state = State.Wander;
     public BoxCollider swimBounds;
     public FeedingSystem feeding;
@@ -137,10 +140,45 @@ public class BettaFishAI : MonoBehaviour
     public float hungerPerSecond = 0.0004f;
     public float hungerPerPellet = 0.15f;
 
+    [Header("Display (well fed)")]
+    // A tap while it is full and facing the viewer: it takes the finger for a rival and flares,
+    // gills out and fins spread: facing it head-on, then edging slowly across in front of it and
+    // holding still broadside on to show its flank, then facing it again.
+    public float displayMaxHunger = 0.35f;
+    public float displayDuration = 12f;
+    public float displayPassDistance = 0.18f;     // metres each way from where it started
+    public float displaySpeedMultiplier = 0.6f;   // edging across, not swimming off
+    public float displayFacePause = 1.2f;         // seconds facing the rival head-on
+    public float displayHoldMinTime = 1f;         // seconds held broadside on
+    public float displayHoldMaxTime = 2f;
+    public float displayHeadDown = 12f;           // degrees the head tips down facing the rival
+    public float displayWagAngle = 1.5f;          // degrees of head tremble while facing
+    public float displayWagFrequency = 3.5f;
+    // Turning between postures it glides forward a little along an arc, the body following,
+    // instead of spinning on the spot.
+    [Range(0f, 1f)] public float displayTurnQuickness = 0.3f;
+    public float displayTurnGlide = 0.25f;        // share of swimSpeed while well off the new heading
+
+    [Header("Hungry")]
+    public float hungryFrom = 0.5f;               // hunger where tiredness starts; full at 1
+    [Range(0.1f, 1f)] public float hungrySpeedFactor = 0.6f; // swim speed when starving
+    public float hungryBreatheBoost = 1.5f;       // starving it goes up for air this much more often
+    public float finClampMinInterval = 7f;        // between fin folds when starving
+    public float finClampMaxInterval = 18f;       // when just getting hungry
+    [Range(0f, 1f)] public float forageChance = 0.7f; // starving: share of calm choices spent looking for food
+    [Range(0f, 1f)] public float forageBottomChance = 0.45f;
+    [Range(0f, 1f)] public float forageGlassChance = 0.25f; // the rest goes to the decor
+    public float forageSpeedFactor = 0.6f;
+    public float forageMaxPitch = 35f;            // nosing down at the sand
+    public float forageMinTime = 3f;              // picking at one spot
+    public float forageMaxTime = 6f;
+    public float peckSpeed = 0.15f;               // short dart at the spot with each peck
+
     static readonly int SpeedId = Animator.StringToHash("Speed");
     static readonly int NibbleId = Animator.StringToHash("Nibble");
     static readonly int GulpId = Animator.StringToHash("Gulp");
     static readonly int BubbleId = Animator.StringToHash("Bubble");
+    static readonly int FlareId = Animator.StringToHash("Flare");
     const float GulpClipSeconds = 20f / 24f;      // Gulp clip length (mouth_clips.py); a bubble blow waits for it
 
     private Vector3 destination;
@@ -178,11 +216,31 @@ public class BettaFishAI : MonoBehaviour
     private Collider detourAround;                // decor it is going round, and which way round
     private float detourSide;
     private bool bolting;                         // fleeing: turned away and running flat out
+    private Vector3 displayViewer;                // where the "rival" is: the camera
+    private float displayElapsed;
+    private Vector3 displayEndA, displayEndB;     // the two ends of its passes across in front of the rival
+    private float displaySide, displayPause;
+    private enum DisplayPhase { Face, Move, Hold }
+    private DisplayPhase displayPhase;
+    private float displayPhaseTime, displayCurlVelocity;
+    private float wagYaw;                         // side-to-side head swing on top of the heading while displaying
+    private float finClampEnvelope;
+    private float nextClampTime, clampUntil;
+    private Vector3 forageFocus;                  // the sand, glass or decor it is picking at
+    private float peckTimer;
 
     // True only once the fish has reached its rest spot and lies still.
     public bool IsResting => state == State.Rest && settled;
+    // 0 fed .. 1 starving: how tired hunger makes it.
+    public float Fatigue => Mathf.InverseLerp(hungryFrom, 1f, hunger);
+    // 0..1 gills out and fins spread while displaying.
+    public float FlareAmount { get; private set; }
+    // 0..1 how far the fins fold in from tiredness right now; comes and goes, deeper the hungrier.
+    public float FinClamp { get; private set; }
+    // -1..1 held broadside while displaying: the body curls so the tail swings to the fish's right (+) or left (-).
+    public float DisplayCurl { get; private set; }
     // 0 calm .. 1 excited (feeding, breathing, flaring); -1 resting. Drives dorsal/anal fin posture.
-    public float Arousal => state == State.SeekFood || state == State.Eat || state == State.Breathe ? 1f
+    public float Arousal => state == State.SeekFood || state == State.Eat || state == State.Breathe || state == State.Display ? 1f
         : state == State.SwimToTap ? Mathf.Lerp(0.5f, 1f, tapExcitement) : state == State.Flee ? 1f
         : state == State.Rest ? (settled ? -1f : -0.3f) : state == State.Idle ? 0.2f : 0.35f;
 
@@ -205,6 +263,7 @@ public class BettaFishAI : MonoBehaviour
         pitch = Mathf.DeltaAngle(0f, transform.eulerAngles.x);
         breatheTimer = Random.Range(breatheMinInterval * 0.3f, breatheMaxInterval * 0.5f);
         noiseSeed = Random.Range(0f, 100f);
+        nextClampTime = Time.time + Random.Range(3f, 8f);
         ceiling = float.MaxValue;
         floor = float.MinValue;
         EnterWander();
@@ -218,12 +277,101 @@ public class BettaFishAI : MonoBehaviour
         stateTimer -= Time.deltaTime;
 
         if (state != State.SeekFood && state != State.Eat && state != State.Flee) LookForFood();
-        breatheTimer -= Time.deltaTime;
+        // A hungry fish is short of energy and goes up for air more often.
+        breatheTimer -= Time.deltaTime * (1f + hungryBreatheBoost * Fatigue);
         // A frightened fish stays down rather than heading up for air straight away.
-        if (breatheTimer <= 0f && (state == State.Wander || state == State.Idle) && Time.time >= shyUntil) EnterBreathe();
+        if (breatheTimer <= 0f && (state == State.Wander || state == State.Idle || state == State.Forage) && Time.time >= shyUntil) EnterBreathe();
+        UpdateMood();
 
         switch (state)
         {
+            case State.Display:
+            {
+                // Flared the whole time, as real bettas display: faces the rival head-on, head tipped
+                // down and trembling; edges slowly across in front of it; then holds still broadside on,
+                // body curled so the fanned tail swings toward it; then faces it again.
+                targetEffort = displayPhase == DisplayPhase.Move ? 0.6f : 0.3f;
+                displayElapsed += Time.deltaTime;
+                displayPhaseTime += Time.deltaTime;
+                displayPause -= Time.deltaTime;
+                Vector3 toViewer = Vector3.ProjectOnPlane(displayViewer - transform.position, Vector3.up).normalized;
+                Vector3 along = (displayEndA - displayEndB).normalized * displaySide;
+                float curl = 0f;
+                switch (displayPhase)
+                {
+                    case DisplayPhase.Face:
+                    {
+                        DisplayTurnTo(toViewer, displayHeadDown);
+                        // The tremble builds up once it has turned, rather than starting at full strength.
+                        wagYaw = Mathf.Sin(displayElapsed * displayWagFrequency * 2f * Mathf.PI) * displayWagAngle
+                            * Mathf.SmoothStep(0f, 1f, displayPhaseTime / 0.8f);
+                        // Turns round through facing it rather than showing it its tail (given up after 1.5 s extra).
+                        bool facing = Vector3.Dot(Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized, toViewer) > 0.85f;
+                        if (displayPause <= 0f && (facing || displayPause < -1.5f))
+                        {
+                            displayPhase = DisplayPhase.Move;
+                            displayPhaseTime = 0f;
+                            displaySide = -displaySide;
+                        }
+                        break;
+                    }
+                    case DisplayPhase.Move:
+                    {
+                        wagYaw = Mathf.MoveTowards(wagYaw, 0f, 30f * Time.deltaTime);
+                        // Aims past the end so it doesn't ease off over the whole short pass; arrives
+                        // at the end itself. A gentle, unhurried turn into the pass.
+                        Vector3 end = displaySide > 0f ? displayEndA : displayEndB;
+                        destination = end + along * 0.3f;
+                        SwimTowards(destination, swimSpeed * displaySpeedMultiplier, false, 1f, displayTurnQuickness);
+                        if (Arrived(end) || Vector3.Dot(end - transform.position, along) < 0.03f || Stuck())
+                        {
+                            displayPhase = DisplayPhase.Hold;
+                            displayPhaseTime = 0f;
+                            displayPause = Random.Range(displayHoldMinTime, displayHoldMaxTime);
+                        }
+                        break;
+                    }
+                    case DisplayPhase.Hold:
+                        // Glides to a stop on the heading it arrived with: broadside on to the rival.
+                        DisplayTurnTo(along, 0f);
+                        curl = Vector3.Dot(transform.right, toViewer) >= 0f ? 1f : -1f;
+                        if (displayPause <= 0f)
+                        {
+                            displayPhase = DisplayPhase.Face;
+                            displayPhaseTime = 0f;
+                            displayPause = displayFacePause;
+                        }
+                        break;
+                }
+                // Eases into and out of the curl.
+                DisplayCurl = Mathf.SmoothDamp(DisplayCurl, curl, ref displayCurlVelocity, 0.35f);
+                if (stateTimer <= 0f) EnterIdle();
+                break;
+            }
+            case State.Forage:
+                if (!settled)
+                {
+                    targetEffort = 0.5f;
+                    SwimTowards(destination, swimSpeed * forageSpeedFactor);
+                    if (Arrived(destination) || stateTimer <= 0f || Stuck())
+                    {
+                        settled = true;
+                        stateTimer = Random.Range(forageMinTime, forageMaxTime);
+                        peckTimer = Random.Range(0.5f, 1.2f);
+                    }
+                    break;
+                }
+                // Nose at the spot, picking at it now and then.
+                targetEffort = 0.15f;
+                SwimTowards(forageFocus, 0f);
+                if ((peckTimer -= Time.deltaTime) <= 0f)
+                {
+                    peckTimer = Random.Range(0.8f, 2f);
+                    currentSpeed = Mathf.Max(currentSpeed, peckSpeed);
+                    if (animator) animator.SetTrigger(NibbleId);
+                }
+                if (stateTimer <= 0f) ChooseNextCalmState();
+                break;
             case State.Wander:
                 UpdateBurstAndCoast();
                 targetEffort = coasting ? 0.15f : 1f;
@@ -366,7 +514,7 @@ public class BettaFishAI : MonoBehaviour
         ceiling = surfaceAllowed ? SurfaceTop() : Mathf.Max(normalTop, Mathf.Min(ceiling, transform.position.y));
         float normalBottom = NormalBottom();
         floor = state == State.Rest && restOnBottom ? Mathf.Min(normalBottom, bottomRestY)
-            : state == State.SeekFood || state == State.Eat ? FeedBottom()
+            : state == State.SeekFood || state == State.Eat || state == State.Forage ? FeedBottom()
             : Mathf.Min(normalBottom, Mathf.Max(floor, transform.position.y));
         transform.position = ClampToBounds(transform.position, ceiling, floor);
         ResolveContacts();
@@ -380,6 +528,94 @@ public class BettaFishAI : MonoBehaviour
         if (strokeTimer > 0f) return;
         coasting = !coasting;
         strokeTimer = coasting ? Random.Range(coastMinTime, coastMaxTime) : Random.Range(burstMinTime, burstMaxTime);
+    }
+
+    // Flare (gills, spread fins) while displaying; tired fins fold in now and then when hungry,
+    // more often and further the hungrier it is.
+    void UpdateMood()
+    {
+        if (state != State.Display)
+        {
+            wagYaw = Mathf.MoveTowards(wagYaw, 0f, 30f * Time.deltaTime);
+            DisplayCurl = Mathf.SmoothDamp(DisplayCurl, 0f, ref displayCurlVelocity, 0.35f);
+        }
+        bool displaying = state == State.Display;
+        FlareAmount = Mathf.MoveTowards(FlareAmount, displaying ? 1f : 0f, (displaying ? 4f : 1.5f) * Time.deltaTime);
+
+        float fatigue = Fatigue;
+        bool canClamp = fatigue > 0f && !displaying && state != State.SeekFood && state != State.Eat && state != State.Flee;
+        if (canClamp && Time.time >= clampUntil && Time.time >= nextClampTime)
+        {
+            clampUntil = Time.time + Random.Range(1.5f, 3f) * (1f + 0.5f * fatigue);
+            float interval = Mathf.Lerp(finClampMaxInterval, finClampMinInterval, fatigue);
+            nextClampTime = clampUntil + Random.Range(interval * 0.6f, interval * 1.4f);
+        }
+        bool clamping = canClamp && Time.time < clampUntil;
+        finClampEnvelope = Mathf.MoveTowards(finClampEnvelope, clamping ? 1f : 0f, (clamping ? 0.6f : 0.4f) * Time.deltaTime);
+        FinClamp = finClampEnvelope * fatigue;
+    }
+
+    // Full and facing the viewer, a tap makes it display at the finger as at a rival.
+    public bool WantsToDisplay(Vector3 viewer)
+    {
+        if (hunger > displayMaxHunger || Time.time < shyUntil) return false;
+        // Mid-display it is broadside on, still busy with the rival.
+        if (state == State.Display) return true;
+        if (state == State.SeekFood || state == State.Eat || state == State.Flee || state == State.Breathe && gulping) return false;
+        Vector3 facing = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
+        Vector3 toViewer = Vector3.ProjectOnPlane(viewer - transform.position, Vector3.up).normalized;
+        return Vector3.Dot(facing, toViewer) > tapAheadCone;
+    }
+
+    // Another tap while displaying keeps it going.
+    public void Display(Vector3 viewer)
+    {
+        displayViewer = viewer;
+        if (state != State.Display)
+        {
+            // Flares at it head-on first, then starts passing to the roomier side.
+            displayElapsed = 0f;
+            displayPhaseTime = 0f;
+            displayPhase = DisplayPhase.Face;
+            displayPause = displayFacePause;
+            // Both ends of the pass fit in the tank with room to turn: near a wall the pass
+            // slides toward the middle instead of running into the glass.
+            Vector3 toViewer = Vector3.ProjectOnPlane(viewer - transform.position, Vector3.up).normalized;
+            Vector3 axis = Vector3.Cross(Vector3.up, toViewer);
+            float span = 2f * displayPassDistance;
+            displayEndA = DisplaySpot(transform.position + axis * displayPassDistance);
+            displayEndB = DisplaySpot(displayEndA - axis * span);
+            displayEndA = DisplaySpot(displayEndB + axis * span);
+            // The first pass goes toward the roomier side.
+            displaySide = (displayEndA - transform.position).sqrMagnitude > (displayEndB - transform.position).sqrMagnitude ? -1f : 1f;
+            if (animator) animator.SetTrigger(FlareId);
+        }
+        state = State.Display;
+        settled = false;
+        gulping = false;
+        stateTimer = displayDuration;
+    }
+
+    // Swings round onto a heading while displaying: well off it, it glides forward a little so the
+    // turn follows an arc and the body bends through it; lined up, it holds still, head tipped down.
+    void DisplayTurnTo(Vector3 heading, float headDown)
+    {
+        Vector3 facing = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
+        float off = Vector3.Angle(facing, heading);
+        float glide = swimSpeed * displayTurnGlide * Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(10f, 45f, off));
+        Vector3 look = heading + Vector3.down * Mathf.Tan(headDown * Mathf.Deg2Rad);
+        SwimTowards(transform.position + look, glide, false, 1f, displayTurnQuickness);
+    }
+
+    // Inside the swim bounds with a further half body length all round, so it can turn at the end.
+    Vector3 DisplaySpot(Vector3 position)
+    {
+        if (swimBounds == null) return position;
+        Bounds b = swimBounds.bounds;
+        float inset = boundsInset + 0.5f * BodyLength;
+        position.x = Mathf.Clamp(position.x, Mathf.Min(b.center.x, b.min.x + inset), Mathf.Max(b.center.x, b.max.x - inset));
+        position.z = Mathf.Clamp(position.z, Mathf.Min(b.center.z, b.min.z + inset), Mathf.Max(b.center.z, b.max.z - inset));
+        return AboveObstacles(ClampToBounds(position));
     }
 
     public void Seek(FoodPellet pellet)
@@ -452,6 +688,8 @@ public class BettaFishAI : MonoBehaviour
     // quickness 0..1: an excited fish turns on its pectorals and only slows right at the target.
     void SwimTowards(Vector3 target, float targetSpeed, bool strike = false, float accelerationBoost = 1f, float quickness = 0f)
     {
+        // Hunger tires it out; food and fright still get its full speed.
+        if (state != State.SeekFood && state != State.Flee) targetSpeed *= Mathf.Lerp(1f, hungrySpeedFactor, Fatigue);
         Vector3 aim = targetSpeed > 0f ? Detour(target) : target;
         Vector3 direction = aim - transform.position;
         // Measured the whole way round, so it doesn't slow down as if arriving at the detour corner.
@@ -470,14 +708,17 @@ public class BettaFishAI : MonoBehaviour
             // down the target, the wider that cone, so passing just under it doesn't spin the fish round.
             if (horizontal > Mathf.Max(0.03f, Mathf.Abs(direction.y) * 0.15f)) targetYaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
             float limit = state == State.SeekFood ? feedMaxPitch : state == State.SwimToTap || state == State.Flee ? tapMaxPitch
-                : state == State.Rest ? restMaxPitch : state == State.Breathe ? breatheMaxPitch : maxPitch;
+                : state == State.Rest ? restMaxPitch : state == State.Breathe ? breatheMaxPitch
+                : state == State.Forage ? forageMaxPitch : maxPitch;
             if (climbingObstacle) limit = Mathf.Max(limit, climbMaxPitch);
-            if (targetSpeed > 0f || state == State.Breathe)
+            // Foraging it tips its nose at the spot while holding position, without sinking to it.
+            bool lookOnly = targetSpeed <= 0f && (state == State.Forage || state == State.Display);
+            if (targetSpeed > 0f || state == State.Breathe || lookOnly)
             {
                 float rawPitch = -Mathf.Atan2(direction.y, horizontal) * Mathf.Rad2Deg;
                 targetPitch = Mathf.Clamp(rawPitch, -limit, limit);
-                tooSteep = Mathf.Abs(rawPitch) > limit && horizontal < 0.2f;
-                if (Mathf.Abs(rawPitch) > limit) steepness = Mathf.Abs(direction.y) / Mathf.Max(0.01f, horizontal);
+                tooSteep = Mathf.Abs(rawPitch) > limit && horizontal < 0.2f && !lookOnly;
+                if (Mathf.Abs(rawPitch) > limit && !lookOnly) steepness = Mathf.Abs(direction.y) / Mathf.Max(0.01f, horizontal);
             }
         }
 
@@ -570,7 +811,7 @@ public class BettaFishAI : MonoBehaviour
         // Lying on the bottom the fish settles onto one side a little.
         float targetRoll = IsResting && restOnBottom ? restRoll : 0f;
         roll = Mathf.MoveTowards(roll, targetRoll, 8f * Time.deltaTime);
-        transform.rotation = Quaternion.Euler(pitch, yaw, roll);
+        transform.rotation = Quaternion.Euler(pitch, yaw + wagYaw, roll);
         transform.position += transform.forward * currentSpeed * ThrustPulse * Time.deltaTime;
         // Target steeper than it may tilt: rise or sink on the pectorals for the rest of the slope, so
         // it heads straight there instead of passing it and circling up or down around it.
@@ -636,6 +877,8 @@ public class BettaFishAI : MonoBehaviour
 
     void ChooseNextCalmState()
     {
+        // A hungry fish spends more and more of its time looking for something to eat.
+        if (Random.value < forageChance * Fatigue) { EnterForage(); return; }
         float dice = Random.value;
         if (dice < restChance) EnterRest();
         else if (dice < restChance + idleChance) EnterIdle();
@@ -707,6 +950,63 @@ public class BettaFishAI : MonoBehaviour
         destination = AboveObstacles(ClampToBounds(new Vector3(Random.Range(b.min.x, b.max.x), y, Random.Range(b.min.z, zMax)), NormalTop(), y));
         // Give up travelling after this long and rest where it is.
         stateTimer = 6f + Vector3.Distance(transform.position, destination) / 0.08f;
+    }
+
+    // Hungry bettas search for leftovers: nosing along the sand, at the glass, and around the decor.
+    void EnterForage()
+    {
+        if (swimBounds == null) { EnterWander(); return; }
+        state = State.Forage;
+        settled = false;
+        Bounds b = swimBounds.bounds;
+        Vector3 here = transform.position;
+        float low = FeedBottom() + 0.04f, high = NormalTop() - 0.1f;
+        float dice = Random.value;
+        AquariumDecorItem decor = dice >= forageBottomChance + forageGlassChance ? RandomDecor() : null;
+        if (decor != null)
+        {
+            // In front of the piece at some height along it, looking at it. Over a low rock
+            // AboveObstacles lifts the spot onto its top.
+            var col = decor.GetComponent<Collider>();
+            Bounds d = col ? col.bounds : new Bounds(decor.transform.position, Vector3.one * 0.1f);
+            float y = Mathf.Clamp(Mathf.Lerp(d.min.y, d.max.y, Random.Range(0.2f, 0.8f)), low, high);
+            Vector3 spot = new Vector3(d.center.x + Random.Range(-0.5f, 0.5f) * d.size.x, y, d.min.z - 0.08f);
+            destination = AboveObstacles(ClampToBounds(spot, NormalTop(), FeedBottom()));
+            forageFocus = new Vector3(Mathf.Clamp(destination.x, d.min.x, d.max.x), Mathf.Min(destination.y, d.max.y), d.center.z);
+        }
+        else if (dice >= forageBottomChance)
+        {
+            // Along the front glass or one of the side walls, nosing at it.
+            float y = Random.Range(low, high);
+            float wall = Random.value;
+            Vector3 spot = wall < 0.5f ? new Vector3(Random.Range(b.min.x, b.max.x), y, b.min.z)
+                : new Vector3(wall < 0.75f ? b.min.x : b.max.x, y, TowardFront(b));
+            destination = AboveObstacles(ClampToBounds(spot, NormalTop(), FeedBottom()));
+            forageFocus = destination + (spot - destination).normalized * 0.3f;
+            forageFocus.y = destination.y - 0.03f;
+        }
+        else
+        {
+            // Down on the sand, nose tipped at it a little ahead.
+            Vector3 spot = new Vector3(Random.Range(b.min.x, b.max.x), low, TowardFront(b));
+            destination = AboveObstacles(ClampToBounds(spot, NormalTop(), FeedBottom()));
+            Vector3 ahead = Vector3.ProjectOnPlane(destination - here, Vector3.up).normalized;
+            forageFocus = destination + ahead * 0.12f + Vector3.down * 0.2f;
+        }
+        stateTimer = 4f + Vector3.Distance(here, destination) / Mathf.Max(0.05f, swimSpeed * forageSpeedFactor * hungrySpeedFactor);
+    }
+
+    AquariumDecorItem RandomDecor()
+    {
+        var items = FindObjectsByType<AquariumDecorItem>(FindObjectsSortMode.None);
+        int count = 0;
+        AquariumDecorItem pick = null;
+        foreach (var item in items)
+        {
+            if (item.floats || item.wallMounted) continue;
+            if (Random.Range(0, ++count) == 0) pick = item;   // reservoir sampling
+        }
+        return pick;
     }
 
     void EnterIdle()

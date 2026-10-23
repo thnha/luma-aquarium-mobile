@@ -41,6 +41,12 @@ public class BettaFinPhysics : MonoBehaviour
     public float caudalSpread;
     [Tooltip("Degrees the whole caudal fin hangs down.")]
     public float caudalDroop;
+    [Tooltip("Extra degrees the caudal rays fan open while flaring (BettaFishAI.FlareAmount).")]
+    public float flareSpread = 28f;
+    [Tooltip("Extra degrees the dorsal fin rises while flaring (anal fin at half), on top of the excited raise.")]
+    public float flareRaise = 14f;
+    [Tooltip("Degrees the caudal rays close together when hunger folds the fins in (BettaFishAI.FinClamp); the dorsal and anal fold as at rest.")]
+    public float hungerFold = 20f;
     [Tooltip("Root bones of chains not simulated (they follow the animation), e.g. the crowntail spike chains (set by PipelineFishImporter).")]
     public string[] skippedChains = new string[0];
 
@@ -212,6 +218,13 @@ public class BettaFinPhysics : MonoBehaviour
         float speed01 = fish ? Mathf.Clamp01(fish.CurrentSpeed / Mathf.Max(0.01f, fish.swimSpeed)) : 0f;
         // Mood: fins rise when excited (food, air, flaring) and fold flat at rest.
         arousal = Mathf.MoveTowards(arousal, fish ? fish.Arousal : 0f, 1.5f * dt);
+        // Tired from hunger the fins fold in now and then; flaring fans the tail wide.
+        float fold = fish ? fish.FinClamp : 0f;
+        // Flaring, every fin is held fully erect: no drooping at low speed, and stiffer as if swimming.
+        float flare = fish ? fish.FlareAmount : 0f;
+        float raiseAngle = Mathf.Max(-1f, arousal - fold * 2f) * dorsalRaise + flare * flareRaise;
+        float spread = caudalSpread + flare * flareSpread - fold * hungerFold;
+        float hold = Mathf.Max(speed01, flare * 0.8f);
         Vector3 lateral = transform.right;
 
         foreach (Node n in nodes)
@@ -221,20 +234,20 @@ public class BettaFinPhysics : MonoBehaviour
             if (Quaternion.Angle(n.t.localRotation, n.lastWritten) > 0.01f) n.baseLocal = n.t.localRotation;
             n.t.localRotation = n.baseLocal;
             // Rotating about the body's side axis tips the fin rays up (raise) or back flat (fold).
-            if (n.raise != 0f) n.t.rotation = Quaternion.AngleAxis(arousal * dorsalRaise * n.raise, lateral) * n.t.rotation;
+            if (n.raise != 0f) n.t.rotation = Quaternion.AngleAxis(raiseAngle * n.raise, lateral) * n.t.rotation;
             // Tail form, relative to the Halfmoon model: fan the rays wider (+) or narrower (-), hang the fin (Veiltail).
             // On this rig a negative angle tips a ray up (same as the dorsal raise above).
-            if (n.caudalRoot) n.t.rotation = Quaternion.AngleAxis(caudalDroop - caudalSpread * n.spread, lateral) * n.t.rotation;
+            if (n.caudalRoot) n.t.rotation = Quaternion.AngleAxis(caudalDroop - spread * n.spread, lateral) * n.t.rotation;
 
             Vector3 origin = n.t.position;
             Vector3 target = n.t.TransformPoint(n.tipLocal);
             FinSettings s = Settings(n.group);
             // Long betta fins are heavy: they droop when the fish is slow and only extend
             // once water flow holds them out.
-            target += Vector3.down * (n.length * s.sag * (0.3f + 0.7f * n.depth) * (1f - speed01));
+            target += Vector3.down * (n.length * s.sag * (0.3f + 0.7f * n.depth) * (1f - hold));
             if (reset) { n.p = n.pp = target; n.lastWritten = n.t.localRotation; continue; }
 
-            float firm = Mathf.Lerp(1f, s.speedStiffening, speed01);
+            float firm = Mathf.Lerp(1f, s.speedStiffening, hold);
             float k = Mathf.Min(0.9f, Mathf.Lerp(s.rootStiffness, s.tipStiffness, n.depth) * firm);
             float stiffness = 1f - Mathf.Pow(1f - k, stepScale);
             float keep = Mathf.Pow(1f - Mathf.Min(0.9f, s.damping * firm), stepScale);

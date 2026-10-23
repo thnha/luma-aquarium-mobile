@@ -5,8 +5,8 @@ using UnityEngine.InputSystem;
 
 // Taps on the tank: in feed mode (the Feed button toggles it) a tap on the water drops a pellet
 // right where it touched, and a tap through the glass drops one on the surface above a random spot
-// along the line the tap makes straight into the tank; otherwise the fish swims over to where you tapped,
-// and a tap right on the fish startles it into darting away.
+// along the line the tap makes straight into the tank; otherwise a well-fed fish facing the viewer
+// flares at the tap, or it swims over to where you tapped, and a tap right on the fish startles it into darting away.
 // A tap is a short press that barely moves, so orbit drags on OrbitTouchCamera don't count.
 public class FeedingSystem : MonoBehaviour
 {
@@ -58,6 +58,9 @@ public class FeedingSystem : MonoBehaviour
             if (tapToFeed && TapToWater(screenPosition, out Vector3 drop)) FeedAt(drop);
             return;
         }
+        // Well fed and facing the viewer, any tap is a rival to display at.
+        Camera cam = viewCamera ? viewCamera : Camera.main;
+        if (fish != null && cam != null && fish.WantsToDisplay(cam.transform.position)) { fish.Display(cam.transform.position); return; }
         if (fish != null && TapHitsFish(screenPosition, out Vector3 hit)) { fish.Startle(hit); return; }
         if (tapToSwim && fish != null && TapToTank(screenPosition, out Vector3 point)) fish.SwimTo(point);
     }

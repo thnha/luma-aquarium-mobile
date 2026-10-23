@@ -53,6 +53,8 @@ public static class DecorShopScreenBuilder
             Undo.RegisterCreatedObjectUndo(shop.gameObject,"Add decoration shop");
         }
         Connect(aquarium);
+        // The new shop replaces this one: drop the old canvases again and point the wiring back at it.
+        if(UnityEngine.Object.FindFirstObjectByType<ShopScreen>(FindObjectsInactive.Include)!=null)ShopScreenBuilder.Connect(aquarium);
         EditorSceneManager.MarkSceneDirty(scene);EditorSceneManager.SaveScene(scene);AssetDatabase.SaveAssets();
         Debug.Log($"[Lumaquarium] {catalog.offers.Length} decoration offers installed with stock, shared wallet and wood planting.");
     }

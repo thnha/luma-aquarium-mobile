@@ -9,6 +9,7 @@ namespace Lumaquarium.UI
     {
         public MainAquariumScreen aquarium;
         public DecorShopScreen decorShop;
+        public ShopScreen shop;
         public UnityEngine.UI.Button[] tabButtons;
         public UnityEngine.UI.Image[] tabSurfaces;
         public TMP_Text[] tabLabels;
@@ -149,6 +150,13 @@ namespace Lumaquarium.UI
         // Opens the shop on the current group, and on one item when given.
         public void OpenShop(int index)
         {
+            var catalog = Decoration != null ? Decoration.catalog : null;
+            if (shop != null)
+            {
+                string id = catalog != null && index >= 0 && index < catalog.offers.Length ? catalog.offers[index].id : null;
+                shop.OpenTab(id != null ? ShopEntry.TabOf(catalog.offers[index].category) : ShopEntry.TabOf(category), id);
+                return;
+            }
             if (decorShop == null) return;
             decorShop.Open();
             decorShop.SelectCategory((int)category);

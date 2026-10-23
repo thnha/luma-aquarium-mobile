@@ -31,7 +31,8 @@ public static class PipelineFishImporter
         PipelineFishConfig.CreateMissingAssets(FishDir);
         foreach (var fish in All()) Build(fish);
         AssetDatabase.SaveAssets();
-        FishShopScreenBuilder.Build();
+        FishShopScreenBuilder.Build(false);
+        ShopScreenBuilder.Build(); // re-reads the fish offers and removes the fish shop canvas again
     }
 
     public static PipelineFish[] All() => AssetDatabase.FindAssets("t:PipelineFish", new[] { FishDir })

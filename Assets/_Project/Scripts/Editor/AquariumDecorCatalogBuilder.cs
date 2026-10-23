@@ -181,6 +181,8 @@ public static partial class AquariumDecorCatalogBuilder
         }
         // Large pieces come after the starters so every earlier offer keeps its place in built sheets.
         AddLarge(offers,firstStoneKind+StoneCoralBuilder.All.Length,speciesWood,speciesStone);
+        // Names and prices edited in decor_catalog.csv (or the Google Sheet) win over the defaults above.
+        DecorCatalogSheet.ApplyIfPresent(offers);
         catalog.offers=offers.ToArray(); EditorUtility.SetDirty(catalog); AssetDatabase.SaveAssets(); return catalog;
     }
 

@@ -115,6 +115,7 @@ public static class MainAquariumScreenBuilder
         else dayNight.interactable = false;
         controller.ClosePanels();
         FishShopScreenBuilder.Connect(controller);
+        ShopScreenBuilder.Connect(controller);
 
         if (UnityEngine.Object.FindFirstObjectByType<EventSystem>() == null)
             Undo.RegisterCreatedObjectUndo(new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule)), "Create input");
@@ -122,7 +123,7 @@ public static class MainAquariumScreenBuilder
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
         AssetDatabase.SaveAssets();
-        Debug.Log("[Lumaquarium] Redesigned 2.5D MainAquarium HUD built. Rebuild the fish and decoration shops next.");
+        Debug.Log("[Lumaquarium] Redesigned 2.5D MainAquarium HUD built. Run Lumaquarium/UI/Build Shop Screen next.");
     }
 
     // Fish chip (portrait, name, fullness) on the left; wallet, settings and hide on the right.
@@ -238,7 +239,7 @@ public static class MainAquariumScreenBuilder
         Ui3D.At(soon.rectTransform, Vector2.one, Vector2.one, new Vector2(-56, -552), new Vector2(180, 66));
         var change = Ui3D.Button("ChangeFishButton", panel, "Đổi cá", Ui3D.Style.Secondary);
         Ui3D.Edges((RectTransform)change.transform, Vector2.zero, new Vector2(.38f, 0), new Vector2(44, 40), new Vector2(-8, 190));
-        Wire(change, controller.OpenShop);
+        Wire(change, controller.OpenFishShop);
         var feed = Ui3D.Button("PanelFeedButton", panel, "Cho Betta ăn", Ui3D.Style.Primary);
         Ui3D.Edges((RectTransform)feed.transform, new Vector2(.38f, 0), new Vector2(1, 0), new Vector2(8, 40), new Vector2(-44, 190));
         Wire(feed, controller.Feed);

@@ -69,11 +69,18 @@ public static class AquariumSurfaceBuilder
         {
             var inPrefab = root.GetComponentInChildren<AquariumDecoration>(true);
             if (inPrefab != null) { inPrefab.surfaces = catalog; PrefabUtility.SaveAsPrefabAsset(root, EnvironmentPath); }
+            else Debug.LogWarning("[Lumaquarium] AquariumEnvironment prefab has no AquariumDecoration; catalog not assigned there.");
         }
         finally { PrefabUtility.UnloadPrefabContents(root); }
         var scene = SceneManager.GetActiveScene();
         var decoration = UnityEngine.Object.FindFirstObjectByType<AquariumDecoration>(FindObjectsInactive.Include);
-        if (scene.path != ScenePath || decoration == null) return;
+        if (scene.path != ScenePath || decoration == null)
+        {
+            Debug.LogWarning("[Lumaquarium] MainAquarium is not the active scene or has no AquariumDecoration; catalog not assigned in the scene.");
+            return;
+        }
+        Directory.CreateDirectory("Assets/_Project/Scenes/Backups");
+        File.Copy(scene.path, "Assets/_Project/Scenes/Backups/MainAquarium-before-surfaces-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff") + ".unity");
         Undo.RecordObject(decoration, "Assign surface catalog");
         decoration.surfaces = catalog;
         EditorUtility.SetDirty(decoration);
@@ -198,7 +205,7 @@ public static class AquariumSurfaceBuilder
         int plank = Mathf.FloorToInt(x);
         float fx = x - plank;
         if (fx < .025f) return Hex(0x2E1D12);
-        float grain = Mathf.Sin((fx * 9 + Fbm(u, v, 4, 31 + plank) * 6) * Mathf.PI * 2) * .5f + .5f;
+        float grain = Mathf.Sin((fx * 4 + Fbm(u, v, 4, 31 + plank) * 1.5f) * Mathf.PI * 2) * .5f + .5f;
         var c = Color.Lerp(Hex(0x6B4428), Hex(0xA6764A), Hash(plank, 0, 13) * .5f + grain * .5f);
         return Shade(c, .9f + .1f * Noise(u, v, 64, 3));
     }

@@ -16,7 +16,10 @@ public static class FishShopScreenBuilder
     private const string PrefabPath = Root + "/Prefabs/FishShop.prefab";
 
     [MenuItem("Lumaquarium/UI/Build Fish Shop Screen")]
-    public static void Build()
+    public static void Build() => Build(true);
+
+    // refreshShop false lets a caller that rebuilds the shop itself (PipelineFishImporter) skip the second pass.
+    public static void Build(bool refreshShop)
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Exit Play Mode first.");
         var scene = SceneManager.GetActiveScene();
@@ -62,6 +65,8 @@ public static class FishShopScreenBuilder
         AssetDatabase.SaveAssets();
         Selection.activeGameObject = shop.gameObject;
         Debug.Log("[Lumaquarium] Fish shop integrated. Open it with Cửa hàng in the dock or the wallet chip.");
+        // The new shop replaces this one: re-read its fish offers, drop the old canvases and restore its wiring.
+        if (refreshShop && UnityEngine.Object.FindFirstObjectByType<ShopScreen>(FindObjectsInactive.Include) != null) ShopScreenBuilder.Build();
     }
 
     // Called by the HUD builder too, so rebuilding that HUD reconnects the existing shop.

@@ -43,6 +43,13 @@ public class BettaSwimMotion : MonoBehaviour
     public float turnTailKick = 0.08f;       // extra caudal degrees per deg/s of turning
     public float maxTailKick = 12f;
 
+    [Header("Display")]
+    // Held broadside to a rival the body curls into a C, the fanned tail swung toward it,
+    // with a sharp flick of the tail every so often (BettaFishAI.DisplayCurl).
+    public float displayCurlAngle = 8f;      // degrees per spine joint at full curl
+    public float displayFlickAngle = 10f;    // extra peduncle degrees at the peak of a flick
+    public float displayFlickFrequency = 1.2f;
+
     [Header("Fins")]
     // Pectorals fan steadily when hovering and slow down / fold in as the fish swims faster.
     public float pectoralHoverFrequency = 2f;
@@ -56,6 +63,7 @@ public class BettaSwimMotion : MonoBehaviour
     // Degrees the gill cover (Gill_*_02, as in the Flare clip) swings out about the body axis.
     // The cover skin carries only part of the bone weight, so this needs to be fairly large.
     public float gillOpenAngle = 12f;
+    public float gillFlareAngle = 20f;       // extra, held open while displaying (BettaFishAI.FlareAmount)
 
     struct Bone
     {
@@ -68,6 +76,8 @@ public class BettaSwimMotion : MonoBehaviour
 
     // Share of the active tail stroke per spine segment (peduncle does the work).
     static readonly float[] StrokeWeights = { 0f, 0f, 0f, 0.3f, 1f };
+    // Share of the display curl per spine joint: the C is deepest toward the tail.
+    static readonly float[] CurlWeights = { 0.3f, 0.6f, 1f, 1f, 0.8f };
 
     // Rear spine: weight scales body wave and turn bend, index sets the wave delay.
     static readonly (string name, float weight, int index)[] SpineChain =
@@ -261,10 +271,15 @@ public class BettaSwimMotion : MonoBehaviour
         float strokeAmplitude = Mathf.Lerp(strokeIdleAmplitude, strokeSwimAmplitude, effort)
             + Mathf.Min(maxTailKick, Mathf.Abs(yawRate) * turnTailKick);
         float stroke = Mathf.Sin(caudalPhase) * strokeAmplitude;
+        // A negative bend lays the tail out to the fish's right (as after turning right).
+        float curl = fish ? fish.DisplayCurl : 0f;
+        float flick = Mathf.Pow(Mathf.Max(0f, Mathf.Sin(Time.time * displayFlickFrequency * 2f * Mathf.PI)), 6f);
+        stroke -= curl * flick * displayFlickAngle;
         for (int i = 0; i < spine.Length; i++)
         {
             float wave = Mathf.Sin(bodyPhase - spine[i].index * wavePhaseStep) * bodyAmplitude;
-            float angle = wave * spine[i].weight + stroke * StrokeWeights[i] + jointBend[i];
+            float angle = wave * spine[i].weight + stroke * StrokeWeights[i] + jointBend[i]
+                - curl * displayCurlAngle * CurlWeights[i];
             Apply(ref spine[i], Quaternion.AngleAxis(angle, up) * Quaternion.AngleAxis(jointPitch[i], side));
         }
 
@@ -286,7 +301,8 @@ public class BettaSwimMotion : MonoBehaviour
         }
 
         // A positive roll about the forward axis swings the part below the pivot to the right.
-        float gill = (Mathf.Sin(gillPhase) * 0.5f + 0.5f) * gillOpenAngle * Mathf.Lerp(0.8f, 1.4f, exertion);
+        float gill = (Mathf.Sin(gillPhase) * 0.5f + 0.5f) * gillOpenAngle * Mathf.Lerp(0.8f, 1.4f, exertion)
+            + (fish ? fish.FlareAmount * gillFlareAngle : 0f);
         Vector3 bodyAxis = transform.forward;
         Apply(ref gillL[0], Quaternion.AngleAxis(gill * gillSideL, bodyAxis));
         Apply(ref gillR[0], Quaternion.AngleAxis(gill * gillSideR, bodyAxis));

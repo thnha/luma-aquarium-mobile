@@ -5,7 +5,7 @@
     "faces": 30000,
     "depth": 1,
     "width": 1,
-    "fins": {"pectoral": 1.6, "pectoralFan": 1.15},
+    "fins": {"pectoral": 1.15, "pectoralFan": 1.0},
     "finThickness": 0.2,
     "landmarks": "",
     "bake": true
