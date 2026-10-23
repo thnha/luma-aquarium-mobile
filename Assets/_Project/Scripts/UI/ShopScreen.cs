@@ -307,7 +307,11 @@ namespace Lumaquarium.UI
             feedback.text = "Đang xử lý...";
             Refresh();
             string error;
-            try { error = await ShopService.Backend.Buy(entry.id, entry.price, Slot(entry.kind)); }
+            try
+            {
+                if (ShopService.UsesServer) await ShopService.Prepare(); // the old save goes first
+                error = await ShopService.Backend.Buy(entry.id, entry.price, Slot(entry.kind));
+            }
             catch (Exception exception) { error = null; SaveFailed(exception); }
             busy = false;
             if (this == null) return; // the scene closed while waiting
@@ -328,7 +332,11 @@ namespace Lumaquarium.UI
             feedback.text = "Đang xử lý...";
             Refresh();
             string error;
-            try { error = await ShopService.Backend.Select(Slot(entry.kind), entry.id); }
+            try
+            {
+                if (ShopService.UsesServer) await ShopService.Prepare();
+                error = await ShopService.Backend.Select(Slot(entry.kind), entry.id);
+            }
             catch (Exception exception) { error = null; SaveFailed(exception); }
             busy = false;
             if (this == null) return;

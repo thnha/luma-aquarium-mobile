@@ -35,10 +35,17 @@ namespace Lumaquarium.Shop
         }
 
         public Task<string> Buy(string id, int price, string slot) =>
-            Send("BuyItem", new Dictionary<string, object> { ["id"] = id, ["catalogVersion"] = CatalogVersion });
+            ImportPending ? Task.FromResult(ShopError.Offline)
+                : Send("BuyItem", new Dictionary<string, object> { ["id"] = id, ["catalogVersion"] = CatalogVersion });
 
         public Task<string> Select(string slot, string id) =>
-            Send("SelectItem", new Dictionary<string, object> { ["slot"] = slot, ["id"] = id });
+            ImportPending ? Task.FromResult(ShopError.Offline)
+                : Send("SelectItem", new Dictionary<string, object> { ["slot"] = slot, ["id"] = id });
+
+        // The old local save has not been sent yet (ShopService.Prepare): a server with no save would start from
+        // an empty one and the old coins and items would be lost, so nothing is bought or changed meanwhile.
+        private bool ImportPending =>
+            PlayerPrefs.GetInt(StorageKey + ".imported", 0) == 0 && new FishShopInventory(StorageKey).StoredJson() != null;
 
         public Task<string> ApplyGifts() => Send("ApplyGifts", new Dictionary<string, object>());
 

@@ -66,6 +66,7 @@ public sealed class ShopServiceTests
     [Test]
     public void ARefusalStillBringsTheServersSave()
     {
+        PlayerPrefs.SetInt(Key + ".imported", 1);
         var cloud = new FakeCloud { Answer = _ => new ShopReply { Error = ShopError.NotEnoughCoins, State = SaveWith(5) } };
         Assert.AreEqual(ShopError.NotEnoughCoins, Run(new ServerShopBackend(cloud, Key).Select("fish", "koi-nemo")));
         Assert.AreEqual(5, Balance());
@@ -83,6 +84,7 @@ public sealed class ShopServiceTests
     [Test]
     public void AnAnswerThatIsNotASaveIsRefused()
     {
+        PlayerPrefs.SetInt(Key + ".imported", 1);
         PlayerPrefs.SetString(Key, SaveWith(40));
         var cloud = new FakeCloud { Answer = _ => new ShopReply { State = "{\"version\":2,\"wallet\":[{\"id\":\"xu\",\"count\":-1}]}" } };
         LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("cannot be read"));
@@ -184,6 +186,40 @@ public sealed class ShopServiceTests
         CollectionAssert.AreEqual(new[] { "ImportLocalSave", "ApplyGifts" }, cloud.Calls);
         Run(ShopService.Prepare());
         CollectionAssert.AreEqual(new[] { "ImportLocalSave", "ApplyGifts", "ApplyGifts" }, cloud.Calls, "a later call runs again");
+    }
+
+    [Test]
+    public void BuyingAndSelectingWaitForTheImport()
+    {
+        PlayerPrefs.SetString(Key, SaveWith(40));
+        var cloud = new FakeCloud { Answer = _ => new ShopReply { State = SaveWith(0) } };
+        var server = new ServerShopBackend(cloud, Key);
+        Assert.AreEqual(ShopError.Offline, Run(server.Buy("starter-stone", 1, null)));
+        Assert.AreEqual(ShopError.Offline, Run(server.Select("fish", "koi-nemo")));
+        Assert.AreEqual(0, cloud.Calls.Count, "nothing reaches the server");
+        Assert.AreEqual(SaveWith(40), PlayerPrefs.GetString(Key), "the old save is not replaced");
+    }
+
+    [Test]
+    public void AfterTheImportBuyingAndSelectingGoThrough()
+    {
+        PlayerPrefs.SetString(Key, SaveWith(40));
+        var cloud = new FakeCloud { Answer = _ => new ShopReply { State = SaveWith(40) } };
+        var server = new ServerShopBackend(cloud, Key);
+        ShopService.Use(server);
+        Run(ShopService.Prepare());
+        cloud.Calls.Clear();
+        Assert.AreEqual(ShopError.None, Run(server.Buy("starter-stone", 1, null)));
+        Assert.AreEqual(ShopError.None, Run(server.Select("fish", "koi-nemo")));
+        CollectionAssert.AreEqual(new[] { "BuyItem", "SelectItem" }, cloud.Calls.Select(c => c.function));
+    }
+
+    [Test]
+    public void ANewPlayerCanBuyBeforeAnyImport()
+    {
+        var cloud = new FakeCloud { Answer = _ => new ShopReply { State = SaveWith(10) } };
+        Assert.AreEqual(ShopError.None, Run(new ServerShopBackend(cloud, Key).Buy("starter-stone", 1, null)));
+        Assert.AreEqual(10, Balance());
     }
 
     [Test]

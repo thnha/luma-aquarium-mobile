@@ -59,6 +59,7 @@ namespace Lumaquarium.UI
             string error;
             try
             {
+                if (ShopService.UsesServer) await ShopService.Prepare(); // the old save goes first
                 error = owned ? await ShopService.Backend.Select(ShopSave.TankSlot, spec.id)
                     : await ShopService.Backend.Buy(spec.id, spec.price, ShopSave.TankSlot);
             }
