@@ -41,11 +41,11 @@ namespace Lumaquarium.Shop
         private static Task preparing;
 
         // Before the aquarium opens and when the shop opens: a save kept on this device from before the server is
-        // sent once (kept under <key>.imported.bak whatever the server says), then the gift packs. The server's
-        // answer becomes the local save. The import counts as done only when the server took the save, already had
-        // one, or cannot use this one; after Offline, Rejected or anything else it waits for the next time, before
-        // any gift pack, so the old save is not overwritten by a new one. One Prepare runs at a time: a call made
-        // meanwhile gets the same task.
+        // sent once, then the gift packs. The old save is first written to <key>.imported.bak, before the import is
+        // sent, and kept from the first attempt (the server's answer replaces the local save, even a refusal that
+        // carries one). The server's answer becomes the local save. The import counts as done only on None,
+        // AlreadyImported or SaveUnreadable; after anything else Prepare stops before the gift packs and tries
+        // again next time. One Prepare runs at a time: a call made meanwhile gets the same task.
         public static Task Prepare()
         {
             if (preparing != null) return preparing;
@@ -67,9 +67,10 @@ namespace Lumaquarium.Shop
                     string local = new FishShopInventory(server.StorageKey).StoredJson();
                     if (local != null)
                     {
+                        string backupKey = server.StorageKey + ".imported.bak";
+                        if (!PlayerPrefs.HasKey(backupKey)) PlayerPrefs.SetString(backupKey, local);
                         string result = await server.Import(local);
                         if (result != ShopError.None && result != ShopError.AlreadyImported && result != ShopError.SaveUnreadable) return;
-                        PlayerPrefs.SetString(server.StorageKey + ".imported.bak", local);
                     }
                     PlayerPrefs.SetInt(importedKey, 1);
                     PlayerPrefs.Save();

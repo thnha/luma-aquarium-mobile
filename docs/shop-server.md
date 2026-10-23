@@ -30,7 +30,8 @@ Server không tin save của máy, nên `ImportLocalSave` chỉ giữ phần h�
 Phía client (`ShopService.Prepare`):
 
 - Chỉ một `Prepare` chạy tại một thời điểm; lời gọi đến trong lúc đó nhận cùng một task.
-- `<key>.imported` (và `.imported.bak`) chỉ được đặt khi server trả `None`, `AlreadyImported` hoặc `SaveUnreadable`. Với câu trả lời khác (Offline, Rejected...), `Prepare` dừng trước `ApplyGifts` và thử lại lần sau, để save cũ không bị save mới đè.
+- `<key>.imported.bak` được ghi trước lần gửi save cũ đầu tiên và giữ nguyên từ lần thử đầu (không bị ghi đè ở các lần sau). Save cũ không đọc được được giữ ở `Lumaquarium.FishShop.v1.unreadable.bak` và bị save của server thay ở câu trả lời đầu tiên.
+- `<key>.imported` chỉ được đặt khi server trả `None`, `AlreadyImported` hoặc `SaveUnreadable`. Với câu trả lời khác (Offline, Rejected...), `Prepare` dừng trước `ApplyGifts` và thử lại lần sau, để save cũ không bị save mới đè.
 - Màn shop chờ `Prepare` xong rồi mới mua hoặc đổi đồ. Trong lúc việc gửi save cũ còn chờ, `ServerShopBackend` từ chối mua và đổi đồ với "Cần kết nối mạng để mua và đổi đồ."
 
 ## Đổi giá hoặc gói quà

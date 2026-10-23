@@ -93,7 +93,7 @@ Sau khi tạo asset:
 
 - **Sở hữu nghĩa là có số lượng lớn hơn 0.** Giá 0 chỉ có nghĩa là nhận miễn phí: shop hiện nút "Nhận" và món chỉ thuộc về người chơi sau khi nhận. Đồ trang trí có thể mua nhiều lần; cá, vách, nền và hồ chỉ mua một lần rồi đưa vào dùng.
 - **Save v1** được chuyển sang v2 một lần lúc đọc, và bản gốc được giữ ở `Lumaquarium.FishShop.v1.v1.bak`. Mọi thứ đã sở hữu hoặc đang dùng (kể cả món miễn phí) đều thành món sở hữu. Những loại để trống trong v1 (khi đó game tự dùng món đầu tiên) được điền bằng món dùng ngay của `starter_v1`.
-- **Save không đọc được** (JSON hỏng, version lạ, dữ liệu sai) được giữ nguyên: inventory rỗng, `LoadFailed` bật, mọi thao tác mua, chọn và nhận quà đều bị từ chối, và có log lỗi. Hiện chưa có thông báo hiện lên cho người chơi.
+- **Save không đọc được** (JSON hỏng, version lạ, dữ liệu sai) được giữ nguyên: inventory rỗng, `LoadFailed` bật, mọi thao tác mua, chọn và nhận quà đều bị từ chối, và có log lỗi. Hiện chưa có thông báo hiện lên cho người chơi. Ở chế độ server, save không đọc được được giữ ở `Lumaquarium.FishShop.v1.unreadable.bak` rồi bị save của server thay ở câu trả lời đầu tiên.
 - Bản app cũ (save v1) gặp save v2 sẽ reset về mặc định. Tester đã cài bản có save v2 thì không nên cài lại bản cũ.
 
 ## Code

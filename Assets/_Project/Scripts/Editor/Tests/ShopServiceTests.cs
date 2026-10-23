@@ -115,7 +115,7 @@ public sealed class ShopServiceTests
         ShopService.Use(new ServerShopBackend(cloud, Key));
         Run(ShopService.Prepare());
         Assert.AreEqual(0, PlayerPrefs.GetInt(Key + ".imported", 0));
-        Assert.IsFalse(PlayerPrefs.HasKey(Key + ".imported.bak"));
+        Assert.AreEqual(SaveWith(40), PlayerPrefs.GetString(Key + ".imported.bak"), "the old save is kept from the first attempt");
         cloud.Offline = false;
         Run(ShopService.Prepare());
         Assert.AreEqual("ImportLocalSave", cloud.Calls[1].function);
@@ -132,6 +132,21 @@ public sealed class ShopServiceTests
         Assert.AreEqual(0, PlayerPrefs.GetInt(Key + ".imported", 0));
         Assert.AreEqual(SaveWith(40), PlayerPrefs.GetString(Key), "the old save is not replaced");
         Assert.AreEqual(40, Balance());
+    }
+
+    [Test]
+    public void ARejectedImportWithASaveKeepsTheOriginalBackup()
+    {
+        PlayerPrefs.SetString(Key, SaveWith(40));
+        var cloud = new FakeCloud { Answer = _ => new ShopReply { Error = ShopError.Rejected, State = SaveWith(300) } };
+        ShopService.Use(new ServerShopBackend(cloud, Key));
+        Run(ShopService.Prepare());
+        CollectionAssert.AreEqual(new[] { "ImportLocalSave" }, cloud.Calls.Select(c => c.function));
+        Assert.AreEqual(300, Balance(), "the server's save is the local one");
+        Assert.AreEqual(0, PlayerPrefs.GetInt(Key + ".imported", 0));
+        Assert.AreEqual(SaveWith(40), PlayerPrefs.GetString(Key + ".imported.bak"), "the original save is kept");
+        Run(ShopService.Prepare());
+        Assert.AreEqual(SaveWith(40), PlayerPrefs.GetString(Key + ".imported.bak"), "a later Prepare does not overwrite it");
     }
 
     [Test]
