@@ -52,6 +52,20 @@ public sealed class AquariumTank : MonoBehaviour
 
     public static Spec Find(string id) => Array.Find(Specs, x => x.id == id);
 
+    // Names, descriptions and prices from the surface catalog (the price sheet); sizes and capacity stay in Specs.
+    public static void ApplyCatalog(AquariumSurfaceCatalog catalog)
+    {
+        if (catalog == null || catalog.tanks == null) return;
+        foreach (var offer in catalog.tanks)
+        {
+            var spec = offer != null ? Find(offer.id) : null;
+            if (spec == null) continue;
+            if (!string.IsNullOrEmpty(offer.displayName)) spec.displayName = offer.displayName;
+            if (!string.IsNullOrEmpty(offer.description)) spec.description = offer.description;
+            if (offer.price >= 0) spec.price = offer.price;
+        }
+    }
+
     // Called by AquariumDecoration before it loads the saved layout, so the layout is checked against this tank.
     public void Init(AquariumDecoration owner)
     {
@@ -61,6 +75,7 @@ public sealed class AquariumTank : MonoBehaviour
         PrepareMaterials();
         surface = decoration.water != null && decoration.water.surface != null ? decoration.water.surface.transform : null;
         if (surface != null) { surfacePosition = surface.position; surfaceScale = surface.localScale; }
+        ApplyCatalog(Surfaces);
         var inventory = new Lumaquarium.UI.FishShopInventory(decoration.inventoryStorageKey);
         Build(Find(inventory.ActiveTank) ?? Specs[0]);
         ApplyWall(inventory.ActiveWall);

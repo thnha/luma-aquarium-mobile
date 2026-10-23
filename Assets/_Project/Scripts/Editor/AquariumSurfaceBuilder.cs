@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -29,6 +30,9 @@ public static class AquariumSurfaceBuilder
 
         var catalog = AssetDatabase.LoadAssetAtPath<AquariumSurfaceCatalog>(CatalogPath);
         if (catalog == null) { catalog = ScriptableObject.CreateInstance<AquariumSurfaceCatalog>(); AssetDatabase.CreateAsset(catalog, CatalogPath); }
+        // The price sheet (SurfaceCatalogSheet) owns names, descriptions and prices: a rebuild keeps them.
+        var kept = catalog.walls.Select(w => (w.id, w.displayName, w.description, w.price))
+            .Concat(catalog.substrates.Select(f => (f.id, f.displayName, f.description, f.price))).ToDictionary(k => k.id);
         catalog.walls = new[]
         {
             // AquariumTank tints the original wall to 60 % (wallTint), so its portrait does too.
@@ -55,6 +59,11 @@ public static class AquariumSurfaceBuilder
             Floor("gravel_black", "Sỏi đen", "Sỏi đen bóng", 300,
                 Draw((u, v) => Pebbles(u, v, Hex(0x1A1A1C), Hex(0x5A5A60))), 3, false, Color.white),
         };
+        foreach (var w in catalog.walls)
+            if (kept.TryGetValue(w.id, out var k)) { w.displayName = k.displayName; w.description = k.description; w.price = k.price; }
+        foreach (var f in catalog.substrates)
+            if (kept.TryGetValue(f.id, out var k)) { f.displayName = k.displayName; f.description = k.description; f.price = k.price; }
+        SurfaceCatalogSheet.EnsureTanks(catalog);
         EditorUtility.SetDirty(catalog);
         AssetDatabase.SaveAssets();
         Assign(catalog);

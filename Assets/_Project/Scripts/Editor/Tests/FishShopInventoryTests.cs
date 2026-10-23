@@ -56,6 +56,30 @@ public sealed class FishShopInventoryTests
     }
 
     [Test]
+    public void StarterGiftSetsCoinsOfANewWalletOnce()
+    {
+        var starter = new System.Collections.Generic.Dictionary<string, int> { ["rock"] = 2 };
+        new FishShopInventory(Key).ApplyStarter(2000, starter);
+        var inventory = new FishShopInventory(Key);
+        Assert.AreEqual(2000, inventory.Balance);
+        Assert.AreEqual(2, inventory.DecorCount("rock"));
+        inventory.TryPurchaseDecor("rock", 100);
+        inventory.ApplyStarter(2000, starter);
+        Assert.AreEqual(1900, inventory.Balance);
+        Assert.AreEqual(3, inventory.DecorCount("rock"));
+    }
+
+    [Test]
+    public void StarterGiftKeepsTheBalanceOfAnOlderWallet()
+    {
+        PlayerPrefs.SetString(Key, "{\"version\":1,\"balance\":500,\"ownedIds\":[],\"activeId\":\"\"}");
+        var inventory = new FishShopInventory(Key);
+        inventory.ApplyStarter(2000, new System.Collections.Generic.Dictionary<string, int> { ["rock"] = 1 });
+        Assert.AreEqual(500, inventory.Balance);
+        Assert.AreEqual(1, inventory.DecorCount("rock"));
+    }
+
+    [Test]
     public void SurfacePurchasesKeepFishAndDecor()
     {
         var inventory = new FishShopInventory(Key);

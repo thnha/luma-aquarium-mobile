@@ -9,6 +9,8 @@ namespace Lumaquarium.UI
     public sealed class FishShopInventory
     {
         public const string DefaultStorageKey = "Lumaquarium.FishShop.v1";
+        // Used until the starter gift (ApplyStarter) sets the catalog's value.
+        public const int DefaultStartingCoins = 1250;
         private readonly string storageKey;
         private SaveData data;
 
@@ -16,7 +18,7 @@ namespace Lumaquarium.UI
         private sealed class SaveData
         {
             public int version = 1;
-            public int balance = 1250;
+            public int balance = DefaultStartingCoins;
             public List<string> ownedIds = new List<string>();
             public string activeId = "";
             public List<DecorStock> decor = new List<DecorStock>();
@@ -96,12 +98,14 @@ namespace Lumaquarium.UI
 
         public int DecorCount(string id) => data.decor.Find(x => x.id == id)?.count ?? 0;
 
+        // The starter gift, given once. A new wallet starts with the given coins; an older one keeps its balance.
         // Existing layouts keep their placed starter items when moving from free placement to stock.
-        public void ImportStarterDecor(Dictionary<string, int> starter)
+        public void ApplyStarter(int coins, Dictionary<string, int> starter)
         {
             Reload();
             if (data.starterDecorImported) return;
             var next = Copy();
+            if (!PlayerPrefs.HasKey(storageKey) && coins >= 0) next.balance = coins;
             foreach (var pair in starter)
                 if (!string.IsNullOrWhiteSpace(pair.Key) && pair.Value > 0)
                 {

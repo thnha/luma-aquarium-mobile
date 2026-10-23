@@ -122,3 +122,17 @@ MonoBehaviour:
     pebbles: 0
     pebbleTint: {r: 1, g: 1, b: 1, a: 1}
     portrait: {fileID: 21300000, guid: 71f3dd0fd3efa47868f05be0053d2138, type: 3}
+  tanks:
+  - id: tank_square
+    displayName: "H\u1ED3 vu\xF4ng"
+    description: "R\u1ED9ng 1 m\xE0n h\xECnh \xB7 \u0111\xE1y vu\xF4ng"
+    price: 0
+  - id: tank_deep
+    displayName: "H\u1ED3 s\xE2u"
+    description: "R\u1ED9ng 1 m\xE0n h\xECnh \xB7 s\xE2u g\u1EA5p \u0111\xF4i"
+    price: 1500
+  - id: tank_wide
+    displayName: "H\u1ED3 r\u1ED9ng"
+    description: "R\u1ED9ng 1,5 m\xE0n h\xECnh \xB7 vu\u1ED1t ngang \u0111\u1EC3
+      xem"
+    price: 2500

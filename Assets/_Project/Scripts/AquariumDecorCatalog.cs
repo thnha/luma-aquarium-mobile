@@ -12,6 +12,8 @@ public sealed class AquariumDecorOffer
     public string description;
     public AquariumDecorCategory category;
     public int price;
+    // How many a new player has in stock (the price sheet's tặng lúc đầu column).
+    public int starterCount;
     public AquariumDecorItem prefab;
     public Sprite portrait;
     public bool IsValid => !string.IsNullOrWhiteSpace(id) && price > 0 && prefab != null && portrait != null;
@@ -20,6 +22,8 @@ public sealed class AquariumDecorOffer
 public sealed class AquariumDecorCatalog : ScriptableObject
 {
     public AquariumDecorOffer[] offers = new AquariumDecorOffer[0];
+    // Coins of a new player (the price sheet's Chung tab).
+    public int startingCoins = Lumaquarium.UI.FishShopInventory.DefaultStartingCoins;
     // The Trang trí sheet keeps its four groups: moss and floating plants sit with the plants there.
     public static AquariumDecorCategory InventoryGroup(AquariumDecorCategory category) =>
         category > AquariumDecorCategory.Coral ? AquariumDecorCategory.Plants : category;

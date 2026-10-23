@@ -68,6 +68,10 @@ namespace Lumaquarium.UI
             for (int i = 0; i < buttons.Length && i < AquariumTank.Specs.Length; i++)
             {
                 var spec = AquariumTank.Specs[i];
+                // The row's name and line were baked with the built-in values; the price sheet may have changed them.
+                var row = buttons[i].transform.parent;
+                SetText(row.Find("Title"), spec.displayName);
+                SetText(row.Find("Detail"), spec.description);
                 bool current = spec == tank.Current, owned = spec.price == 0 || inventory.OwnsTank(spec.id);
                 buttons[i].interactable = !current && (owned || inventory.Balance >= spec.price);
                 var label = buttons[i].GetComponentInChildren<TMP_Text>();
@@ -75,6 +79,12 @@ namespace Lumaquarium.UI
                     label.text = current ? "Đang dùng" : owned ? "Dùng" : pending == i ? "Xác nhận" :
                         inventory.Balance >= spec.price ? spec.price.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) + " xu" : "Chưa đủ xu";
             }
+        }
+
+        private static void SetText(Transform target, string text)
+        {
+            var label = target != null ? target.GetComponent<TMP_Text>() : null;
+            if (label != null && label.text != text) label.text = text;
         }
     }
 }

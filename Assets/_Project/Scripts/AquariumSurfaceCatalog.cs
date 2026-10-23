@@ -27,10 +27,20 @@ public sealed class AquariumSubstrateStyle
     public Sprite portrait;
 }
 
+// Name, description and price of a tank size (AquariumTank.Specs id), kept here so the price sheet can change them
+// with the remote content. AquariumTank.ApplyCatalog copies them over the built-in values.
+[Serializable]
+public sealed class AquariumTankOffer
+{
+    public string id, displayName, description;
+    public int price;
+}
+
 public sealed class AquariumSurfaceCatalog : ScriptableObject
 {
     public AquariumWallStyle[] walls = new AquariumWallStyle[0];
     public AquariumSubstrateStyle[] substrates = new AquariumSubstrateStyle[0];
+    public AquariumTankOffer[] tanks = new AquariumTankOffer[0];
 
     public AquariumWallStyle Wall(string id) => Array.Find(walls, x => x.id == id) ?? (walls.Length > 0 ? walls[0] : null);
     public AquariumSubstrateStyle Substrate(string id) => Array.Find(substrates, x => x.id == id) ?? (substrates.Length > 0 ? substrates[0] : null);
