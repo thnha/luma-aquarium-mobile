@@ -179,6 +179,81 @@ public sealed class ShopLogicTests
     }
 
     [Test]
+    public async Task AnImportedSaveKeepsOnlyWhatTheCatalogKnowsAtTheAllowedCounts()
+    {
+        const string local = "{\"version\":2,\"wallet\":[{\"id\":\"xu\",\"count\":10},{\"id\":\"gem\",\"count\":50}]," +
+            "\"items\":[{\"id\":\"koi-nemo\",\"count\":7},{\"id\":\"starter-stone\",\"count\":500},{\"id\":\"secret-fish\",\"count\":1}," +
+            "{\"id\":\"xu\",\"count\":1},{\"id\":\"tank_deep\",\"count\":1}]," +
+            "\"equipped\":[{\"slot\":\"fish\",\"id\":\"koi-nemo\"},{\"slot\":\"tank\",\"id\":\"koi-nemo\"}," +
+            "{\"slot\":\"wall\",\"id\":\"secret-fish\"},{\"slot\":\"hat\",\"id\":\"starter-stone\"},{\"slot\":\"floor\",\"id\":\"wall_river\"}]," +
+            "\"grantsApplied\":[\"mystery_pack\"]}";
+        var save = State(await logic.Import(local));
+        Assert.That(save.CountOf("koi-nemo"), Is.EqualTo(1));
+        Assert.That(save.CountOf("starter-stone"), Is.EqualTo(ShopLogic.ImportItemCap));
+        Assert.That(save.CountOf("tank_deep"), Is.EqualTo(1));
+        Assert.That(save.Owns("secret-fish"), Is.False);
+        Assert.That(save.Owns(ShopSave.Coins), Is.False, "coins are not an item");
+        Assert.That(save.wallet.Select(x => x.id), Is.EqualTo(new[] { ShopSave.Coins }));
+        Assert.That(save.equipped.Select(x => x.slot + ":" + x.id), Is.EqualTo(new[] { "fish:koi-nemo" }));
+        Assert.That(save.grantsApplied, Is.EqualTo(new[] { ShopSave.StarterPack }), "no second starter pack, no unknown pack");
+    }
+
+    [Test]
+    public async Task ANullLocalSaveIsRefused()
+    {
+        Assert.That((await logic.Import(null)).Error, Is.EqualTo(ShopError.Rejected));
+        Assert.That(store.Json, Is.Null);
+    }
+
+    [Test]
+    public async Task ASaveCreatedByAnotherCallDuringTheFirstWriteIsKept()
+    {
+        var other = new ShopSave { grantsApplied = { ShopSave.StarterPack } };
+        ShopSave.Add(other.wallet, ShopSave.Coins, 1250);
+        store.RacingJson = JsonSerializer.Serialize(other, ShopLogic.Json);
+        var reply = await logic.ApplyGifts();
+        Assert.That(State(reply).Balance(), Is.EqualTo(1250), "the rule ran again on their save, the pack is not given twice");
+    }
+
+    [Test]
+    public async Task AnImportRacingAnotherFirstWriteReturnsTheStoredSave()
+    {
+        var other = new ShopSave { grantsApplied = { ShopSave.StarterPack } };
+        ShopSave.Add(other.wallet, ShopSave.Coins, 7);
+        store.RacingJson = JsonSerializer.Serialize(other, ShopLogic.Json);
+        var reply = await logic.Import("{\"version\":2,\"wallet\":[{\"id\":\"xu\",\"count\":999}]}");
+        Assert.That(reply.Error, Is.EqualTo(ShopError.AlreadyImported));
+        Assert.That(State(reply).Balance(), Is.EqualTo(7));
+    }
+
+    [Test]
+    public async Task AnImportWriteConflictIsRefusedWithoutThrowing()
+    {
+        store.Conflicts = 1;
+        var reply = await logic.Import("{\"version\":2}");
+        Assert.That(reply.Error, Is.EqualTo(ShopError.Rejected));
+    }
+
+    [Test]
+    public async Task AWriteWithALockThatIsNotTheStoredOneConflicts()
+    {
+        store.Json = "{}";
+        Assert.ThrowsAsync<WriteConflictException>(() => store.Save("{\"a\":1}", "stale"));
+        await store.Save("{\"a\":2}", null);
+        Assert.That(store.Json, Is.EqualTo("{\"a\":2}"), "no lock always writes, like Cloud Save");
+    }
+
+    [Test]
+    public async Task AnItemCannotBeSelectedIntoAnotherSlot()
+    {
+        await logic.ApplyGifts();
+        await logic.Buy("koi-nemo", Version);
+        Assert.That((await logic.Select("tank", "koi-nemo")).Error, Is.EqualTo(ShopError.Rejected));
+        Assert.That((await logic.Select("wall", "plakat-galaxy")).Error, Is.EqualTo(ShopError.Rejected));
+        Assert.That(State(await logic.GetState()).Equipped("tank"), Is.EqualTo("tank_square"));
+    }
+
+    [Test]
     public void TheEmbeddedCatalogHasAVersionAndTheStarterPack()
     {
         var catalog = CatalogResource.Catalog;

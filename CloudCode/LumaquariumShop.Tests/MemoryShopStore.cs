@@ -2,11 +2,12 @@ using LumaquariumShop;
 
 namespace LumaquariumShop.Tests;
 
-// One player's save in memory. The write lock is a counter; Conflicts makes the next saves fail as if another
-// call had written first.
+// One player's save in memory, behaving like Cloud Save: the write lock is a counter, a write with no lock always
+// writes and a write with a lock must match. Conflicts makes the next saves fail as if another call had written
+// first; RacingJson is written over the next lockless save, as if another call created the save at the same time.
 public sealed class MemoryShopStore : IShopStore
 {
-    public string? Json;
+    public string? Json, RacingJson;
     public int Conflicts, Saves;
     private int version;
 
@@ -21,8 +22,13 @@ public sealed class MemoryShopStore : IShopStore
             version++;
             throw new WriteConflictException();
         }
-        if (Json != null && writeLock != version.ToString()) throw new WriteConflictException();
+        if (writeLock != null && writeLock != version.ToString()) throw new WriteConflictException();
         Json = json;
+        if (writeLock == null && RacingJson != null)
+        {
+            Json = RacingJson;
+            RacingJson = null;
+        }
         version++;
         Saves++;
         return Task.CompletedTask;
