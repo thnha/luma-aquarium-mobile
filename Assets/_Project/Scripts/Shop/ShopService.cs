@@ -32,28 +32,51 @@ namespace Lumaquarium.Shop
 
         // Play Mode without a domain reload keeps statics: start each session with the current setting.
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetOnPlay() => backend = null;
+        private static void ResetOnPlay()
+        {
+            backend = null;
+            preparing = null;
+        }
+
+        private static Task preparing;
 
         // Before the aquarium opens and when the shop opens: a save kept on this device from before the server is
         // sent once (kept under <key>.imported.bak whatever the server says), then the gift packs. The server's
-        // answer becomes the local save. Offline it stays as it is and the import waits for the next time.
-        public static async Task Prepare()
+        // answer becomes the local save. The import counts as done only when the server took the save, already had
+        // one, or cannot use this one; after Offline, Rejected or anything else it waits for the next time, before
+        // any gift pack, so the old save is not overwritten by a new one. One Prepare runs at a time: a call made
+        // meanwhile gets the same task.
+        public static Task Prepare()
         {
-            var server = Server;
-            if (server == null) return;
-            string importedKey = server.StorageKey + ".imported";
-            if (PlayerPrefs.GetInt(importedKey, 0) == 0)
+            if (preparing != null) return preparing;
+            var task = PrepareOnce();
+            // One that finished without waiting has already cleared itself, before this line.
+            if (!task.IsCompleted) preparing = task;
+            return task;
+        }
+
+        private static async Task PrepareOnce()
+        {
+            try
             {
-                string local = new FishShopInventory(server.StorageKey).StoredJson();
-                if (local != null)
+                var server = Server;
+                if (server == null) return;
+                string importedKey = server.StorageKey + ".imported";
+                if (PlayerPrefs.GetInt(importedKey, 0) == 0)
                 {
-                    if (await server.Import(local) == ShopError.Offline) return;
-                    PlayerPrefs.SetString(server.StorageKey + ".imported.bak", local);
+                    string local = new FishShopInventory(server.StorageKey).StoredJson();
+                    if (local != null)
+                    {
+                        string result = await server.Import(local);
+                        if (result != ShopError.None && result != ShopError.AlreadyImported && result != ShopError.SaveUnreadable) return;
+                        PlayerPrefs.SetString(server.StorageKey + ".imported.bak", local);
+                    }
+                    PlayerPrefs.SetInt(importedKey, 1);
+                    PlayerPrefs.Save();
                 }
-                PlayerPrefs.SetInt(importedKey, 1);
-                PlayerPrefs.Save();
+                await server.ApplyGifts();
             }
-            await server.ApplyGifts();
+            finally { preparing = null; }
         }
 
         // What the player reads when a change is not made.

@@ -171,10 +171,21 @@ public sealed class ShopLogicTests
     }
 
     [Test]
-    public async Task ABrokenLocalSaveIsRefused()
+    public async Task ABrokenLocalSaveIsUnreadable()
     {
         const string local = "{\"version\":2,\"wallet\":[{\"id\":\"xu\",\"count\":-5}]}";
-        Assert.That((await logic.Import(local)).Error, Is.EqualTo(ShopError.Rejected));
+        var reply = await logic.Import(local);
+        Assert.That(reply.Error, Is.EqualTo(ShopError.SaveUnreadable));
+        Assert.That(reply.State, Is.Null);
+        Assert.That(store.Json, Is.Null);
+    }
+
+    [Test]
+    public async Task ALocalSaveThatIsNotJsonIsUnreadable()
+    {
+        var reply = await logic.Import("{ not json");
+        Assert.That(reply.Error, Is.EqualTo(ShopError.SaveUnreadable));
+        Assert.That(reply.State, Is.Null);
         Assert.That(store.Json, Is.Null);
     }
 
@@ -199,9 +210,11 @@ public sealed class ShopLogicTests
     }
 
     [Test]
-    public async Task ANullLocalSaveIsRefused()
+    public async Task ANullLocalSaveIsUnreadable()
     {
-        Assert.That((await logic.Import(null)).Error, Is.EqualTo(ShopError.Rejected));
+        var reply = await logic.Import(null);
+        Assert.That(reply.Error, Is.EqualTo(ShopError.SaveUnreadable));
+        Assert.That(reply.State, Is.Null);
         Assert.That(store.Json, Is.Null);
     }
 

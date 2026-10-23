@@ -120,6 +120,73 @@ public sealed class ShopServiceTests
     }
 
     [Test]
+    public void ARejectedImportKeepsTheLocalSaveAndWaitsForNextTime()
+    {
+        PlayerPrefs.SetString(Key, SaveWith(40));
+        var cloud = new FakeCloud { Answer = _ => new ShopReply { Error = ShopError.Rejected } };
+        ShopService.Use(new ServerShopBackend(cloud, Key));
+        Run(ShopService.Prepare());
+        CollectionAssert.AreEqual(new[] { "ImportLocalSave" }, cloud.Calls.Select(c => c.function));
+        Assert.AreEqual(0, PlayerPrefs.GetInt(Key + ".imported", 0));
+        Assert.AreEqual(SaveWith(40), PlayerPrefs.GetString(Key), "the old save is not replaced");
+        Assert.AreEqual(40, Balance());
+    }
+
+    [Test]
+    public void ASaveTheServerCannotReadIsKeptAndTheGiftsFollow()
+    {
+        PlayerPrefs.SetString(Key, SaveWith(40));
+        var cloud = new FakeCloud { Answer = f => f == "ImportLocalSave" ? new ShopReply { Error = ShopError.SaveUnreadable } : new ShopReply { State = SaveWith(1290) } };
+        ShopService.Use(new ServerShopBackend(cloud, Key));
+        Run(ShopService.Prepare());
+        CollectionAssert.AreEqual(new[] { "ImportLocalSave", "ApplyGifts" }, cloud.Calls.Select(c => c.function));
+        Assert.AreEqual(1, PlayerPrefs.GetInt(Key + ".imported", 0));
+        Assert.AreEqual(SaveWith(40), PlayerPrefs.GetString(Key + ".imported.bak"), "the old save is kept");
+    }
+
+    [Test]
+    public void ASaveTheServerAlreadyHasReplacesTheLocalOne()
+    {
+        PlayerPrefs.SetString(Key, SaveWith(40));
+        var cloud = new FakeCloud { Answer = f => new ShopReply { Error = f == "ImportLocalSave" ? ShopError.AlreadyImported : null, State = SaveWith(300) } };
+        ShopService.Use(new ServerShopBackend(cloud, Key));
+        Run(ShopService.Prepare());
+        Assert.AreEqual(1, PlayerPrefs.GetInt(Key + ".imported", 0));
+        Assert.AreEqual(300, Balance());
+        Assert.AreEqual(SaveWith(40), PlayerPrefs.GetString(Key + ".imported.bak"), "the old save is kept");
+    }
+
+    // Holds its answer until the test lets it go.
+    private sealed class HeldCloud : IShopCloud
+    {
+        public readonly List<string> Calls = new List<string>();
+        public readonly TaskCompletionSource<ShopReply> Reply = new TaskCompletionSource<ShopReply>();
+
+        public Task<ShopReply> Call(string function, Dictionary<string, object> args)
+        {
+            Calls.Add(function);
+            return Reply.Task;
+        }
+    }
+
+    [Test]
+    public void TwoPreparesAtOnceSendTheSaveOnce()
+    {
+        PlayerPrefs.SetString(Key, SaveWith(40));
+        var cloud = new HeldCloud();
+        ShopService.Use(new ServerShopBackend(cloud, Key));
+        var first = ShopService.Prepare();
+        var second = ShopService.Prepare();
+        Assert.AreSame(first, second);
+        Assert.AreEqual(1, cloud.Calls.Count(c => c == "ImportLocalSave"));
+        cloud.Reply.SetResult(new ShopReply { State = SaveWith(40) });
+        Run(first);
+        CollectionAssert.AreEqual(new[] { "ImportLocalSave", "ApplyGifts" }, cloud.Calls);
+        Run(ShopService.Prepare());
+        CollectionAssert.AreEqual(new[] { "ImportLocalSave", "ApplyGifts", "ApplyGifts" }, cloud.Calls, "a later call runs again");
+    }
+
+    [Test]
     public void ANewPlayerHasNothingToSend()
     {
         var cloud = new FakeCloud { Answer = _ => new ShopReply { State = SaveWith(1250) } };

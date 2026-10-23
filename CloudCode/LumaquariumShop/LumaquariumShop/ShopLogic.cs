@@ -45,13 +45,14 @@ public sealed class ShopLogic
     });
 
     // Only for a player with no save on the server yet. Cloud Save has no create-only write, so the write is
-    // checked by reading it back: if another call created the save first, theirs stays.
+    // checked by reading it back: if another call created the save first, theirs stays. A save that cannot be
+    // used (missing, not JSON, not a valid save) is SaveUnreadable, not Rejected: sending it again changes nothing.
     public async Task<ShopReply> Import(string? json)
     {
         var stored = await store.Load();
         if (stored.Json != null) return Reply(ShopError.AlreadyImported, stored.Json);
         var save = Filtered(ShopRules.Import(Parse(json), ImportCoinCap));
-        if (save == null) return Reply(ShopError.Rejected, null);
+        if (save == null) return Reply(ShopError.SaveUnreadable, null);
         string next = JsonSerializer.Serialize(save, Json);
         try { await store.Save(next, null); }
         catch (WriteConflictException) { return Reply(ShopError.Rejected, (await store.Load()).Json); }
