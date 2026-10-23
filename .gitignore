@@ -79,3 +79,10 @@ __pycache__/
 # Scene copies the editor builders write before changing a scene
 /Assets/_Project/Scenes/Backups/
 /Assets/_Project/Scenes/Backups.meta
+
+# Cloud Code module (CloudCode/): its project and solution files are source, its build output is not
+!/CloudCode/**/*.csproj
+!/CloudCode/**/*.sln
+/CloudCode/**/bin/
+/CloudCode/**/obj/
+/CloudCode/**/*.ccm

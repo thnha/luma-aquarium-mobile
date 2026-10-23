@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>LumaquariumShop</AssemblyName>
+    <RootNamespace>LumaquariumShop</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Com.Unity.Services.CloudCode.Core" Version="0.0.9" />
+    <PackageReference Include="Com.Unity.Services.CloudCode.Apis" Version="0.0.27" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The shop rules are the game's own files (Assets/_Project/Scripts/Shop/Shared), compiled here as well. -->
+    <Compile Include="../../../Assets/_Project/Scripts/Shop/Shared/*.cs" LinkBase="Shared" />
+    <!-- Written by Lumaquarium > Shop > Write Server Catalog (ServerCatalogWriter). -->
+    <EmbeddedResource Include="ShopCatalog.json" LogicalName="ShopCatalog.json" />
+  </ItemGroup>
+
+</Project>
