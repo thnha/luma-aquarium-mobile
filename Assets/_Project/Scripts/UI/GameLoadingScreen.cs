@@ -1,4 +1,5 @@
 using System.Collections;
+using Lumaquarium.Shop;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -20,6 +21,7 @@ namespace Lumaquarium.UI
         [SerializeField] private UnityEngine.UI.Button retryButton;
         [SerializeField] private UnityEngine.UI.Button backButton;
         [SerializeField, Min(0)] private float minimumVisibleSeconds = 1.2f;
+        [SerializeField, Min(0)] private float shopSyncSeconds = 8f;
         private bool loading;
 
         private void Start()
@@ -90,6 +92,13 @@ namespace Lumaquarium.UI
                 opening = 0.8f;
                 statusLabel.text = "Đang chuẩn bị hồ cá...";
             }
+
+            // The shop save from the server (and a save from before it, sent once) before the aquarium reads it.
+            // Offline, or when it takes too long, the aquarium opens with the save on the device.
+            var shop = ShopService.Prepare();
+            float syncStarted = Time.realtimeSinceStartup;
+            while (!shop.IsCompleted && Time.realtimeSinceStartup - syncStarted < shopSyncSeconds) yield return null;
+            if (shop.IsFaulted) Debug.LogException(shop.Exception);
 
             var scene = Addressables.LoadSceneAsync(FrontEndScenes.Aquarium, LoadSceneMode.Single, false);
             while (!scene.IsDone)

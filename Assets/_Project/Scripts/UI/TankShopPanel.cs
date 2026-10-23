@@ -1,4 +1,6 @@
+using System;
 using System.Globalization;
+using Lumaquarium.Shop;
 using TMPro;
 using UnityEngine;
 
@@ -12,6 +14,7 @@ namespace Lumaquarium.UI
         public UnityEngine.UI.Button[] buttons; // AquariumTank.Specs order
         public TMP_Text feedback;
         private int pending = -1;
+        private bool busy; // waiting for the server
 
         private AquariumTank Tank => aquarium != null && aquarium.decoration != null ? aquarium.decoration.GetComponent<AquariumTank>() : null;
         private FishShopInventory Inventory => new FishShopInventory(aquarium.decoration.inventoryStorageKey);
@@ -33,10 +36,10 @@ namespace Lumaquarium.UI
             Refresh();
         }
 
-        public void Choose(int index)
+        public async void Choose(int index)
         {
             var tank = Tank;
-            if (tank == null || index < 0 || index >= AquariumTank.Specs.Length) return;
+            if (busy || tank == null || index < 0 || index >= AquariumTank.Specs.Length) return;
             var spec = AquariumTank.Specs[index];
             if (spec == tank.Current) return;
             var inventory = Inventory;
@@ -50,14 +53,29 @@ namespace Lumaquarium.UI
                 return;
             }
             pending = -1;
-            bool done = owned ? inventory.SelectTank(spec.id) : inventory.TryPurchaseTank(spec.id, spec.price);
-            if (done)
+            busy = true;
+            feedback.text = "Đang xử lý...";
+            Refresh();
+            string error;
+            try
+            {
+                error = owned ? await ShopService.Backend.Select(ShopSave.TankSlot, spec.id)
+                    : await ShopService.Backend.Buy(spec.id, spec.price, ShopSave.TankSlot);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError("[Lumaquarium] Tank purchase failed: " + exception.Message);
+                error = ShopError.Rejected;
+            }
+            busy = false;
+            if (this == null) return; // the scene closed while waiting
+            if (error == ShopError.None)
             {
                 tank.Switch(spec.id);
                 feedback.text = owned ? $"Đã chuyển sang {spec.displayName}" : $"Đã mua {spec.displayName}. Đồ không vừa hồ được cất vào kho.";
                 aquarium.RefreshWallet();
             }
-            else feedback.text = "Chưa đủ xu để mua hồ này";
+            else feedback.text = error == ShopError.NotEnoughCoins ? "Chưa đủ xu để mua hồ này" : ShopService.Message(error);
             Refresh();
         }
 
@@ -74,7 +92,7 @@ namespace Lumaquarium.UI
                 SetText(row.Find("Title"), spec.displayName);
                 SetText(row.Find("Detail"), spec.description);
                 bool current = spec == tank.Current, owned = inventory.OwnsTank(spec.id);
-                buttons[i].interactable = !current && (owned || inventory.Balance >= spec.price);
+                buttons[i].interactable = !busy && !current && (owned || inventory.Balance >= spec.price);
                 var label = buttons[i].GetComponentInChildren<TMP_Text>();
                 if (label != null)
                     label.text = current ? "Đang dùng" : owned ? "Dùng" : spec.price == 0 ? "Nhận" : pending == i ? "Xác nhận" :

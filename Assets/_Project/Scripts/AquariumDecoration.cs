@@ -196,10 +196,14 @@ public sealed class AquariumDecoration : MonoBehaviour
         }
     }
 
-    // Gift packs first: the tank, the shop and the HUD read what is owned and in use from their Start.
+    // Gift packs first: the tank, the shop and the HUD read what is owned and in use from their Start. With the
+    // server they were given while the aquarium loaded (ShopService.Prepare); purchases name this catalog's version.
     private void Awake()
     {
-        if (catalog != null) new Lumaquarium.UI.FishShopInventory(inventoryStorageKey).ApplyGifts(catalog.giftPacks);
+        if (catalog == null) return;
+        var server = Lumaquarium.Shop.ShopService.Server;
+        if (server != null) server.CatalogVersion = catalog.serverCatalogVersion;
+        else new Lumaquarium.UI.FishShopInventory(inventoryStorageKey).ApplyGifts(catalog.giftPacks);
     }
 
     private void Start()
@@ -214,7 +218,8 @@ public sealed class AquariumDecoration : MonoBehaviour
             items.Add(item);
         }
         if (persistLayout && PlayerPrefs.HasKey(storageKey)) LoadLayout();
-        if (catalog != null)
+        // The server never takes placed counts from the device: they could be made up.
+        if (catalog != null && !Lumaquarium.Shop.ShopService.UsesServer)
         {
             var placed = new Dictionary<string, int>();
             foreach (var item in items)

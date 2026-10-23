@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Lumaquarium.Shop;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -40,6 +41,7 @@ namespace Lumaquarium.UI
         private ShopEntry selected, pending;
         private float previousAlpha;
         private bool previousInteractable, previousRaycasts, previousOrbit;
+        private bool busy; // waiting for the server: buying and using are locked
 
         public bool IsOpen => content != null && content.activeSelf;
         private AquariumDecoration Decoration => aquarium != null ? aquarium.decoration : null;
@@ -117,6 +119,19 @@ namespace Lumaquarium.UI
             search.SetTextWithoutNotify("");
             Rebuild(true);
             ShowActiveTab();
+            Sync();
+        }
+
+        // The server may have changed the save since the aquarium opened (gift packs, a missed import): its answer
+        // shows when it comes.
+        private async void Sync()
+        {
+            if (!ShopService.UsesServer) return;
+            try { await ShopService.Prepare(); }
+            catch (Exception exception) { Debug.LogException(exception); }
+            if (this == null || !IsOpen) return;
+            aquarium.RefreshWallet();
+            Refresh();
         }
 
         // Opens on one tab, and on one item when its id is given (the Trang trí sheet's Mua thêm).
@@ -203,6 +218,7 @@ namespace Lumaquarium.UI
             emptyLabel.SetActive(visible.Count == 0);
             details.SetActive(selected != null);
             if (selected != null) ShowDetails(selected);
+            if (busy) primaryButton.interactable = secondaryButton.interactable = false;
         }
 
         private void ShowDetails(ShopEntry entry)
@@ -259,7 +275,7 @@ namespace Lumaquarium.UI
 
         private void Primary()
         {
-            if (selected == null || confirmation.activeSelf) return;
+            if (selected == null || confirmation.activeSelf || busy) return;
             if (selected.kind == ShopKind.Decor) Place(selected);
             else if (Owned(selected)) Use(selected);
             else RequestPurchase(selected);
@@ -267,6 +283,7 @@ namespace Lumaquarium.UI
 
         private void RequestPurchase(ShopEntry entry)
         {
+            if (busy) return;
             inventory.Reload();
             if (inventory.Balance < entry.price) return;
             pending = entry;
@@ -281,44 +298,52 @@ namespace Lumaquarium.UI
             if (confirmation != null) confirmation.SetActive(false);
         }
 
-        public void ConfirmPurchase()
+        public async void ConfirmPurchase()
         {
             var entry = pending;
             CancelPurchase(); // consume the pending purchase before saving or a repeated tap
-            if (!IsOpen || entry == null) return;
-            try
+            if (!IsOpen || entry == null || busy) return;
+            busy = true;
+            feedback.text = "Đang xử lý...";
+            Refresh();
+            string error;
+            try { error = await ShopService.Backend.Buy(entry.id, entry.price, Slot(entry.kind)); }
+            catch (Exception exception) { error = null; SaveFailed(exception); }
+            busy = false;
+            if (this == null) return; // the scene closed while waiting
+            if (error == ShopError.None)
             {
-                bool bought = entry.kind switch
-                {
-                    ShopKind.Decor => inventory.TryPurchaseDecor(entry.id, entry.price),
-                    ShopKind.Fish => inventory.TryPurchase(entry.id, entry.price),
-                    ShopKind.Wall => inventory.TryPurchaseWall(entry.id, entry.price),
-                    _ => inventory.TryPurchaseSubstrate(entry.id, entry.price)
-                };
-                if (!bought) feedback.text = "Chưa đủ xu để mua món này.";
-                else if (entry.kind == ShopKind.Decor) feedback.text = "Đã thêm 1 " + entry.name + " vào kho.";
+                if (entry.kind == ShopKind.Decor) feedback.text = "Đã thêm 1 " + entry.name + " vào kho.";
                 else { Apply(entry); feedback.text = "Đã mua và dùng " + entry.name + "."; }
             }
-            catch (Exception exception) { SaveFailed(exception); }
+            else if (error != null) feedback.text = ShopService.Message(error);
             aquarium.RefreshWallet();
             Refresh();
         }
 
-        private void Use(ShopEntry entry)
+        private async void Use(ShopEntry entry)
         {
-            try
-            {
-                bool done = entry.kind switch
-                {
-                    ShopKind.Fish => inventory.SelectOwned(entry.id),
-                    ShopKind.Wall => inventory.SelectWall(entry.id),
-                    _ => inventory.SelectSubstrate(entry.id)
-                };
-                if (done) { Apply(entry); feedback.text = "Đã dùng " + entry.name + "."; }
-            }
-            catch (Exception exception) { SaveFailed(exception); }
+            if (busy) return;
+            busy = true;
+            feedback.text = "Đang xử lý...";
+            Refresh();
+            string error;
+            try { error = await ShopService.Backend.Select(Slot(entry.kind), entry.id); }
+            catch (Exception exception) { error = null; SaveFailed(exception); }
+            busy = false;
+            if (this == null) return;
+            if (error == ShopError.None) { Apply(entry); feedback.text = "Đã dùng " + entry.name + "."; }
+            else if (error != null) feedback.text = ShopService.Message(error);
             Refresh();
         }
+
+        private static string Slot(ShopKind kind) => kind switch
+        {
+            ShopKind.Fish => ShopSave.FishSlot,
+            ShopKind.Wall => ShopSave.WallSlot,
+            ShopKind.Substrate => ShopSave.FloorSlot,
+            _ => null
+        };
 
         private void Apply(ShopEntry entry)
         {
