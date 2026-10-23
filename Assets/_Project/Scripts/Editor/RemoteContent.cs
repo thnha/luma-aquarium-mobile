@@ -108,6 +108,8 @@ public static class RemoteContent
             return false;
         }
         SetUp();
+        // The content carries the catalog version; the module deployed with it must have the same prices.
+        ServerCatalogWriter.Write();
         AddressableAssetSettings.BuildPlayerContent(out AddressablesPlayerBuildResult result);
         if (!string.IsNullOrEmpty(result.Error))
         {

@@ -1,7 +1,10 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Lumaquarium.Shop;
 using NUnit.Framework;
 using UnityEditor;
+using UnityEngine;
 
 // Checks the shop data as edited in the price sheet (DecorCatalogSheet), so a bad edit fails here instead of in the game.
 public sealed class ShopEconomyTests
@@ -23,6 +26,18 @@ public sealed class ShopEconomyTests
     }
 
     private static PipelineFish[] Fish() => PipelineFishImporter.All().Where(f => f.inShop).ToArray();
+
+    // The server sells at the prices the shop shows. Pull and every content build write it; by hand:
+    // Lumaquarium > Shop > Write Server Catalog.
+    [Test]
+    public void TheServerCatalogIsUpToDate()
+    {
+        var expected = ServerCatalogWriter.Build(Decor(), Surfaces(), FishCatalogSheet.Items());
+        Assert.AreEqual(expected.version, Decor().serverCatalogVersion, "run Lumaquarium > Shop > Write Server Catalog");
+        Assert.IsTrue(File.Exists(ServerCatalogWriter.FullPath), ServerCatalogWriter.FullPath);
+        Assert.AreEqual(expected.version, JsonUtility.FromJson<ShopCatalog>(File.ReadAllText(ServerCatalogWriter.FullPath)).version,
+            "run Lumaquarium > Shop > Write Server Catalog");
+    }
 
     [Test]
     public void EveryDecorationCanBeSold()

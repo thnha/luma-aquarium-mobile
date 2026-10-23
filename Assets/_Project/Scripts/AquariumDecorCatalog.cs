@@ -39,6 +39,8 @@ public sealed class AquariumDecorCatalog : ScriptableObject
     public AquariumDecorOffer[] offers = new AquariumDecorOffer[0];
     // Kept here because this catalog ships with the remote content: a new pack needs no app update.
     public AquariumGiftPack[] giftPacks = new AquariumGiftPack[0];
+    // ServerCatalogWriter's hash of every price and pack; the server refuses a purchase made showing another one.
+    public string serverCatalogVersion = "";
     // The Trang trí sheet keeps its four groups: moss and floating plants sit with the plants there.
     public static AquariumDecorCategory InventoryGroup(AquariumDecorCategory category) =>
         category > AquariumDecorCategory.Coral ? AquariumDecorCategory.Plants : category;

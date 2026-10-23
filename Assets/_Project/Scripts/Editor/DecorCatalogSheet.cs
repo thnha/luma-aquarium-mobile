@@ -593,6 +593,8 @@ public static class DecorCatalogSheet
         EditorUtility.DisplayDialog("Decor Catalog", report.ToString(), "OK");
         // Keep a local copy so the builder and Apply CSV use the same values.
         WriteCsv(catalog);
+        // The server sells at the new prices once deployed (Tools/upload_content_r2.sh does it before the upload).
+        ServerCatalogWriter.Write();
         return true;
     }
 }
