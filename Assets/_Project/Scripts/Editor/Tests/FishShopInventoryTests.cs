@@ -1,3 +1,4 @@
+using Lumaquarium.Shop;
 using Lumaquarium.UI;
 using NUnit.Framework;
 using UnityEngine;
@@ -31,6 +32,7 @@ public sealed class FishShopInventoryTests
     {
         PlayerPrefs.DeleteKey(Key);
         PlayerPrefs.DeleteKey(Key + ".v1.bak");
+        PlayerPrefs.DeleteKey(Key + ".unreadable.bak");
     }
 
     [Test]
@@ -155,5 +157,27 @@ public sealed class FishShopInventoryTests
         inventory.ApplyGifts(new[] { Starter() });
         LogAssert.ignoreFailingMessages = false;
         Assert.AreEqual(json, PlayerPrefs.GetString(Key));
+    }
+
+    [Test]
+    public void BuyAndSelectSayWhyNot()
+    {
+        var inventory = NewPlayer();
+        Assert.AreEqual(ShopError.NotEnoughCoins, inventory.Buy("koi-nemo", 99999, "fish"));
+        Assert.AreEqual(ShopError.Owned, inventory.Buy("plakat-galaxy", 0, "fish"));
+        Assert.AreEqual(ShopError.Rejected, inventory.Select("fish", "koi-nemo"));
+        Assert.AreEqual(ShopError.None, inventory.Buy("starter-stone", 100, null));
+        Assert.AreEqual(1150, new FishShopInventory(Key).Balance);
+    }
+
+    [Test]
+    public void TheServersAnswerReplacesTheSaveUnlessItIsNotASave()
+    {
+        var inventory = NewPlayer();
+        Assert.IsTrue(inventory.ReplaceWith("{\"version\":2,\"wallet\":[{\"id\":\"xu\",\"count\":77}],\"items\":[],\"equipped\":[],\"grantsApplied\":[\"starter_v1\"]}"));
+        Assert.AreEqual(77, new FishShopInventory(Key).Balance);
+        LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("cannot be read"));
+        Assert.IsFalse(inventory.ReplaceWith("{\"version\":2,\"wallet\":[{\"id\":\"xu\",\"count\":-1}]}"));
+        Assert.AreEqual(77, new FishShopInventory(Key).Balance);
     }
 }
