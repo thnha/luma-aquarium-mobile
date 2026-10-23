@@ -26,6 +26,8 @@ namespace Lumaquarium.UI
         // Chip behind the feedback text; older scenes have none and toggle the text itself.
         public GameObject feedbackRoot;
         public TMP_Text muteLabel;
+        // Settings row that switches between Vietnamese and English; older scenes have none.
+        public TMP_Text languageLabel;
         public CanvasGroup hud;
         public AquariumDecoration decoration;
         // Redesigned HUD (docs/ui-redesign.md). All optional so older scenes keep working.
@@ -85,6 +87,7 @@ namespace Lumaquarium.UI
             if (feedIcon != null) feedIconClosed = feedIcon.sprite;
             if (feeding != null) feeding.FeedModeChanged += _ => UpdateTiles();
             UpdateMuteLabel();
+            UpdateLanguageLabel();
             UpdateTiles();
         }
 
@@ -97,13 +100,13 @@ namespace Lumaquarium.UI
                 SetFill(hungerFill, fullness);
                 if (hungerPercent != null)
                 {
-                    hungerLabel.text = "Độ no";
+                    hungerLabel.text = Loc.T("Độ no");
                     hungerPercent.text = percent + "%";
                 }
-                else hungerLabel.text = $"Độ no     {percent}%";
+                else hungerLabel.text = Loc.T("Độ no") + $"     {percent}%";
                 if (hudFullnessFill != null) SetFill(hudFullnessFill, fullness);
                 if (hudFullnessLabel != null) hudFullnessLabel.text = percent + "%";
-                behaviourLabel.text = fish.state switch
+                behaviourLabel.text = Loc.T(fish.state switch
                 {
                     BettaFishAI.State.SeekFood => "Đang tìm thức ăn",
                     BettaFishAI.State.Eat => "Đang ăn",
@@ -113,7 +116,7 @@ namespace Lumaquarium.UI
                     BettaFishAI.State.SwimToTap => "Đang bơi tới chỗ bạn chạm",
                     BettaFishAI.State.Flee => "Giật mình bỏ chạy",
                     _ => "Đang bơi thong thả"
-                };
+                });
             }
             if (FeedbackRoot.activeSelf && Time.unscaledTime >= feedbackUntil)
                 FeedbackRoot.SetActive(false);
@@ -143,7 +146,7 @@ namespace Lumaquarium.UI
             walletRefreshAt = Time.unscaledTime + .5f;
             if (walletLabel == null) return;
             string key = decoration != null ? decoration.inventoryStorageKey : FishShopInventory.DefaultStorageKey;
-            walletLabel.text = new FishShopInventory(key).Balance.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"));
+            walletLabel.text = Loc.Money(new FishShopInventory(key).Balance);
         }
 
         public void OpenShop()
@@ -240,7 +243,20 @@ namespace Lumaquarium.UI
             UpdateMuteLabel();
         }
 
-        private void UpdateMuteLabel() => muteLabel.text = AudioListener.volume > 0 ? "Đang bật" : "Đang tắt";
+        private void UpdateMuteLabel() => muteLabel.text = Loc.T(AudioListener.volume > 0 ? "Đang bật" : "Đang tắt");
+
+        // The button names the language in use, each in its own language, so either reader can find it.
+        public void ToggleLanguage()
+        {
+            Loc.Toggle();
+            UpdateLanguageLabel();
+            RefreshWallet();
+        }
+
+        private void UpdateLanguageLabel()
+        {
+            if (languageLabel != null) languageLabel.text = Loc.Current == Language.English ? "English" : "Tiếng Việt";
+        }
 
         public void ResetView()
         {
@@ -292,7 +308,7 @@ namespace Lumaquarium.UI
 
         private void Notify(string message)
         {
-            feedback.text = message;
+            feedback.text = Loc.T(message);
             feedbackUntil = Time.unscaledTime + 4;
             FeedbackRoot.SetActive(true);
         }

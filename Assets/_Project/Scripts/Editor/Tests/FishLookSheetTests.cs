@@ -92,6 +92,54 @@ public sealed class FishLookSheetTests
     }
 
     [Test]
+    public void ANewTemplateRowMakesATemplateAndFishMayUseIt()
+    {
+        var tabs = RoundTrip(FishLookSheet.Tabs(Fish()));
+        var shape = tabs[0].Item2;
+        var row = new string[shape[0].Length];
+        for (int i = 0; i < row.Length; i++) row[i] = "";
+        row[0] = "Mẫu:Galaxy";
+        row[System.Array.IndexOf(shape[0], "size")] = "2.2";
+        shape.Insert(2, row);
+        Edit(tabs, "mẫu", "Galaxy");
+        Edit(tabs, "size", "");
+        var errors = new List<string>();
+        var files = Files();
+        var changed = FishLookSheet.Apply(tabs, files, errors, _ => true);
+        CollectionAssert.IsEmpty(errors);
+        CollectionAssert.AreEquivalent(new[] { "mẫu: Galaxy", "KoiNemoRig" }, changed);
+        Assert.AreEqual("{\n  \"model\": {\n    \"size\": 2.2\n  }\n}\n", files["mẫu: Galaxy"]);
+        StringAssert.StartsWith("{\n  \"base\": \"Galaxy\",\n  \"build\"", files["KoiNemoRig"]);
+        var config = PipelineFishConfig.Parse(files["KoiNemoRig"], "KoiNemoRig.json", name => files["mẫu: " + name]);
+        Assert.AreEqual(2.2f, config.model.size);
+        Assert.AreEqual("Koi", config.look.pattern);
+
+        // The template shows as its own row and the fish's mẫu cell reads back; clearing it drops the key.
+        var again = RoundTrip(FishLookSheet.Tabs(new List<FishLookSheet.Fish>
+        {
+            new FishLookSheet.Fish { name = "KoiNemoRig", displayName = "Koi Nemo", json = files["KoiNemoRig"] },
+            new FishLookSheet.Fish { name = "mẫu: Galaxy", displayName = "", json = files["mẫu: Galaxy"] },
+        }));
+        Assert.AreEqual("mẫu: Galaxy", again[0].Item2[2][0]);
+        Edit(again, "mẫu", "");
+        FishLookSheet.Apply(again, files, errors, _ => true);
+        CollectionAssert.IsEmpty(errors);
+        Assert.AreEqual(Json.Replace("\"size\": 2.4", "PLACEHOLDER").Replace("  \"model\": {\n    PLACEHOLDER\n  },\n", "  \"model\": {},\n"),
+            files["KoiNemoRig"]);
+    }
+
+    [Test]
+    public void AFishCannotUseAMissingTemplate()
+    {
+        var tabs = RoundTrip(FishLookSheet.Tabs(Fish()));
+        Edit(tabs, "mẫu", "Nope");
+        var errors = new List<string>();
+        var files = Files();
+        CollectionAssert.IsEmpty(FishLookSheet.Apply(tabs, files, errors, _ => true));
+        Assert.AreEqual(1, errors.Count);
+    }
+
+    [Test]
     public void AMissingBlockIsAdded()
     {
         string json = FishLookSheet.SetBlock("{\n  \"shop\": {\n    \"price\": 0\n  }\n}", "model",

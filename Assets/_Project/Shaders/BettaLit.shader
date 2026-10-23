@@ -130,6 +130,8 @@ Shader "Lumaquarium/Betta Lit"
         // Lit colour of the whole fish: saturation and brightness (1 = as lit). Underwater light makes it read dull.
         _Vibrance("Vibrance", Range(0.5, 2.0)) = 1.0
         _Brightness("Brightness", Range(0.5, 2.0)) = 1.0
+        // Keep the base map's own colours instead of the pattern (pipeline fish with build.baseTexture)
+        _BaseTexture("Base Texture", Range(0.0, 1.0)) = 0.0
         // Editmode props
         _QueueOffset("Queue offset", Float) = 0.0
 

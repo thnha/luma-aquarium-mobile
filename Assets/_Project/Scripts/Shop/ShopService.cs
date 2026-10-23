@@ -83,11 +83,11 @@ namespace Lumaquarium.Shop
         // What the player reads when a change is not made.
         public static string Message(string error) => error switch
         {
-            ShopError.NotEnoughCoins => "Chưa đủ xu để mua món này.",
-            ShopError.Owned => "Bạn đã có món này.",
-            ShopError.Offline => "Cần kết nối mạng để mua và đổi đồ.",
-            ShopError.PriceChanged => "Giá vừa được cập nhật. Mở lại game để xem giá mới.",
-            _ => "Chưa lưu được giao dịch. Vui lòng thử lại."
+            ShopError.NotEnoughCoins => Loc.T("Chưa đủ xu để mua món này."),
+            ShopError.Owned => Loc.T("Bạn đã có món này."),
+            ShopError.Offline => Loc.T("Cần kết nối mạng để mua và đổi đồ."),
+            ShopError.PriceChanged => Loc.T("Giá vừa được cập nhật. Mở lại game để xem giá mới."),
+            _ => Loc.T("Chưa lưu được giao dịch. Vui lòng thử lại.")
         };
     }
 }

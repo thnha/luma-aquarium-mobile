@@ -1,0 +1,89 @@
+{
+  "build": {
+    "input": "input/Betta1023/meshy_zip/Meshy_AI_Betta_Fish_Model_1023150839_image-to-3d-texture_fbx/Meshy_AI_Betta_Fish_Model_1023150839_image-to-3d-texture.fbx",
+    "flip": true,
+    "faces": 30000,
+    "depth": 1,
+    "width": 1,
+    "fins": {},
+    "finThickness": 0.2,
+    "landmarks": "",
+    "bake": true,
+    "body": "meshy",
+    "baseTexture": true
+  },
+  "shop": {
+    "displayName": "Galaxy Betta",
+    "inShop": true,
+    "shopId": "galaxy-betta",
+    "description": "Xanh ngọc, xanh dương, đen · màu gốc theo mô hình",
+    "price": 0
+  },
+  "model": {
+    "size": 1.5,
+    "bodySwimAmplitude": 3,
+    "strokeSwimAmplitude": 8
+  },
+  "look": {
+    "pattern": "Solid",
+    "primary": [
+      1,
+      1,
+      1
+    ],
+    "secondary": [
+      0.22,
+      0.225,
+      0.24
+    ],
+    "accent": [
+      1.0,
+      0.03,
+      0.03
+    ],
+    "finEdge": [
+      1.0,
+      0.66,
+      0.04
+    ],
+    "iridescence": 0.4,
+    "textureDetail": 0.6,
+    "silverSheen": 1,
+    "gloss": 1,
+    "blackGloss": 0,
+    "whiteScales": 0,
+    "pigmentDepth": 0,
+    "finEdgeClear": 1,
+    "finRelief": 0.8,
+    "finTranslucency": 0.9,
+    "scaleRelief": 0.55,
+    "scaleEdge": 0,
+    "scaleEdgeWidth": 0.35,
+    "scaleEdgeDark": [
+      0.62,
+      0.42,
+      0.22
+    ],
+    "scaleEdgeLight": [
+      0.3,
+      0.3,
+      0.33
+    ],
+    "finBlack": 0,
+    "finBrightness": 1,
+    "vibrance": 1,
+    "brightness": 1,
+    "finRimAlpha": 0.85,
+    "finRim": [
+      0.55,
+      1.0
+    ],
+    "caudalRim": [
+      0.6,
+      1.0
+    ],
+    "caudalStart": 0.55,
+    "seed": 3,
+    "baseTexture": 1
+  }
+}

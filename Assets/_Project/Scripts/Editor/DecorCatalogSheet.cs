@@ -614,7 +614,8 @@ public sealed class DecorCatalogSheetWindow : EditorWindow
         EditorGUILayout.HelpBox("1. Export Excel, rồi trong Google Sheets: File > Import > Upload file .xlsx > Replace spreadsheet.\n" +
             "2. Share > General access: Anyone with the link (Viewer).\n3. Dán link sheet vào đây, bấm Pull.\n" +
             "Mỗi nhóm một tab; món nằm ở tab nào cũng được, miễn còn cột id. Cột xám chỉ để xem. Tab Cá: giá 0 = tặng miễn phí.\n" +
-            "Tab Cá – hình dáng/màu/bề mặt/vây: mỗi hàng một con cá; ô trống = mặc định (hàng xám); màu dạng #RRGGBB. Pull dựng lại các cá đã đổi.\n" +
+            "Tab Cá – hình dáng/màu/bề mặt/vây: mỗi hàng một con cá; ô trống = theo mẫu (cột mẫu) hoặc mặc định (hàng xám);\n" +
+            "thêm hàng \"mẫu: Tên\" để tạo mẫu dùng chung; màu dạng #RRGGBB. Pull dựng lại các cá đã đổi và cá dùng mẫu đã đổi.\n" +
             "Tab Gói quà: mỗi người chơi nhận mỗi gói một lần; starter_v1 là quà của người chơi mới, id xu = số xu.\n" +
             "Ảnh đổi thì chạy Tools/upload_sheet_images_r2.sh trước khi Export.", MessageType.Info);
         url = EditorGUILayout.TextField("Link Google Sheet", url);

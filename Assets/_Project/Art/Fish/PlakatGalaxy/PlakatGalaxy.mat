@@ -104,6 +104,7 @@ Material:
     - _AlbedoAO: 0.8
     - _AlphaClip: 0
     - _AlphaToMask: 0
+    - _BaseTexture: 0
     - _BlackDetail: 1
     - _BlackGloss: 0
     - _BlackSteel: 2

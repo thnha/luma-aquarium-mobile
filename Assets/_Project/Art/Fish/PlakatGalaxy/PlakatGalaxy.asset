@@ -21,7 +21,7 @@ MonoBehaviour:
   price: 0
   size: 1.5
   pattern: {fileID: 11400000, guid: 9c31507e348de46669991b4d0d773ea2, type: 2}
-  primary: {r: 1, g: 1, b: 1, a: 1}
+  primary: {r: 0.88, g: 0.88, b: 0.88, a: 1}
   secondary: {r: 0.22, g: 0.225, b: 0.24, a: 1}
   accent: {r: 1, g: 0.03, b: 0.03, a: 1}
   finEdge: {r: 1, g: 0.66, b: 0.04, a: 1}

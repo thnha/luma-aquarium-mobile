@@ -15,7 +15,7 @@ MonoBehaviour:
   displayName: Plakat Galaxy
   modelPrefab: {fileID: 6207462310338228702, guid: df6d58eb0393f4763869fe41c19b115b, type: 3}
   pattern: {fileID: 11400000, guid: 9c31507e348de46669991b4d0d773ea2, type: 2}
-  primary: {r: 1, g: 1, b: 1, a: 1}
+  primary: {r: 0.88, g: 0.88, b: 0.88, a: 1}
   secondary: {r: 0.22, g: 0.225, b: 0.24, a: 1}
   accent: {r: 1, g: 0.03, b: 0.03, a: 1}
   finEdge: {r: 1, g: 0.66, b: 0.04, a: 1}
@@ -38,6 +38,7 @@ MonoBehaviour:
   finBrightness: 1.8
   vibrance: 1.3
   brightness: 1.12
+  baseTexture: 0
   finRimAlpha: 0.6
   finRim: {x: 0.55, y: 1}
   caudalRim: {x: 0.3, y: 0.8}

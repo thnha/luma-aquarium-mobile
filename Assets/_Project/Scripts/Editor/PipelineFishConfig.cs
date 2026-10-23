@@ -7,9 +7,14 @@ using UnityEngine;
 //   "build"            read by betta-splendens/pipeline/build_fish.py --config (mesh shape, fin thickness, ...)
 //   "shop" / "model" / "look"   read here by PipelineFishImporter, written into <Name>.asset and the variant
 // A key left out keeps the default below. Colours are [r, g, b] (0-1, as in the Inspector); ranges are [start, end].
+//   "base": "<Template>"   takes "model" and "look" from Data/Betta/FishTemplates/<Template>.json first, so fish
+//                          of one line share their settings; the fish's own keys win.
 [Serializable]
 public class PipelineFishConfig
 {
+    public const string TemplateDir = "Assets/_Project/Data/Betta/FishTemplates";
+
+    public string @base = "";
     public Shop shop = new Shop();
     public Model model = new Model();
     public Look look = new Look();
@@ -59,6 +64,7 @@ public class PipelineFishConfig
         public float finBrightness = 1f;
         public float vibrance = 1f;
         public float brightness = 1f;
+        public float baseTexture;
         public float finRimAlpha = 1f;
         public float[] finRim = { 0.9f, 1f };
         public float[] caudalRim = { 0.62f, 0.8f };
@@ -70,12 +76,28 @@ public class PipelineFishConfig
 
     public static string PathFor(string fishDir, string name) => fishDir + "/" + name + ".json";
 
-    public static PipelineFishConfig Load(string path)
+    public static PipelineFishConfig Load(string path) => File.Exists(path)
+        ? Parse(File.ReadAllText(path), path, name => File.Exists(TemplatePath(name)) ? File.ReadAllText(TemplatePath(name)) : null)
+        : null;
+
+    // readTemplate: a template's text by name, or null when there is none.
+    public static PipelineFishConfig Parse(string text, string path, Func<string, string> readTemplate)
     {
-        if (!File.Exists(path)) return null;
-        try { return JsonUtility.FromJson<PipelineFishConfig>(File.ReadAllText(path)); }
+        PipelineFishConfig config;
+        try { config = JsonUtility.FromJson<PipelineFishConfig>(text); }
         catch (Exception e) { throw new InvalidOperationException("Bad fish config " + path + ": " + e.Message); }
+        if (string.IsNullOrEmpty(config.@base)) return config;
+        string template = readTemplate(config.@base) ?? throw new InvalidOperationException(path + ": no template " + TemplatePath(config.@base));
+        var merged = new PipelineFishConfig();
+        try { JsonUtility.FromJsonOverwrite(template, merged); }
+        catch (Exception e) { throw new InvalidOperationException("Bad fish template " + TemplatePath(config.@base) + ": " + e.Message); }
+        // Only "model" and "look" come from the template.
+        merged.shop = new Shop();
+        JsonUtility.FromJsonOverwrite(text, merged);
+        return merged;
     }
+
+    public static string TemplatePath(string name) => TemplateDir + "/" + name + ".json";
 
     // Every Art/Fish/<Name>/<Name>.json without a <Name>.asset gets one, so a new fish needs only its folder.
     public static void CreateMissingAssets(string fishRoot)
@@ -131,6 +153,7 @@ public class PipelineFishConfig
         variant.finBrightness = look.finBrightness;
         variant.vibrance = look.vibrance;
         variant.brightness = look.brightness;
+        variant.baseTexture = look.baseTexture;
         variant.finRimAlpha = look.finRimAlpha;
         variant.finRim = Range(look.finRim, "finRim", path);
         variant.caudalRim = Range(look.caudalRim, "caudalRim", path);

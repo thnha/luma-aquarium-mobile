@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Lumaquarium;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -259,7 +260,7 @@ public sealed class AquariumDecoration : MonoBehaviour
             button.name = name;
             button.transform.SetSiblingIndex(rotate.GetSiblingIndex() + after);
             var text = button.GetComponentInChildren<TMP_Text>();
-            if (text != null) text.text = label;
+            if (text != null) text.text = Loc.T(label);
             var control = button.GetComponent<UnityEngine.UI.Button>();
             control.onClick = new UnityEngine.UI.Button.ButtonClickedEvent();
             control.onClick.AddListener(action);
@@ -292,7 +293,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         if (!HasRoomFor(kind))
         {
             Idle();
-            instruction.text = $"Hồ đã dùng {Points}/{capacity} điểm, món này cần {Mathf.Max(1, prefabs[kind].points)}. Cất bớt đồ để đặt.";
+            instruction.text = Loc.F("Hồ đã dùng {0}/{1} điểm, món này cần {2}. Cất bớt đồ để đặt.", Points, capacity, Mathf.Max(1, prefabs[kind].points));
             return false;
         }
         before = Capture();
@@ -324,8 +325,8 @@ public sealed class AquariumDecoration : MonoBehaviour
     private void BrushHint()
     {
         int left = Mathf.Max(0, BrushAllowance - carpet.Count(brushSpecies));
-        instruction.text = erasing ? "Kéo trên cát để xoá thảm • Chọn Trải để trải tiếp" :
-            left > 0 ? $"Kéo trên cát để trải thảm • Còn {left} ô • Chọn Xong để lưu" : "Đã trải hết số ô đã mua • Mua thêm gói trong cửa hàng";
+        instruction.text = erasing ? Loc.T("Kéo trên cát để xoá thảm • Chọn Trải để trải tiếp") :
+            left > 0 ? Loc.F("Kéo trên cát để trải thảm • Còn {0} ô • Chọn Xong để lưu", left) : Loc.T("Đã trải hết số ô đã mua • Mua thêm gói trong cửa hàng");
     }
 
     private void Relabel(string name, string label)
@@ -334,7 +335,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         var text = button != null ? button.GetComponentInChildren<TMP_Text>() : null;
         if (text == null) return;
         if (!dockLabels.ContainsKey(button.gameObject)) dockLabels[button.gameObject] = text.text;
-        text.text = label;
+        text.text = Loc.T(label);
     }
 
     private void EndBrush()
@@ -614,7 +615,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         float height = Mathf.Clamp(Mathf.Round((Selected.transform.localScale.y + step) * 10) / 10, .6f, 1.6f);
         SetHeight(Selected, height);
         RefreshSelection();
-        instruction.text = $"Chiều cao ×{height:0.0} • Tỉa hoặc Mọc tiếp, rồi chọn Đặt";
+        instruction.text = Loc.F("Chiều cao ×{0:0.0} • Tỉa hoặc Mọc tiếp, rồi chọn Đặt", height);
     }
 
     // Taller plants also spread a little, so the leaves don't look stretched.
@@ -850,8 +851,8 @@ public sealed class AquariumDecoration : MonoBehaviour
         if (idle) foreach (var button in new[] { tiltButton, trimButton, growButton }) if (button != null) button.SetActive(false);
         foreach (var button in new[] { addButton, undoButton, doneButton }) if (button != null) button.SetActive(idle);
         if (undoButton != null) undoButton.GetComponent<UnityEngine.UI.Button>().interactable = undoLayout != null;
-        if (idle) instruction.text = undoLayout != null ? "Chạm một món để chỉnh • Hoàn tác để lùi lần vừa rồi • Xong khi hoàn tất" :
-            "Chạm một món để chỉnh • Thêm để lấy đồ trong kho • Xong khi hoàn tất";
+        if (idle) instruction.text = Loc.T(undoLayout != null ? "Chạm một món để chỉnh • Hoàn tác để lùi lần vừa rồi • Xong khi hoàn tất" :
+            "Chạm một món để chỉnh • Thêm để lấy đồ trong kho • Xong khi hoàn tất");
     }
 
     // Nothing selected: the camera looks over the whole tank again.
@@ -877,14 +878,14 @@ public sealed class AquariumDecoration : MonoBehaviour
         if (tiltButton != null) tiltButton.SetActive(Selected.tiltable && !attached);
         if (trimButton != null) trimButton.SetActive(Trimmable(Selected));
         if (growButton != null) growButton.SetActive(Trimmable(Selected));
-        instruction.text = !valid ? "Vòng đỏ: không còn chỗ trống ở đây. Kéo sang chỗ khác." :
+        instruction.text = Loc.T(!valid ? "Vòng đỏ: không còn chỗ trống ở đây. Kéo sang chỗ khác." :
             attached ? "Đã gắn lên lũa/đá • Xoay rồi chọn Đặt" :
             Selected.wallMounted ? "Kéo trên kính sau hồ • Ghép nhiều tấm thành tường rêu • Chọn Đặt" :
             Selected.floats ? "Kéo trên mặt nước • Xoay rồi chọn Đặt" :
             Selected.attachable ? "Kéo trên cát, lên lũa hoặc đá để gắn • Chọn Đặt" :
             Mountable(Selected) ? "Kéo trên cát, sát lũa, hoặc lên đá để gắn • Chọn Đặt" :
             Raised(Selected, Selected.transform.position) ? "Đang chồng lên đá/lũa • Xoay rồi chọn Đặt" :
-            Selected.tiltable ? "Kéo trên cát hoặc lên đá • Xoay, Nghiêng rồi chọn Đặt" : "Kéo trên cát hoặc lên đá để chồng • Xoay rồi chọn Đặt";
+            Selected.tiltable ? "Kéo trên cát hoặc lên đá • Xoay, Nghiêng rồi chọn Đặt" : "Kéo trên cát hoặc lên đá để chồng • Xoay rồi chọn Đặt");
         selectionRing.gameObject.SetActive(true);
         selectionRing.startColor = selectionRing.endColor = valid ? new Color(.6f, 1, .55f) : new Color(1, .25f, .15f);
         if (Selected.wallMounted)

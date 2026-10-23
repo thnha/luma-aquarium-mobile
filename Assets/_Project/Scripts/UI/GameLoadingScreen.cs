@@ -47,7 +47,7 @@ namespace Lumaquarium.UI
             loading = true;
             errorActions.SetActive(false);
             SetProgress(0);
-            statusLabel.text = "Đang chuẩn bị hồ cá...";
+            statusLabel.text = Loc.T("Đang chuẩn bị hồ cá...");
             float startedAt = Time.realtimeSinceStartup;
 
             // Also picks up a newer remote catalog; offline it keeps the cached one.
@@ -75,7 +75,7 @@ namespace Lumaquarium.UI
             float opening = 0;
             if (bytes > 0)
             {
-                statusLabel.text = $"Đang tải nội dung mới ({bytes / 1048576f:0.#} MB)...";
+                statusLabel.text = Loc.F("Đang tải nội dung mới ({0:0.#} MB)...", bytes / 1048576f);
                 var download = Addressables.DownloadDependenciesAsync(FrontEndScenes.Aquarium, false);
                 while (!download.IsDone)
                 {
@@ -90,7 +90,7 @@ namespace Lumaquarium.UI
                     yield break;
                 }
                 opening = 0.8f;
-                statusLabel.text = "Đang chuẩn bị hồ cá...";
+                statusLabel.text = Loc.T("Đang chuẩn bị hồ cá...");
             }
 
             // The shop save from the server (and a save from before it, sent once) before the aquarium reads it.
@@ -114,7 +114,7 @@ namespace Lumaquarium.UI
             }
 
             SetProgress(1);
-            statusLabel.text = "Đang mở hồ cá...";
+            statusLabel.text = Loc.T("Đang mở hồ cá...");
             while (Time.realtimeSinceStartup - startedAt < minimumVisibleSeconds) yield return null;
             yield return scene.Result.ActivateAsync();
         }
@@ -131,7 +131,7 @@ namespace Lumaquarium.UI
         private void ShowError()
         {
             loading = false;
-            statusLabel.text = "Chưa tải được hồ cá. Kiểm tra kết nối mạng rồi thử lại.";
+            statusLabel.text = Loc.T("Chưa tải được hồ cá. Kiểm tra kết nối mạng rồi thử lại.");
             errorActions.SetActive(true);
         }
 

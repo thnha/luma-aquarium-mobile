@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using Lumaquarium.Shop;
 using TMPro;
 using UnityEngine;
@@ -32,7 +31,7 @@ namespace Lumaquarium.UI
         private void OnEnable()
         {
             pending = -1;
-            if (feedback != null) feedback.text = "Cá, cây và đèn phủ kín cả hồ";
+            if (feedback != null) feedback.text = Loc.T("Cá, cây và đèn phủ kín cả hồ");
             Refresh();
         }
 
@@ -48,13 +47,13 @@ namespace Lumaquarium.UI
             if (!owned && spec.price > 0 && pending != index)
             {
                 pending = index;
-                feedback.text = inventory.Balance >= spec.price ? $"Chạm lần nữa để mua {spec.displayName}" : "Chưa đủ xu để mua hồ này";
+                feedback.text = inventory.Balance >= spec.price ? Loc.F("Chạm lần nữa để mua {0}", Loc.T(spec.displayName)) : Loc.T("Chưa đủ xu để mua hồ này");
                 Refresh();
                 return;
             }
             pending = -1;
             busy = true;
-            feedback.text = "Đang xử lý...";
+            feedback.text = Loc.T("Đang xử lý...");
             Refresh();
             string error;
             try
@@ -73,10 +72,10 @@ namespace Lumaquarium.UI
             if (error == ShopError.None)
             {
                 tank.Switch(spec.id);
-                feedback.text = owned ? $"Đã chuyển sang {spec.displayName}" : $"Đã mua {spec.displayName}. Đồ không vừa hồ được cất vào kho.";
+                feedback.text = owned ? Loc.F("Đã chuyển sang {0}", Loc.T(spec.displayName)) : Loc.F("Đã mua {0}. Đồ không vừa hồ được cất vào kho.", Loc.T(spec.displayName));
                 aquarium.RefreshWallet();
             }
-            else feedback.text = error == ShopError.NotEnoughCoins ? "Chưa đủ xu để mua hồ này" : ShopService.Message(error);
+            else feedback.text = error == ShopError.NotEnoughCoins ? Loc.T("Chưa đủ xu để mua hồ này") : ShopService.Message(error);
             Refresh();
         }
 
@@ -90,14 +89,14 @@ namespace Lumaquarium.UI
                 var spec = AquariumTank.Specs[i];
                 // The row's name and line were baked with the built-in values; the price sheet may have changed them.
                 var row = buttons[i].transform.parent;
-                SetText(row.Find("Title"), spec.displayName);
-                SetText(row.Find("Detail"), spec.description);
+                SetText(row.Find("Title"), Loc.T(spec.displayName));
+                SetText(row.Find("Detail"), Loc.T(spec.description));
                 bool current = spec == tank.Current, owned = inventory.OwnsTank(spec.id);
                 buttons[i].interactable = !busy && !current && (owned || inventory.Balance >= spec.price);
                 var label = buttons[i].GetComponentInChildren<TMP_Text>();
                 if (label != null)
-                    label.text = current ? "Đang dùng" : owned ? "Dùng" : spec.price == 0 ? "Nhận" : pending == i ? "Xác nhận" :
-                        inventory.Balance >= spec.price ? spec.price.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) + " xu" : "Chưa đủ xu";
+                    label.text = current ? Loc.T("Đang dùng") : owned ? Loc.T("Dùng") : spec.price == 0 ? Loc.T("Nhận") : pending == i ? Loc.T("Xác nhận") :
+                        inventory.Balance >= spec.price ? Loc.F("{0} xu", Loc.Money(spec.price)) : Loc.T("Chưa đủ xu");
             }
         }
 

@@ -86,7 +86,7 @@ namespace Lumaquarium.UI
                 var portrait = card.transform.Find("Portrait");
                 if (portrait != null) portrait.GetComponent<UnityEngine.UI.Image>().sprite = offer.portrait;
                 var title = card.transform.Find("Name");
-                if (title != null) title.GetComponent<TMP_Text>().text = offer.displayName;
+                if (title != null) title.GetComponent<TMP_Text>().text = Loc.T(offer.displayName);
                 var badge = card.transform.Find("Count");
                 if (countBadges != null && countBadges.Length == count && badge != null) countBadges[i] = badge.GetComponent<UnityEngine.UI.Image>();
                 countLabels[i] = badge != null ? badge.GetComponentInChildren<TMP_Text>() : card.GetComponentInChildren<TMP_Text>();
@@ -127,8 +127,8 @@ namespace Lumaquarium.UI
                 countLabels[i].color = tabLabelOn;
             }
             if (summary != null && decoration != null)
-                summary.text = shown > 0 ? $"Kho của bạn · trong hồ {decoration.Points}/{decoration.capacity} điểm"
-                    : "Kho trống ở mục này · chọn Mua thêm";
+                summary.text = shown > 0 ? Loc.F("Kho của bạn · trong hồ {0}/{1} điểm", decoration.Points, decoration.capacity)
+                    : Loc.T("Kho trống ở mục này · chọn Mua thêm");
         }
 
         public void Use(int index)

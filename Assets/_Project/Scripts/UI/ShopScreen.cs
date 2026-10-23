@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using Lumaquarium.Shop;
 using TMPro;
 using UnityEngine;
@@ -30,7 +29,6 @@ namespace Lumaquarium.UI
         public Color tabLabelOn = new Color32(52, 60, 45, 255);
         public Color tabLabelOff = new Color32(255, 248, 230, 255);
 
-        private static readonly CultureInfo Vietnamese = CultureInfo.GetCultureInfo("vi-VN");
         private static readonly string[] SortNames = { "Mặc định", "Giá: Thấp → Cao", "Giá: Cao → Thấp" };
         private readonly List<ShopCard> cards = new List<ShopCard>();
         private List<ShopEntry> entries, visible = new List<ShopEntry>();
@@ -197,7 +195,7 @@ namespace Lumaquarium.UI
             inventory.Reload();
             placed = Decoration != null ? Decoration.PlacedCounts() : placed;
             balanceLabel.text = Money(inventory.Balance);
-            sortLabel.text = SortNames[(int)sort];
+            sortLabel.text = Loc.T(SortNames[(int)sort]);
             clearSearch.gameObject.SetActive(!string.IsNullOrEmpty(search.text));
             for (int i = 0; i < tabButtons.Length; i++)
             {
@@ -212,7 +210,7 @@ namespace Lumaquarium.UI
                 if (!shown) continue;
                 var entry = visible[i];
                 bool owned = Owned(entry), priced = !owned && entry.price > 0;
-                cards[i].Show(entry.portrait, entry.name, owned ? "" : priced ? Money(entry.price) : "Miễn phí", priced,
+                cards[i].Show(entry.portrait, Loc.T(entry.name), owned ? "" : priced ? Money(entry.price) : Loc.T("Miễn phí"), priced,
                     Status(entry), entry == selected ? cardSelected : cardNormal);
             }
             emptyLabel.SetActive(visible.Count == 0);
@@ -224,25 +222,25 @@ namespace Lumaquarium.UI
         private void ShowDetails(ShopEntry entry)
         {
             portrait.sprite = entry.portrait;
-            title.text = entry.name;
-            description.text = entry.description;
+            title.text = Loc.T(entry.name);
+            description.text = Loc.T(entry.description);
             bool owned = Owned(entry), afford = inventory.Balance >= entry.price;
             priceCoin.SetActive(!owned && entry.price > 0);
-            priceLabel.text = owned ? "Đã có" : entry.price == 0 ? "Miễn phí" : Money(entry.price);
+            priceLabel.text = owned ? Loc.T("Đã có") : entry.price == 0 ? Loc.T("Miễn phí") : Money(entry.price);
             if (entry.kind == ShopKind.Decor)
             {
                 int stock = Stock(entry);
                 secondaryButton.gameObject.SetActive(true);
                 secondaryButton.interactable = afford;
-                secondaryLabel.text = afford ? "Mua 1" : "Chưa đủ xu";
+                secondaryLabel.text = Loc.T(afford ? "Mua 1" : "Chưa đủ xu");
                 primaryButton.interactable = stock > 0;
-                primaryLabel.text = stock > 0 ? $"Đặt ({stock})" : "Kho trống";
+                primaryLabel.text = stock > 0 ? Loc.F("Đặt ({0})", stock) : Loc.T("Kho trống");
                 return;
             }
             secondaryButton.gameObject.SetActive(false);
             bool active = Active(entry);
             primaryButton.interactable = !active && (owned || afford);
-            primaryLabel.text = active ? "Đang dùng" : owned ? "Dùng" : entry.price == 0 ? "Nhận" : afford ? "Mua" : "Chưa đủ xu";
+            primaryLabel.text = Loc.T(active ? "Đang dùng" : owned ? "Dùng" : entry.price == 0 ? "Nhận" : afford ? "Mua" : "Chưa đủ xu");
         }
 
         private string Status(ShopEntry entry)
@@ -250,9 +248,9 @@ namespace Lumaquarium.UI
             if (entry.kind == ShopKind.Decor)
             {
                 int stock = Stock(entry);
-                return stock > 0 ? "Kho " + stock : "";
+                return stock > 0 ? Loc.F("Kho {0}", stock) : "";
             }
-            return Active(entry) ? "Đang dùng" : Owned(entry) ? "Đã có" : "";
+            return Active(entry) ? Loc.T("Đang dùng") : Owned(entry) ? Loc.T("Đã có") : "";
         }
 
         // Stock = bought minus placed; the inventory and placed counts are read once per Refresh.
@@ -288,7 +286,7 @@ namespace Lumaquarium.UI
             if (inventory.Balance < entry.price) return;
             pending = entry;
             if (entry.price == 0) { ConfirmPurchase(); return; } // free gifts need no confirmation
-            confirmationText.text = (entry.kind == ShopKind.Decor ? "1 × " : "") + entry.name + "\n" + Money(entry.price) + " xu";
+            confirmationText.text = (entry.kind == ShopKind.Decor ? "1 × " : "") + Loc.T(entry.name) + "\n" + Loc.F("{0} xu", Money(entry.price));
             confirmation.SetActive(true);
         }
 
@@ -304,7 +302,7 @@ namespace Lumaquarium.UI
             CancelPurchase(); // consume the pending purchase before saving or a repeated tap
             if (!IsOpen || entry == null || busy) return;
             busy = true;
-            feedback.text = "Đang xử lý...";
+            feedback.text = Loc.T("Đang xử lý...");
             Refresh();
             string error;
             try
@@ -317,8 +315,8 @@ namespace Lumaquarium.UI
             if (this == null) return; // the scene closed while waiting
             if (error == ShopError.None)
             {
-                if (entry.kind == ShopKind.Decor) feedback.text = "Đã thêm 1 " + entry.name + " vào kho.";
-                else { Apply(entry); feedback.text = "Đã mua và dùng " + entry.name + "."; }
+                if (entry.kind == ShopKind.Decor) feedback.text = Loc.F("Đã thêm 1 {0} vào kho.", Loc.T(entry.name));
+                else { Apply(entry); feedback.text = Loc.F("Đã mua và dùng {0}.", Loc.T(entry.name)); }
             }
             else if (error != null) feedback.text = ShopService.Message(error);
             aquarium.RefreshWallet();
@@ -329,7 +327,7 @@ namespace Lumaquarium.UI
         {
             if (busy) return;
             busy = true;
-            feedback.text = "Đang xử lý...";
+            feedback.text = Loc.T("Đang xử lý...");
             Refresh();
             string error;
             try
@@ -340,7 +338,7 @@ namespace Lumaquarium.UI
             catch (Exception exception) { error = null; SaveFailed(exception); }
             busy = false;
             if (this == null) return;
-            if (error == ShopError.None) { Apply(entry); feedback.text = "Đã dùng " + entry.name + "."; }
+            if (error == ShopError.None) { Apply(entry); feedback.text = Loc.F("Đã dùng {0}.", Loc.T(entry.name)); }
             else if (error != null) feedback.text = ShopService.Message(error);
             Refresh();
         }
@@ -367,7 +365,7 @@ namespace Lumaquarium.UI
         private void ApplyFish(FishShopOffer offer)
         {
             if (fish != null) fish.Apply(offer.variant);
-            if (aquarium.fishNameLabel != null) aquarium.fishNameLabel.text = offer.variant.displayName;
+            if (aquarium.fishNameLabel != null) aquarium.fishNameLabel.text = Loc.T(offer.variant.displayName);
             if (aquarium.fishPortrait != null) aquarium.fishPortrait.sprite = offer.portrait;
         }
 
@@ -378,7 +376,7 @@ namespace Lumaquarium.UI
             if (decoration.Available(kind) <= 0) return;
             if (!decoration.HasRoomFor(kind))
             {
-                feedback.text = $"Hồ không đủ điểm cho món này ({decoration.Points}/{decoration.capacity}). Cất bớt đồ trước khi đặt thêm.";
+                feedback.text = Loc.F("Hồ không đủ điểm cho món này ({0}/{1}). Cất bớt đồ trước khi đặt thêm.", decoration.Points, decoration.capacity);
                 return;
             }
             Close();
@@ -388,10 +386,10 @@ namespace Lumaquarium.UI
         private void SaveFailed(Exception exception)
         {
             Debug.LogError("[Lumaquarium] Shop purchase failed: " + exception.Message);
-            feedback.text = "Chưa lưu được giao dịch. Vui lòng thử lại.";
+            feedback.text = Loc.T("Chưa lưu được giao dịch. Vui lòng thử lại.");
         }
 
-        private static string Money(int amount) => amount.ToString("N0", Vietnamese);
+        private static string Money(int amount) => Loc.Money(amount);
 
         private void OnDisable() { if (IsOpen) Close(); }
     }

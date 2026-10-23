@@ -19,8 +19,8 @@ namespace Lumaquarium.UI
             startButton.onClick.AddListener(Begin);
             if (accountButton != null) accountButton.onClick.AddListener(OpenAccount);
             bool returning = FrontEndScenes.HasGuestProfile;
-            if (startLabel != null) startLabel.text = returning ? "Tiếp tục hồ của bạn" : "Chơi ngay";
-            if (subtitle != null) subtitle.text = returning ? "Chào mừng bạn trở lại" : "Hồ cá của riêng bạn";
+            if (startLabel != null) startLabel.text = Loc.T(returning ? "Tiếp tục hồ của bạn" : "Chơi ngay");
+            if (subtitle != null) subtitle.text = Loc.T(returning ? "Chào mừng bạn trở lại" : "Hồ cá của riêng bạn");
         }
 
         private void OnDestroy()
@@ -47,7 +47,7 @@ namespace Lumaquarium.UI
             if (transitioning) return false;
             if (!Application.CanStreamedLevelBeLoaded(scene))
             {
-                feedback.text = error;
+                feedback.text = Loc.T(error);
                 return false;
             }
             transitioning = true;

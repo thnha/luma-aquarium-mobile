@@ -251,5 +251,5 @@ public sealed class ShopServiceTests
     [TestCase(ShopError.NotEnoughCoins, "Chưa đủ xu để mua món này.")]
     [TestCase(ShopError.Offline, "Cần kết nối mạng để mua và đổi đồ.")]
     [TestCase(ShopError.Rejected, "Chưa lưu được giao dịch. Vui lòng thử lại.")]
-    public void EveryRefusalHasAMessage(string error, string message) => Assert.AreEqual(message, ShopService.Message(error));
+    public void EveryRefusalHasAMessage(string error, string message) => Assert.AreEqual(Lumaquarium.Loc.T(message), ShopService.Message(error));
 }

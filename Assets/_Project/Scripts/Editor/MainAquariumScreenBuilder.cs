@@ -273,10 +273,47 @@ public static class MainAquariumScreenBuilder
         var soon = Ui3D.Badge("Soon", profile, "Đăng nhập · Sắp có", true, out _);
         Ui3D.At(soon.rectTransform, new Vector2(1, .5f), new Vector2(1, .5f), Vector2.zero, new Vector2(340, 66));
         TankRow(controller, panel);
+        LanguageRow(controller, panel);
         return dayNight;
     }
 
-    private const float SettingsHeight = 1180;
+    private const float SettingsHeight = 1320;
+
+    // The label is replaced at runtime by the language in use (MainAquariumScreen.ToggleLanguage).
+    private static void LanguageRow(MainAquariumScreen controller, RectTransform settings)
+    {
+        var language = Row(settings, 7, "Ngôn ngữ", "Tiếng Việt hoặc English", "LanguageButton", "Tiếng Việt");
+        controller.languageLabel = language.GetComponentInChildren<TMP_Text>();
+        Wire(language, controller.ToggleLanguage);
+    }
+
+    // Adds the language row to a HUD built before it existed, or rebuilds it.
+    [MenuItem("Lumaquarium/UI/Build Language Row")]
+    public static void BuildLanguageRow()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            throw new InvalidOperationException("Exit Play mode before building the language row.");
+        var scene = SceneManager.GetActiveScene();
+        var controller = UnityEngine.Object.FindFirstObjectByType<MainAquariumScreen>(FindObjectsInactive.Include);
+        if (scene.path != ScenePath || controller == null || controller.settingsPanel == null)
+            throw new InvalidOperationException("Open MainAquarium with its built HUD first.");
+        Ui3D.LoadFonts();
+        Undo.IncrementCurrentGroup();
+        int group = Undo.GetCurrentGroup();
+        var settings = (RectTransform)controller.settingsPanel.transform;
+        Undo.RecordObject(settings, "Fit language row");
+        settings.sizeDelta = new Vector2(settings.sizeDelta.x, SettingsHeight);
+        var oldRow = settings.Find("Row7");
+        if (oldRow != null) Undo.DestroyObjectImmediate(oldRow.gameObject);
+        Undo.RecordObject(controller, "Wire language row");
+        LanguageRow(controller, settings);
+        Undo.RegisterCreatedObjectUndo(settings.Find("Row7").gameObject, "Create language row");
+        Undo.CollapseUndoOperations(group);
+        EditorUtility.SetDirty(controller);
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        Debug.Log("[Lumaquarium] Language row built.");
+    }
 
     private static void TankRow(MainAquariumScreen controller, RectTransform settings) =>
         Wire(Row(settings, 6, "Hồ cá", "Mua hoặc đổi kích thước hồ", "TanksButton", "Đổi hồ"), controller.ToggleTanks);

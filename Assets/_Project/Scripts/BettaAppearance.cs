@@ -42,6 +42,7 @@ public class BettaAppearance : MonoBehaviour
     static readonly int FinBrightnessId = Shader.PropertyToID("_FinBrightness");
     static readonly int VibranceId = Shader.PropertyToID("_Vibrance");
     static readonly int BrightnessId = Shader.PropertyToID("_Brightness");
+    static readonly int BaseTextureId = Shader.PropertyToID("_BaseTexture");
     static readonly int HeadId = Shader.PropertyToID("_VariantHead");
     static readonly int TailId = Shader.PropertyToID("_VariantTail");
     static readonly int DepthId = Shader.PropertyToID("_VariantDepth");
@@ -155,6 +156,7 @@ public class BettaAppearance : MonoBehaviour
             block.SetFloat(FinBrightnessId, variant.finBrightness);
             block.SetFloat(VibranceId, variant.vibrance);
             block.SetFloat(BrightnessId, variant.brightness);
+            block.SetFloat(BaseTextureId, variant.baseTexture);
             BodyAxis(r, out Vector3 head, out Vector3 tail);
             block.SetVector(HeadId, head);
             block.SetVector(TailId, tail);

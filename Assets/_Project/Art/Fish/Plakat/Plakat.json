@@ -8,7 +8,8 @@
     "fins": {"pectoral": 1.15, "pectoralFan": 1.0},
     "finThickness": 0.2,
     "landmarks": "",
-    "bake": true
+    "bake": true,
+    "body": "master"
   },
   "shop": {
     "displayName": "Plakat Koi",

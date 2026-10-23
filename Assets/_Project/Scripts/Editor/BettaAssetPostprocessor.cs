@@ -78,7 +78,8 @@ public class BettaAssetPostprocessor : AssetPostprocessor
             mask.textureCompression = TextureImporterCompression.Uncompressed;
             return;
         }
-        mask.maxTextureSize = 1024;
+        // Master-body fish bake colour/masks at 2048 so the head keeps its detail.
+        mask.maxTextureSize = 2048;
         mask.sRGBTexture = assetPath.Contains("BaseColor");
         // Body/fin and eye edges sit in R/G: block compression would smear them.
         mask.textureCompression = TextureImporterCompression.Uncompressed;

@@ -71,7 +71,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ScaleCellMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 733586aaec7504e27966b6ce5acfd2c6, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ScaleMap:
@@ -104,6 +104,7 @@ Material:
     - _AlbedoAO: 0.5
     - _AlphaClip: 0
     - _AlphaToMask: 0
+    - _BaseTexture: 0
     - _BlackDetail: 1
     - _BlackGloss: 0
     - _BlackSteel: 2

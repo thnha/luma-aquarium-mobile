@@ -83,7 +83,7 @@ public sealed class AquariumLighting : MonoBehaviour
     public void SetBacklight(bool on) { Backlight = on; Save(); }
     public void SetBacklight(LampColor color) { BackColor = color; Backlight = true; Save(); }
 
-    private void UpdateLabel() { if (label != null) label.text = IsNight ? "Ban đêm" : "Ban ngày"; }
+    private void UpdateLabel() { if (label != null) label.text = Lumaquarium.Loc.T(IsNight ? "Ban đêm" : "Ban ngày"); }
     private void Update()
     {
         float step = Time.unscaledDeltaTime / 1.5f;

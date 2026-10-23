@@ -57,7 +57,7 @@ namespace Lumaquarium.UI
             if (transitioning) return;
             if (!Application.CanStreamedLevelBeLoaded(FrontEndScenes.Loading))
             {
-                feedback.text = "Chưa thể mở hồ cá. Vui lòng thử lại.";
+                feedback.text = Loc.T("Chưa thể mở hồ cá. Vui lòng thử lại.");
                 return;
             }
 

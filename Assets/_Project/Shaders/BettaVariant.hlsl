@@ -77,6 +77,9 @@ half _FinBrightness;
 // Lit colour of the whole fish (forward pass only): saturation and brightness, 1 = as lit.
 half _Vibrance;
 half _Brightness;
+// Pipeline fish built with build.baseTexture: _BaseMap holds the Meshy fish's own colours. 1 keeps them
+// everywhere (like the eye), 0 paints the pattern.
+half _BaseTexture;
 // Snout and tail tip in object space (a skinned fish's object space follows its root bone), set per fish
 // by BettaAppearance: the head (0) -> tail (1) coordinate for pigment depth and the caudal rim.
 float4 _VariantHead;
@@ -385,7 +388,7 @@ half3 BettaVariantAlbedo(half3 original, float2 uv)
         color = min(color * (1.0h + 0.45h * clear), 1.0h);
         gBettaClear = clear * _VariantOn;
     }
-    return lerp(original, lerp(color * shade, original, eye), _VariantOn);
+    return lerp(original, lerp(color * shade, original, max(eye, _BaseTexture)), _VariantOn);
 }
 
 inline void BettaVariantSurfaceData(float2 uv, out SurfaceData outSurfaceData)

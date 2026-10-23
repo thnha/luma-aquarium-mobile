@@ -20,7 +20,8 @@ namespace Lumaquarium.UI
         public Sprite portrait;
         public int order;
         private string searchKey;
-        public string SearchKey => searchKey ??= ShopQuery.Normalize(name);
+        // Search finds a name in either language, whichever the shop is showing.
+        public string SearchKey => searchKey ??= ShopQuery.Normalize(name) + "\n" + ShopQuery.Normalize(Loc.English(name));
 
         private static readonly ShopTab[] DecorTabs = { ShopTab.Wood, ShopTab.Rocks, ShopTab.Coral, ShopTab.Plants, ShopTab.Moss, ShopTab.Floating };
 

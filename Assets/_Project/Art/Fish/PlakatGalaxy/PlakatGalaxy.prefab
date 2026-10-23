@@ -204,6 +204,7 @@ MonoBehaviour:
   bubbleSize: {x: 0.012, y: 0.022}
   bubbleRiseSpeed: 0.22
   surfaceFloatTime: {x: 4, y: 9}
+  popVolume: 0.6
 --- !u!114 &7708764418832649915
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -68,6 +68,7 @@ Ví dụ tên cá là `RedDragon` (tên = tên thư mục = tên file, không d�
 | `finThickness` | `1` (template: `0.4`) | Độ dày vây so với mesh gốc. `1` = giữ nguyên. `0.4` thực tế giảm còn khoảng một nửa, vì những chỗ vây bị ép tới mức hai mặt chạm nhau thì pipeline tự giảm lực ép. 3 cá hiện tại dùng `0.2`. Vây trông dày chủ yếu do đục và rãnh sâu: chỉnh `finRelief`, `finTranslucency`, `finRimAlpha` trước. |
 | `landmarks` | `""` | File JSON chỉnh lại vị trí mắt, mang, hàm, gốc vây (xem phần "Landmarks" trong `betta-splendens/pipeline/README.md`). |
 | `bake` | `true` | Bake normal map và AO từ mesh gốc. Chỉ tắt khi thử nhanh. |
+| `baseTexture` | `false` | `true` = giữ **màu gốc của file Meshy**: bake texture màu của mesh gốc vào `_BaseColor.png` thay cho bản trắng. Dùng kèm `look.baseTexture: 1`. Ví dụ: GalaxyBetta. |
 
 ### `shop`: cửa hàng
 | Khoá | Ý nghĩa |
@@ -111,6 +112,7 @@ một màu tối pha 40% màu sáng vẫn trông khá xám.
 | `finBrightness` | `1` | Độ sáng các màu còn lại trên vây (0.5–2). `1` = như vẽ, `1.25` ≈ sáng thêm một tông, `1.8` = rất tươi (vàng ngả vàng chanh). PlakatGalaxy dùng `1.8`. |
 | `vibrance` | `1` | Độ tươi (bão hoà) của cả con cá sau khi tính ánh sáng (0.5–2). Ánh sáng xanh dưới nước làm màu nhạt đi; `1.3` = tươi rõ, `1.6` bắt đầu cháy màu đỏ. PlakatGalaxy dùng `1.3`. |
 | `brightness` | `1` | Độ sáng của cả con cá sau khi tính ánh sáng (0.5–2). PlakatGalaxy dùng `1.12`. |
+| `baseTexture` | `0` | `1` = tô cá bằng màu texture gốc (cần build với `build.baseTexture: true`), bỏ qua `pattern` và các màu ở trên; vảy, độ trong của vây, độ bóng vẫn áp dụng. `0` = tô theo hoa văn. |
 | `finRimAlpha` | `1` | Độ đục ở chỗ mép vây trong nhất. `1` = tắt (vây đục hoàn toàn). 3 cá hiện tại dùng `0.6`, kèm `finRim` `[0.55, 1.0]` và `caudalRim` `[0.3, 0.8]` cho nửa ngoài vây trong như màng. |
 | `finRim` | `[0.9, 1.0]` | Vùng mép trong của vây lưng, hậu môn, ngực, bụng: [bắt đầu, trong nhất], tính từ gốc vây 0 đến mép vây 1. |
 | `caudalRim` | `[0.62, 0.8]` | Như trên nhưng cho vây đuôi. |

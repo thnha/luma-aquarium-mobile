@@ -1,0 +1,379 @@
+# Vietnamese<TAB>English. The Vietnamese text is the key: code, scenes and catalogs show it as written.
+# Edit the English side freely; when a Vietnamese text changes, change its key here too.
+Chơi ngay	Play now
+Tiếp tục hồ của bạn	Continue your tank
+Chào mừng bạn trở lại	Welcome back
+Hồ cá của riêng bạn	An aquarium of your own
+Một góc hồ dành cho bạn	A corner of water just for you
+Bắt đầu ngay, không cần tài khoản	Start now, no account needed
+Tiến trình chơi khách lưu trên thiết bị này	Guest progress is saved on this device
+Đăng nhập tài khoản	Sign in to your account
+Đăng nhập	Sign in
+Tài khoản	Account
+Mật khẩu	Password
+Chơi với tư cách khách	Play as guest
+Không gửi hay lưu thông tin đăng nhập	Sign-in details are not sent or saved
+Đồng bộ hồ giữa nhiều thiết bị sẽ mở trong bản sau	Syncing your tank across devices is coming in a later version
+SẮP CÓ	COMING SOON
+Sắp có	Coming soon
+Chưa thể mở hồ cá. Vui lòng thử lại.	Couldn't open the aquarium. Please try again.
+Chưa thể mở màn hình tài khoản. Vui lòng thử lại.	Couldn't open the account screen. Please try again.
+Đang chuẩn bị hồ cá...	Preparing your aquarium...
+Đang tải nội dung mới ({0:0.#} MB)...	Downloading new content ({0:0.#} MB)...
+Đang mở hồ cá...	Opening your aquarium...
+Chưa tải được hồ cá. Kiểm tra kết nối mạng rồi thử lại.	Couldn't load the aquarium. Check your connection and try again.
+Bạn có thể xoay góc nhìn để ngắm hồ	You can rotate the view to admire your tank
+Góc hồ đang chờ bạn	Your tank is waiting for you
+Quay lại	Back
+Thử lại	Retry
+Chăm sóc	Care
+Trang trí	Decorate
+Cho ăn	Feed
+Cửa hàng	Shop
+Cài đặt	Settings
+Độ no	Fullness
+No	Full
+Cho Betta ăn	Feed your Betta
+Đổi cá	Change fish
+Nước & thiết bị	Water & equipment
+Đang tìm thức ăn	Looking for food
+Đang ăn	Eating
+Đang nghỉ	Resting
+Đang lên mặt nước	Rising for air
+Đang thả mình	Drifting
+Đang bơi tới chỗ bạn chạm	Swimming to your tap
+Giật mình bỏ chạy	Startled, darting away
+Đang bơi thong thả	Swimming leisurely
+Chạm vào bể để thả thức ăn	Tap the tank to drop food
+Đã tắt chế độ cho ăn	Feeding mode off
+Đã lưu ảnh vào thư mục Photos của ứng dụng	Photo saved to the app's Photos folder
+Chưa lưu được ảnh. Bạn có thể thử lại.	Couldn't save the photo. You can try again.
+BETTA CỦA BẠN	YOUR BETTA
+Chăm sóc hồ	Tank care
+Chọn món → kéo trên cát → xác nhận Đặt.\nBố cục được lưu trên thiết bị.	Pick an item → drag on the sand → confirm with Place.\nThe layout is saved on this device.
+Góc nhìn ban đầu	Starting view
+Nước & thiết bị: chưa có dữ liệu mô phỏng	Water & equipment: no simulation data yet
+Sửa đồ trong hồ	Edit tank items
+Trang trí hồ	Decorate tank
+Âm thanh: Bật	Sound: On
+Ảnh	Photo
+Âm thanh	Sound
+Bật hoặc tắt tiếng hồ	Turn the tank sounds on or off
+Đang bật	On
+Đang tắt	Off
+Ánh sáng hồ	Tank lighting
+Đổi ngày và đêm cho hồ	Switch between day and night
+Ban ngày	Day
+Ban đêm	Night
+Góc nhìn	View
+Đưa camera về vị trí đầu	Return the camera to its starting position
+Đặt lại	Reset
+Ẩn giao diện	Hide interface
+Chỉ giữ nút hiện lại ở góc	Keeps only the show button in the corner
+Ẩn	Hide
+Đèn hồ	Tank lights
+Đèn trên, đèn nền và màu đèn	Top light, backlight and light colour
+Tùy chỉnh	Customise
+Hồ sơ khách	Guest profile
+Lưu trên thiết bị này	Saved on this device
+Đăng nhập · Sắp có	Sign in · Coming soon
+Hồ cá	Tanks
+Mua hoặc đổi kích thước hồ	Buy or change tank size
+Đổi hồ	Change tank
+Ngôn ngữ	Language
+Tiếng Việt hoặc English	Vietnamese or English
+Ánh sáng	Lighting
+Chiếu từ trên xuống	Light from above
+Nắng tự nhiên hoặc đèn treo trên hồ	Natural sunlight or a lamp above the tank
+Đèn	Lamp
+Màu đèn trên	Top light colour
+Chọn màu là bật đèn	Picking a colour turns the lamp on
+Trắng	White
+Xanh	Blue
+Đỏ	Red
+Đèn nền phía sau	Backlight
+Viền sáng cây, đá và cá từ phía sau	Rims plants, stones and fish with light from behind
+Tắt	Off
+Dùng	Use
+Nhận	Get
+Xác nhận	Confirm
+Đang dùng	In use
+Chưa đủ xu	Not enough coins
+{0} xu	{0} coins
+Cá, cây và đèn phủ kín cả hồ	Fish, plants and lights fill the whole tank
+Chạm lần nữa để mua {0}	Tap again to buy {0}
+Chưa đủ xu để mua hồ này	Not enough coins for this tank
+Đang xử lý...	Processing...
+Đã chuyển sang {0}	Switched to {0}
+Đã mua {0}. Đồ không vừa hồ được cất vào kho.	Bought {0}. Items that didn't fit were moved to storage.
+Hồ vuông	Square tank
+Hồ sâu	Deep tank
+Hồ rộng	Wide tank
+Rộng 1 màn hình · đáy vuông	1 screen wide · square floor
+Rộng 1 màn hình · sâu gấp đôi	1 screen wide · twice as deep
+Rộng 1,5 màn hình · vuốt ngang để xem	1.5 screens wide · swipe sideways to look around
+Kho của bạn	Your storage
+Kho của bạn · trong hồ {0}/{1} điểm	Your storage · {0}/{1} points in the tank
+Kho trống ở mục này · chọn Mua thêm	Nothing stored here · tap Buy more
+Mua thêm	Buy more
+Sắp xếp lại	Rearrange
+Cây	Plants
+Lũa	Wood
+Đá	Stones
+San hô	Coral
+Kéo trên cát • Xoay • Đặt	Drag on the sand • Rotate • Place
+Xoay	Rotate
+Nghiêng	Tilt
+Tỉa	Trim
+Mọc	Grow
+Thêm	Add
+Hoàn tác	Undo
+Xong	Done
+Đặt	Place
+Cất	Store
+Hủy	Cancel
+Huỷ	Cancel
+Tẩy	Erase
+Trải	Spread
+Hồ đã dùng {0}/{1} điểm, món này cần {2}. Cất bớt đồ để đặt.	The tank uses {0}/{1} points and this item needs {2}. Store something to make room.
+Kéo trên cát để xoá thảm • Chọn Trải để trải tiếp	Drag on the sand to erase carpet • Tap Spread to keep spreading
+Kéo trên cát để trải thảm • Còn {0} ô • Chọn Xong để lưu	Drag on the sand to spread carpet • {0} tiles left • Tap Done to save
+Đã trải hết số ô đã mua • Mua thêm gói trong cửa hàng	All purchased tiles are used • Buy more packs in the shop
+Chiều cao ×{0:0.0} • Tỉa hoặc Mọc tiếp, rồi chọn Đặt	Height ×{0:0.0} • Trim or Grow more, then tap Place
+Chạm một món để chỉnh • Hoàn tác để lùi lần vừa rồi • Xong khi hoàn tất	Tap an item to adjust • Undo reverts the last change • Done when finished
+Chạm một món để chỉnh • Thêm để lấy đồ trong kho • Xong khi hoàn tất	Tap an item to adjust • Add takes items from storage • Done when finished
+Vòng đỏ: không còn chỗ trống ở đây. Kéo sang chỗ khác.	Red ring: there's no room here. Drag it somewhere else.
+Đã gắn lên lũa/đá • Xoay rồi chọn Đặt	Attached to wood/stone • Rotate, then tap Place
+Kéo trên kính sau hồ • Ghép nhiều tấm thành tường rêu • Chọn Đặt	Drag on the back glass • Join panels into a moss wall • Tap Place
+Kéo trên mặt nước • Xoay rồi chọn Đặt	Drag on the water surface • Rotate, then tap Place
+Kéo trên cát, lên lũa hoặc đá để gắn • Chọn Đặt	Drag on the sand, or onto wood or stone to attach • Tap Place
+Kéo trên cát, sát lũa, hoặc lên đá để gắn • Chọn Đặt	Drag on the sand, against wood, or onto stone to attach • Tap Place
+Đang chồng lên đá/lũa • Xoay rồi chọn Đặt	Stacked on stone/wood • Rotate, then tap Place
+Kéo trên cát hoặc lên đá • Xoay, Nghiêng rồi chọn Đặt	Drag on the sand or onto stone • Rotate, Tilt, then tap Place
+Kéo trên cát hoặc lên đá để chồng • Xoay rồi chọn Đặt	Drag on the sand or onto stone to stack • Rotate, then tap Place
+Tìm vật phẩm...	Search items...
+Không tìm thấy vật phẩm	No items found
+Tất cả	All
+Cá	Fish
+Rong rêu	Moss
+Bèo	Floating
+Thành hồ	Walls
+Cát nền	Substrate
+Mặc định	Default
+Giá: Thấp → Cao	Price: Low → High
+Giá: Cao → Thấp	Price: High → Low
+Miễn phí	Free
+Đã có	Owned
+Mua	Buy
+Mua 1	Buy 1
+Kho trống	None stored
+Đặt ({0})	Place ({0})
+Kho {0}	Stored {0}
+Xác nhận mua	Confirm purchase
+Đã thêm 1 {0} vào kho.	Added 1 {0} to storage.
+Đã mua và dùng {0}.	Bought and using {0}.
+Đã dùng {0}.	Now using {0}.
+Hồ không đủ điểm cho món này ({0}/{1}). Cất bớt đồ trước khi đặt thêm.	Not enough tank points for this item ({0}/{1}). Store something before placing more.
+Chưa lưu được giao dịch. Vui lòng thử lại.	Couldn't save the purchase. Please try again.
+Chưa đủ xu để mua món này.	Not enough coins for this item.
+Bạn đã có món này.	You already own this.
+Cần kết nối mạng để mua và đổi đồ.	An internet connection is needed to buy and change items.
+Giá vừa được cập nhật. Mở lại game để xem giá mới.	Prices were just updated. Reopen the game to see the new prices.
+Chọn cá cho hồ	Choose a fish for your tank
+Chọn món trang trí	Choose a decoration
+Chọn lại	Choose again
+Chỉ món trong kho	Only stored items
+Hiện tất cả	Show all
+GIÁ	PRICE
+GIÁ / MÓN	PRICE / ITEM
+Mua cá	Buy fish
+Mỗi loại mua 1 lần	Each kind is bought once
+Đặt vào hồ	Place in tank
+Thêm một món vào kho?	Add one to storage?
+Đón bạn mới về hồ?	Welcome a new friend to your tank?
+Đỏ, cam, xanh · Plakat đuôi ngắn	Red, orange, blue · short-tailed Plakat
+Xanh dương, trắng, đen · Koi Nemo đuôi tròn	Blue, white, black · round-tailed Koi Nemo
+Koi Galaxy: thân trắng ngọc mảng đỏ tươi, lưng vảy đen, mang trắng viền đỏ, vây vàng nghệ	Koi Galaxy: pearl-white body with bright red patches, black-scaled back, white gills edged in red, saffron fins
+Đá sỏi	Pebble stone
+Vách đá sỏi tự nhiên của hồ	The tank's natural pebble-stone wall
+Đá xám	Grey slate
+Vách đá phiến xám có vân nứt	Grey slate wall with cracked veins
+Gạch nung	Fired brick
+Vách gạch đỏ xếp so le	Staggered red brick wall
+Ván gỗ	Wood planks
+Vách ván gỗ dọc ấm áp	Warm vertical wood-plank wall
+Hoa văn vàng	Gold pattern
+Hoa văn vàng nổi trên nền xanh đậm	Raised gold pattern on deep blue
+Hoa văn xanh ngọc	Jade pattern
+Hoa văn xanh ngọc trên nền sáng	Jade pattern on a light background
+Cát vàng	Golden sand
+Cát sông vàng kèm sỏi nhỏ	Golden river sand with small pebbles
+Cát trắng	White sand
+Cát trắng mịn, hồ sáng hơn	Fine white sand for a brighter tank
+Cát đen	Black sand
+Cát đen làm nổi màu cá	Black sand that makes fish colours pop
+Cát hồng	Pink sand
+Cát hồng san hô mịn	Fine pink coral sand
+Sỏi suối	Creek gravel
+Sỏi suối tròn nhiều màu	Round, multicoloured creek gravel
+Sỏi đen	Black gravel
+Sỏi đen bóng	Glossy black gravel
+Cỏ Vallisneria	Vallisneria
+Hẹ nước Vallisneria cao	Tall Vallisneria
+Kiếm Amazon	Amazon sword
+Dương xỉ Java	Java fern
+Ráy Anubias	Anubias
+Ráy nana petite	Anubias nana petite
+Rong đuôi chó	Hornwort
+Rong la hán	Ludwigia
+Hồng liễu Rotala	Rotala
+Hồng liễu Rotala cao	Tall Rotala
+Thảm Ngưu mao chiên	Hairgrass carpet
+Thảm Trân châu Nhật	Japanese pearlweed carpet
+Cây thủy sinh trồng nền · Lá đung đưa theo dòng nước	Rooted aquatic plant · Leaves sway in the current
+Cây lá rộng · Trồng nền hoặc gắn lên lũa, đá	Broad-leaved plant · Plant in the substrate or attach to wood or stone
+Trồng trên nền hoặc kéo lên lũa, đá để gắn	Plant in the substrate or drag onto wood or stone to attach
+Bụi lá to hình lưỡi kiếm, làm điểm nhấn trung cảnh · Tỉa hoặc cho mọc cao · 2 điểm	Large sword-shaped leaves, a midground centrepiece · Trim or let it grow tall · 2 points
+Bụi thân đứng cao, ngọn đỏ cam · Trồng hậu cảnh · 1 điểm	Tall upright stems with red-orange tips · Background plant · 1 point
+Cây hậu cảnh lá dài gần chạm mặt nước · Trồng sát kính sau · 1 điểm	Background plant whose long leaves nearly reach the surface · Plant against the back glass · 1 point
+Gói 10 ô thảm tiền cảnh · Chọn rồi kéo trên cát để trải, Tẩy để xoá · Không tính điểm	Pack of 10 foreground carpet tiles · Pick it, then drag on the sand to spread, Erase to remove · Uses no points
+Rêu Java	Java moss
+Rêu Christmas	Christmas moss
+Rêu Flame	Flame moss
+Rêu Mini Taiwan	Mini Taiwan moss
+Rêu Weeping	Weeping moss
+Rêu mini fiss	Mini fissidens moss
+Tường rêu Mini Taiwan	Mini Taiwan moss wall
+Tường rêu Weeping	Weeping moss wall
+Taxiphyllum 'Flame' · Nhánh vươn thẳng, xoắn như ngọn lửa xanh · Gắn lên đá, lũa hoặc nền	Taxiphyllum 'Flame' · Upright twisting shoots like a green flame · Attach to stone, wood or the substrate
+Taxiphyllum alternans · Lá li ti mọc thành thảm dày · Gắn lên đá, lũa hoặc trải nền	Taxiphyllum alternans · Tiny leaves form a dense mat · Attach to stone or wood, or spread on the substrate
+Vesicularia ferriei · Nhánh rủ như liễu, đẹp nhất trên lũa cao · Gắn lên đá, lũa hoặc nền	Vesicularia ferriei · Drooping willow-like shoots, best on tall wood · Attach to stone, wood or the substrate
+Tấm rêu dán kính sau hồ, nhánh rủ xuống như thác · Ghép nhiều tấm thành tường rêu	Moss panel for the back glass with cascading shoots · Join panels into a moss wall
+Tấm rêu dán kính sau hồ, phủ thảm dày · Ghép nhiều tấm thành tường rêu	Moss panel for the back glass with a dense mat · Join panels into a moss wall
+Bèo Nhật	Japanese frogbit
+Bèo ong	Salvinia
+Bèo tấm	Duckweed
+Bèo nổi trên mặt nước · Kéo để sắp xếp từng cụm	Floats on the surface · Drag to arrange each cluster
+Lũa Bonsai	Bonsai wood
+Lũa Hải Sơn Tùng	Sea pine wood
+Lũa Linh Sam	Linh Sam wood
+Lũa Mopani	Mopani wood
+Lũa Spider	Spider wood
+Lũa Săn Đá	Stone-root wood
+Lũa Trà Gừng	Ginger wood
+Lũa Đỗ Quyên	Azalea root
+Lũa chùm rễ	Root cluster
+Lũa cong	Curved branch
+Lũa cổ thụ đứng	Upright old tree
+Lũa gốc cây	Tree stump
+Lũa khúc ngắn	Short log
+Lũa nhánh cổ thụ	Old-tree branch
+Lũa phân nhánh	Branching wood
+Lũa thân dài	Long branch
+Lũa tự nhiên · Có 3 vị trí gắn ráy, dương xỉ hoặc rêu	Natural driftwood · 3 spots to attach Anubias, ferns or moss
+Lũa phân nhánh cao · Gắn cây hoặc rêu tại 3 vị trí	Tall branching driftwood · Attach plants or moss at 3 spots
+Chùm rễ tua tủa tỏa từ một gốc nhỏ · Có 3 vị trí gắn cây hoặc rêu	Bristling roots spreading from a small base · 3 spots to attach plants or moss
+Dáng cổ thụ thu nhỏ: thân uốn chữ S, tầng cành xòe ngang · Có 3 vị trí gắn	A miniature old tree: S-curved trunk with spreading tiers of branches · 3 attach spots
+Gỗ cứng nâu đen, vân xoắn, chìm ngay · Có 3 vị trí gắn cây hoặc rêu	Dark brown hardwood with twisting grain, sinks right away · 3 spots to attach plants or moss
+Gỗ nặng, gân guốc nứt nẻ như đá, hợp phối cùng đá · Có 3 vị trí gắn	Heavy, gnarled wood cracked like stone, pairs well with rocks · 3 attach spots
+Khối gỗ dày hai màu sáng tối, chìm ngay · Có 3 vị trí gắn cây hoặc rêu	Thick two-tone light and dark wood, sinks right away · 3 spots to attach plants or moss
+Nhiều nhánh nhỏ khẳng khiu, hợp làm tán cây hoặc rừng cây · Có 3 vị trí gắn	Many thin, spindly branches, good for a tree canopy or forest · 3 attach spots
+Nhánh nhỏ đan chằng chịt, gọn cho hồ mini · Có 3 vị trí gắn	Small tangled branches, compact for mini tanks · 3 attach spots
+Thân mịn uốn lượn, vàng sáng chuyển nâu đỏ · Hợp bố cục chữ V · Có 3 vị trí gắn	Smooth winding trunk, light gold fading to reddish brown · Suits a V-shaped layout · 3 attach spots
+Thân to vươn cao gần chạm mặt nước, ngả được bằng nút Nghiêng · 6 vị trí gắn rêu, ráy · 3 điểm	Thick trunk reaching nearly to the surface, can lean with Tilt · 6 spots for moss or Anubias · 3 points
+Cụm đá tự nhiên	Natural rock cluster
+Hòn non bộ	Rock landscape
+Đá cuội biển	Sea pebble
+Đá cuội suối	Creek pebble
+Đá cổ thạch	Ancient stone
+Đá da voi	Elephant skin stone
+Đá nham thạch	Lava rock
+Đá nham thạch đỏ	Red lava rock
+Đá phiến bậc	Stepped slate
+Đá san hô	Coral stone
+Đá suối tròn	Round creek stone
+Đá tai mèo	Cat-ear stone
+Đá tuyết sơn	Snow mountain stone
+Đá tảng chủ	Main boulder
+Đá vách núi	Cliff stone
+Đá vân Seiryu	Seiryu stone
+Đá tự nhiên · Gắn rêu, ráy hoặc dương xỉ lên mặt đá	Natural stone · Attach moss, Anubias or ferns to its surface
+Đá cuội tròn · Gắn rêu hoặc ráy lên mặt đá	Round pebble · Attach moss or Anubias to its surface
+Tiểu cảnh núi đá nhiều tầng · Gắn rêu lên các mỏm đá	Multi-tier rocky mountain scene · Attach moss to the ledges
+Cuội tròn mượt nhiều màu, vẻ đẹp hoang sơ · Hợp hồ cá cảnh, thủy sinh lẫn hồ Koi	Smooth, round, multicoloured pebbles with a wild look · Suits community, planted and Koi tanks
+Góc cạnh, vân sọc trắng vàng · Điểm nhấn cao cấp cho hòn non bộ	Angular, with white and gold stripes · A premium accent for rock landscapes
+Khối đá dài nhiều tầng dựng sát kính sau, che phần hồ phía sau và tạo chiều sâu · 3 điểm	Long multi-tier rock set against the back glass, hides the back of the tank and adds depth · 3 points
+Mặt trên phẳng để chồng thêm đá hoặc gác lũa, dựng núi đá nhiều tầng · 2 điểm	Flat top for stacking stones or resting wood, builds multi-tier rockscapes · 2 points
+Mặt đá sần nhăn như da voi, xếp tầng tạo khe núi · Hợp hồ thủy sinh và hồ Koi	Wrinkled surface like elephant skin, stacks into mountain crevices · Suits planted and Koi tanks
+Nền đen vân trắng như tuyết phủ đỉnh núi · Điểm nhấn cao cấp cho hòn non bộ	Black with white veins like snow on a peak · A premium accent for rock landscapes
+Tảng đá đứng cao làm điểm nhấn chính kiểu Iwagumi · Gắn rêu ở chân và đỉnh · 3 điểm	Tall standing stone as the main Iwagumi accent · Attach moss at the base and top · 3 points
+Xốp, lỗ li ti cho vi sinh trú ngụ và lọc nước · Lót nền hoặc phân tầng	Porous, with tiny holes that host bacteria and filter water · Use as a base layer or for tiers
+Xốp, nhẹ, nhiều lỗ; vừa làm nền vừa lọc, giữ pH cao ổn định · Hợp bể cá biển	Porous, light and full of holes; both a base and a filter that keeps pH high and stable · Suits marine tanks
+San hô khối	Brain coral
+San hô nhân tạo nhánh	Artificial branch coral
+San hô nhân tạo quạt	Artificial sea fan
+San hô nấm	Mushroom coral
+San hô vụn	Coral rubble
+San hô đồng tiền	Zoanthid coral
+Cụm polyp tròn như đồng xu nhiều màu · San hô sống, cần ánh sáng và dòng chảy	Clusters of round, coin-like polyps in many colours · Live coral, needs light and flow
+Khối san hô thật vân não · Dùng cho bể nước mặn, giúp ổn định pH	Real brain-patterned coral · For saltwater tanks, helps keep pH stable
+Quạt biển silicon mềm, màu tươi, dễ vệ sinh · Hợp người mới chơi và hồ nước ngọt	Soft silicone sea fan, bright and easy to clean · Good for beginners and freshwater tanks
+San hô sống bể biển, đĩa màu rực rỡ · Cần ánh sáng và dòng chảy chuyên dụng	Live marine coral with vivid discs · Needs specialised light and flow
+San hô thật dạng vụn · Lót nền hoặc làm vật liệu lọc tăng pH cho bể nước mặn	Real crushed coral · A substrate or filter media that raises pH in saltwater tanks
+Silicon an toàn, màu tươi, dễ vệ sinh · Mang phong cách biển vào hồ nước ngọt	Safe, brightly coloured silicone, easy to clean · Brings an ocean look to freshwater tanks
+Cỡ lớn của Lũa Bonsai · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm	Large Bonsai wood · Attach plants or moss to the trunk, can lean with Tilt · 3 points
+Cỡ lớn của Lũa Hải Sơn Tùng · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm	Large Sea pine wood · Attach plants or moss to the trunk, can lean with Tilt · 3 points
+Cỡ lớn của Lũa Linh Sam · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm	Large Linh Sam wood · Attach plants or moss to the trunk, can lean with Tilt · 3 points
+Cỡ lớn của Lũa Mopani · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm	Large Mopani wood · Attach plants or moss to the trunk, can lean with Tilt · 3 points
+Cỡ lớn của Lũa Spider · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm	Large Spider wood · Attach plants or moss to the trunk, can lean with Tilt · 3 points
+Cỡ lớn của Lũa Săn Đá · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm	Large Stone-root wood · Attach plants or moss to the trunk, can lean with Tilt · 3 points
+Cỡ lớn của Lũa Trà Gừng · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm	Large Ginger wood · Attach plants or moss to the trunk, can lean with Tilt · 3 points
+Cỡ lớn của Lũa Đỗ Quyên · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm	Large Azalea root · Attach plants or moss to the trunk, can lean with Tilt · 3 points
+Cỡ lớn của Đá cuội biển · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 3 điểm	Large Sea pebble · Stack stones, rest wood on it or attach moss to its surface · 3 points
+Cỡ lớn của Đá cổ thạch · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 3 điểm	Large Ancient stone · Stack stones, rest wood on it or attach moss to its surface · 3 points
+Cỡ lớn của Đá da voi · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 3 điểm	Large Elephant skin stone · Stack stones, rest wood on it or attach moss to its surface · 3 points
+Cỡ lớn của Đá nham thạch đỏ · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 3 điểm	Large Red lava rock · Stack stones, rest wood on it or attach moss to its surface · 3 points
+Cỡ lớn của Đá san hô · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 3 điểm	Large Coral stone · Stack stones, rest wood on it or attach moss to its surface · 3 points
+Cỡ lớn của Đá tuyết sơn · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 3 điểm	Large Snow mountain stone · Stack stones, rest wood on it or attach moss to its surface · 3 points
+Cỡ vừa của Lũa Bonsai · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm	Medium Bonsai wood · Attach plants or moss to the trunk, can lean with Tilt · 2 points
+Cỡ vừa của Lũa Hải Sơn Tùng · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm	Medium Sea pine wood · Attach plants or moss to the trunk, can lean with Tilt · 2 points
+Cỡ vừa của Lũa Linh Sam · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm	Medium Linh Sam wood · Attach plants or moss to the trunk, can lean with Tilt · 2 points
+Cỡ vừa của Lũa Mopani · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm	Medium Mopani wood · Attach plants or moss to the trunk, can lean with Tilt · 2 points
+Cỡ vừa của Lũa Spider · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm	Medium Spider wood · Attach plants or moss to the trunk, can lean with Tilt · 2 points
+Cỡ vừa của Lũa Săn Đá · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm	Medium Stone-root wood · Attach plants or moss to the trunk, can lean with Tilt · 2 points
+Cỡ vừa của Lũa Trà Gừng · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm	Medium Ginger wood · Attach plants or moss to the trunk, can lean with Tilt · 2 points
+Cỡ vừa của Lũa Đỗ Quyên · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm	Medium Azalea root · Attach plants or moss to the trunk, can lean with Tilt · 2 points
+Cỡ vừa của Đá cuội biển · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 2 điểm	Medium Sea pebble · Stack stones, rest wood on it or attach moss to its surface · 2 points
+Cỡ vừa của Đá cổ thạch · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 2 điểm	Medium Ancient stone · Stack stones, rest wood on it or attach moss to its surface · 2 points
+Cỡ vừa của Đá da voi · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 2 điểm	Medium Elephant skin stone · Stack stones, rest wood on it or attach moss to its surface · 2 points
+Cỡ vừa của Đá nham thạch đỏ · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 2 điểm	Medium Red lava rock · Stack stones, rest wood on it or attach moss to its surface · 2 points
+Cỡ vừa của Đá san hô · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 2 điểm	Medium Coral stone · Stack stones, rest wood on it or attach moss to its surface · 2 points
+Cỡ vừa của Đá tuyết sơn · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 2 điểm	Medium Snow mountain stone · Stack stones, rest wood on it or attach moss to its surface · 2 points
+Lũa Bonsai · Lớn	Bonsai wood · Large
+Lũa Bonsai · Vừa	Bonsai wood · Medium
+Lũa Hải Sơn Tùng · Lớn	Sea pine wood · Large
+Lũa Hải Sơn Tùng · Vừa	Sea pine wood · Medium
+Lũa Linh Sam · Lớn	Linh Sam wood · Large
+Lũa Linh Sam · Vừa	Linh Sam wood · Medium
+Lũa Mopani · Lớn	Mopani wood · Large
+Lũa Mopani · Vừa	Mopani wood · Medium
+Lũa Spider · Lớn	Spider wood · Large
+Lũa Spider · Vừa	Spider wood · Medium
+Lũa Săn Đá · Lớn	Stone-root wood · Large
+Lũa Săn Đá · Vừa	Stone-root wood · Medium
+Lũa Trà Gừng · Lớn	Ginger wood · Large
+Lũa Trà Gừng · Vừa	Ginger wood · Medium
+Lũa Đỗ Quyên · Lớn	Azalea root · Large
+Lũa Đỗ Quyên · Vừa	Azalea root · Medium
+Đá cuội biển · Lớn	Sea pebble · Large
+Đá cuội biển · Vừa	Sea pebble · Medium
+Đá cổ thạch · Lớn	Ancient stone · Large
+Đá cổ thạch · Vừa	Ancient stone · Medium
+Đá da voi · Lớn	Elephant skin stone · Large
+Đá da voi · Vừa	Elephant skin stone · Medium
+Đá nham thạch đỏ · Lớn	Red lava rock · Large
+Đá nham thạch đỏ · Vừa	Red lava rock · Medium
+Đá san hô · Lớn	Coral stone · Large
+Đá san hô · Vừa	Coral stone · Medium
+Đá tuyết sơn · Lớn	Snow mountain stone · Large
+Đá tuyết sơn · Vừa	Snow mountain stone · Medium
