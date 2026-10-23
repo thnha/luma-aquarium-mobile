@@ -9,7 +9,7 @@ Mọi con cá đều đi qua quy trình Blender trong `../betta-splendens/pipeli
 | Koi Nemo Betta | `Assets/_Project/Art/Fish/KoiNemoRig/` | `koi-nemo` | miễn phí |
 | Plakat Koi | `Assets/_Project/Art/Fish/Plakat/` | `plakat` | miễn phí |
 
-Người chơi mới nhận **Plakat Koi**: đó là variant gán trên `BettaAppearance` của `BettaRoot` trong MainAquarium. Nếu save có cá không còn bán, hồ cũng quay về cá này.
+Người chơi mới nhận cá được đánh dấu dùng ngay trong gói quà `starter_v1` (hiện là **Plakat Galaxy**, xem [shop-data.md](shop-data.md)). Nếu save có cá không còn bán, hồ quay về variant gán trên `BettaAppearance` của `BettaRoot` trong MainAquarium.
 
 Thêm cá mới: chép `<Name>.fbx`, `<Name>_VariantMask.png`, `<Name>_BaseColor.png` vào `Art/Fish/<Name>/`, tạo `<Name>.asset` (Create › Lumaquarium › Pipeline Fish), rồi chạy **Lumaquarium › Fish › Import Pipeline Fish and Update Shop** khi MainAquarium đang mở và không ở Play Mode. Shop liệt kê mọi Pipeline Fish có `inShop`.
 
@@ -25,7 +25,7 @@ Thêm cá mới: chép `<Name>.fbx`, `<Name>_VariantMask.png`, `<Name>_BaseColor
 
 Mở từ nút Cửa hàng trên dock hoặc chip ví. Chọn thẻ cá để xem ảnh lớn, mô tả và giá. Chỉ khi nhấn **Xác nhận** shop mới trừ xu, ghi quyền sở hữu và đổi cá trong hồ. Cá giá 0 hiện "Miễn phí" và chỉ nhận được một lần. Cá đã có thì đổi qua lại miễn phí; cá đang dùng hiện **Đang trong hồ**.
 
-Ví khởi đầu 1.250 xu. Ví, cá đã có và cá đang dùng lưu chung tại PlayerPrefs `Lumaquarium.FishShop.v1`, dùng chung với [cửa hàng trang trí](decoration-shop.md). Đây là dữ liệu cục bộ, chưa có máy chủ.
+Số xu và đồ khởi đầu lấy từ gói quà `starter_v1`. Ví, đồ đã có và đồ đang dùng lưu chung tại PlayerPrefs `Lumaquarium.FishShop.v1` (save version 2), dùng chung với [cửa hàng trang trí](decoration-shop.md). Đây là dữ liệu cục bộ, chưa có máy chủ. Giá, gói quà và cấu trúc save: [shop-data.md](shop-data.md).
 
 ## File chính
 
