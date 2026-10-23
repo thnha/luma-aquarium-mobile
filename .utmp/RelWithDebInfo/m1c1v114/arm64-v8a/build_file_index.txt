@@ -1,0 +1,2 @@
+/Users/nha-tran/Data/projects/lumaquarium/mobile/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp/CMakeLists.txt
+/Users/nha-tran/Data/projects/lumaquarium/mobile/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp/GameActivity/CMakeLists.txt
