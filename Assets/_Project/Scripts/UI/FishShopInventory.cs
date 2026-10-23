@@ -4,40 +4,56 @@ using UnityEngine;
 
 namespace Lumaquarium.UI
 {
-    // A single local save holds the wallet, owned variants, the fish equipped in the tank, decor stock
-    // and the tanks bought (AquariumTank) with the one in use.
+    // A single local save holds the wallet, everything owned (fish, decorations, tanks, wall and floor styles) and
+    // what is in use. Owning is having a count above 0; a price of 0 only means the item is given for nothing.
+    // Save version 2. A version 1 save is moved over once and kept under <key>.v1.bak. A save that cannot be read
+    // is never written over: the inventory stays empty, LoadFailed is set and every change is refused.
     public sealed class FishShopInventory
     {
+        // The key keeps its old name: it names the save, not its version.
         public const string DefaultStorageKey = "Lumaquarium.FishShop.v1";
-        // Used until the starter gift (ApplyStarter) sets the catalog's value.
-        public const int DefaultStartingCoins = 1250;
+        public const string Coins = "xu";
+        public const string StarterPack = "starter_v1";
+        public const string FishSlot = "fish", WallSlot = "wall", FloorSlot = "floor", TankSlot = "tank";
+        private const int Version = 2;
         private readonly string storageKey;
         private SaveData data;
+
+        [Serializable] private sealed class Amount { public string id; public int count; }
+        [Serializable] private sealed class InUse { public string slot, id; }
 
         [Serializable]
         private sealed class SaveData
         {
-            public int version = 1;
-            public int balance = DefaultStartingCoins;
-            public List<string> ownedIds = new List<string>();
-            public string activeId = "";
-            public List<DecorStock> decor = new List<DecorStock>();
-            public bool starterDecorImported;
-            public List<string> ownedTanks = new List<string>();
-            public string activeTank = "";
-            public List<string> ownedWalls = new List<string>();
-            public string activeWall = "";
-            public List<string> ownedSubstrates = new List<string>();
-            public string activeSubstrate = "";
+            public int version = Version;
+            public List<Amount> wallet = new List<Amount>();
+            public List<Amount> items = new List<Amount>();
+            public List<InUse> equipped = new List<InUse>();
+            public List<string> grantsApplied = new List<string>();
         }
 
-        [Serializable] private sealed class DecorStock { public string id; public int count; }
+        // Version 1, read only to move it over.
+        [Serializable]
+        private sealed class SaveV1
+        {
+            public int balance;
+            public List<string> ownedIds;
+            public string activeId;
+            public List<Amount> decor;
+            public bool starterDecorImported;
+            public List<string> ownedTanks, ownedWalls, ownedSubstrates;
+            public string activeTank, activeWall, activeSubstrate;
+        }
 
-        public int Balance => data.balance;
-        public string ActiveId => data.activeId;
-        public string ActiveTank => data.activeTank;
-        public string ActiveWall => data.activeWall;
-        public string ActiveSubstrate => data.activeSubstrate;
+        [Serializable] private sealed class VersionOnly { public int version; }
+
+        public bool LoadFailed { get; private set; }
+        public string BackupKey => storageKey + ".v1.bak";
+        public int Balance => Count(data.wallet, Coins);
+        public string ActiveId => Equipped(data, FishSlot);
+        public string ActiveTank => Equipped(data, TankSlot);
+        public string ActiveWall => Equipped(data, WallSlot);
+        public string ActiveSubstrate => Equipped(data, FloorSlot);
 
         public FishShopInventory(string storageKey = DefaultStorageKey)
         {
@@ -49,161 +65,206 @@ namespace Lumaquarium.UI
         public void Reload()
         {
             data = new SaveData();
+            LoadFailed = false;
             if (!PlayerPrefs.HasKey(storageKey)) return;
+            string json = PlayerPrefs.GetString(storageKey);
+            SaveData loaded = null;
+            int version = 0;
             try
             {
-                var saved = JsonUtility.FromJson<SaveData>(PlayerPrefs.GetString(storageKey));
-                if (saved == null || saved.version != 1 || saved.balance < 0 || saved.ownedIds == null
-                    || saved.ownedIds.Exists(string.IsNullOrWhiteSpace)
-                    || (!string.IsNullOrEmpty(saved.activeId) && !saved.ownedIds.Contains(saved.activeId))) return;
-                if (saved.decor == null) saved.decor = new List<DecorStock>();
-                if (saved.ownedTanks == null) saved.ownedTanks = new List<string>();
-                if (saved.activeTank == null) saved.activeTank = "";
-                if (saved.ownedWalls == null) saved.ownedWalls = new List<string>();
-                if (saved.activeWall == null) saved.activeWall = "";
-                if (saved.ownedSubstrates == null) saved.ownedSubstrates = new List<string>();
-                if (saved.activeSubstrate == null) saved.activeSubstrate = "";
-                var seen = new HashSet<string>();
-                foreach (var stock in saved.decor)
-                    if (stock == null || string.IsNullOrWhiteSpace(stock.id) || stock.count < 0 || !seen.Add(stock.id)) return;
-                data = saved;
+                version = JsonUtility.FromJson<VersionOnly>(json)?.version ?? 0;
+                loaded = version == Version ? Checked(JsonUtility.FromJson<SaveData>(json))
+                    : version == 1 ? Migrate(JsonUtility.FromJson<SaveV1>(json)) : null;
             }
-            catch (ArgumentException) { /* Keep a usable wallet when local data is malformed. */ }
+            catch (ArgumentException) { }
+            if (loaded == null)
+            {
+                LoadFailed = true;
+                Debug.LogError($"[Inventory] Save {storageKey} (version {version}) cannot be read; it is kept as it is and nothing is saved.");
+                return;
+            }
+            if (version == 1)
+            {
+                if (!PlayerPrefs.HasKey(BackupKey)) PlayerPrefs.SetString(BackupKey, json);
+                Save(loaded);
+            }
+            else data = loaded;
         }
 
-        public bool Owns(string id) => !string.IsNullOrWhiteSpace(id) && data.ownedIds.Contains(id);
+        // Null when the save breaks a rule the rest of the code relies on.
+        private static SaveData Checked(SaveData save)
+        {
+            if (save == null) return null;
+            save.wallet ??= new List<Amount>();
+            save.items ??= new List<Amount>();
+            save.equipped ??= new List<InUse>();
+            save.grantsApplied ??= new List<string>();
+            bool ValidAmounts(List<Amount> list)
+            {
+                var seen = new HashSet<string>();
+                foreach (var x in list)
+                    if (x == null || string.IsNullOrWhiteSpace(x.id) || x.count < 0 || !seen.Add(x.id)) return false;
+                return true;
+            }
+            var slots = new HashSet<string>();
+            foreach (var x in save.equipped)
+                if (x == null || string.IsNullOrWhiteSpace(x.slot) || string.IsNullOrWhiteSpace(x.id) || !slots.Add(x.slot)) return null;
+            return ValidAmounts(save.wallet) && ValidAmounts(save.items) && !save.grantsApplied.Exists(string.IsNullOrWhiteSpace) ? save : null;
+        }
 
-        public bool TryPurchase(string id, int price)
+        // Everything owned or in use stays owned; whatever was in use (free or bought) is owned from now on.
+        // Version 1 players were given their starting coins already, so the starter pack counts as applied.
+        private static SaveData Migrate(SaveV1 old)
+        {
+            if (old == null || old.balance < 0 || old.ownedIds == null || old.ownedIds.Exists(string.IsNullOrWhiteSpace)
+                || (!string.IsNullOrEmpty(old.activeId) && !old.ownedIds.Contains(old.activeId))) return null;
+            var save = new SaveData();
+            Add(save.wallet, Coins, old.balance);
+            foreach (var list in new[] { old.ownedIds, old.ownedTanks, old.ownedWalls, old.ownedSubstrates })
+                if (list != null)
+                    foreach (string id in list)
+                        if (!string.IsNullOrWhiteSpace(id)) AtLeast(save.items, id, 1);
+            var seen = new HashSet<string>();
+            foreach (var stock in old.decor ?? new List<Amount>())
+            {
+                if (stock == null || string.IsNullOrWhiteSpace(stock.id) || stock.count < 0 || !seen.Add(stock.id)) return null;
+                Add(save.items, stock.id, stock.count);
+            }
+            foreach (var (slot, id) in new[] { (FishSlot, old.activeId), (TankSlot, old.activeTank), (WallSlot, old.activeWall), (FloorSlot, old.activeSubstrate) })
+                if (!string.IsNullOrWhiteSpace(id)) { Equip(save, slot, id); AtLeast(save.items, id, 1); }
+            save.grantsApplied.Add(StarterPack);
+            return Checked(save);
+        }
+
+        public bool Owns(string id) => !string.IsNullOrWhiteSpace(id) && Count(data.items, id) > 0;
+        public bool OwnsTank(string id) => Owns(id);
+        public bool OwnsWall(string id) => Owns(id);
+        public bool OwnsSubstrate(string id) => Owns(id);
+        public int DecorCount(string id) => Count(data.items, id);
+
+        // Fish, tanks, walls and floors are bought once and put into use; decorations are bought again and again.
+        public bool TryPurchase(string id, int price) => Buy(id, price, FishSlot);
+        public bool TryPurchaseDecor(string id, int price) => Buy(id, price, null);
+        public bool TryPurchaseTank(string id, int price) => Buy(id, price, TankSlot);
+        public bool TryPurchaseWall(string id, int price) => Buy(id, price, WallSlot);
+        public bool TryPurchaseSubstrate(string id, int price) => Buy(id, price, FloorSlot);
+
+        public bool SelectOwned(string id) => Select(FishSlot, id);
+        public bool SelectTank(string id) => Select(TankSlot, id);
+        public bool SelectWall(string id) => Select(WallSlot, id);
+        public bool SelectSubstrate(string id) => Select(FloorSlot, id);
+
+        private bool Buy(string id, int price, string slot)
         {
             Reload();
-            if (string.IsNullOrWhiteSpace(id) || price < 0 || Owns(id) || price > data.balance) return false;
+            if (LoadFailed || string.IsNullOrWhiteSpace(id) || price < 0 || price > Balance) return false;
+            if (slot != null ? Owns(id) : DecorCount(id) == int.MaxValue) return false;
             var next = Copy();
-            next.balance -= price;
-            next.ownedIds.Add(id);
-            next.activeId = id;
+            Add(next.wallet, Coins, -price);
+            Add(next.items, id, 1);
+            if (slot != null) Equip(next, slot, id);
             Save(next);
             return true;
         }
 
-        public bool SelectOwned(string id)
+        private bool Select(string slot, string id)
         {
             Reload();
-            if (!Owns(id)) return false;
-            if (data.activeId == id) return true;
+            if (LoadFailed || !Owns(id)) return false;
+            if (Equipped(data, slot) == id) return true;
             var next = Copy();
-            next.activeId = id;
+            Equip(next, slot, id);
             Save(next);
             return true;
         }
 
-        public int DecorCount(string id) => data.decor.Find(x => x.id == id)?.count ?? 0;
-
-        // The starter gift, given once. A new wallet starts with the given coins; an older one keeps its balance.
-        // Existing layouts keep their placed starter items when moving from free placement to stock.
-        public void ApplyStarter(int coins, Dictionary<string, int> starter)
+        // Gives each pack the player has not had yet, in order. A gift with a slot goes into use only when nothing of
+        // that kind is. A slot still empty after a version 1 save was moved over (the tank's first look was in use
+        // without being owned) is filled from the starter pack, before any other pack can fill it.
+        public void ApplyGifts(IEnumerable<AquariumGiftPack> packs)
         {
             Reload();
-            if (data.starterDecorImported) return;
+            if (LoadFailed || packs == null) return;
             var next = Copy();
-            if (!PlayerPrefs.HasKey(storageKey) && coins >= 0) next.balance = coins;
-            foreach (var pair in starter)
-                if (!string.IsNullOrWhiteSpace(pair.Key) && pair.Value > 0)
+            bool changed = false;
+            if (next.grantsApplied.Contains(StarterPack))
+                foreach (var pack in packs)
+                    if (pack != null && pack.id == StarterPack && pack.gifts != null)
+                        foreach (var gift in pack.gifts)
+                            if (gift != null && !string.IsNullOrEmpty(gift.slot) && !string.IsNullOrWhiteSpace(gift.id)
+                                && string.IsNullOrEmpty(Equipped(next, gift.slot)))
+                            {
+                                AtLeast(next.items, gift.id, 1);
+                                Equip(next, gift.slot, gift.id);
+                                changed = true;
+                            }
+            foreach (var pack in packs)
+            {
+                if (pack == null || string.IsNullOrWhiteSpace(pack.id) || next.grantsApplied.Contains(pack.id)) continue;
+                foreach (var gift in pack.gifts ?? new AquariumGift[0])
                 {
-                    var stock = next.decor.Find(x => x.id == pair.Key);
-                    if (stock == null) next.decor.Add(new DecorStock { id = pair.Key, count = pair.Value });
-                    else stock.count = Math.Max(stock.count, pair.Value);
+                    if (gift == null || string.IsNullOrWhiteSpace(gift.id) || gift.count < 0) continue;
+                    if (gift.id == Coins) { Add(next.wallet, Coins, gift.count); continue; }
+                    Add(next.items, gift.id, gift.count);
+                    if (gift.count > 0 && !string.IsNullOrEmpty(gift.slot) && string.IsNullOrEmpty(Equipped(next, gift.slot)))
+                        Equip(next, gift.slot, gift.id);
                 }
-            next.starterDecorImported = true;
-            Save(next);
+                next.grantsApplied.Add(pack.id);
+                changed = true;
+            }
+            if (changed) Save(next);
         }
 
-        public bool TryPurchaseDecor(string id, int price)
+        // Pieces already placed in the tank never count for more than the stock holds (layouts from before stock).
+        public void KeepPlacedInStock(IReadOnlyDictionary<string, int> placed)
         {
             Reload();
-            if (string.IsNullOrWhiteSpace(id) || price < 0 || price > data.balance || DecorCount(id) == int.MaxValue) return false;
+            if (LoadFailed || placed == null) return;
             var next = Copy();
-            next.balance -= price;
-            var stock = next.decor.Find(x => x.id == id);
-            if (stock == null) next.decor.Add(new DecorStock { id = id, count = 1 });
-            else stock.count++;
-            Save(next);
-            return true;
+            bool changed = false;
+            foreach (var pair in placed)
+                if (!string.IsNullOrWhiteSpace(pair.Key) && Count(next.items, pair.Key) < pair.Value)
+                {
+                    AtLeast(next.items, pair.Key, pair.Value);
+                    changed = true;
+                }
+            if (changed) Save(next);
         }
 
-        public bool OwnsTank(string id) => !string.IsNullOrWhiteSpace(id) && data.ownedTanks.Contains(id);
+        private static int Count(List<Amount> list, string id) => list.Find(x => x.id == id)?.count ?? 0;
 
-        // A bought tank goes into use at once. A free tank (price 0) counts as owned from the start.
-        public bool TryPurchaseTank(string id, int price)
+        private static void Add(List<Amount> list, string id, int amount)
         {
-            Reload();
-            if (string.IsNullOrWhiteSpace(id) || price < 0 || OwnsTank(id) || price > data.balance) return false;
-            var next = Copy();
-            next.balance -= price;
-            next.ownedTanks.Add(id);
-            next.activeTank = id;
-            Save(next);
-            return true;
+            var entry = list.Find(x => x.id == id);
+            if (entry == null) list.Add(new Amount { id = id, count = Math.Max(0, amount) });
+            else entry.count = (int)Math.Clamp((long)entry.count + amount, 0, int.MaxValue);
         }
 
-        public bool SelectTank(string id, bool free)
+        private static void AtLeast(List<Amount> list, string id, int count)
         {
-            Reload();
-            if (string.IsNullOrWhiteSpace(id) || (!free && !OwnsTank(id))) return false;
-            if (data.activeTank == id) return true;
-            var next = Copy();
-            next.activeTank = id;
-            Save(next);
-            return true;
+            if (Count(list, id) < count) Add(list, id, count - Count(list, id));
         }
 
-        // Wall and floor styles (AquariumSurfaceCatalog): bought once, then put into use. Style 0 is free.
-        public bool OwnsWall(string id) => !string.IsNullOrWhiteSpace(id) && data.ownedWalls.Contains(id);
-        public bool OwnsSubstrate(string id) => !string.IsNullOrWhiteSpace(id) && data.ownedSubstrates.Contains(id);
-        public bool TryPurchaseWall(string id, int price) => TryPurchaseStyle(id, price, true);
-        public bool TryPurchaseSubstrate(string id, int price) => TryPurchaseStyle(id, price, false);
-        public bool SelectWall(string id, bool free) => SelectStyle(id, free, true);
-        public bool SelectSubstrate(string id, bool free) => SelectStyle(id, free, false);
+        private static string Equipped(SaveData save, string slot) => save.equipped.Find(x => x.slot == slot)?.id ?? "";
 
-        private bool TryPurchaseStyle(string id, int price, bool wall)
+        private static void Equip(SaveData save, string slot, string id)
         {
-            Reload();
-            if (string.IsNullOrWhiteSpace(id) || price < 0 || price > data.balance || (wall ? OwnsWall(id) : OwnsSubstrate(id))) return false;
-            var next = Copy();
-            next.balance -= price;
-            if (wall) { next.ownedWalls.Add(id); next.activeWall = id; }
-            else { next.ownedSubstrates.Add(id); next.activeSubstrate = id; }
-            Save(next);
-            return true;
-        }
-
-        private bool SelectStyle(string id, bool free, bool wall)
-        {
-            Reload();
-            if (string.IsNullOrWhiteSpace(id) || (!free && !(wall ? OwnsWall(id) : OwnsSubstrate(id)))) return false;
-            if ((wall ? data.activeWall : data.activeSubstrate) == id) return true;
-            var next = Copy();
-            if (wall) next.activeWall = id; else next.activeSubstrate = id;
-            Save(next);
-            return true;
+            var entry = save.equipped.Find(x => x.slot == slot);
+            if (entry == null) save.equipped.Add(new InUse { slot = slot, id = id });
+            else entry.id = id;
         }
 
         private SaveData Copy() => new SaveData
         {
-            balance = data.balance,
-            ownedIds = new List<string>(data.ownedIds),
-            activeId = data.activeId,
-            decor = data.decor.ConvertAll(x => new DecorStock { id = x.id, count = x.count }),
-            starterDecorImported = data.starterDecorImported,
-            ownedTanks = new List<string>(data.ownedTanks),
-            activeTank = data.activeTank,
-            ownedWalls = new List<string>(data.ownedWalls),
-            activeWall = data.activeWall,
-            ownedSubstrates = new List<string>(data.ownedSubstrates),
-            activeSubstrate = data.activeSubstrate
+            wallet = data.wallet.ConvertAll(x => new Amount { id = x.id, count = x.count }),
+            items = data.items.ConvertAll(x => new Amount { id = x.id, count = x.count }),
+            equipped = data.equipped.ConvertAll(x => new InUse { slot = x.slot, id = x.id }),
+            grantsApplied = new List<string>(data.grantsApplied)
         };
 
         private void Save(SaveData next)
         {
+            if (LoadFailed) throw new InvalidOperationException("The save could not be read; it is not written over.");
             string previous = PlayerPrefs.GetString(storageKey, "");
             bool existed = PlayerPrefs.HasKey(storageKey);
             try

@@ -40,8 +40,9 @@ namespace Lumaquarium.UI
             var spec = AquariumTank.Specs[index];
             if (spec == tank.Current) return;
             var inventory = Inventory;
-            bool owned = spec.price == 0 || inventory.OwnsTank(spec.id);
-            if (!owned && pending != index)
+            bool owned = inventory.OwnsTank(spec.id);
+            // A free tank is taken at the first tap.
+            if (!owned && spec.price > 0 && pending != index)
             {
                 pending = index;
                 feedback.text = inventory.Balance >= spec.price ? $"Chạm lần nữa để mua {spec.displayName}" : "Chưa đủ xu để mua hồ này";
@@ -49,7 +50,7 @@ namespace Lumaquarium.UI
                 return;
             }
             pending = -1;
-            bool done = owned ? inventory.SelectTank(spec.id, spec.price == 0) : inventory.TryPurchaseTank(spec.id, spec.price);
+            bool done = owned ? inventory.SelectTank(spec.id) : inventory.TryPurchaseTank(spec.id, spec.price);
             if (done)
             {
                 tank.Switch(spec.id);
@@ -72,11 +73,11 @@ namespace Lumaquarium.UI
                 var row = buttons[i].transform.parent;
                 SetText(row.Find("Title"), spec.displayName);
                 SetText(row.Find("Detail"), spec.description);
-                bool current = spec == tank.Current, owned = spec.price == 0 || inventory.OwnsTank(spec.id);
+                bool current = spec == tank.Current, owned = inventory.OwnsTank(spec.id);
                 buttons[i].interactable = !current && (owned || inventory.Balance >= spec.price);
                 var label = buttons[i].GetComponentInChildren<TMP_Text>();
                 if (label != null)
-                    label.text = current ? "Đang dùng" : owned ? "Dùng" : pending == i ? "Xác nhận" :
+                    label.text = current ? "Đang dùng" : owned ? "Dùng" : spec.price == 0 ? "Nhận" : pending == i ? "Xác nhận" :
                         inventory.Balance >= spec.price ? spec.price.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) + " xu" : "Chưa đủ xu";
             }
         }

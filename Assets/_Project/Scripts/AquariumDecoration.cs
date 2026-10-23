@@ -196,6 +196,12 @@ public sealed class AquariumDecoration : MonoBehaviour
         }
     }
 
+    // Gift packs first: the tank, the shop and the HUD read what is owned and in use from their Start.
+    private void Awake()
+    {
+        if (catalog != null) new Lumaquarium.UI.FishShopInventory(inventoryStorageKey).ApplyGifts(catalog.giftPacks);
+    }
+
     private void Start()
     {
         // The tank sets the placement area and capacity, so it comes before the layout is checked.
@@ -210,10 +216,6 @@ public sealed class AquariumDecoration : MonoBehaviour
         if (persistLayout && PlayerPrefs.HasKey(storageKey)) LoadLayout();
         if (catalog != null)
         {
-            // The price sheet's tặng lúc đầu counts, but never fewer than the starter pieces already placed.
-            var starter = new Dictionary<string, int>();
-            foreach (var offer in catalog.offers)
-                if (offer != null && offer.starterCount > 0) starter[offer.id] = offer.starterCount;
             var placed = new Dictionary<string, int>();
             foreach (var item in items)
             {
@@ -221,9 +223,7 @@ public sealed class AquariumDecoration : MonoBehaviour
                 if (item.kind >= 3 || offer == null) continue;
                 placed[offer.id] = placed.TryGetValue(offer.id, out int count) ? count + 1 : 1;
             }
-            foreach (var pair in placed)
-                starter[pair.Key] = Mathf.Max(pair.Value, starter.TryGetValue(pair.Key, out int given) ? given : 0);
-            new Lumaquarium.UI.FishShopInventory(inventoryStorageKey).ApplyStarter(catalog.startingCoins, starter);
+            new Lumaquarium.UI.FishShopInventory(inventoryStorageKey).KeepPlacedInStock(placed);
         }
         carpet = GetComponent<AquariumCarpet>();
         if (carpet == null) carpet = gameObject.AddComponent<AquariumCarpet>();

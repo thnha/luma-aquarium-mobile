@@ -16,8 +16,7 @@ using UnityEngine.Networking;
 // Numbers, Excel or Google Sheets. Rows are matched by id; the nhóm column is for reading only. The catalog
 // builder applies the same table, so a rebuild keeps the edits. The Google Sheet has one tab per group
 // (decor_catalog.xlsx), plus a Cá tab for the fish (FishCatalogSheet) and Thành hồ, Cát nền and Hồ tabs
-// (SurfaceCatalogSheet), and is pulled as a whole workbook. The Chung tab holds the new player's coins; the decoration
-// tabs have a tặng lúc đầu column for the pieces a new player is given.
+// (SurfaceCatalogSheet) and a Gói quà tab for the gift packs (GiftSheet), and is pulled as a whole workbook.
 public static class DecorCatalogSheet
 {
     public const string CsvPath = AquariumDecorCatalogBuilder.Root + "/decor_catalog.csv";
@@ -27,22 +26,18 @@ public static class DecorCatalogSheet
     private const string CatalogPath = AquariumDecorCatalogBuilder.Root + "/AquariumDecorCatalog.asset";
     private const string UrlKey = "Lumaquarium.DecorCatalogSheetUrl";
     private static readonly string[] Header = { "id", "nhóm", "tên", "mô tả", "giá" };
-    private const string StarterHeader = "tặng lúc đầu";
-    // The Chung tab's settings are numbers but not prices.
-    private const string ValueHeader = "giá trị";
-    public const string StartingCoinsId = "xu-ban-dau";
 
-    public sealed class Row { public string place, id, name, description, price, starter; }
+    public sealed class Row { public string place, id, name, description, price; }
 
-    // An editable shop item, decoration or fish. Fish may cost 0 (a gift). starter is how many a new player
-    // gets, -1 for items without a tặng lúc đầu column.
-    public sealed class SheetItem { public string id, name, description; public int price, starter = -1; public bool freeAllowed, changed; }
+    // An editable shop item, decoration or fish. Fish may cost 0 (a gift).
+    public sealed class SheetItem { public string id, name, description; public int price; public bool freeAllowed, changed; }
 
     // One tab of the Excel file: a picture, then the editable columns, then this tab's read-only columns.
+    // A tab with a table instead (Gói quà) is written as it is, its first row as the header.
     public sealed class SheetRow { public SheetItem item; public string image; public string[] view; }
     public sealed class SheetTab
     {
-        public string name, priceHeader; public string[] viewHeaders; public bool starterColumn;
+        public string name; public string[] viewHeaders; public List<string[]> table;
         public readonly List<SheetRow> rows = new List<SheetRow>();
     }
 
@@ -79,11 +74,11 @@ public static class DecorCatalogSheet
     public static string Export(IReadOnlyList<AquariumDecorOffer> offers)
     {
         var text = new StringBuilder();
-        text.Append(string.Join(",", Header)).Append(",").Append(StarterHeader).Append("\r\n");
+        text.Append(string.Join(",", Header)).Append("\r\n");
         foreach (var offer in offers)
             if (offer != null)
                 text.Append(string.Join(",", Quote(offer.id), Quote(CategoryLabel(offer.category)), Quote(offer.displayName),
-                    Quote(offer.description), offer.price.ToString(), offer.starterCount.ToString())).Append("\r\n");
+                    Quote(offer.description), offer.price.ToString())).Append("\r\n");
         return text.ToString();
     }
 
@@ -125,14 +120,13 @@ public static class DecorCatalogSheet
     }
 
     // Columns are found by their header, so they may be reordered or have extra columns beside them.
-    // Null when the table has no id column (a notes tab in the sheet).
+    // Null when the table has no id column (a notes tab in the sheet) or is the Gói quà tab.
     public static List<Row> ReadRows(List<string[]> table, string tab = null)
     {
         if (table.Count == 0) return null;
         int Column(string name) => Array.FindIndex(table[0], h => string.Equals(h.Trim().Normalize(), name, StringComparison.OrdinalIgnoreCase));
-        int id = Column(Header[0]), name = Column(Header[2]), description = Column(Header[3]), starter = Column(StarterHeader);
-        int price = Column(Header[4]) >= 0 ? Column(Header[4]) : Column(ValueHeader);
-        if (id < 0) return null;
+        int id = Column(Header[0]), name = Column(Header[2]), description = Column(Header[3]), price = Column(Header[4]);
+        if (id < 0 || GiftSheet.IsGiftTable(table)) return null;
         string Cell(string[] cells, int index) => index >= 0 && index < cells.Length ? cells[index].Trim().Normalize() : null;
         var rows = new List<Row>();
         for (int i = 1; i < table.Count; i++)
@@ -140,7 +134,7 @@ public static class DecorCatalogSheet
             string rowId = Cell(table[i], id);
             if (string.IsNullOrEmpty(rowId)) continue;
             rows.Add(new Row { place = tab == null ? $"Hàng {i + 1}" : $"Tab {tab}, hàng {i + 1}", id = rowId, name = Cell(table[i], name),
-                description = Cell(table[i], description), price = Cell(table[i], price), starter = Cell(table[i], starter) });
+                description = Cell(table[i], description), price = Cell(table[i], price) });
         }
         return rows;
     }
@@ -157,7 +151,7 @@ public static class DecorCatalogSheet
     }
 
     public static List<SheetItem> DecorItems(IReadOnlyList<AquariumDecorOffer> offers) => offers.Where(o => o != null)
-        .Select(o => new SheetItem { id = o.id, name = o.displayName, description = o.description, price = o.price, starter = o.starterCount }).ToList();
+        .Select(o => new SheetItem { id = o.id, name = o.displayName, description = o.description, price = o.price }).ToList();
 
     public static void WriteBack(IReadOnlyList<AquariumDecorOffer> offers, IEnumerable<SheetItem> items)
     {
@@ -165,19 +159,8 @@ public static class DecorCatalogSheet
         {
             if (!item.changed) continue;
             var offer = offers.First(o => o != null && o.id == item.id);
-            offer.displayName = item.name; offer.description = item.description; offer.price = item.price; offer.starterCount = item.starter;
+            offer.displayName = item.name; offer.description = item.description; offer.price = item.price;
         }
-    }
-
-    // The Chung tab: settings that belong to no shop item, kept in the decoration catalog.
-    public static SheetItem StartingCoins(AquariumDecorCatalog catalog) => new SheetItem { id = StartingCoinsId, name = "Xu ban đầu",
-        description = "Số xu người chơi mới có khi vào game lần đầu", price = catalog.startingCoins };
-
-    public static SheetTab GeneralTab(AquariumDecorCatalog catalog)
-    {
-        var tab = new SheetTab { name = "Chung", priceHeader = ValueHeader, viewHeaders = new string[0] };
-        tab.rows.Add(new SheetRow { item = StartingCoins(catalog) });
-        return tab;
     }
 
     // Every tab with an id column counts, so items can sit in any tab. An empty cell keeps the current value.
@@ -208,12 +191,6 @@ public static class DecorCatalogSheet
                     report.errors.Add($"{row.place} ({row.id}): giá \"{row.price}\" không hợp lệ, phải là số " +
                         (item.freeAllowed ? "từ 0 trở lên (0 = tặng miễn phí)." : "lớn hơn 0."));
                 else if (price != item.price) { item.price = price; changed = true; }
-            }
-            if (!string.IsNullOrEmpty(row.starter) && item.starter >= 0)
-            {
-                if (!int.TryParse(row.starter.Replace(".", "").Replace(",", "").Replace(" ", ""), out int starter) || starter < 0)
-                    report.errors.Add($"{row.place} ({row.id}): {StarterHeader} \"{row.starter}\" không hợp lệ, phải là số từ 0 trở lên.");
-                else if (starter != item.starter) { item.starter = starter; changed = true; }
             }
             if (changed) { item.changed = true; report.changed++; }
         }
@@ -284,14 +261,13 @@ public static class DecorCatalogSheet
         var tabs = new List<SheetTab>();
         foreach (var category in TabOrder)
         {
-            var tab = new SheetTab { name = CategoryLabel(category), viewHeaders = DecorViewHeaders, starterColumn = true };
+            var tab = new SheetTab { name = CategoryLabel(category), viewHeaders = DecorViewHeaders };
             foreach (var offer in offers)
             {
                 if (offer == null || offer.category != category) continue;
                 var info = details?.Invoke(offer);
                 tab.rows.Add(new SheetRow { image = info?.image, view = new[] { info?.size, info?.points.ToString() },
-                    item = new SheetItem { id = offer.id, name = offer.displayName, description = offer.description, price = offer.price,
-                        starter = offer.starterCount } });
+                    item = new SheetItem { id = offer.id, name = offer.displayName, description = offer.description, price = offer.price } });
             }
             if (tab.rows.Count > 0) tabs.Add(tab);
         }
@@ -308,11 +284,25 @@ public static class DecorCatalogSheet
         string Cell(string column, int row, string text, int style) =>
             $"<c r=\"{column}{row}\" s=\"{style}\" t=\"inlineStr\"><is><t xml:space=\"preserve\">{SecurityElement.Escape(text ?? "")}</t></is></c>";
         string NumberCell(string column, int row, int value, int style) => $"<c r=\"{column}{row}\" s=\"{style}\"><v>{value}</v></c>";
-        // Read-only columns start after the editable ones (F, or G after tặng lúc đầu), one per header of the tab.
-        string Column(int index) => ((char)('A' + index)).ToString();
+        // Read-only columns start at F, one per header of the tab.
+        string ViewColumn(int index) => ((char)('F' + index)).ToString();
         string ViewCell(string column, int row, string text) =>
             int.TryParse(text, out int number) ? NumberCell(column, row, number, 3) : Cell(column, row, text, 3);
         const string Main = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+        // A plain table: bold header, editable cells, whole numbers as numbers.
+        string PlainSheet(List<string[]> table)
+        {
+            var rows = new StringBuilder();
+            for (int n = 0; n < table.Count; n++)
+                rows.Append($"<row r=\"{n + 1}\">" + string.Concat(table[n].Select((text, k) =>
+                    n > 0 && int.TryParse(text, out int number) ? NumberCell(((char)('A' + k)).ToString(), n + 1, number, 4)
+                        : Cell(((char)('A' + k)).ToString(), n + 1, text, n == 0 ? 1 : 4))) + "</row>");
+            int columns = table.Count > 0 ? table[0].Length : 0;
+            return $"<worksheet xmlns=\"{Main}\"><sheetViews><sheetView workbookViewId=\"0\">" +
+                "<pane ySplit=\"1\" topLeftCell=\"A2\" activePane=\"bottomLeft\" state=\"frozen\"/></sheetView></sheetViews><cols>" +
+                string.Concat(Enumerable.Range(1, columns).Select(c => $"<col min=\"{c}\" max=\"{c}\" width=\"18\" customWidth=\"1\"/>")) +
+                $"</cols><sheetData>{rows}</sheetData></worksheet>";
+        }
         const string Rel = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
         using var stream = new MemoryStream();
         using (var zip = new ZipArchive(stream, ZipArchiveMode.Create, true))
@@ -334,11 +324,9 @@ public static class DecorCatalogSheet
                 sheets.Append($"<sheet name=\"{SecurityElement.Escape(groups[i - 1].name)}\" sheetId=\"{i}\" r:id=\"rId{i}\"/>");
                 rels.Append($"<Relationship Id=\"rId{i}\" Type=\"{Rel}/worksheet\" Target=\"worksheets/sheet{i}.xml\"/>");
                 var group = groups[i - 1];
-                int firstView = group.starterColumn ? 6 : 5;
-                string ViewColumn(int index) => Column(firstView + index);
+                if (group.table != null) { Entry($"xl/worksheets/sheet{i}.xml", PlainSheet(group.table)); continue; }
                 var rows = new StringBuilder($"<row r=\"1\">{Cell("A", 1, Header[0], 1)}{Cell("B", 1, ImageHeader, 2)}" +
-                    $"{Cell("C", 1, Header[2], 1)}{Cell("D", 1, Header[3], 1)}{Cell("E", 1, group.priceHeader ?? Header[4], 1)}" +
-                    (group.starterColumn ? Cell("F", 1, StarterHeader, 1) : "") +
+                    $"{Cell("C", 1, Header[2], 1)}{Cell("D", 1, Header[3], 1)}{Cell("E", 1, Header[4], 1)}" +
                     string.Concat(group.viewHeaders.Select((h, k) => Cell(ViewColumn(k), 1, h, 2))) + "</row>");
                 for (int n = 0; n < group.rows.Count; n++)
                 {
@@ -348,7 +336,6 @@ public static class DecorCatalogSheet
                         : $"<c r=\"B{r}\" s=\"3\"><f>IMAGE(\"{SecurityElement.Escape(row.image)}\")</f></c>";
                     rows.Append($"<row r=\"{r}\" ht=\"66\" customHeight=\"1\">{Cell("A", r, item.id, 4)}{image}" +
                         $"{Cell("C", r, item.name, 4)}{Cell("D", r, item.description, 4)}{NumberCell("E", r, item.price, 4)}" +
-                        (group.starterColumn ? NumberCell("F", r, Math.Max(0, item.starter), 4) : "") +
                         string.Concat(group.viewHeaders.Select((_, k) => ViewCell(ViewColumn(k), r, row.view != null && k < row.view.Length ? row.view[k] : null))) + "</row>");
                 }
                 // The header row and the id column stay in view while scrolling.
@@ -357,8 +344,7 @@ public static class DecorCatalogSheet
                     "<col min=\"1\" max=\"1\" width=\"22\" customWidth=\"1\"/><col min=\"2\" max=\"2\" width=\"16\" customWidth=\"1\"/>" +
                     "<col min=\"3\" max=\"3\" width=\"28\" customWidth=\"1\"/><col min=\"4\" max=\"4\" width=\"60\" customWidth=\"1\"/>" +
                     "<col min=\"5\" max=\"5\" width=\"9\" customWidth=\"1\"/>" +
-                    (group.starterColumn ? "<col min=\"6\" max=\"6\" width=\"13\" customWidth=\"1\"/>" : "") +
-                    string.Concat(group.viewHeaders.Select((h, k) => $"<col min=\"{firstView + 1 + k}\" max=\"{firstView + 1 + k}\" width=\"{Math.Max(8, h.Length + 4)}\" customWidth=\"1\"/>")) + "</cols>" +
+                    string.Concat(group.viewHeaders.Select((h, k) => $"<col min=\"{6 + k}\" max=\"{6 + k}\" width=\"{Math.Max(8, h.Length + 4)}\" customWidth=\"1\"/>")) + "</cols>" +
                     $"<sheetData>{rows}</sheetData></worksheet>");
             }
             Entry("[Content_Types].xml", types + "</Types>");
@@ -458,7 +444,8 @@ public static class DecorCatalogSheet
         var surfaces = SurfaceCatalogSheet.Load();
         var tabs = DecorTabs(catalog.offers, DetailsOf);
         tabs.Insert(0, FishCatalogSheet.Tab());
-        tabs.Insert(0, GeneralTab(catalog));
+        GiftSheet.EnsureStarter(catalog);
+        tabs.Insert(0, GiftSheet.Tab(catalog.giftPacks));
         if (surfaces != null) { SurfaceCatalogSheet.EnsureTanks(surfaces); tabs.AddRange(SurfaceCatalogSheet.Tabs(surfaces)); }
         File.WriteAllBytes(XlsxPath, ExportXlsx(tabs));
         AssetDatabase.ImportAsset(XlsxPath);
@@ -550,14 +537,21 @@ public static class DecorCatalogSheet
         }
         var catalog = LoadCatalog();
         if (catalog == null) return false;
-        var decor = DecorItems(catalog.offers); var fish = FishCatalogSheet.Items(); var coins = StartingCoins(catalog);
+        var decor = DecorItems(catalog.offers); var fish = FishCatalogSheet.Items();
         var surfaces = SurfaceCatalogSheet.Load();
         if (surfaces != null) SurfaceCatalogSheet.EnsureTanks(surfaces);
         var surfaceItems = surfaces != null ? SurfaceCatalogSheet.Items(surfaces) : new List<SheetItem>();
-        var report = Apply(decor.Concat(fish).Concat(surfaceItems).Append(coins).ToList(), ReadXlsx(data));
+        var workbook = ReadXlsx(data);
+        var report = Apply(decor.Concat(fish).Concat(surfaceItems).ToList(), workbook);
         Undo.RecordObject(catalog, "Apply Decor Catalog");
         WriteBack(catalog.offers, decor);
-        if (coins.changed) catalog.startingCoins = coins.price;
+        // A sheet without the Gói quà tab (made before it) leaves the packs as they are.
+        var giftTable = workbook.FirstOrDefault(t => GiftSheet.IsGiftTable(t.table)).table;
+        if (giftTable != null)
+        {
+            var packs = GiftSheet.Read(giftTable, GiftSheet.Slots(catalog, surfaces, fish), report.errors);
+            if (packs != null) catalog.giftPacks = packs;
+        }
         EditorUtility.SetDirty(catalog);
         AssetDatabase.SaveAssets();
         report.errors.AddRange(FishCatalogSheet.Save(fish));
@@ -585,7 +579,7 @@ public sealed class DecorCatalogSheetWindow : EditorWindow
         EditorGUILayout.HelpBox("1. Export Excel, rồi trong Google Sheets: File > Import > Upload file .xlsx > Replace spreadsheet.\n" +
             "2. Share > General access: Anyone with the link (Viewer).\n3. Dán link sheet vào đây, bấm Pull.\n" +
             "Mỗi nhóm một tab; món nằm ở tab nào cũng được, miễn còn cột id. Cột xám chỉ để xem. Tab Cá: giá 0 = tặng miễn phí.\n" +
-            "Tab Chung: xu ban đầu của người chơi mới. Cột tặng lúc đầu: số món người chơi mới có sẵn trong kho.\n" +
+            "Tab Gói quà: mỗi người chơi nhận mỗi gói một lần; starter_v1 là quà của người chơi mới, id xu = số xu.\n" +
             "Ảnh đổi thì chạy Tools/upload_sheet_images_r2.sh trước khi Export.", MessageType.Info);
         url = EditorGUILayout.TextField("Link Google Sheet", url);
         if (!string.IsNullOrWhiteSpace(url) && DecorCatalogSheet.ExportUrl(url) == null)

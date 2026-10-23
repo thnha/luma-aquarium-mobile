@@ -31,27 +31,39 @@ public sealed class ShopEconomyTests
         {
             Assert.IsNotNull(offer, "empty slot in the decoration catalog");
             Assert.IsTrue(offer.IsValid, $"{offer.id}: needs an id, a price above 0, a prefab and a portrait");
-            Assert.GreaterOrEqual(offer.starterCount, 0, offer.id);
         }
     }
 
+    // What GiftSheet.Read checks when the sheet is pulled, checked again on the catalog as it ships.
     [Test]
-    public void ANewPlayerCanAffordSomething()
+    public void GiftPacksNameRealItems()
     {
         var catalog = Decor();
-        Assert.Greater(catalog.startingCoins, 0);
-        Assert.GreaterOrEqual(catalog.startingCoins, catalog.offers.Min(o => o.price), "starting coins buy no decoration");
+        var slots = GiftSheet.Slots(catalog, Surfaces(), FishCatalogSheet.Items());
+        var errors = new List<string>();
+        Assert.IsNotNull(GiftSheet.Read(GiftSheet.Tab(catalog.giftPacks).table, slots, errors), string.Join("\n", errors));
+        foreach (var gift in catalog.giftPacks.SelectMany(p => p.gifts))
+            if (!string.IsNullOrEmpty(gift.slot)) Assert.AreEqual(slots[gift.id], gift.slot, gift.id);
     }
 
     [Test]
-    public void SurfacePricesAreNotNegativeAndTheDefaultsAreFree()
+    public void ANewPlayerStartsWithEverythingInUseAndCanAffordSomething()
+    {
+        var catalog = Decor();
+        var starter = catalog.giftPacks.FirstOrDefault(p => p.id == Lumaquarium.UI.FishShopInventory.StarterPack);
+        Assert.IsNotNull(starter, "run Export Excel once to create the starter pack");
+        foreach (string slot in new[] { "fish", "tank", "wall", "floor" })
+            Assert.IsTrue(starter.gifts.Any(g => g.slot == slot && g.count > 0), $"the starter pack puts no {slot} into use");
+        int coins = starter.gifts.Where(g => g.id == Lumaquarium.UI.FishShopInventory.Coins).Sum(g => g.count);
+        Assert.GreaterOrEqual(coins, catalog.offers.Min(o => o.price), "starting coins buy no decoration");
+    }
+
+    [Test]
+    public void SurfacePricesAreNotNegative()
     {
         var catalog = Surfaces();
         Assert.IsNotEmpty(catalog.walls);
         Assert.IsNotEmpty(catalog.substrates);
-        // A new player uses the first wall, floor and tank without buying them.
-        Assert.AreEqual(0, catalog.walls[0].price, catalog.walls[0].id);
-        Assert.AreEqual(0, catalog.substrates[0].price, catalog.substrates[0].id);
         foreach (var w in catalog.walls) Assert.GreaterOrEqual(w.price, 0, w.id);
         foreach (var s in catalog.substrates) Assert.GreaterOrEqual(s.price, 0, s.id);
     }
@@ -61,7 +73,6 @@ public sealed class ShopEconomyTests
     {
         var tanks = Surfaces().tanks;
         CollectionAssert.AreEqual(AquariumTank.Specs.Select(s => s.id), tanks.Select(t => t.id), "run Export Excel to add missing tanks");
-        Assert.AreEqual(0, tanks[0].price, "the first tank is the starter");
         foreach (var t in tanks) Assert.GreaterOrEqual(t.price, 0, t.id);
     }
 
@@ -81,7 +92,7 @@ public sealed class ShopEconomyTests
     public void IdsAreUniqueAcrossTheWholeSheet()
     {
         var surfaces = Surfaces();
-        var ids = new List<string> { DecorCatalogSheet.StartingCoinsId };
+        var ids = new List<string> { Lumaquarium.UI.FishShopInventory.Coins };
         ids.AddRange(Fish().Select(f => f.shopId));
         ids.AddRange(Decor().offers.Select(o => o.id));
         ids.AddRange(surfaces.walls.Select(w => w.id));

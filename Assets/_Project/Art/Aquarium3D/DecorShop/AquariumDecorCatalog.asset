@@ -769,3 +769,30 @@ MonoBehaviour:
     price: 70
     prefab: {fileID: 1043661354643398393, guid: 3ec7c82008ec14344934462368824d56, type: 3}
     portrait: {fileID: 21300000, guid: ef024fa33101a41dbbc683aedbf361fb, type: 3}
+  giftPacks:
+  - id: starter_v1
+    gifts:
+    - id: xu
+      slot: 
+      count: 1250
+    - id: plakat-galaxy
+      slot: fish
+      count: 1
+    - id: tank_square
+      slot: tank
+      count: 1
+    - id: wall_river
+      slot: wall
+      count: 1
+    - id: sand_river
+      slot: floor
+      count: 1
+    - id: starter-anubias
+      slot: 
+      count: 2
+    - id: starter-stone
+      slot: 
+      count: 2
+    - id: starter-wood
+      slot: 
+      count: 2

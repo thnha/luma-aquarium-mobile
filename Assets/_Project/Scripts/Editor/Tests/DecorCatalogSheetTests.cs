@@ -4,7 +4,7 @@ public sealed class DecorCatalogSheetTests
 {
     private static AquariumDecorOffer[] Offers() => new[]
     {
-        new AquariumDecorOffer { id = "hornwort", displayName = "Rong đuôi chó", description = "Cây, lá mềm", price = 60, starterCount = 2 },
+        new AquariumDecorOffer { id = "hornwort", displayName = "Rong đuôi chó", description = "Cây, lá mềm", price = 60 },
         new AquariumDecorOffer { id = "seiryu", displayName = "Đá vân Seiryu", description = "Đá", price = 160, category = AquariumDecorCategory.Rocks },
     };
 
@@ -52,8 +52,8 @@ public sealed class DecorCatalogSheetTests
     {
         var tabs = DecorCatalogSheet.ReadXlsx(DecorCatalogSheet.ExportXlsx(Offers()));
         CollectionAssert.AreEqual(new[] { "Đá", "Cây" }, tabs.ConvertAll(t => t.name));
-        CollectionAssert.AreEqual(new[] { "id", "ảnh", "tên", "mô tả", "giá", "tặng lúc đầu", "kích thước (R × C × S)", "điểm" }, tabs[1].table[0]);
-        CollectionAssert.AreEqual(new[] { "hornwort", "", "Rong đuôi chó", "Cây, lá mềm", "60", "2", "", "" }, tabs[1].table[1]);
+        CollectionAssert.AreEqual(new[] { "id", "ảnh", "tên", "mô tả", "giá", "kích thước (R × C × S)", "điểm" }, tabs[1].table[0]);
+        CollectionAssert.AreEqual(new[] { "hornwort", "", "Rong đuôi chó", "Cây, lá mềm", "60", "", "" }, tabs[1].table[1]);
         var offers = Offers();
         Assert.AreEqual(0, DecorCatalogSheet.Apply(offers, tabs).changed);
     }
@@ -67,8 +67,8 @@ public sealed class DecorCatalogSheetTests
         using (var reader = new System.IO.StreamReader(zip.GetEntry("xl/worksheets/sheet2.xml").Open()))
             StringAssert.Contains("<f>IMAGE(\"https://x.test/a.png?v=1\")</f>", reader.ReadToEnd());
         var tabs = DecorCatalogSheet.ReadXlsx(data);
-        CollectionAssert.AreEqual(new[] { "0.10 × 0.20 × 0.30", "3" }, new[] { tabs[1].table[1][6], tabs[1].table[1][7] });
-        tabs[1].table[1][6] = "9 × 9 × 9"; tabs[1].table[1][7] = "99";
+        CollectionAssert.AreEqual(new[] { "0.10 × 0.20 × 0.30", "3" }, new[] { tabs[1].table[1][5], tabs[1].table[1][6] });
+        tabs[1].table[1][5] = "9 × 9 × 9"; tabs[1].table[1][6] = "99";
         var offers = Offers();
         Assert.AreEqual(0, DecorCatalogSheet.Apply(offers, tabs).changed);
     }
@@ -149,46 +149,64 @@ public sealed class DecorCatalogSheetTests
         }
     }
 
+    private static readonly System.Collections.Generic.Dictionary<string, string> Slots = new System.Collections.Generic.Dictionary<string, string>
+    {
+        ["hornwort"] = "", ["plakat"] = "fish", ["wall_river"] = "wall", ["wall_gold"] = "wall", ["tank_square"] = "tank"
+    };
+
     [Test]
-    public void StarterCountsAreEditableInTheSheetAndCsv()
+    public void GiftPacksGoToTheSheetAndComeBack()
+    {
+        var packs = new[]
+        {
+            new AquariumGiftPack { id = "starter_v1", gifts = new[] { new AquariumGift { id = "xu", count = 1250 },
+                new AquariumGift { id = "plakat", count = 1, slot = "fish" }, new AquariumGift { id = "hornwort", count = 2 } } },
+            new AquariumGiftPack { id = "tet_2027", gifts = new[] { new AquariumGift { id = "xu", count = 500 } } },
+        };
+        var tabs = DecorCatalogSheet.ReadXlsx(DecorCatalogSheet.ExportXlsx(new[] { GiftSheet.Tab(packs) }));
+        CollectionAssert.AreEqual(new[] { "gói", "id", "số lượng", "dùng ngay" }, tabs[0].table[0]);
+        CollectionAssert.AreEqual(new[] { "starter_v1", "plakat", "1", "x" }, tabs[0].table[2]);
+        var errors = new System.Collections.Generic.List<string>();
+        var read = GiftSheet.Read(tabs[0].table, Slots, errors);
+        Assert.IsEmpty(errors);
+        Assert.AreEqual(2, read.Length);
+        Assert.AreEqual(("plakat", 1, "fish"), (read[0].gifts[1].id, read[0].gifts[1].count, read[0].gifts[1].slot));
+        Assert.AreEqual(("hornwort", ""), (read[0].gifts[2].id, read[0].gifts[2].slot));
+        Assert.AreEqual(500, read[1].gifts[0].count);
+    }
+
+    [Test]
+    public void BadGiftRowsKeepTheOldPacks()
+    {
+        var table = DecorCatalogSheet.ParseCsv("gói,id,số lượng,dùng ngay\nstarter_v1,xu,1.250,\nstarter_v1,unknown,1,\n" +
+            "starter_v1,hornwort,-1,\nstarter_v1,hornwort,1,x\nstarter_v1,wall_river,1,x\nstarter_v1,wall_gold,1,x\n,plakat,1,\n");
+        var errors = new System.Collections.Generic.List<string>();
+        Assert.IsNull(GiftSheet.Read(table, Slots, errors));
+        Assert.AreEqual(5, errors.Count, string.Join("\n", errors));
+        StringAssert.Contains("không có món \"unknown\"", errors[0]);
+    }
+
+    [Test]
+    public void APackListWithoutTheStarterIsRefused()
+    {
+        var errors = new System.Collections.Generic.List<string>();
+        Assert.IsNull(GiftSheet.Read(DecorCatalogSheet.ParseCsv("gói,id,số lượng\ntet_2027,xu,500\n"), Slots, errors));
+        StringAssert.Contains("starter_v1", errors[0]);
+    }
+
+    [Test]
+    public void ItemTabsIgnoreTheGiftTab()
     {
         var offers = Offers();
-        var report = DecorCatalogSheet.Apply(offers, "id,giá,tặng lúc đầu\nhornwort,,5\nseiryu,,-1\n");
-        Assert.AreEqual(5, offers[0].starterCount);
-        Assert.AreEqual(0, offers[1].starterCount);
-        Assert.AreEqual(1, report.errors.Count);
-        var again = Offers();
-        DecorCatalogSheet.Apply(again, DecorCatalogSheet.Export(offers));
-        Assert.AreEqual(5, again[0].starterCount, "the CSV keeps it through a catalog rebuild");
-    }
-
-    [Test]
-    public void ItemsWithoutAStarterColumnIgnoreIt()
-    {
-        var item = new DecorCatalogSheet.SheetItem { id = "plakat", price = 0, freeAllowed = true };
-        var report = DecorCatalogSheet.Apply(new[] { item }, new[] { ("Cá", DecorCatalogSheet.ParseCsv("id,tặng lúc đầu\nplakat,3\n")) });
-        Assert.AreEqual(-1, item.starter);
-        Assert.AreEqual(0, report.changed);
-    }
-
-    [Test]
-    public void GeneralTabSetsTheStartingCoins()
-    {
-        var catalog = UnityEngine.ScriptableObject.CreateInstance<AquariumDecorCatalog>();
-        try
+        var tabs = new System.Collections.Generic.List<(string, System.Collections.Generic.List<string[]>)>
         {
-            catalog.startingCoins = 1250;
-            var tabs = DecorCatalogSheet.ReadXlsx(DecorCatalogSheet.ExportXlsx(new[] { DecorCatalogSheet.GeneralTab(catalog) }));
-            CollectionAssert.AreEqual(new[] { "id", "ảnh", "tên", "mô tả", "giá trị" }, tabs[0].table[0]);
-            Assert.AreEqual(DecorCatalogSheet.StartingCoinsId, tabs[0].table[1][0]);
-            tabs[0].table[1][4] = "2.000";
-            var coins = DecorCatalogSheet.StartingCoins(catalog);
-            Assert.AreEqual(1, DecorCatalogSheet.Apply(new[] { coins }, tabs).changed);
-            Assert.AreEqual(2000, coins.price);
-            tabs[0].table[1][4] = "0";
-            Assert.AreEqual(1, DecorCatalogSheet.Apply(new[] { DecorCatalogSheet.StartingCoins(catalog) }, tabs).errors.Count);
-        }
-        finally { UnityEngine.Object.DestroyImmediate(catalog); }
+            ("Gói quà", DecorCatalogSheet.ParseCsv("gói,id,số lượng\nstarter_v1,hornwort,5\nstarter_v1,xu,1250\n")),
+            ("Cây", DecorCatalogSheet.ParseCsv("id,giá\nhornwort,65\n")),
+        };
+        var report = DecorCatalogSheet.Apply(offers, tabs);
+        Assert.IsEmpty(report.errors);
+        Assert.IsEmpty(report.unknown);
+        Assert.AreEqual(65, offers[0].price);
     }
 
     [TestCase("https://docs.google.com/spreadsheets/d/AbC-12_x/edit#gid=42",

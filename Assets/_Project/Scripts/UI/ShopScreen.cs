@@ -68,6 +68,7 @@ namespace Lumaquarium.UI
         // The saved fish swims in the tank from the start; with none, the tank keeps its default fish.
         private void Start()
         {
+            inventory.Reload(); // AquariumDecoration.Awake may have given the gift packs since Awake
             var active = fishOffers != null ? Array.Find(fishOffers, o => o != null && o.IsValid && o.id == inventory.ActiveId) : null;
             if (active == null && fish != null && fishOffers != null)
                 active = Array.Find(fishOffers, o => o != null && o.IsValid && o.variant == fish.variant);
@@ -242,14 +243,8 @@ namespace Lumaquarium.UI
 
         private int DecorKind(ShopEntry entry) => Decoration.catalog.offers[entry.source].prefab.kind;
 
-        // Decorations are bought again and again, so they never count as owned.
-        private bool Owned(ShopEntry entry) => entry.kind switch
-        {
-            ShopKind.Fish => inventory.Owns(entry.id),
-            ShopKind.Wall => entry.price == 0 || inventory.OwnsWall(entry.id),
-            ShopKind.Substrate => entry.price == 0 || inventory.OwnsSubstrate(entry.id),
-            _ => false
-        };
+        // Decorations are bought again and again, so they never count as owned. A free item is owned once taken.
+        private bool Owned(ShopEntry entry) => entry.kind != ShopKind.Decor && inventory.Owns(entry.id);
 
         // Style 0 is in use while nothing else has been chosen (Wall / Substrate fall back to it).
         private bool Active(ShopEntry entry) => entry.kind switch
@@ -314,8 +309,8 @@ namespace Lumaquarium.UI
                 bool done = entry.kind switch
                 {
                     ShopKind.Fish => inventory.SelectOwned(entry.id),
-                    ShopKind.Wall => inventory.SelectWall(entry.id, entry.price == 0),
-                    _ => inventory.SelectSubstrate(entry.id, entry.price == 0)
+                    ShopKind.Wall => inventory.SelectWall(entry.id),
+                    _ => inventory.SelectSubstrate(entry.id)
                 };
                 if (done) { Apply(entry); feedback.text = "Đã dùng " + entry.name + "."; }
             }
