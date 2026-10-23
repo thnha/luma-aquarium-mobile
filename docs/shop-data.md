@@ -26,7 +26,7 @@ Các menu nằm ở **Lumaquarium › Decor Catalog**:
 1. Sửa trên Google Sheet.
 2. Chạy **Pull from Google Sheet**.
 3. Chạy test `ShopEconomyTests` (Window › General › Test Runner › EditMode).
-4. Chạy `Tools/publish_content.sh <ios|android|all>` (Unity Editor phải đóng).
+4. Chạy `Tools/publish_content.sh <ios|android|all>` (Unity Editor phải đóng). Script deploy luôn bảng giá lên server trước khi upload, xem [shop-server.md](shop-server.md).
 
 ## Gói quà
 
@@ -79,6 +79,8 @@ Sau khi tạo asset:
 
 ## Save của người chơi
 
+Ở bản build, save này là bản sao câu trả lời của server: mọi lần mua và đổi đồ đi qua Cloud Code, xem [shop-server.md](shop-server.md). Trong Editor (mặc định) mọi thứ dưới đây vẫn chạy trên máy như trước.
+
 `FishShopInventory` lưu trong PlayerPrefs `Lumaquarium.FishShop.v1` (tên key giữ nguyên dù nội dung đã là version 2):
 
 ```json
@@ -99,5 +101,8 @@ Sau khi tạo asset:
 - `Scripts/UI/FishShopInventory.cs`: save v2, migration, mua bán, gói quà.
 - `Scripts/AquariumDecorCatalog.cs`: `AquariumGiftPack`, `AquariumGift`.
 - `Scripts/Editor/DecorCatalogSheet.cs`: đọc và ghi workbook, Pull, Export, CSV.
+- `Scripts/Shop/Shared/`: save và luật mua bán, dùng chung với module Cloud Code `CloudCode/LumaquariumShop/`.
+- `Scripts/Shop/ShopService.cs`, `ServerShopBackend.cs`, `IShopBackend.cs`: chọn local hay server, đồng bộ lúc mở hồ.
+- `Scripts/Editor/ServerCatalogWriter.cs`: bảng giá cho server.
 - `Scripts/Editor/GiftSheet.cs`, `FishCatalogSheet.cs`, `SurfaceCatalogSheet.cs`: tab Gói quà, Cá, Thành hồ / Cát nền / Hồ.
 - Test: `Editor/Tests/ShopEconomyTests.cs` kiểm tra dữ liệu thật (id trùng, món thiếu ảnh, gói quà); `FishShopInventoryTests.cs` kiểm tra save và migration; `DecorCatalogSheetTests.cs` kiểm tra workbook.
