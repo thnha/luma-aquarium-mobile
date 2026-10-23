@@ -6379,7 +6379,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 0f79132cff87746ebb5c860690f086cd, type: 3}
   waterVolume: 0.1
   bubbleVolume: 0.22
-  bloopVolume: 0.28
+  bloopVolume: 0
   rippleVolume: 0.5
   gulpVolume: 0.55
   popChance: 0.2

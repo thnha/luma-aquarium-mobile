@@ -45,7 +45,7 @@ component **AquariumAudio**:
 |---|---|---|
 | Water Volume | 0.1 | Độ to tiếng nước nền. Đặt 0 để bỏ hẳn |
 | Bubble Volume | 0.22 | Độ to tiếng máy sủi |
-| Bloop Volume | 0.28 | Độ to tiếng bọt vỡ. Bọt cá thổi phát bằng mức này × 0.6 (`Pop Volume` trên BettaMouth) |
+| Bloop Volume | 0 (đang tắt) | Độ to tiếng bọt vỡ ("bủm"). Bọt cá thổi phát bằng mức này × 0.6 (`Pop Volume` trên BettaMouth). Muốn bật lại thì thử khoảng 0.2–0.3 |
 | Pop Chance | 0.2 | Tỷ lệ bọt máy sủi vỡ có tiếng. Tăng thì "lỏn tỏn" nhiều hơn |
 | Ripple Volume | 0.5 | Độ to tiếng lách tách khi chạm mặt nước |
 | Gulp Volume | 0.55 | Độ to tiếng cá đớp khí |

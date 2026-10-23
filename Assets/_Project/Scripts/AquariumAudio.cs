@@ -20,7 +20,7 @@ public sealed class AquariumAudio : MonoBehaviour
     public AudioMixerGroup waterGroup, bubblesGroup, sfxGroup;
     public AudioClip waterLoop, bubbleLoop;
     public AudioClip[] bloops, ripples, gulps;
-    [Range(0, 1)] public float waterVolume = .1f, bubbleVolume = .22f, bloopVolume = .28f, rippleVolume = .5f, gulpVolume = .55f;
+    [Range(0, 1)] public float waterVolume = .1f, bubbleVolume = .22f, bloopVolume = 0f, rippleVolume = .5f, gulpVolume = .55f;
     [Range(0, 1)] public float popChance = .2f;               // share of RisingBubbles bubbles heard bursting
     public float referenceRate = 4.6f;                       // RisingBubbles emission the volumes are tuned for
     public float rippleGap = .4f;                            // shortest time between two ripple sounds
@@ -117,7 +117,7 @@ public sealed class AquariumAudio : MonoBehaviour
 
     void Play(AudioClip clip, Vector3 at, float volume, float pitch)
     {
-        if (clip == null) return;
+        if (clip == null || volume <= 0) return;   // a silenced layer must not take a voice from the others
         var voice = voices[nextVoice];
         nextVoice = (nextVoice + 1) % Voices;
         float edge = water != null && water.decoration != null ? water.decoration.max.x : .9f;
