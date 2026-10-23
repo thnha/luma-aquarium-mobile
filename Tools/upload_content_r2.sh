@@ -29,6 +29,9 @@ for name in R2_ACCOUNT_ID R2_ACCESS_KEY_ID R2_SECRET_ACCESS_KEY R2_BUCKET; do
 done
 command -v aws >/dev/null || { echo "The AWS CLI is missing: brew install awscli" >&2; exit 1; }
 
+# The content carries the catalog version: the server must sell at the same prices before anyone downloads it.
+"$PROJECT_DIR/Tools/deploy_cloud_code.sh"
+
 SRC="$PROJECT_DIR/ServerData/$PLATFORM/$VERSION"
 [[ -d "$SRC" ]] || { echo "Nothing to upload: $SRC does not exist. Build the content first." >&2; exit 1; }
 ls "$SRC"/catalog_*.hash >/dev/null 2>&1 || { echo "No catalog in $SRC; the content build did not finish." >&2; exit 1; }
