@@ -359,6 +359,20 @@
       "preserveAspect": true
     },
     {
+      "name": "action_feed_open",
+      "file": "Icons/action_feed_open.png",
+      "width": 1254,
+      "height": 1254,
+      "role": "illustrated action icon",
+      "borderLTRB": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "preserveAspect": true
+    },
+    {
       "name": "action_care",
       "file": "Icons/action_care.png",
       "width": 1254,

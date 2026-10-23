@@ -88,13 +88,22 @@ public static class MainAquariumScreenBuilder
         Wire(restore, controller.ToggleHud);
         controller.restoreButton = restore.gameObject;
         restore.gameObject.SetActive(false);
-        var feedback = Ui3D.Text("Feedback", safe, "", 34, Ui3D.Cream, true);
-        Ui3D.At(feedback.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, SheetBottom + 10), new Vector2(940, 110));
-        var outline = feedback.gameObject.AddComponent<UnityEngine.UI.Outline>();
-        outline.effectColor = new Color(.05f, .12f, .06f, .95f);
-        outline.effectDistance = new Vector2(2, -2);
+        // Toasts sit on a dark sage chip that hugs the message, so they read over pale sand.
+        var chip = Ui3D.Image("FeedbackChip", safe, "ui3d_hint");
+        Ui3D.At(chip.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, SheetBottom + 30), new Vector2(600, 96));
+        var chipLayout = chip.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>();
+        chipLayout.padding = new RectOffset(48, 48, 22, 24);
+        chipLayout.childControlWidth = chipLayout.childControlHeight = true;
+        var chipFit = chip.gameObject.AddComponent<UnityEngine.UI.ContentSizeFitter>();
+        chipFit.horizontalFit = chipFit.verticalFit = UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize;
+        var chipShadow = chip.gameObject.AddComponent<UnityEngine.UI.Shadow>();
+        chipShadow.effectColor = new Color(0, 0, 0, .35f);
+        chipShadow.effectDistance = new Vector2(0, -6);
+        var feedback = Ui3D.Text("Feedback", chip.transform, "", 40, Ui3D.Cream, true);
+        feedback.textWrappingMode = TextWrappingModes.NoWrap;
         controller.feedback = feedback;
-        feedback.gameObject.SetActive(false);
+        controller.feedbackRoot = chip.gameObject;
+        chip.gameObject.SetActive(false);
 
         if (decoration != null)
         {
@@ -203,8 +212,11 @@ public static class MainAquariumScreenBuilder
         layout.childControlWidth = layout.childControlHeight = true;
         layout.childForceExpandWidth = layout.childForceExpandHeight = true;
         controller.toolbar = dock.gameObject;
-        Wire(Stone("FeedButton", dock, "action_feed", out controller.feedGlow, out controller.feedLift), controller.Feed);
-        Wire(Stone("CareButton", dock, "action_care", out controller.careGlow, out controller.careLift), controller.ToggleCare);
+        // Care opens from the fish chip in the header, so the dock keeps four evenly spaced stones.
+        var feed = Stone("FeedButton", dock, "action_feed", out controller.feedGlow, out controller.feedLift);
+        Wire(feed, controller.Feed);
+        controller.feedIcon = (UnityEngine.UI.Image)feed.targetGraphic;
+        controller.feedIconOpen = Ui3D.Require("action_feed_open");
         Wire(Stone("DecorateButton", dock, "action_decorate", out controller.decorateGlow, out controller.decorateLift), controller.ToggleDecorate);
         Wire(Stone("ShopButton", dock, "action_shop", out _, out _), controller.OpenShop);
         Wire(Stone("PhotoButton", dock, "action_photo", out _, out _), controller.TakePhoto);

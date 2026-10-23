@@ -23,6 +23,8 @@ namespace Lumaquarium.UI
         public UnityEngine.UI.Image hungerFill;
         public TMP_Text behaviourLabel;
         public TMP_Text feedback;
+        // Chip behind the feedback text; older scenes have none and toggle the text itself.
+        public GameObject feedbackRoot;
         public TMP_Text muteLabel;
         public CanvasGroup hud;
         public AquariumDecoration decoration;
@@ -48,8 +50,13 @@ namespace Lumaquarium.UI
         public RectTransform careLift;
         public RectTransform decorateLift;
         public RectTransform feedLift;
+        // Feed mode shows the jar with its lid off.
+        public UnityEngine.UI.Image feedIcon;
+        public Sprite feedIconOpen;
         public float activeLift = 18;
 
+        private GameObject FeedbackRoot => feedbackRoot != null ? feedbackRoot : feedback.gameObject;
+        private Sprite feedIconClosed;
         private Vector3 defaultView;
         private float feedbackUntil;
         private bool hidden;
@@ -75,6 +82,7 @@ namespace Lumaquarium.UI
                     feedLift = button.Find("Lift") as RectTransform;
                 }
             }
+            if (feedIcon != null) feedIconClosed = feedIcon.sprite;
             if (feeding != null) feeding.FeedModeChanged += _ => UpdateTiles();
             UpdateMuteLabel();
             UpdateTiles();
@@ -107,8 +115,8 @@ namespace Lumaquarium.UI
                     _ => "Đang bơi thong thả"
                 };
             }
-            if (feedback.gameObject.activeSelf && Time.unscaledTime >= feedbackUntil)
-                feedback.gameObject.SetActive(false);
+            if (FeedbackRoot.activeSelf && Time.unscaledTime >= feedbackUntil)
+                FeedbackRoot.SetActive(false);
             if (careFishName != null && fishNameLabel != null && careFishName.text != fishNameLabel.text)
                 careFishName.text = fishNameLabel.text;
             if (carePortrait != null && fishPortrait != null && carePortrait.sprite != fishPortrait.sprite)
@@ -200,7 +208,10 @@ namespace Lumaquarium.UI
         {
             Highlight(careGlow, careLift, carePanel.activeSelf);
             Highlight(decorateGlow, decorateLift, decoratePanel.activeSelf);
-            Highlight(feedGlow, feedLift, feeding != null && feeding.FeedMode);
+            bool feedOn = feeding != null && feeding.FeedMode;
+            Highlight(feedGlow, feedLift, feedOn);
+            if (feedIcon != null && feedIconOpen != null && feedIconClosed != null)
+                feedIcon.sprite = feedOn ? feedIconOpen : feedIconClosed;
             if (tileNormal == null || tileActive == null) return;
             if (careTile != null) careTile.sprite = carePanel.activeSelf ? tileActive : tileNormal;
             if (decorateTile != null) decorateTile.sprite = decoratePanel.activeSelf ? tileActive : tileNormal;
@@ -220,7 +231,7 @@ namespace Lumaquarium.UI
             header.SetActive(!hidden);
             toolbar.SetActive(!hidden);
             restoreButton.SetActive(hidden);
-            feedback.gameObject.SetActive(false);
+            FeedbackRoot.SetActive(false);
         }
 
         public void ToggleMute()
@@ -283,7 +294,7 @@ namespace Lumaquarium.UI
         {
             feedback.text = message;
             feedbackUntil = Time.unscaledTime + 4;
-            feedback.gameObject.SetActive(true);
+            FeedbackRoot.SetActive(true);
         }
 
         private void RestoreAfterCapture()
