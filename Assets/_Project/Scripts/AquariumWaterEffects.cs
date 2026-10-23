@@ -14,6 +14,7 @@ public sealed class AquariumWaterEffects : MonoBehaviour
     public float surfaceY = 2.42f;
     public float strength = 1;
     public int RippleCount { get; private set; }
+    public event System.Action<Vector3, bool> Rippled;   // point, raised by the fish at the surface
     private readonly Vector4[] ripples = new Vector4[4];
     private MaterialPropertyBlock properties;
     private int nextRipple;
@@ -29,12 +30,13 @@ public sealed class AquariumWaterEffects : MonoBehaviour
         if (viewCamera != null) viewCamera.GetUniversalAdditionalCameraData().requiresColorOption = CameraOverrideOption.On;
     }
 
-    public void Ripple(Vector3 point)
+    public void Ripple(Vector3 point, bool byFish = false)
     {
         float edge = decoration != null ? decoration.max.x + .05f : .9f;
         ripples[nextRipple] = new Vector4(Mathf.Clamp(point.x, -edge, edge), point.z, strength, Time.time);
         nextRipple = (nextRipple + 1) % ripples.Length;
         RippleCount++;
+        Rippled?.Invoke(point, byFish);
     }
 
     private void Update()
@@ -45,7 +47,7 @@ public sealed class AquariumWaterEffects : MonoBehaviour
 
         if (fish != null && fish.position.y > surfaceY - .22f && Time.time > nextFishRipple)
         {
-            Ripple(fish.position);
+            Ripple(fish.position, true);
             nextFishRipple = Time.time + .65f;
         }
         if (decoration != null && decoration.Editing) return;

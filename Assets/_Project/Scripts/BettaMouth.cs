@@ -14,6 +14,7 @@ public sealed class BettaMouth : MonoBehaviour
     public Vector2 bubbleSize = new Vector2(0.012f, 0.022f);
     public float bubbleRiseSpeed = 0.22f;         // m/s
     public Vector2 surfaceFloatTime = new Vector2(4f, 9f);
+    public float popVolume = 0.6f;                // fish bubbles are smaller than the pump's
 
     static readonly int YawnId = Animator.StringToHash("Yawn");
     static readonly float[] GulpBubbleTimes = { 9f / 24f };
@@ -28,6 +29,7 @@ public sealed class BettaMouth : MonoBehaviour
     float yawnTimer;
     float[] pending = System.Array.Empty<float>();
     int pendingCount;
+    bool gulpPending;
     float pendingClock;
 
     void Awake()
@@ -60,7 +62,12 @@ public sealed class BettaMouth : MonoBehaviour
         if (bubbles) Destroy(bubbles.gameObject);
     }
 
-    void OnGulp() => Schedule(GulpBubbleTimes);
+    void OnGulp()
+    {
+        Schedule(GulpBubbleTimes);
+        gulpPending = true;   // heard as the lips close on the air, with the gulp's bubble
+    }
+
     void OnBlow() => Schedule(BlowBubbleTimes);
 
     void Schedule(float[] times)
@@ -68,6 +75,7 @@ public sealed class BettaMouth : MonoBehaviour
         pending = times;
         pendingCount = 0;
         pendingClock = 0f;
+        gulpPending = false;
     }
 
     void Update()
@@ -86,11 +94,13 @@ public sealed class BettaMouth : MonoBehaviour
         while (pendingCount < pending.Length && pendingClock >= pending[pendingCount])
         {
             EmitBubble();
+            if (gulpPending && jaw != null && AquariumAudio.Current != null) AquariumAudio.Current.PlayGulp(Mouth());
+            gulpPending = false;
             pendingCount++;
         }
     }
 
-    // Bubbles that reach the surface stop there, drift a little and pop when their time is up.
+    // Bubbles that reach the surface stop there, drift a little and pop (audibly) when their time is up.
     void LateUpdate()
     {
         if (!bubbles || !fish || bubbles.particleCount == 0) return;
@@ -99,6 +109,12 @@ public sealed class BettaMouth : MonoBehaviour
         for (int i = 0; i < n; i++)
         {
             if (particles[i].position.y < surface) continue;
+            if (particles[i].remainingLifetime <= 0.1f)   // pop it now, so no frame step skips the sound
+            {
+                if (AquariumAudio.Current != null) AquariumAudio.Current.PlayBloop(particles[i].position, popVolume);
+                particles[i].remainingLifetime = 0f;
+                continue;
+            }
             Vector3 p = particles[i].position;
             p.y = surface;
             particles[i].position = p;
@@ -110,9 +126,7 @@ public sealed class BettaMouth : MonoBehaviour
     void EmitBubble()
     {
         if (!bubbles || jaw == null) return;
-        // Jaw_Lower's pivot sits at the mouth corners; the lips are about a third of the way
-        // further out along the head (gills -> corners).
-        Vector3 mouth = head ? jaw.position + (jaw.position - head.position) * 0.35f : jaw.position;
+        Vector3 mouth = Mouth();
         float surface = fish ? fish.waterSurfaceY : mouth.y + 1f;
         float rise = Mathf.Max(0f, surface - mouth.y) / bubbleRiseSpeed;
         var emit = new ParticleSystem.EmitParams
@@ -125,6 +139,10 @@ public sealed class BettaMouth : MonoBehaviour
         };
         bubbles.Emit(emit, 1);
     }
+
+    // Jaw_Lower's pivot sits at the mouth corners; the lips are about a third of the way
+    // further out along the head (gills -> corners).
+    Vector3 Mouth() => head ? jaw.position + (jaw.position - head.position) * 0.35f : jaw.position;
 
     ParticleSystem CreateBubbles()
     {

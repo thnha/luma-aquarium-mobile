@@ -71,6 +71,7 @@ namespace Lumaquarium.UI
             aquarium.hud.interactable = aquarium.hud.blocksRaycasts = false;
             aquarium.orbit.enabled = false;
             content.SetActive(true);
+            AquariumAudio.Muffle(true);
             confirmation.SetActive(false);
             pendingIndex = -1;
             feedback.text = "Mỗi lần mua nhận 1 món · Có thể mua nhiều lần";
@@ -82,6 +83,7 @@ namespace Lumaquarium.UI
             if (!IsOpen) return;
             CancelPurchase();
             content.SetActive(false);
+            AquariumAudio.Muffle(false);
             if (aquarium != null)
             {
                 if (aquarium.hud != null)

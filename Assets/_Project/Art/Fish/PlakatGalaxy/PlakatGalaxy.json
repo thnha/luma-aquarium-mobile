@@ -18,13 +18,13 @@
     "price": 0
   },
   "model": {
-    "size": 2,
+    "size": 1.5,
     "bodySwimAmplitude": 3,
     "strokeSwimAmplitude": 8
   },
   "look": {
     "pattern": "KoiGalaxy",
-    "primary": [0.92, 0.92, 0.94],
+    "primary": [1, 1, 1],
     "secondary": [0.22, 0.225, 0.24],
     "accent": [1.0, 0.03, 0.03],
     "finEdge": [1.0, 0.66, 0.04],

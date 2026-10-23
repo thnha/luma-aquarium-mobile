@@ -16,7 +16,7 @@ MonoBehaviour:
   modelPrefab: {fileID: 134537175129099451, guid: ad18d9a35698b400aa3b064bf4575b09, type: 3}
   pattern: {fileID: 11400000, guid: 737877a7fe28740c4b7618b6fdd694cc, type: 2}
   primary: {r: 1, g: 0.6, b: 0.12, a: 1}
-  secondary: {r: 0.82, g: 0.08, b: 0.06, a: 1}
+  secondary: {r: 1, g: 0.0314, b: 0.0314, a: 1}
   accent: {r: 0.05, g: 0.15, b: 0.6, a: 1}
   finEdge: {r: 1, g: 0.82, b: 0.2, a: 1}
   iridescence: 0.4
@@ -30,6 +30,10 @@ MonoBehaviour:
   finRelief: 0.5
   finTranslucency: 1.2
   scaleRelief: 0.55
+  scaleEdge: 0
+  scaleEdgeWidth: 0.5
+  scaleEdgeDark: {r: 0.62, g: 0.42, b: 0.22, a: 1}
+  scaleEdgeLight: {r: 0.5, g: 0.5, b: 0.55, a: 1}
   finBlack: 0
   finBrightness: 1
   vibrance: 1

@@ -19,9 +19,9 @@ MonoBehaviour:
     l\u01B0ng v\u1EA3y \u0111en, mang tr\u1EAFng vi\u1EC1n \u0111\u1ECF, v\xE2y v\xE0ng
     ngh\u1EC7"
   price: 0
-  size: 2
+  size: 1.5
   pattern: {fileID: 11400000, guid: 9c31507e348de46669991b4d0d773ea2, type: 2}
-  primary: {r: 0.92, g: 0.92, b: 0.94, a: 1}
+  primary: {r: 1, g: 1, b: 1, a: 1}
   secondary: {r: 0.22, g: 0.225, b: 0.24, a: 1}
   accent: {r: 1, g: 0.03, b: 0.03, a: 1}
   finEdge: {r: 1, g: 0.66, b: 0.04, a: 1}

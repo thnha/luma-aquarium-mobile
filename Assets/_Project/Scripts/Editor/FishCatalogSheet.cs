@@ -33,11 +33,13 @@ public static class FishCatalogSheet
             tab.rows.Add(new DecorCatalogSheet.SheetRow
             {
                 item = new DecorCatalogSheet.SheetItem { id = fish.shopId, name = fish.displayName, description = fish.description, price = fish.price },
-                image = DecorCatalogSheet.ImageUrl(PortraitDir + "/" + fish.shopId + ".png", "fish"),
+                image = PortraitUrl(fish),
                 view = new[] { fish.pattern != null ? fish.pattern.name : "", fish.size.ToString(System.Globalization.CultureInfo.InvariantCulture) }
             });
         return tab;
     }
+
+    public static string PortraitUrl(PipelineFish fish) => DecorCatalogSheet.ImageUrl(PortraitDir + "/" + fish.shopId + ".png", "fish");
 
     // Writes the changed fish everywhere their text is kept. Returns problems to show in the Pull report.
     public static List<string> Save(IEnumerable<DecorCatalogSheet.SheetItem> items)

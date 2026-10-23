@@ -68,6 +68,9 @@ MonoBehaviour:
   maxSegmentPitchBend: 10
   turnTailKick: 0.08
   maxTailKick: 12
+  displayCurlAngle: 8
+  displayFlickAngle: 10
+  displayFlickFrequency: 1.2
   pectoralHoverFrequency: 2
   pectoralCruiseFrequency: 1.1
   pectoralHoverAmplitude: 16
@@ -77,6 +80,7 @@ MonoBehaviour:
   gillRestFrequency: 0.7
   gillActiveFrequency: 1.6
   gillOpenAngle: 12
+  gillFlareAngle: 20
 --- !u!114 &2244958699811770886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -127,6 +131,9 @@ MonoBehaviour:
   dorsalRaise: 12
   caudalSpread: 0
   caudalDroop: 0
+  flareSpread: 28
+  flareRaise: 14
+  hungerFold: 20
   skippedChains:
   - Tail_Crown_01_01
   - Tail_Crown_02_01
@@ -221,15 +228,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 14a570338b3884c448c8ea342ba72dd1, type: 3}
       propertyPath: m_LocalScale.x
-      value: 2.4
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 14a570338b3884c448c8ea342ba72dd1, type: 3}
       propertyPath: m_LocalScale.y
-      value: 2.4
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 14a570338b3884c448c8ea342ba72dd1, type: 3}
       propertyPath: m_LocalScale.z
-      value: 2.4
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 14a570338b3884c448c8ea342ba72dd1, type: 3}
       propertyPath: m_LocalPosition.x

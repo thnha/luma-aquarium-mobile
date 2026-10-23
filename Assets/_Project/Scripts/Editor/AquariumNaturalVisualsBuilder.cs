@@ -226,7 +226,7 @@ public static class AquariumNaturalVisualsBuilder
         bubbles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         var main = bubbles.main;
         main.startLifetime = new ParticleSystem.MinMaxCurve(5.1f, 6.1f);
-        main.startSize = new ParticleSystem.MinMaxCurve(.012f, .036f);
+        main.startSize = new ParticleSystem.MinMaxCurve(.016f, .045f);
         main.startColor = new Color(.91f, .98f, 1, .85f); main.maxParticles = 55;
         var emission = bubbles.emission; emission.rateOverTime = 4.6f;
         var velocity = bubbles.velocityOverLifetime;

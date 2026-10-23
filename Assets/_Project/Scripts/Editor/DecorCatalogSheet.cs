@@ -33,11 +33,14 @@ public static class DecorCatalogSheet
     public sealed class SheetItem { public string id, name, description; public int price; public bool freeAllowed, changed; }
 
     // One tab of the Excel file: a picture, then the editable columns, then this tab's read-only columns.
-    // A tab with a table instead (Gói quà) is written as it is, its first row as the header.
+    // A tab with a table instead (Gói quà, the Cá – … tabs) is written as it is, its first row as the header:
+    // its first keyColumns columns stay in view (grey after the first), the greyRows rows below the header are
+    // for reading only, "=IMAGE(...)" is a picture and with swatches a #RRGGBB cell is filled with its colour.
     public sealed class SheetRow { public SheetItem item; public string image; public string[] view; }
     public sealed class SheetTab
     {
         public string name; public string[] viewHeaders; public List<string[]> table;
+        public int keyColumns, greyRows; public bool swatches;
         public readonly List<SheetRow> rows = new List<SheetRow>();
     }
 
@@ -289,17 +292,37 @@ public static class DecorCatalogSheet
         string ViewCell(string column, int row, string text) =>
             int.TryParse(text, out int number) ? NumberCell(column, row, number, 3) : Cell(column, row, text, 3);
         const string Main = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
-        // A plain table: bold header, editable cells, whole numbers as numbers.
-        string PlainSheet(List<string[]> table)
+        // Fill colours of swatch cells, each its own style after the five fixed ones.
+        var swatches = new List<string>();
+        int Swatch(string hex)
         {
+            int index = swatches.IndexOf(hex);
+            if (index < 0) { index = swatches.Count; swatches.Add(hex); }
+            return 5 + index;
+        }
+        // A plain table: bold header, editable cells, numbers as numbers.
+        string PlainSheet(SheetTab tab)
+        {
+            var table = tab.table;
             var rows = new StringBuilder();
+            bool pictures = table.Any(row => row.Any(text => text != null && text.StartsWith("=IMAGE(")));
             for (int n = 0; n < table.Count; n++)
-                rows.Append($"<row r=\"{n + 1}\">" + string.Concat(table[n].Select((text, k) =>
-                    n > 0 && int.TryParse(text, out int number) ? NumberCell(((char)('A' + k)).ToString(), n + 1, number, 4)
-                        : Cell(((char)('A' + k)).ToString(), n + 1, text, n == 0 ? 1 : 4))) + "</row>");
+                rows.Append($"<row r=\"{n + 1}\"{(n > 0 && pictures ? " ht=\"66\" customHeight=\"1\"" : "")}>" + string.Concat(table[n].Select((text, k) =>
+                {
+                    string column = ((char)('A' + k)).ToString();
+                    bool grey = k > 0 && k < tab.keyColumns || n > 0 && n <= tab.greyRows;
+                    if (n == 0) return Cell(column, 1, text, grey ? 2 : 1);
+                    int style = grey ? 3 : 4;
+                    if (text != null && text.StartsWith("=IMAGE(")) return $"<c r=\"{column}{n + 1}\" s=\"3\"><f>{SecurityElement.Escape(text.Substring(1))}</f></c>";
+                    if (tab.swatches && text != null && Regex.IsMatch(text, "^#[0-9A-F]{6}$")) style = Swatch(text.Substring(1));
+                    return text != null && Regex.IsMatch(text, @"^-?\d+(\.\d+)?$") ? $"<c r=\"{column}{n + 1}\" s=\"{style}\"><v>{text}</v></c>"
+                        : Cell(column, n + 1, text, style);
+                })) + "</row>");
             int columns = table.Count > 0 ? table[0].Length : 0;
-            return $"<worksheet xmlns=\"{Main}\"><sheetViews><sheetView workbookViewId=\"0\">" +
-                "<pane ySplit=\"1\" topLeftCell=\"A2\" activePane=\"bottomLeft\" state=\"frozen\"/></sheetView></sheetViews><cols>" +
+            string pane = tab.keyColumns > 0
+                ? $"<pane xSplit=\"{tab.keyColumns}\" ySplit=\"1\" topLeftCell=\"{(char)('A' + tab.keyColumns)}2\" activePane=\"bottomRight\" state=\"frozen\"/>"
+                : "<pane ySplit=\"1\" topLeftCell=\"A2\" activePane=\"bottomLeft\" state=\"frozen\"/>";
+            return $"<worksheet xmlns=\"{Main}\"><sheetViews><sheetView workbookViewId=\"0\">{pane}</sheetView></sheetViews><cols>" +
                 string.Concat(Enumerable.Range(1, columns).Select(c => $"<col min=\"{c}\" max=\"{c}\" width=\"18\" customWidth=\"1\"/>")) +
                 $"</cols><sheetData>{rows}</sheetData></worksheet>";
         }
@@ -324,7 +347,7 @@ public static class DecorCatalogSheet
                 sheets.Append($"<sheet name=\"{SecurityElement.Escape(groups[i - 1].name)}\" sheetId=\"{i}\" r:id=\"rId{i}\"/>");
                 rels.Append($"<Relationship Id=\"rId{i}\" Type=\"{Rel}/worksheet\" Target=\"worksheets/sheet{i}.xml\"/>");
                 var group = groups[i - 1];
-                if (group.table != null) { Entry($"xl/worksheets/sheet{i}.xml", PlainSheet(group.table)); continue; }
+                if (group.table != null) { Entry($"xl/worksheets/sheet{i}.xml", PlainSheet(group)); continue; }
                 var rows = new StringBuilder($"<row r=\"1\">{Cell("A", 1, Header[0], 1)}{Cell("B", 1, ImageHeader, 2)}" +
                     $"{Cell("C", 1, Header[2], 1)}{Cell("D", 1, Header[3], 1)}{Cell("E", 1, Header[4], 1)}" +
                     string.Concat(group.viewHeaders.Select((h, k) => Cell(ViewColumn(k), 1, h, 2))) + "</row>");
@@ -353,15 +376,22 @@ public static class DecorCatalogSheet
             Entry("xl/workbook.xml", $"<workbook xmlns=\"{Main}\" xmlns:r=\"{Rel}\"><sheets>{sheets}</sheets></workbook>");
             rels.Append($"<Relationship Id=\"rIdStyles\" Type=\"{Rel}/styles\" Target=\"styles.xml\"/>");
             Entry("xl/_rels/workbook.xml.rels", $"<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">{rels}</Relationships>");
+            // A swatch's text is white on dark colours.
+            bool Dark(string hex) => Enumerable.Range(0, 3).Select(k => Convert.ToInt32(hex.Substring(k * 2, 2), 16))
+                .Zip(new[] { 0.299, 0.587, 0.114 }, (c, w) => c * w).Sum() < 128;
             Entry("xl/styles.xml", $"<styleSheet xmlns=\"{Main}\">" +
-                "<fonts count=\"3\"><font><sz val=\"11\"/><name val=\"Arial\"/></font><font><b/><sz val=\"11\"/><name val=\"Arial\"/></font>" +
-                "<font><sz val=\"11\"/><color rgb=\"FF707070\"/><name val=\"Arial\"/></font></fonts>" +
-                "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill>" +
-                "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFE3E3E3\"/></patternFill></fill></fills>" +
-                "<borders count=\"1\"><border/></borders><cellStyleXfs count=\"1\"><xf/></cellStyleXfs><cellXfs count=\"5\"><xf/>" +
+                "<fonts count=\"4\"><font><sz val=\"11\"/><name val=\"Arial\"/></font><font><b/><sz val=\"11\"/><name val=\"Arial\"/></font>" +
+                "<font><sz val=\"11\"/><color rgb=\"FF707070\"/><name val=\"Arial\"/></font>" +
+                "<font><sz val=\"11\"/><color rgb=\"FFFFFFFF\"/><name val=\"Arial\"/></font></fonts>" +
+                $"<fills count=\"{3 + swatches.Count}\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill>" +
+                "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFE3E3E3\"/></patternFill></fill>" +
+                string.Concat(swatches.Select(hex => $"<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF{hex}\"/></patternFill></fill>")) + "</fills>" +
+                $"<borders count=\"1\"><border/></borders><cellStyleXfs count=\"1\"><xf/></cellStyleXfs><cellXfs count=\"{5 + swatches.Count}\"><xf/>" +
                 "<xf fontId=\"1\" applyFont=\"1\"/><xf fontId=\"1\" fillId=\"2\" applyFont=\"1\" applyFill=\"1\"/>" +
                 "<xf fontId=\"2\" fillId=\"2\" applyFont=\"1\" applyFill=\"1\" applyAlignment=\"1\"><alignment vertical=\"center\"/></xf>" +
-                "<xf applyAlignment=\"1\"><alignment vertical=\"center\" wrapText=\"1\"/></xf></cellXfs></styleSheet>");
+                "<xf applyAlignment=\"1\"><alignment vertical=\"center\" wrapText=\"1\"/></xf>" +
+                string.Concat(swatches.Select((hex, k) => $"<xf fontId=\"{(Dark(hex) ? 3 : 0)}\" fillId=\"{3 + k}\" applyFont=\"1\" applyFill=\"1\" " +
+                    "applyAlignment=\"1\"><alignment vertical=\"center\"/></xf>")) + "</cellXfs></styleSheet>");
         }
         return stream.ToArray();
     }
@@ -443,6 +473,7 @@ public static class DecorCatalogSheet
         if (catalog == null) return;
         var surfaces = SurfaceCatalogSheet.Load();
         var tabs = DecorTabs(catalog.offers, DetailsOf);
+        tabs.InsertRange(0, FishLookSheet.Tabs());
         tabs.Insert(0, FishCatalogSheet.Tab());
         GiftSheet.EnsureStarter(catalog);
         tabs.Insert(0, GiftSheet.Tab(catalog.giftPacks));
@@ -555,6 +586,8 @@ public static class DecorCatalogSheet
         EditorUtility.SetDirty(catalog);
         AssetDatabase.SaveAssets();
         report.errors.AddRange(FishCatalogSheet.Save(fish));
+        // After the shop text, which is written into the same json files.
+        report.changed += FishLookSheet.Save(workbook, report.errors);
         if (surfaces != null) SurfaceCatalogSheet.Save(surfaces, surfaceItems);
         Debug.Log("[Decor Catalog] " + report);
         EditorUtility.DisplayDialog("Decor Catalog", report.ToString(), "OK");
@@ -579,6 +612,7 @@ public sealed class DecorCatalogSheetWindow : EditorWindow
         EditorGUILayout.HelpBox("1. Export Excel, rồi trong Google Sheets: File > Import > Upload file .xlsx > Replace spreadsheet.\n" +
             "2. Share > General access: Anyone with the link (Viewer).\n3. Dán link sheet vào đây, bấm Pull.\n" +
             "Mỗi nhóm một tab; món nằm ở tab nào cũng được, miễn còn cột id. Cột xám chỉ để xem. Tab Cá: giá 0 = tặng miễn phí.\n" +
+            "Tab Cá – hình dáng/màu/bề mặt/vây: mỗi hàng một con cá; ô trống = mặc định (hàng xám); màu dạng #RRGGBB. Pull dựng lại các cá đã đổi.\n" +
             "Tab Gói quà: mỗi người chơi nhận mỗi gói một lần; starter_v1 là quà của người chơi mới, id xu = số xu.\n" +
             "Ảnh đổi thì chạy Tools/upload_sheet_images_r2.sh trước khi Export.", MessageType.Info);
         url = EditorGUILayout.TextField("Link Google Sheet", url);

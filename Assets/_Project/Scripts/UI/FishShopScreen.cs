@@ -126,6 +126,7 @@ namespace Lumaquarium.UI
             aquarium.hud.interactable = aquarium.hud.blocksRaycasts = false;
             if (aquarium.orbit != null) aquarium.orbit.enabled = false;
             content.SetActive(true);
+            AquariumAudio.Muffle(true);
             confirmation.SetActive(false);
             feedback.text = "";
             pendingIndex = -1;
@@ -139,6 +140,7 @@ namespace Lumaquarium.UI
             confirmation.SetActive(false);
             pendingIndex = -1;
             content.SetActive(false);
+            AquariumAudio.Muffle(false);
             aquarium.hud.alpha = previousHudAlpha;
             aquarium.hud.interactable = previousHudInteractable;
             aquarium.hud.blocksRaycasts = previousHudRaycasts;

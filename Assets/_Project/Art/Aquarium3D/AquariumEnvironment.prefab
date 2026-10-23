@@ -6142,6 +6142,7 @@ GameObject:
   - component: {fileID: 3482791865683105501}
   - component: {fileID: 3355497037398684170}
   - component: {fileID: 7326294402739307559}
+  - component: {fileID: 6711924937353748411}
   m_Layer: 0
   m_Name: AquariumDecor
   m_TagString: Untagged
@@ -6342,6 +6343,48 @@ MonoBehaviour:
   backlightStrength: 0.75
   storageKey: Lumaquarium.Lighting.v1
   persist: 1
+--- !u!114 &6711924937353748411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4086667134269603060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8671bf1126b4c4fb099b9299553686d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AquariumAudio
+  water: {fileID: 3355497037398684170}
+  mixer: {fileID: 24100000, guid: 17ee3893cebbb42ad9c008baf56d2203, type: 2}
+  waterGroup: {fileID: -8136597777166977990, guid: 17ee3893cebbb42ad9c008baf56d2203, type: 2}
+  bubblesGroup: {fileID: -8045579238764245709, guid: 17ee3893cebbb42ad9c008baf56d2203, type: 2}
+  sfxGroup: {fileID: 3922008465945389664, guid: 17ee3893cebbb42ad9c008baf56d2203, type: 2}
+  waterLoop: {fileID: 8300000, guid: a9e538874f24947eeb89846986af99b3, type: 3}
+  bubbleLoop: {fileID: 8300000, guid: ae432a9c19b9546f6bdb3f1556e677b4, type: 3}
+  bloops:
+  - {fileID: 8300000, guid: 94f4425fb35e94455bf415db4fa912f7, type: 3}
+  - {fileID: 8300000, guid: 2eba3bfddb6014692b0d6a510b45ef6d, type: 3}
+  - {fileID: 8300000, guid: 4cf118d3fb418424aae7e7e136c0177a, type: 3}
+  - {fileID: 8300000, guid: ec1b31da786f949e4a771baf8efa53c6, type: 3}
+  - {fileID: 8300000, guid: a4f26ceb5703b4e2b84ae9b4f99e8f01, type: 3}
+  - {fileID: 8300000, guid: 9bb02bacc589b498dbbab55c58d09003, type: 3}
+  ripples:
+  - {fileID: 8300000, guid: 345dd63ba1bad4ae2bf3fcdc862681c4, type: 3}
+  - {fileID: 8300000, guid: 5dbcc493c35a04e5480451209d6984bc, type: 3}
+  - {fileID: 8300000, guid: e3a52bd3be6dd426b97b54bb88bb19ea, type: 3}
+  gulps:
+  - {fileID: 8300000, guid: 52dd16b7c85124fc4b66914ccbd479e5, type: 3}
+  - {fileID: 8300000, guid: a9481e1b954f044c3bf94402a4114f83, type: 3}
+  - {fileID: 8300000, guid: 0f79132cff87746ebb5c860690f086cd, type: 3}
+  waterVolume: 0.1
+  bubbleVolume: 0.22
+  bloopVolume: 0.28
+  rippleVolume: 0.5
+  gulpVolume: 0.55
+  popChance: 0.2
+  referenceRate: 4.6
+  rippleGap: 0.4
 --- !u!1 &4139353103397086710
 GameObject:
   m_ObjectHideFlags: 0
@@ -10220,8 +10263,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.036
-      minScalar: 0.012
+      scalar: 0.045
+      minScalar: 0.016
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -17441,6 +17484,7 @@ MonoBehaviour:
   hud: {fileID: 5281912746202035024}
   decoration: {fileID: 3482791865683105501}
   fishShop: {fileID: 0}
+  shop: {fileID: 0}
   walletLabel: {fileID: 0}
   hudFullnessFill: {fileID: 0}
   hudFullnessLabel: {fileID: 0}
