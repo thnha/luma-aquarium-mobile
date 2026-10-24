@@ -1,6 +1,21 @@
 {
-    "version": "608068e1cc6de010",
+    "version": "0f1149c390a2dc06",
     "items": [
+        {
+            "id": "blue-flame-betta",
+            "slot": "fish",
+            "price": 0
+        },
+        {
+            "id": "galaxy-betta",
+            "slot": "fish",
+            "price": 0
+        },
+        {
+            "id": "koi-betta",
+            "slot": "fish",
+            "price": 0
+        },
         {
             "id": "koi-nemo",
             "slot": "fish",
@@ -17,254 +32,269 @@
             "price": 0
         },
         {
+            "id": "red-steel-betta",
+            "slot": "fish",
+            "price": 0
+        },
+        {
+            "id": "sky-koi-betta",
+            "slot": "fish",
+            "price": 0
+        },
+        {
+            "id": "sky-koi-betta-m4",
+            "slot": "fish",
+            "price": 0
+        },
+        {
             "id": "hornwort",
             "slot": "",
-            "price": 60
+            "price": 1
         },
         {
             "id": "cabomba",
             "slot": "",
-            "price": 75
+            "price": 1
         },
         {
             "id": "vallisneria",
             "slot": "",
-            "price": 80
+            "price": 1
         },
         {
             "id": "rotala",
             "slot": "",
-            "price": 100
+            "price": 1
         },
         {
             "id": "anubias-petite",
             "slot": "",
-            "price": 120
+            "price": 1
         },
         {
             "id": "java-fern",
             "slot": "",
-            "price": 130
+            "price": 1
         },
         {
             "id": "java-moss",
             "slot": "",
-            "price": 80
+            "price": 1
         },
         {
             "id": "christmas-moss",
             "slot": "",
-            "price": 100
+            "price": 1
         },
         {
             "id": "mini-fiss",
             "slot": "",
-            "price": 110
+            "price": 1
         },
         {
             "id": "duckweed",
             "slot": "",
-            "price": 40
+            "price": 1
         },
         {
             "id": "salvinia",
             "slot": "",
-            "price": 55
+            "price": 1
         },
         {
             "id": "frogbit",
             "slot": "",
-            "price": 70
+            "price": 1
         },
         {
             "id": "wood-short",
             "slot": "",
-            "price": 120
+            "price": 1
         },
         {
             "id": "wood-long",
             "slot": "",
-            "price": 180
+            "price": 1
         },
         {
             "id": "wood-arch",
             "slot": "",
-            "price": 200
+            "price": 1
         },
         {
             "id": "wood-branches",
             "slot": "",
-            "price": 230
+            "price": 1
         },
         {
             "id": "wood-roots",
             "slot": "",
-            "price": 250
+            "price": 1
         },
         {
             "id": "wood-stump",
             "slot": "",
-            "price": 220
+            "price": 1
         },
         {
             "id": "river-pebbles",
             "slot": "",
-            "price": 70
+            "price": 1
         },
         {
             "id": "dragon-stone",
             "slot": "",
-            "price": 140
+            "price": 1
         },
         {
             "id": "lava-rock",
             "slot": "",
-            "price": 100
+            "price": 1
         },
         {
             "id": "seiryu",
             "slot": "",
-            "price": 160
+            "price": 1
         },
         {
             "id": "rock-cluster",
             "slot": "",
-            "price": 200
+            "price": 1
         },
         {
             "id": "mini-landscape",
             "slot": "",
-            "price": 320
+            "price": 1
         },
         {
             "id": "wood-linh-sam",
             "slot": "",
-            "price": 220
+            "price": 1
         },
         {
             "id": "wood-hai-son-tung",
             "slot": "",
-            "price": 240
+            "price": 1
         },
         {
             "id": "wood-do-quyen",
             "slot": "",
-            "price": 230
+            "price": 1
         },
         {
             "id": "wood-spider",
             "slot": "",
-            "price": 190
+            "price": 1
         },
         {
             "id": "wood-san-da",
             "slot": "",
-            "price": 250
+            "price": 1
         },
         {
             "id": "wood-mopani",
             "slot": "",
-            "price": 260
+            "price": 1
         },
         {
             "id": "wood-tra-gung",
             "slot": "",
-            "price": 120
+            "price": 1
         },
         {
             "id": "wood-bonsai",
             "slot": "",
-            "price": 320
+            "price": 1
         },
         {
             "id": "moss-mini-taiwan",
             "slot": "",
-            "price": 90
+            "price": 1
         },
         {
             "id": "moss-weeping",
             "slot": "",
-            "price": 120
+            "price": 1
         },
         {
             "id": "moss-flame",
             "slot": "",
-            "price": 130
+            "price": 1
         },
         {
             "id": "moss-wall-taiwan",
             "slot": "",
-            "price": 220
+            "price": 1
         },
         {
             "id": "moss-wall-weeping",
             "slot": "",
-            "price": 260
+            "price": 1
         },
         {
             "id": "stone-elephant-skin",
             "slot": "",
-            "price": 180
+            "price": 1
         },
         {
             "id": "stone-coral-rock",
             "slot": "",
-            "price": 150
+            "price": 1
         },
         {
             "id": "stone-lava-red",
             "slot": "",
-            "price": 110
+            "price": 1
         },
         {
             "id": "stone-sea-pebbles",
             "slot": "",
-            "price": 80
+            "price": 1
         },
         {
             "id": "stone-co-thach",
             "slot": "",
-            "price": 260
+            "price": 1
         },
         {
             "id": "stone-tuyet-son",
             "slot": "",
-            "price": 280
+            "price": 1
         },
         {
             "id": "coral-rubble",
             "slot": "",
-            "price": 90
+            "price": 1
         },
         {
             "id": "coral-block",
             "slot": "",
-            "price": 190
+            "price": 1
         },
         {
             "id": "coral-mushroom",
             "slot": "",
-            "price": 240
+            "price": 1
         },
         {
             "id": "coral-zoanthid",
             "slot": "",
-            "price": 220
+            "price": 1
         },
         {
             "id": "coral-artificial-branch",
             "slot": "",
-            "price": 120
+            "price": 1
         },
         {
             "id": "coral-artificial-fan",
             "slot": "",
-            "price": 130
+            "price": 1
         },
         {
             "id": "starter-anubias",
             "slot": "",
-            "price": 140
+            "price": 1
         },
         {
             "id": "starter-stone",
@@ -274,87 +304,87 @@
         {
             "id": "starter-wood",
             "slot": "",
-            "price": 200
+            "price": 1
         },
         {
             "id": "wood-linh-sam-m",
             "slot": "",
-            "price": 440
+            "price": 1
         },
         {
             "id": "wood-linh-sam-l",
             "slot": "",
-            "price": 770
+            "price": 1
         },
         {
             "id": "wood-hai-son-tung-m",
             "slot": "",
-            "price": 480
+            "price": 1
         },
         {
             "id": "wood-hai-son-tung-l",
             "slot": "",
-            "price": 840
+            "price": 1
         },
         {
             "id": "wood-do-quyen-m",
             "slot": "",
-            "price": 460
+            "price": 1
         },
         {
             "id": "wood-do-quyen-l",
             "slot": "",
-            "price": 800
+            "price": 1
         },
         {
             "id": "wood-spider-m",
             "slot": "",
-            "price": 380
+            "price": 1
         },
         {
             "id": "wood-spider-l",
             "slot": "",
-            "price": 660
+            "price": 1
         },
         {
             "id": "wood-san-da-m",
             "slot": "",
-            "price": 500
+            "price": 1
         },
         {
             "id": "wood-san-da-l",
             "slot": "",
-            "price": 880
+            "price": 1
         },
         {
             "id": "wood-mopani-m",
             "slot": "",
-            "price": 520
+            "price": 1
         },
         {
             "id": "wood-mopani-l",
             "slot": "",
-            "price": 910
+            "price": 1
         },
         {
             "id": "wood-tra-gung-m",
             "slot": "",
-            "price": 240
+            "price": 1
         },
         {
             "id": "wood-tra-gung-l",
             "slot": "",
-            "price": 420
+            "price": 1
         },
         {
             "id": "wood-bonsai-m",
             "slot": "",
-            "price": 640
+            "price": 1
         },
         {
             "id": "wood-bonsai-l",
             "slot": "",
-            "price": 1120
+            "price": 1
         },
         {
             "id": "stone-elephant-skin-m",
@@ -419,7 +449,7 @@
         {
             "id": "wood-co-thu",
             "slot": "",
-            "price": 900
+            "price": 1
         },
         {
             "id": "stone-iwagumi",
@@ -434,17 +464,17 @@
         {
             "id": "vallisneria-tall",
             "slot": "",
-            "price": 180
+            "price": 1
         },
         {
             "id": "rotala-tall",
             "slot": "",
-            "price": 200
+            "price": 1
         },
         {
             "id": "amazon-sword",
             "slot": "",
-            "price": 220
+            "price": 1
         },
         {
             "id": "stone-cliff",
@@ -454,87 +484,87 @@
         {
             "id": "carpet-hairgrass",
             "slot": "",
-            "price": 60
+            "price": 1
         },
         {
             "id": "carpet-monte-carlo",
             "slot": "",
-            "price": 70
+            "price": 1
         },
         {
             "id": "wall_river",
             "slot": "wall",
-            "price": 0
+            "price": 1
         },
         {
             "id": "wall_slate",
             "slot": "wall",
-            "price": 300
+            "price": 1
         },
         {
             "id": "wall_brick",
             "slot": "wall",
-            "price": 350
+            "price": 1
         },
         {
             "id": "wall_planks",
             "slot": "wall",
-            "price": 400
+            "price": 1
         },
         {
             "id": "wall_gold",
             "slot": "wall",
-            "price": 450
+            "price": 1
         },
         {
             "id": "wall_jade",
             "slot": "wall",
-            "price": 450
+            "price": 1
         },
         {
             "id": "sand_river",
             "slot": "floor",
-            "price": 0
+            "price": 1
         },
         {
             "id": "sand_white",
             "slot": "floor",
-            "price": 150
+            "price": 1
         },
         {
             "id": "sand_black",
             "slot": "floor",
-            "price": 200
+            "price": 1
         },
         {
             "id": "sand_pink",
             "slot": "floor",
-            "price": 250
+            "price": 1
         },
         {
             "id": "gravel_river",
             "slot": "floor",
-            "price": 300
+            "price": 1
         },
         {
             "id": "gravel_black",
             "slot": "floor",
-            "price": 300
+            "price": 1
         },
         {
             "id": "tank_square",
             "slot": "tank",
-            "price": 0
+            "price": 1
         },
         {
             "id": "tank_deep",
             "slot": "tank",
-            "price": 1500
+            "price": 1
         },
         {
             "id": "tank_wide",
             "slot": "tank",
-            "price": 2500
+            "price": 1
         }
     ],
     "giftPacks": [

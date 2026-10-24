@@ -28,11 +28,9 @@ public static class FishShopScreenBuilder
         if (aquarium == null || aquarium.fish == null) throw new InvalidOperationException("The existing aquarium HUD and fish are required.");
         Ui3D.LoadFonts();
         var offers = LoadOffers();
-        string backupDir = "Assets/_Project/Scenes/Backups";
-        Directory.CreateDirectory(backupDir);
-        string backup = backupDir + "/MainAquarium-before-fish-shop-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff");
-        File.Copy(scene.path, backup + "-saved.unity");
-        EditorSceneManager.SaveScene(scene, backup + "-working.unity", true);
+        string backup = "MainAquarium-before-fish-shop-" + SceneBackups.Stamp();
+        SceneBackups.CopyFile(scene.path, backup + "-saved");
+        SceneBackups.SaveCopy(scene, backup + "-working");
         Undo.IncrementCurrentGroup();
         int undoGroup = Undo.GetCurrentGroup();
         Undo.SetCurrentGroupName("Add fish shop");
@@ -109,13 +107,16 @@ public static class FishShopScreenBuilder
     // Every fish comes from the Blender pipeline (Art/Fish/*/<Name>.asset with inShop).
     private static FishShopOffer[] LoadOffers()
     {
+        // A fish that has never imported (its build failed) has no variant yet: it stays out of the shop.
         var offers = PipelineFishImporter.All().Where(f => f.inShop).Select(f => new FishShopOffer
         {
             id = f.shopId,
-            variant = AssetDatabase.LoadAssetAtPath<BettaVariant>(PipelineFishImporter.VariantPath(f))
-                ?? throw new InvalidOperationException("Missing variant for " + f.name + ". Run Lumaquarium > Fish > Import Pipeline Fish."),
+            variant = AssetDatabase.LoadAssetAtPath<BettaVariant>(PipelineFishImporter.VariantPath(f)),
             description = f.description, price = f.price
         }).ToArray();
+        foreach (var missing in offers.Where(o => o.variant == null))
+            Debug.LogError("[Lumaquarium] " + missing.id + " left out of the shop: no variant. Run Lumaquarium > Fish > Import Pipeline Fish.");
+        offers = offers.Where(o => o.variant != null).ToArray();
         if (offers.Length == 0) throw new InvalidOperationException("No pipeline fish has inShop set in " + PipelineFishImporter.FishDir + ".");
         return offers;
     }

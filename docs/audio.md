@@ -17,12 +17,15 @@ từ thư viện CC0) mà không phải sửa code.
 
 ## Danh sách file
 
+Các file `ton_*` và `bloop_*` được tạo bằng `Tools/bubble_clips.py` theo mô hình vật lý của bọt khí (tần số Minnaert, tắt dần và vút cao ở cuối). Chạy lại `python3 Tools/bubble_clips.py` từ thư mục `mobile/` sẽ ra đúng các file như cũ; sửa danh sách tần số trong script để đổi tiếng. Bộ clip cũ cất ở `backups/audio-placeholder/`.
+
 | Tên file | Là tiếng gì | Khi nào phát | Yêu cầu |
 |---|---|---|---|
-| `water_loop` | Tiếng nước nền rất nhẹ (tiếng "hù hù") | Lặp liên tục | **Lặp liền mạch**, 20–60 giây |
-| `bubble_loop` | Tiếng máy sủi oxi chạy đều | Lặp liên tục, nhỏ dần khi máy sủi tắt | **Lặp liền mạch**, 10–30 giây, không quá dày |
-| `bloop_01`, `bloop_02`, … | Một bọt vỡ trên mặt nước ("bủm") | Khi bọt máy sủi vỡ (20% số bọt), và khi bọt cá thổi vỡ | Mỗi file 0.1–0.4 giây, một bọt duy nhất |
-| `ripple_01`, `ripple_02`, … | Tiếng nước "lách tách" khi mặt nước gợn | Khi chạm vào mặt nước, hoặc khi di chuyển đồ trang trí | 0.3–0.6 giây, có tiếng giọt nhỏ, **tránh tiếng "xì"** |
+| `water_loop` | Tiếng nước nền rất nhẹ (tiếng "hù hù") | Lặp liên tục (đang tắt: Water Volume 0) | **Lặp liền mạch**, 20–60 giây |
+| `bubble_loop` | Tiếng máy sủi oxi chạy đều ("xì") | Lặp liên tục, nhỏ dần khi máy sủi tắt (đang tắt: Bubble Volume 0) | **Lặp liền mạch**, 10–30 giây, không quá dày |
+| `bloop_01` … `bloop_04` | Bọt to vỡ, trầm ("bủm") | Xen trong dòng bọt máy sủi, khoảng 15% số tiếng (xem dòng dưới) | Mỗi file 0.1–0.4 giây, một bọt duy nhất |
+| `ton_01` … `ton_08` | Bọt nhỏ vỡ, cao ("tỏn") | Khi máy sủi chạy: một dòng bọt ngẫu nhiên kiểu máy sủi, trung bình 4 tiếng/giây, lúc dày lúc thưa, đôi khi 2–3 bọt liền nhau. Tiếng phát ở chỗ bọt vừa vỡ. Bọt cá thổi vỡ không có tiếng | Mỗi file 0.1–0.3 giây, một bọt duy nhất |
+| `ripple_01`, `ripple_02`, … | Tiếng nước "lách tách" khi mặt nước gợn | Khi chạm vào mặt nước (dời đồ trang trí không có tiếng) | 0.3–0.6 giây, có tiếng giọt nhỏ, **tránh tiếng "xì"** |
 | `gulp_01`, `gulp_02`, … | Cá betta đớp khí ("chụt") | Mỗi lần cá ngoi lên đớp khí | 0.1–0.3 giây |
 
 Ghi chú:
@@ -43,10 +46,15 @@ component **AquariumAudio**:
 
 | Thông số | Hiện tại | Tác dụng |
 |---|---|---|
-| Water Volume | 0.1 | Độ to tiếng nước nền. Đặt 0 để bỏ hẳn |
-| Bubble Volume | 0.22 | Độ to tiếng máy sủi |
-| Bloop Volume | 0 (đang tắt) | Độ to tiếng bọt vỡ ("bủm"). Bọt cá thổi phát bằng mức này × 0.6 (`Pop Volume` trên BettaMouth). Muốn bật lại thì thử khoảng 0.2–0.3 |
-| Pop Chance | 0.2 | Tỷ lệ bọt máy sủi vỡ có tiếng. Tăng thì "lỏn tỏn" nhiều hơn |
+| Water Volume | 0 (đang tắt) | Độ to tiếng nước nền. Đặt 0 để bỏ hẳn |
+| Bubble Volume | 0 (đang tắt) | Độ to tiếng máy sủi |
+| Bloop Volume | 0.25 | Độ to tiếng bọt vỡ ("tỏn" và "bủm") |
+| Pop Rate | 4 | Số tiếng bọt trung bình mỗi giây khi máy sủi chạy |
+| Bloop Share | 0.15 | Tỷ lệ tiếng "bủm" (bọt to) trong dòng bọt |
+| Breath Depth | 0.6 | Độ dày/thưa lên xuống của dòng bọt. 0 là đều, 1 là có lúc gần như tắt |
+| Breath Speed | 0.2 | Tốc độ lên xuống đó (lần/giây) |
+| Cluster Chance | 0.35 | Tỷ lệ một bọt kéo theo 1–2 bọt nhỏ liền sau (cách 0.07–0.14 giây, nhỏ tiếng hơn) |
+| Min Gap | 0.07 | Hai tiếng bọt không bao giờ bắt đầu gần nhau hơn số giây này, tránh cộng dồn |
 | Ripple Volume | 0.5 | Độ to tiếng lách tách khi chạm mặt nước |
 | Gulp Volume | 0.55 | Độ to tiếng cá đớp khí |
 | Ripple Gap | 0.4 | Khoảng cách tối thiểu (giây) giữa hai tiếng lách tách |
@@ -91,6 +99,6 @@ content, có thể cập nhật bằng `Tools/publish_content.sh` mà không c�
 
 - `Scripts/AquariumAudio.cs`: phát các lớp âm thanh, theo dõi bọt vỡ, xử lý mặt nước gợn, muffle.
 - `Scripts/Editor/AquariumAudioBuilder.cs`: tạo mixer, import setting, gắn clip vào prefab.
-- `Scripts/BettaMouth.cs`: tiếng cá đớp khí và tiếng bọt cá thổi vỡ.
+- `Scripts/BettaMouth.cs`: tiếng cá đớp khí.
 - `Scripts/UI/ShopScreen.cs`, `FishShopScreen.cs`, `DecorShopScreen.cs`: gọi `AquariumAudio.Muffle` khi mở và
   đóng shop.

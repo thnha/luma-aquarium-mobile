@@ -1,0 +1,32 @@
+{
+  "base": "MeshyColour",
+  "build": {
+    "input": "input/Betta1024b/meshy_zip/Meshy_AI_Betta_Fish_1023173600_image-to-3d-texture_fbx/Meshy_AI_Betta_Fish_1023173600_image-to-3d-texture.fbx",
+    "flip": false,
+    "faces": 45000,
+    "depth": 1,
+    "width": 1,
+    "roundBack": 1,
+    "fins": {},
+    "finThickness": 0.2,
+    "landmarks": "",
+    "bake": true,
+    "body": "meshy",
+    "baseTexture": true,
+    "whitenPaleBlue": 0,
+    "pelvicMaxTurn": 40,
+    "pelvicFade": 85,
+    "analRoot": 0.06,
+    "analFlare": 0.35,
+    "ridgePatch": 0.009,
+    "seamPatch": 0.012,
+    "creasePatch": 0.008
+  },
+  "shop": {
+    "displayName": "Blue Flame Betta",
+    "inShop": true,
+    "shopId": "blue-flame-betta",
+    "description": "Xanh dương, đỏ, cam · màu gốc theo mô hình",
+    "price": 0
+  }
+}

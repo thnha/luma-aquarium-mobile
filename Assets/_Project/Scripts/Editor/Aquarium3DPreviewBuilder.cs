@@ -58,7 +58,7 @@ public static class Aquarium3DPreviewBuilder
         if (source.path != "Assets/_Project/Scenes/MainAquarium.unity")
             throw new InvalidOperationException("Open MainAquarium to create an independent preview copy.");
         if (File.Exists(PreviewPath))
-            File.Copy(PreviewPath, $"Assets/_Project/Scenes/Backups/Aquarium3DPreview-{DateTime.UtcNow:yyyyMMdd-HHmmss-fff}.unity");
+            SceneBackups.CopyFile(PreviewPath, "Aquarium3DPreview-" + SceneBackups.Stamp());
         // Save a copy, including any current edits, without changing the original scene on disk.
         EditorSceneManager.SaveScene(source, PreviewPath, true);
         EditorSceneManager.OpenScene(PreviewPath);

@@ -23,10 +23,9 @@ public static class DecorShopScreenBuilder
         if(scene.path!="Assets/_Project/Scenes/MainAquarium.unity")throw new InvalidOperationException("Open MainAquarium first.");
         var aquarium=UnityEngine.Object.FindFirstObjectByType<MainAquariumScreen>();
         if(aquarium==null || aquarium.decoration==null)throw new InvalidOperationException("Aquarium HUD and decoration are required.");
-        Directory.CreateDirectory("Assets/_Project/Scenes/Backups");
-        string stamp=DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff");
-        File.Copy(scene.path,"Assets/_Project/Scenes/Backups/Main-before-decor-shop-disk-"+stamp+".unity");
-        EditorSceneManager.SaveScene(scene,"Assets/_Project/Scenes/Backups/Main-before-decor-shop-working-"+stamp+".unity",true);
+        string stamp=SceneBackups.Stamp();
+        SceneBackups.CopyFile(scene.path,"Main-before-decor-shop-disk-"+stamp);
+        SceneBackups.SaveCopy(scene,"Main-before-decor-shop-working-"+stamp);
         Ui3D.LoadFonts();
         var catalog=AquariumDecorCatalogBuilder.Build(aquarium.decoration.prefabs.Take(3).ToArray());
         Undo.RecordObject(aquarium.decoration,"Add decoration catalog");

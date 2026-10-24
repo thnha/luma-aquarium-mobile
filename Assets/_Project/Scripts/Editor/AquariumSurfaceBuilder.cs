@@ -88,8 +88,7 @@ public static class AquariumSurfaceBuilder
             Debug.LogWarning("[Lumaquarium] MainAquarium is not the active scene or has no AquariumDecoration; catalog not assigned in the scene.");
             return;
         }
-        Directory.CreateDirectory("Assets/_Project/Scenes/Backups");
-        File.Copy(scene.path, "Assets/_Project/Scenes/Backups/MainAquarium-before-surfaces-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff") + ".unity");
+        SceneBackups.CopyFile(scene.path, "MainAquarium-before-surfaces-" + SceneBackups.Stamp());
         Undo.RecordObject(decoration, "Assign surface catalog");
         decoration.surfaces = catalog;
         EditorUtility.SetDirty(decoration);

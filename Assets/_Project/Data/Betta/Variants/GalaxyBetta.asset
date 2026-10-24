@@ -16,10 +16,10 @@ MonoBehaviour:
   modelPrefab: {fileID: 5968669507910793099, guid: f4246c5670af7444aa89c6d8fd348d17, type: 3}
   pattern: {fileID: 11400000, guid: 2f17b3cb6629e4981bf03dd0ac306bfb, type: 2}
   primary: {r: 1, g: 1, b: 1, a: 1}
-  secondary: {r: 0.22, g: 0.225, b: 0.24, a: 1}
-  accent: {r: 1, g: 0.03, b: 0.03, a: 1}
-  finEdge: {r: 1, g: 0.66, b: 0.04, a: 1}
-  iridescence: 0.4
+  secondary: {r: 0.2196, g: 0.2235, b: 0.2392, a: 1}
+  accent: {r: 1, g: 0.0314, b: 0.0314, a: 1}
+  finEdge: {r: 1, g: 0.6588, b: 0.0392, a: 1}
+  iridescence: 0.1
   textureDetail: 0.6
   silverSheen: 1
   gloss: 1
@@ -32,12 +32,13 @@ MonoBehaviour:
   scaleRelief: 0.55
   scaleEdge: 0
   scaleEdgeWidth: 0.35
-  scaleEdgeDark: {r: 0.62, g: 0.42, b: 0.22, a: 1}
-  scaleEdgeLight: {r: 0.3, g: 0.3, b: 0.33, a: 1}
+  scaleEdgeDark: {r: 0.6196, g: 0.4196, b: 0.2196, a: 1}
+  scaleEdgeLight: {r: 0.298, g: 0.298, b: 0.3294, a: 1}
   finBlack: 0
   finBrightness: 1
-  vibrance: 1
-  brightness: 1
+  vibrance: 1.2
+  brightness: 1.4
+  envReflection: 0
   baseTexture: 1
   finRimAlpha: 0.85
   finRim: {x: 0.55, y: 1}

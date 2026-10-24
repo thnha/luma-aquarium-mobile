@@ -1,0 +1,24 @@
+{
+  "base": "MeshyColour",
+  "build": {
+    "input": "input/Betta1024/meshy_zip/Meshy_AI_Betta_Fish_3D_Model_1023172754_image-to-3d-texture_fbx/Meshy_AI_Betta_Fish_3D_Model_1023172754_image-to-3d-texture.fbx",
+    "flip": true,
+    "faces": 30000,
+    "depth": 1,
+    "width": 1,
+    "fins": {},
+    "finThickness": 0.2,
+    "landmarks": "",
+    "bake": true,
+    "body": "meshy",
+    "baseTexture": true,
+    "whitenPaleBlue": 0
+  },
+  "shop": {
+    "displayName": "Red Steel Betta",
+    "inShop": true,
+    "shopId": "red-steel-betta",
+    "description": "Thân xanh thép, vây đỏ trắng · màu gốc theo mô hình",
+    "price": 0
+  }
+}

@@ -77,6 +77,8 @@ half _FinBrightness;
 // Lit colour of the whole fish (forward pass only): saturation and brightness, 1 = as lit.
 half _Vibrance;
 half _Brightness;
+// Share of the sky reflection kept (forward pass only): 1 = as URP lights it, 0 = none.
+half _EnvReflection;
 // Pipeline fish built with build.baseTexture: _BaseMap holds the Meshy fish's own colours. 1 keeps them
 // everywhere (like the eye), 0 paints the pattern.
 half _BaseTexture;
@@ -431,7 +433,10 @@ inline void BettaVariantSurfaceData(float2 uv, out SurfaceData outSurfaceData)
     // part of it also goes on albedo so folds and fin roots stay shaded under the key light.
     half4 detail = SAMPLE_TEXTURE2D(_OcclusionMap, sampler_OcclusionMap, uv);
     half cavity = lerp(1.0h, saturate((detail.r - 0.3h) / 0.55h), _Cavity * (1.0h - finFlat) * (1.0h - scaleFlat));
-    outSurfaceData.albedo *= cavity * lerp(1.0h, detail.g, _AlbedoAO * (1.0h - finFlat) * (1.0h - scaleFlat));
+    // A Meshy colour texture (_BaseTexture) has its own shading painted in: cavity and AO on top of it
+    // darkened those fish twice (about 20% on the body, 30% on the fins), so most of it is left out.
+    half painted = 1.0h - 0.75h * _BaseTexture * _VariantOn;
+    outSurfaceData.albedo *= lerp(1.0h, cavity * lerp(1.0h, detail.g, _AlbedoAO * (1.0h - finFlat) * (1.0h - scaleFlat)), painted);
     outSurfaceData.smoothness *= lerp(0.6h, 1.0h, cavity);
     half rays = saturate((detail.r - 0.3h) / 0.55h);
     gBettaFolds = rays * rays * detail.g;

@@ -1,0 +1,70 @@
+{
+  "model": {
+    "size": 1.5,
+    "bodySwimAmplitude": 3,
+    "strokeSwimAmplitude": 8
+  },
+  "look": {
+    "pattern": "Solid",
+    "seed": 3,
+    "primary": [
+      1,
+      1,
+      1
+    ],
+    "secondary": [
+      0.2196,
+      0.2235,
+      0.2392
+    ],
+    "accent": [
+      1,
+      0.0314,
+      0.0314
+    ],
+    "finEdge": [
+      1,
+      0.6588,
+      0.0392
+    ],
+    "scaleEdgeDark": [
+      0.6196,
+      0.4196,
+      0.2196
+    ],
+    "scaleEdgeLight": [
+      0.298,
+      0.298,
+      0.3294
+    ],
+    "iridescence": 0.1,
+    "textureDetail": 0.6,
+    "silverSheen": 1,
+    "gloss": 1,
+    "blackGloss": 0,
+    "whiteScales": 0,
+    "pigmentDepth": 0,
+    "scaleRelief": 0.55,
+    "scaleEdge": 0,
+    "scaleEdgeWidth": 0.35,
+    "vibrance": 1.2,
+    "brightness": 1.4,
+    "envReflection": 0,
+    "baseTexture": 1,
+    "finEdgeClear": 1,
+    "finRelief": 0.8,
+    "finTranslucency": 0.9,
+    "finBlack": 0,
+    "finBrightness": 1,
+    "finRimAlpha": 0.85,
+    "finRim": [
+      0.55,
+      1
+    ],
+    "caudalRim": [
+      0.6,
+      1
+    ],
+    "caudalStart": 0.55
+  }
+}

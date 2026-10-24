@@ -42,6 +42,7 @@ public class BettaAppearance : MonoBehaviour
     static readonly int FinBrightnessId = Shader.PropertyToID("_FinBrightness");
     static readonly int VibranceId = Shader.PropertyToID("_Vibrance");
     static readonly int BrightnessId = Shader.PropertyToID("_Brightness");
+    static readonly int EnvReflectionId = Shader.PropertyToID("_EnvReflection");
     static readonly int BaseTextureId = Shader.PropertyToID("_BaseTexture");
     static readonly int HeadId = Shader.PropertyToID("_VariantHead");
     static readonly int TailId = Shader.PropertyToID("_VariantTail");
@@ -55,9 +56,16 @@ public class BettaAppearance : MonoBehaviour
     // Transparent copy of each fish material that draws only the clear fin rims (Betta Lit _FinEdgePass).
     static readonly Dictionary<Material, Material> rimMaterials = new Dictionary<Material, Material>();
 
+    [Tooltip("Share of the colour lost when the fish is fully pale with sleep (BettaFishAI.Paleness).")]
+    [Range(0f, 1f)] public float sleepDesaturate = 0.45f;
+    [Range(0f, 1f)] public float sleepDim = 0.15f;
+
     MaterialPropertyBlock block;
     GameObject modelInstance;
     GameObject modelPrefab;
+    readonly List<Renderer> painted = new List<Renderer>();
+    BettaFishAI fish;
+    float appliedPaleness, appliedVividness;
 
     public BettaVariant Variant => variant;
 
@@ -77,10 +85,35 @@ public class BettaAppearance : MonoBehaviour
         variant = v;
         ShowModel(v.modelPrefab);
         // Pipeline fish are plain white with a variant mask in their own UVs.
-        var painted = new List<Renderer>();
+        painted.Clear();
+        appliedPaleness = appliedVividness = 0f;
         foreach (var r in modelInstance.GetComponentsInChildren<Renderer>(true))
             if (r.sharedMaterial && r.sharedMaterial.HasProperty(VariantMaskId) && r.sharedMaterial.GetTexture(VariantMaskId)) painted.Add(r);
         ApplyColors(painted);
+    }
+
+    // A sleeping (or frightened) betta's colours fade: less saturated and a little darker; a happy one's
+    // glow a little (BettaFishAI.Vividness).
+    void LateUpdate()
+    {
+        if (variant == null || painted.Count == 0) return;
+        if (!fish) fish = GetComponent<BettaFishAI>();
+        float pale = fish ? fish.Paleness : 0f;
+        float vivid = fish ? fish.Vividness : 0f;
+        bool settledPale = Mathf.Abs(pale - appliedPaleness) < 0.002f && (pale > 0f || appliedPaleness == 0f);
+        bool settledVivid = Mathf.Abs(vivid - appliedVividness) < 0.002f && (vivid != 0f || appliedVividness == 0f);
+        if (settledPale && settledVivid) return;
+        appliedPaleness = pale;
+        appliedVividness = vivid;
+        block ??= new MaterialPropertyBlock();
+        foreach (var r in painted)
+        {
+            if (!r) continue;
+            r.GetPropertyBlock(block);
+            block.SetFloat(VibranceId, variant.vibrance * (1f - sleepDesaturate * pale + vivid));
+            block.SetFloat(BrightnessId, variant.brightness * (1f - sleepDim * pale));
+            r.SetPropertyBlock(block);
+        }
     }
 
     void ShowModel(GameObject prefab)
@@ -156,6 +189,7 @@ public class BettaAppearance : MonoBehaviour
             block.SetFloat(FinBrightnessId, variant.finBrightness);
             block.SetFloat(VibranceId, variant.vibrance);
             block.SetFloat(BrightnessId, variant.brightness);
+            block.SetFloat(EnvReflectionId, variant.envReflection);
             block.SetFloat(BaseTextureId, variant.baseTexture);
             BodyAxis(r, out Vector3 head, out Vector3 tail);
             block.SetVector(HeadId, head);

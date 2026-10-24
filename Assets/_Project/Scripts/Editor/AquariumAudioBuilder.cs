@@ -38,6 +38,7 @@ public static class AquariumAudioBuilder
             audio.waterLoop = Clip("water_loop");
             audio.bubbleLoop = Clip("bubble_loop");
             audio.bloops = Clips("bloop_");
+            audio.tons = Clips("ton_");
             audio.ripples = Clips("ripple_");
             audio.gulps = Clips("gulp_");
             audio.referenceRate = water.bubbles.emission.rateOverTimeMultiplier;

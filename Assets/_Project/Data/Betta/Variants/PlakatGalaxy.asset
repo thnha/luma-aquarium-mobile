@@ -38,6 +38,7 @@ MonoBehaviour:
   finBrightness: 1.8
   vibrance: 1.3
   brightness: 1.12
+  envReflection: 1
   baseTexture: 0
   finRimAlpha: 0.6
   finRim: {x: 0.55, y: 1}

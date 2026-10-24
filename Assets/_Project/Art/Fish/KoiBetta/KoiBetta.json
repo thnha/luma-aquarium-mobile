@@ -1,0 +1,27 @@
+{
+  "base": "MeshyColour",
+  "build": {
+    "input": "input/Betta1024d/meshy_zip/Meshy_AI_Koi_Betta_Multiview_1024051637_image-to-3d-texture_fbx/Meshy_AI_Koi_Betta_Multiview_1024051637_image-to-3d-texture.fbx",
+    "flip": false,
+    "faces": 30000,
+    "depth": 1,
+    "width": 1,
+    "fins": {},
+    "finThickness": 0.35,
+    "landmarks": "",
+    "bake": true,
+    "body": "meshy",
+    "baseTexture": true,
+    "whitenPaleBlue": 0
+  },
+  "shop": {
+    "displayName": "Koi Betta",
+    "inShop": true,
+    "shopId": "koi-betta",
+    "description": "Koi xanh, đỏ, vàng, tím · màu gốc theo mô hình",
+    "price": 0
+  },
+  "look": {
+    "silverSheen": 0
+  }
+}

@@ -6364,11 +6364,18 @@ MonoBehaviour:
   bubbleLoop: {fileID: 8300000, guid: ae432a9c19b9546f6bdb3f1556e677b4, type: 3}
   bloops:
   - {fileID: 8300000, guid: 94f4425fb35e94455bf415db4fa912f7, type: 3}
+  - {fileID: 8300000, guid: de58b0a3decfb4b309fca43c87e9ea0e, type: 3}
+  - {fileID: 8300000, guid: 360cc7e150e7042fbb5795b4ac032661, type: 3}
+  - {fileID: 8300000, guid: ef86866779d742ac91c5b93153cb4f5a, type: 3}
+  tons:
   - {fileID: 8300000, guid: 2eba3bfddb6014692b0d6a510b45ef6d, type: 3}
   - {fileID: 8300000, guid: 4cf118d3fb418424aae7e7e136c0177a, type: 3}
-  - {fileID: 8300000, guid: ec1b31da786f949e4a771baf8efa53c6, type: 3}
-  - {fileID: 8300000, guid: a4f26ceb5703b4e2b84ae9b4f99e8f01, type: 3}
-  - {fileID: 8300000, guid: 9bb02bacc589b498dbbab55c58d09003, type: 3}
+  - {fileID: 8300000, guid: 8bb028990431f45b2b4e34b90b3d2d88, type: 3}
+  - {fileID: 8300000, guid: 9b339eaf0d9474855a78e9084625493e, type: 3}
+  - {fileID: 8300000, guid: 1dc8f33371b35406f9670ac2fa1b8936, type: 3}
+  - {fileID: 8300000, guid: b6cb42b24f9c1400bbbd4922d43e0798, type: 3}
+  - {fileID: 8300000, guid: ddbbc39fc47fc49d2b2372db958e111d, type: 3}
+  - {fileID: 8300000, guid: e1a3d93e95aa14ef98b25eb6e5c7c0d5, type: 3}
   ripples:
   - {fileID: 8300000, guid: 345dd63ba1bad4ae2bf3fcdc862681c4, type: 3}
   - {fileID: 8300000, guid: 5dbcc493c35a04e5480451209d6984bc, type: 3}
@@ -6377,12 +6384,17 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 52dd16b7c85124fc4b66914ccbd479e5, type: 3}
   - {fileID: 8300000, guid: a9481e1b954f044c3bf94402a4114f83, type: 3}
   - {fileID: 8300000, guid: 0f79132cff87746ebb5c860690f086cd, type: 3}
-  waterVolume: 0.1
-  bubbleVolume: 0.22
-  bloopVolume: 0
+  waterVolume: 0
+  bubbleVolume: 0
+  bloopVolume: 0.25
   rippleVolume: 0.5
   gulpVolume: 0.55
-  popChance: 0.2
+  popRate: 4
+  bloopShare: 0.15
+  breathDepth: 0.6
+  breathSpeed: 0.2
+  clusterChance: 0.35
+  minGap: 0.07
   referenceRate: 4.6
   rippleGap: 0.4
 --- !u!1 &4139353103397086710
@@ -17480,7 +17492,9 @@ MonoBehaviour:
   hungerFill: {fileID: 3805765329162918634}
   behaviourLabel: {fileID: 2188172689002660548}
   feedback: {fileID: 1671661056077425477}
+  feedbackRoot: {fileID: 0}
   muteLabel: {fileID: 5633167526665015186}
+  languageLabel: {fileID: 0}
   hud: {fileID: 5281912746202035024}
   decoration: {fileID: 3482791865683105501}
   fishShop: {fileID: 0}
@@ -17503,6 +17517,8 @@ MonoBehaviour:
   careLift: {fileID: 0}
   decorateLift: {fileID: 0}
   feedLift: {fileID: 0}
+  feedIcon: {fileID: 0}
+  feedIconOpen: {fileID: 0}
   activeLift: 18
 --- !u!225 &5281912746202035024
 CanvasGroup:

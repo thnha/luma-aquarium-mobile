@@ -74,4 +74,19 @@ public class FoodPellet : MonoBehaviour
     }
 
     public void Consume() { Destroy(gameObject); }
+
+    // Taken and spat out again (bettas often do, before swallowing): it lands a little way off,
+    // at the same height while it floats or lies on the bottom; once is enough.
+    public bool Spat { get; private set; }
+
+    public void Spit(Vector3 position)
+    {
+        Spat = true;
+        Vector3 p = transform.position;
+        p.x = position.x;
+        p.z = position.z;
+        if (!OnBottom && floatTimer <= 0f) p.y = Mathf.Max(p.y, position.y);
+        transform.position = p;
+        lastWobble = Vector3.zero;
+    }
 }

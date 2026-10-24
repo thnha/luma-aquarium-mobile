@@ -8,9 +8,18 @@ using UnityEngine;
 // the glass and the decor for food (Forage) and goes up for air more often.
 // The fish always swims along its own forward axis and turns gradually,
 // so it never slides sideways or snaps orientation.
+// Betta habits on top: a well-fed fish does the rounds of its territory (Patrol), greets the viewer at
+// the front glass when the app opens (Greet), looks over decor that was just placed (Inspect), and now
+// and then fans its fins wide with a shiver (stretch) while idling or waking up. By day a well-fed male
+// builds a bubble nest at the surface (Nest); at night it sleeps (Rest while sleeping), pale and still.
+// Startled again and again it hides behind the decor for a while (Hide); it flares at its own reflection
+// in the front glass, sometimes spits a pellet out and takes it again, and flinches when the lights change.
+// BettaMood colours all of it: a happy fish is livelier and more colourful, a bored one listless and
+// drawn to the glass, a scared one pale; the closer it is to you, the less jumpy it is, the keener to
+// greet you, and it may dance at the glass where you tap.
 public class BettaFishAI : MonoBehaviour
 {
-    public enum State { Wander, Idle, SeekFood, Eat, Rest, Breathe, SwimToTap, Flee, Display, Forage }
+    public enum State { Wander, Idle, SeekFood, Eat, Rest, Breathe, SwimToTap, Flee, Display, Forage, Patrol, Greet, Inspect, Nest, Hide }
     public State state = State.Wander;
     public BoxCollider swimBounds;
     public FeedingSystem feeding;
@@ -143,7 +152,7 @@ public class BettaFishAI : MonoBehaviour
     [Header("Display (well fed)")]
     // A tap while it is full and facing the viewer: it takes the finger for a rival and flares,
     // gills out and fins spread: facing it head-on, then edging slowly across in front of it and
-    // holding still broadside on to show its flank, then facing it again.
+    // holding still broadside on to show its flank (often beating its tail at it), then facing it again.
     public float displayMaxHunger = 0.35f;
     public float displayDuration = 12f;
     public float displayPassDistance = 0.18f;     // metres each way from where it started
@@ -154,6 +163,11 @@ public class BettaFishAI : MonoBehaviour
     public float displayHeadDown = 12f;           // degrees the head tips down facing the rival
     public float displayWagAngle = 1.5f;          // degrees of head tremble while facing
     public float displayWagFrequency = 3.5f;
+    // After a broadside hold it often stays side-on and lashes its tail toward the rival
+    // (tail beating), the next step of the same threat display; then faces it again.
+    [Range(0f, 1f)] public float displayTailBeatChance = 0.7f;
+    public float displayTailBeatMinTime = 1.2f;   // seconds of lashing
+    public float displayTailBeatMaxTime = 2.4f;
     // Turning between postures it glides forward a little along an arc, the body following,
     // instead of spinning on the spot.
     [Range(0f, 1f)] public float displayTurnQuickness = 0.3f;
@@ -173,6 +187,108 @@ public class BettaFishAI : MonoBehaviour
     public float forageMinTime = 3f;              // picking at one spot
     public float forageMaxTime = 6f;
     public float peckSpeed = 0.15f;               // short dart at the spot with each peck
+
+    [Header("Fin stretch")]
+    // Idling, or just woken from a rest, it fans every fin wide for a moment and gives a little shiver.
+    [Range(0f, 1f)] public float stretchChance = 0.3f;     // per idle spell, when not hungry
+    [Range(0f, 1f)] public float wakeStretchChance = 0.7f;
+    public float wakeStretchDelay = 1f;           // after the wake-up yawn (BettaMouth)
+    public float stretchDuration = 1.4f;
+    [Range(0f, 1f)] public float stretchSpread = 0.8f;     // share of a full flare the fins open
+    public float stretchShiverAngle = 2f;         // degrees of head shiver at the peak
+    public float stretchShiverFrequency = 7f;
+
+    [Header("Patrol (well fed)")]
+    // A male betta does the rounds of its territory: corner to corner along the walls, pausing at
+    // each to look out, as if checking for intruders.
+    [Range(0f, 1f)] public float patrolChance = 0.2f;      // share of calm choices, less the hungrier
+    public float patrolCooldown = 45f;
+    public int patrolStops = 4;
+    public float patrolSpeedFactor = 0.8f;
+    public float patrolPauseMin = 0.6f;
+    public float patrolPauseMax = 1.5f;
+
+    [Header("Greeting")]
+    // Opening the app, or coming back to it after a while, the fish swims up to the front glass and
+    // wriggles there facing the viewer, bobbing up and down, as bettas greet their owner and beg for food.
+    // The hungrier, the keener and the longer.
+    public float greetDelayMin = 1.5f;
+    public float greetDelayMax = 3f;
+    public float greetAwaySeconds = 30f;          // away from the app this long counts as coming back
+    public float greetGiveUpTime = 20f;           // still busy (eating, fleeing...) after this long: skipped
+    public float greetSpeedMultiplier = 1.8f;
+    public float greetDuration = 5f;              // at the glass; up to twice that when starving
+    public float greetBobHeight = 0.025f;         // metres up and down
+    public float greetBobFrequency = 1.1f;
+    public float greetWagAngle = 5f;              // degrees of head wriggle
+    public float greetWagFrequency = 2.6f;
+    public float greetHeadUp = 10f;               // looking up at the viewer
+
+    [Header("Inspecting new decor")]
+    // A piece just placed (or moved) catches its eye: once the editor closes it swims over, looks it
+    // over from a few sides and picks at it.
+    public float inspectNoticeMin = 0.8f;         // seconds after the editor closes
+    public float inspectNoticeMax = 2f;
+    public int inspectViews = 3;
+    public float inspectSpeedFactor = 0.8f;
+    public float inspectStandOff = 0.08f;         // metres off the piece's side, besides the body radius
+    public float inspectLookMin = 1.2f;
+    public float inspectLookMax = 2.5f;
+    [Range(0f, 1f)] public float inspectPeckChance = 0.6f;
+
+    [Header("Bubble nest (well fed, by day)")]
+    // Gulps air, then blows bubble after bubble into a raft at one spot of the surface: under a
+    // floating plant if there is one, else in a corner. Comes back to add to it as it thins out.
+    [Range(0f, 1f)] public float nestChance = 0.15f;       // share of calm choices with an empty nest
+    public float nestCooldown = 60f;
+    public int nestBlowsMin = 4;
+    public int nestBlowsMax = 8;
+    public int nestBubblesPerBlow = 3;
+    [Range(0f, 1f)] public float nestShiftChance = 0.4f;  // moves to another part of the raft between blows
+
+    [Header("Night")]
+    // Lights off (AquariumLighting night): it soon settles to sleep on the bottom, on top of a rock or
+    // wood, or just under a floating plant, turns pale and goes up for air far less often.
+    public float sleepDelayMin = 2f;              // after the lights go off
+    public float sleepDelayMax = 5f;
+    public float sleepResumeMin = 6f;             // woken (a tap, food, air): back to sleep after this
+    public float sleepResumeMax = 12f;
+    public float wakeDelayMin = 1f;               // after the lights come on
+    public float wakeDelayMax = 3f;
+    [Range(0f, 1f)] public float sleepOnDecorChance = 0.4f;
+    [Range(0f, 1f)] public float sleepUnderPlantChance = 0.25f;
+    [Range(0.1f, 1f)] public float sleepBreatheFactor = 0.35f; // air breaths come this much less often
+    [Range(0.1f, 1f)] public float nightSpeedFactor = 0.75f;   // awake at night it swims more slowly
+    public float paleFadeIn = 4f;                 // seconds to turn pale once asleep
+    public float paleFadeOut = 1.5f;
+
+    [Header("Hiding")]
+    // Startled this many times in a short while, it bolts behind a plant or rock and stays there,
+    // pale and with its fins down, peeking out at the front, until it feels safe (or food lures it out).
+    public int hideAfterStartles = 3;
+    public float hideWindow = 20f;                // seconds the startles must fall within
+    public float hideSpeedMultiplier = 2.4f;
+    public float hideMinTime = 12f;
+    public float hideMaxTime = 20f;
+    [Range(0f, 1f)] public float hidePaleness = 0.35f;
+
+    [Header("Reflection")]
+    // Near the front glass and facing it, a well-fed fish now and then takes its own reflection for a
+    // rival and displays at it.
+    [Range(0f, 1f)] public float reflectionChance = 0.15f;  // per second spent facing the glass up close
+    public float reflectionDistance = 0.25f;      // pivot to the glass
+    public float reflectionCooldown = 90f;
+    public float reflectionDisplayDuration = 6f;
+
+    [Header("Spitting food")]
+    [Range(0f, 1f)] public float spitChance = 0.25f;
+    public float spitDistance = 0.05f;            // how far ahead the pellet lands
+    public float spitPause = 0.6f;                // before it goes after it again
+
+    [Header("Lights")]
+    // The lights going on or off make it flinch: a short dart awake, a twitch asleep.
+    public float lightStartleDistance = 0.25f;
+    public float lightFlinchSpeed = 0.2f;
 
     static readonly int SpeedId = Animator.StringToHash("Speed");
     static readonly int NibbleId = Animator.StringToHash("Nibble");
@@ -220,14 +336,42 @@ public class BettaFishAI : MonoBehaviour
     private float displayElapsed;
     private Vector3 displayEndA, displayEndB;     // the two ends of its passes across in front of the rival
     private float displaySide, displayPause;
-    private enum DisplayPhase { Face, Move, Hold }
+    private enum DisplayPhase { Face, Move, Hold, TailBeat }
     private DisplayPhase displayPhase;
-    private float displayPhaseTime, displayCurlVelocity;
+    private float displayPhaseTime, displayCurlVelocity, tailBeatVelocity;
     private float wagYaw;                         // side-to-side head swing on top of the heading while displaying
     private float finClampEnvelope;
     private float nextClampTime, clampUntil;
     private Vector3 forageFocus;                  // the sand, glass or decor it is picking at
     private float peckTimer;
+    private float stretchAt = -1f;                // when the next stretch starts (-1: none planned)
+    private float stretchStart = float.NegativeInfinity;
+    private readonly List<Vector3> route = new List<Vector3>();   // patrol stops, or spots to look at a piece from
+    private readonly List<Vector3> routeFocus = new List<Vector3>();
+    private int routeIndex;
+    private float nextPatrolTime;
+    private float greetAt = -1f, greetDeadline;
+    private float pausedAt = -1f;
+    private bool greetDancing;
+    private float greetElapsed;
+    private Vector3 greetViewer;
+    private readonly List<AquariumDecorItem> toInspect = new List<AquariumDecorItem>();
+    private float inspectNoticeAt;
+    private AquariumDecorItem inspecting;
+    private bool inspectPecked;
+    private BubbleNest nest;
+    private float nextNestTime;
+    private int nestBlowsLeft;
+    private float nestBlowTimer, nestAddAt1, nestAddAt2;
+    private bool nestShifted;
+    private AquariumLighting lighting;
+    private bool sleeping;
+    private bool wasNight;
+    private float sleepAt = -1f, wakeAt = -1f;
+    private bool lightsKnown;
+    private BettaMood mood;
+    private readonly List<float> startleTimes = new List<float>();
+    private float nextReflectionCheck, nextReflectionTime;
 
     // True only once the fish has reached its rest spot and lies still.
     public bool IsResting => state == State.Rest && settled;
@@ -239,14 +383,32 @@ public class BettaFishAI : MonoBehaviour
     public float FinClamp { get; private set; }
     // -1..1 held broadside while displaying: the body curls so the tail swings to the fish's right (+) or left (-).
     public float DisplayCurl { get; private set; }
+    // -1..1 tail beating while displaying: the tail lashes toward the rival on the fish's right (+) or left (-).
+    public float TailBeat { get; private set; }
     // 0 calm .. 1 excited (feeding, breathing, flaring); -1 resting. Drives dorsal/anal fin posture.
-    public float Arousal => state == State.SeekFood || state == State.Eat || state == State.Breathe || state == State.Display ? 1f
+    public float Arousal => state == State.SeekFood || state == State.Eat || state == State.Breathe || state == State.Display
+        || state == State.Greet ? 1f
         : state == State.SwimToTap ? Mathf.Lerp(0.5f, 1f, tapExcitement) : state == State.Flee ? 1f
+        : state == State.Inspect ? 0.7f : state == State.Patrol ? 0.6f : state == State.Hide ? -0.5f
         : state == State.Rest ? (settled ? -1f : -0.3f) : state == State.Idle ? 0.2f : 0.35f;
+    // 0..1 fins fanned out in a stretch right now.
+    public float StretchAmount { get; private set; }
+    // 0..1 how pale sleep has made it; BettaAppearance fades the colours with it.
+    public float Paleness { get; private set; }
+    public bool IsSleeping => sleeping;
+    bool Night => lighting && lighting.IsNight;
+    float Happy => mood ? mood.Happiness : 0.5f;
+    float Bored => mood ? mood.Boredom : 0f;
+    float Bond => mood ? mood.Bond : 0f;
+    // -0.15..0.15 extra colour from happiness (BettaAppearance); stress pales it through Paleness.
+    public float Vividness => (Mathf.Clamp01(Happy) - 0.5f) * 0.3f;
+    public BettaMood Mood => mood;
 
     public float CurrentSpeed => currentSpeed;
     // Fired when the Gulp / Bubble clips start, so BettaMouth can let bubbles out in time with them.
     public event System.Action Gulped, BlowingBubbles;
+    // Fired as it gets up from a rest, so BettaMouth yawns before the stretch.
+    public event System.Action WokeUp;
     // Gills to tail base in metres; set by BettaSwimMotion from the model's rig.
     public float BodyLength { get; set; } = 0.3f;
     // 0 = hovering/gliding, 1 = actively beating the tail. Drives the caudal fin.
@@ -266,7 +428,70 @@ public class BettaFishAI : MonoBehaviour
         nextClampTime = Time.time + Random.Range(3f, 8f);
         ceiling = float.MaxValue;
         floor = float.MinValue;
+        if (!decoration) decoration = FindFirstObjectByType<AquariumDecoration>();
+        if (decoration) decoration.Placed += OnDecorPlaced;
+        lighting = FindFirstObjectByType<AquariumLighting>();
+        mood = GetComponent<BettaMood>();
+        if (!mood) mood = gameObject.AddComponent<BettaMood>();
+        nextNestTime = Time.time + Random.Range(10f, nestCooldown);
+        ScheduleGreet();
         EnterWander();
+    }
+
+    void OnDestroy()
+    {
+        if (decoration) decoration.Placed -= OnDecorPlaced;
+        if (nest) Destroy(nest.gameObject);
+    }
+
+    // Back in the app after a while: it comes to say hello again.
+    void OnApplicationPause(bool paused)
+    {
+        if (paused) pausedAt = Time.realtimeSinceStartup;
+        else if (pausedAt >= 0f && Time.realtimeSinceStartup - pausedAt >= greetAwaySeconds) ScheduleGreet();
+    }
+
+    void ScheduleGreet()
+    {
+        greetAt = Time.time + Random.Range(greetDelayMin, greetDelayMax);
+        greetDeadline = greetAt + greetGiveUpTime;
+    }
+
+    void OnDecorPlaced(AquariumDecorItem item)
+    {
+        if (item == null) return;
+        toInspect.Remove(item);
+        toInspect.Add(item);
+        if (toInspect.Count > 3) toInspect.RemoveAt(0);   // only the last few pieces are still news
+        inspectNoticeAt = Time.time + Random.Range(inspectNoticeMin, inspectNoticeMax);
+    }
+
+    // Free to take up something new: not feeding, fleeing, displaying, gulping or busy with the viewer.
+    bool Calm => state == State.Wander || state == State.Idle || state == State.Rest || state == State.Patrol || state == State.Forage;
+
+    void TryStartGreet()
+    {
+        if (greetAt < 0f || Time.time < greetAt) return;
+        if (Time.time > greetDeadline) { greetAt = -1f; return; }
+        if (!Calm || sleeping || Time.time < shyUntil || decoration && decoration.Editing) return;
+        Camera cam = feeding && feeding.viewCamera ? feeding.viewCamera : Camera.main;
+        if (cam == null) return;
+        greetAt = -1f;
+        // A fish that hardly knows you doesn't always come to say hello.
+        if (Random.value > Mathf.Lerp(0.5f, 1f, Bond)) return;
+        EnterGreet(cam.transform.position);
+    }
+
+    void TryStartInspect()
+    {
+        toInspect.RemoveAll(item => !item);
+        if (toInspect.Count == 0) return;
+        // It only notices once the editor has closed and the camera is back on the tank.
+        if (decoration && decoration.Editing) { inspectNoticeAt = Time.time + Random.Range(inspectNoticeMin, inspectNoticeMax); return; }
+        if (Time.time < inspectNoticeAt || !Calm || sleeping || Time.time < shyUntil) return;
+        var item = toInspect[toInspect.Count - 1];
+        toInspect.RemoveAt(toInspect.Count - 1);
+        EnterInspect(item);
     }
 
     void Update()
@@ -278,25 +503,184 @@ public class BettaFishAI : MonoBehaviour
 
         if (state != State.SeekFood && state != State.Eat && state != State.Flee) LookForFood();
         // A hungry fish is short of energy and goes up for air more often.
-        breatheTimer -= Time.deltaTime * (1f + hungryBreatheBoost * Fatigue);
+        breatheTimer -= Time.deltaTime * (1f + hungryBreatheBoost * Fatigue) * (sleeping ? sleepBreatheFactor : 1f);
         // A frightened fish stays down rather than heading up for air straight away.
-        if (breatheTimer <= 0f && (state == State.Wander || state == State.Idle || state == State.Forage) && Time.time >= shyUntil) EnterBreathe();
+        if (breatheTimer <= 0f && (state == State.Wander || state == State.Idle || state == State.Forage || state == State.Patrol
+            || sleeping && state == State.Rest) && Time.time >= shyUntil) EnterBreathe();
+        UpdateSleep();
+        CheckReflection();
+        TryStartGreet();
+        TryStartInspect();
         UpdateMood();
 
         switch (state)
         {
+            case State.Nest:
+            {
+                // The bubbles of a blow join the raft as the Bubble clip lets them out (mouth_clips.py).
+                int half = (nestBubblesPerBlow + 1) / 2;
+                if (nestAddAt1 >= 0f && Time.time >= nestAddAt1) { nestAddAt1 = -1f; if (nest) nest.Add(half); }
+                if (nestAddAt2 >= 0f && Time.time >= nestAddAt2) { nestAddAt2 = -1f; if (nest) nest.Add(nestBubblesPerBlow - half); }
+                if (!settled)
+                {
+                    targetEffort = 0.8f;
+                    SwimTowards(destination, swimSpeed * 0.8f);
+                    // Up at the surface and under the spot is close enough: the pitch limit keeps it from the last centimetres.
+                    Vector3 off = destination - transform.position;
+                    bool under = new Vector2(off.x, off.z).magnitude < 0.06f && off.y < 0.03f;
+                    if (under || Stuck() || stateTimer <= 0f)
+                    {
+                        settled = true;
+                        // First a gulp of air to blow the bubbles with.
+                        if (!gulping)
+                        {
+                            gulping = true;
+                            nestBlowTimer = GulpClipSeconds;
+                            if (animator) animator.SetTrigger(GulpId);
+                            Gulped?.Invoke();
+                        }
+                    }
+                    break;
+                }
+                // Snout tipped up into the surface, blowing bubble after bubble.
+                targetEffort = 0.2f;
+                SwimTowards(transform.position + Vector3.up * 0.1f + Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized * 0.2f, 0f);
+                if ((nestBlowTimer -= Time.deltaTime) > 0f) break;
+                if (nestBlowsLeft <= 0)
+                {
+                    // Done for now; it hangs about just under the nest a while. The gulp counts as a breath.
+                    breatheTimer = Random.Range(breatheMinInterval, breatheMaxInterval);
+                    EnterIdle();
+                    break;
+                }
+                if (!nestShifted && Random.value < nestShiftChance)
+                {
+                    // Over to another part of the raft before the next blow.
+                    nestShifted = true;
+                    settled = false;
+                    destination = NestSpot();
+                    stateTimer = 3f;
+                    nestBlowTimer = 0.2f;
+                    break;
+                }
+                nestShifted = false;
+                nestBlowsLeft--;
+                if (animator) animator.SetTrigger(BubbleId);
+                BlowingBubbles?.Invoke();
+                nestAddAt1 = Time.time + 8f / 24f;
+                nestAddAt2 = Time.time + 17f / 24f;
+                nestBlowTimer = bubbleBlowDuration + Random.Range(0.2f, 0.8f);
+                break;
+            }
+            case State.Hide:
+                if (!settled)
+                {
+                    // Bolts there, then stays put.
+                    targetEffort = 1f;
+                    SwimTowards(destination, swimSpeed * hideSpeedMultiplier, false, 3f, 0.8f);
+                    if (Arrived(destination) || Stuck() || stateTimer <= 0f)
+                    {
+                        settled = true;
+                        stateTimer = Random.Range(hideMinTime, hideMaxTime);
+                        shyUntil = Time.time + stateTimer;
+                    }
+                    break;
+                }
+                // Holds still behind the piece, peeking out toward the front glass.
+                targetEffort = 0.1f;
+                SwimTowards(transform.position + Vector3.back * 0.3f + Vector3.right * (Mathf.PerlinNoise(Time.time * 0.2f, noiseSeed) - 0.5f) * 0.4f, 0f);
+                if (stateTimer <= 0f) { startleTimes.Clear(); EnterIdle(); }
+                break;
+            case State.Patrol:
+                if (!settled)
+                {
+                    targetEffort = 0.8f;
+                    SwimTowards(destination, swimSpeed * patrolSpeedFactor);
+                    if (Arrived(destination) || Stuck())
+                    {
+                        // Stops at the corner and looks out into it.
+                        settled = true;
+                        stateTimer = Random.Range(patrolPauseMin, patrolPauseMax);
+                    }
+                    else if (stateTimer <= 0f) NextRouteStop();
+                    break;
+                }
+                targetEffort = 0.15f;
+                SwimTowards(routeFocus[routeIndex], 0f);
+                if (stateTimer <= 0f) NextRouteStop();
+                break;
+            case State.Greet:
+            {
+                if (!greetDancing)
+                {
+                    // Hurries over to the glass in front of the viewer.
+                    targetEffort = 1f;
+                    SwimTowards(destination, swimSpeed * greetSpeedMultiplier, false, 2f, 0.6f);
+                    if (Arrived(destination) || Stuck() || stateTimer <= 0f)
+                    {
+                        greetDancing = true;
+                        greetElapsed = 0f;
+                        stateTimer = greetDuration * (1f + hunger) * Mathf.Lerp(0.7f, 1.3f, Bond);
+                    }
+                    break;
+                }
+                // Faces the viewer, head tipped up, wriggling and bobbing; the hungrier the keener.
+                targetEffort = 0.6f;
+                greetElapsed += Time.deltaTime;
+                Vector3 toViewer = Vector3.ProjectOnPlane(greetViewer - transform.position, Vector3.up).normalized;
+                DisplayTurnTo(toViewer, -greetHeadUp);
+                float keen = Mathf.Lerp(0.7f, 1.3f, hunger) * Mathf.SmoothStep(0f, 1f, greetElapsed / 0.6f);
+                float phase = greetElapsed * 2f * Mathf.PI;
+                wagYaw = Mathf.Sin(phase * greetWagFrequency) * greetWagAngle * keen;
+                transform.position += Vector3.up * (greetBobHeight * keen * 2f * Mathf.PI * greetBobFrequency
+                    * Mathf.Cos(phase * greetBobFrequency) * Time.deltaTime);
+                if (stateTimer <= 0f)
+                {
+                    if (mood) mood.Greeted();
+                    if (Fatigue > 0f) EnterIdle(); else EnterWander();
+                }
+                break;
+            }
+            case State.Inspect:
+                if (inspecting == null) { EndInspect(); break; }
+                if (!settled)
+                {
+                    targetEffort = 0.7f;
+                    SwimTowards(destination, swimSpeed * inspectSpeedFactor);
+                    if (Arrived(destination) || Stuck())
+                    {
+                        settled = true;
+                        stateTimer = Random.Range(inspectLookMin, inspectLookMax);
+                        peckTimer = Random.Range(0.4f, 1f);
+                        inspectPecked = Random.value >= inspectPeckChance;
+                    }
+                    else if (stateTimer <= 0f) NextInspectView();
+                    break;
+                }
+                // Nose at the piece, picking at it once.
+                targetEffort = 0.15f;
+                SwimTowards(routeFocus[routeIndex], 0f);
+                if (!inspectPecked && (peckTimer -= Time.deltaTime) <= 0f)
+                {
+                    inspectPecked = true;
+                    currentSpeed = Mathf.Max(currentSpeed, peckSpeed);
+                    if (animator) animator.SetTrigger(NibbleId);
+                }
+                if (stateTimer <= 0f) NextInspectView();
+                break;
             case State.Display:
             {
                 // Flared the whole time, as real bettas display: faces the rival head-on, head tipped
                 // down and trembling; edges slowly across in front of it; then holds still broadside on,
-                // body curled so the fanned tail swings toward it; then faces it again.
-                targetEffort = displayPhase == DisplayPhase.Move ? 0.6f : 0.3f;
+                // body curled so the fanned tail swings toward it, often lashing the tail at it; then
+                // faces it again.
+                targetEffort = displayPhase == DisplayPhase.Move ? 0.6f : displayPhase == DisplayPhase.TailBeat ? 0.8f : 0.3f;
                 displayElapsed += Time.deltaTime;
                 displayPhaseTime += Time.deltaTime;
                 displayPause -= Time.deltaTime;
                 Vector3 toViewer = Vector3.ProjectOnPlane(displayViewer - transform.position, Vector3.up).normalized;
                 Vector3 along = (displayEndA - displayEndB).normalized * displaySide;
-                float curl = 0f;
+                float curl = 0f, beat = 0f;
                 switch (displayPhase)
                 {
                     case DisplayPhase.Face:
@@ -337,14 +721,36 @@ public class BettaFishAI : MonoBehaviour
                         curl = Vector3.Dot(transform.right, toViewer) >= 0f ? 1f : -1f;
                         if (displayPause <= 0f)
                         {
+                            displayPhaseTime = 0f;
+                            if (Random.value < displayTailBeatChance)
+                            {
+                                displayPhase = DisplayPhase.TailBeat;
+                                displayPause = Random.Range(displayTailBeatMinTime, displayTailBeatMaxTime);
+                            }
+                            else
+                            {
+                                displayPhase = DisplayPhase.Face;
+                                displayPause = displayFacePause;
+                            }
+                        }
+                        break;
+                    case DisplayPhase.TailBeat:
+                        // Still broadside on, the body only half curled so the tail has room to
+                        // lash toward the rival.
+                        DisplayTurnTo(along, 0f);
+                        beat = Vector3.Dot(transform.right, toViewer) >= 0f ? 1f : -1f;
+                        curl = 0.5f * beat;
+                        if (displayPause <= 0f)
+                        {
                             displayPhase = DisplayPhase.Face;
                             displayPhaseTime = 0f;
                             displayPause = displayFacePause;
                         }
                         break;
                 }
-                // Eases into and out of the curl.
+                // Eases into and out of the curl and the lashing.
                 DisplayCurl = Mathf.SmoothDamp(DisplayCurl, curl, ref displayCurlVelocity, 0.35f);
+                TailBeat = Mathf.SmoothDamp(TailBeat, beat, ref tailBeatVelocity, 0.25f);
                 if (stateTimer <= 0f) EnterIdle();
                 break;
             }
@@ -399,7 +805,7 @@ public class BettaFishAI : MonoBehaviour
                 // Settle the last few centimetres down onto the rest spot.
                 if (restOnBottom)
                     transform.position = Vector3.MoveTowards(transform.position, destination, 0.03f * Time.deltaTime);
-                if (stateTimer <= 0f) EnterWander();
+                if (!sleeping && stateTimer <= 0f) WakeUp();
                 break;
             case State.SwimToTap:
                 targetEffort = 1f;
@@ -408,13 +814,21 @@ public class BettaFishAI : MonoBehaviour
                 // Whether the tap was in front is decided when it lands: judged every frame, the
                 // heading wobbling across the cone's edge would switch the dart on and off.
                 Vector3 toTap = destination - transform.position;
-                float quickness = Mathf.Max(tapExcitement, tapWasInFront ? Mathf.Max(0.8f, tapReflex) : tapReflex);
+                // A fish that knows you comes over more eagerly.
+                float reflex = Mathf.Clamp01(tapReflex + 0.3f * Bond);
+                float quickness = Mathf.Max(tapExcitement, tapWasInFront ? Mathf.Max(0.8f, reflex) : reflex);
                 // Not over the last stretch, so it eases in instead of braking hard on arrival.
                 bool dart = tapWasInFront && toTap.magnitude > slowdownRadius;
                 SwimTowards(destination, swimSpeed * Mathf.Lerp(tapSwimSpeedMultiplier, tapExcitedSpeedMultiplier, quickness),
                     dart, tapAccelerationMultiplier, quickness);
-                // Hover there a moment, as if checking out the finger on the glass.
-                if (Arrived(destination) || stateTimer <= 0f || Stuck()) EnterIdle();
+                // Hover there a moment, as if checking out the finger on the glass; a fish that knows
+                // you well may wriggle there as when it greets you.
+                if (Arrived(destination) || stateTimer <= 0f || Stuck())
+                {
+                    Camera tapCam = feeding && feeding.viewCamera ? feeding.viewCamera : Camera.main;
+                    if (tapCam && Bond >= 0.5f && !Night && Random.value < Bond) DanceAtTap(tapCam.transform.position);
+                    else EnterIdle();
+                }
                 break;
             case State.Flee:
                 // C-start: whip round on the spot, then bolt flat out, gliding out over the last stretch.
@@ -510,7 +924,7 @@ public class BettaFishAI : MonoBehaviour
         // While breathing the fish may reach the surface; afterwards the ceiling follows it
         // back down instead of snapping it under the normal limit.
         float normalTop = NormalTop();
-        bool surfaceAllowed = state == State.Breathe || state == State.SeekFood || state == State.Eat;
+        bool surfaceAllowed = state == State.Breathe || state == State.SeekFood || state == State.Eat || state == State.Nest;
         ceiling = surfaceAllowed ? SurfaceTop() : Mathf.Max(normalTop, Mathf.Min(ceiling, transform.position.y));
         float normalBottom = NormalBottom();
         floor = state == State.Rest && restOnBottom ? Mathf.Min(normalBottom, bottomRestY)
@@ -538,9 +952,19 @@ public class BettaFishAI : MonoBehaviour
         {
             wagYaw = Mathf.MoveTowards(wagYaw, 0f, 30f * Time.deltaTime);
             DisplayCurl = Mathf.SmoothDamp(DisplayCurl, 0f, ref displayCurlVelocity, 0.35f);
+            TailBeat = Mathf.SmoothDamp(TailBeat, 0f, ref tailBeatVelocity, 0.25f);
         }
         bool displaying = state == State.Display;
-        FlareAmount = Mathf.MoveTowards(FlareAmount, displaying ? 1f : 0f, (displaying ? 4f : 1.5f) * Time.deltaTime);
+        // A stretch fans the fins most of the way open over a quarter of its time, holds, and lets go;
+        // it is dropped once something more pressing comes up.
+        if (!Calm) stretchAt = -1f;
+        if (stretchAt >= 0f && Time.time >= stretchAt) { stretchStart = Time.time; stretchAt = -1f; }
+        float s = (Time.time - stretchStart) / stretchDuration;
+        StretchAmount = s >= 0f && s < 1f && Calm ? Mathf.Min(Mathf.SmoothStep(0f, 1f, s / 0.25f), Mathf.SmoothStep(0f, 1f, (1f - s) / 0.35f)) : 0f;
+        if (StretchAmount > 0f)
+            wagYaw = Mathf.Sin(Time.time * stretchShiverFrequency * 2f * Mathf.PI) * stretchShiverAngle * StretchAmount;
+        float flareTarget = displaying ? 1f : StretchAmount * stretchSpread;
+        FlareAmount = Mathf.MoveTowards(FlareAmount, flareTarget, (flareTarget > FlareAmount ? 4f : 1.5f) * Time.deltaTime);
 
         float fatigue = Fatigue;
         bool canClamp = fatigue > 0f && !displaying && state != State.SeekFood && state != State.Eat && state != State.Flee;
@@ -568,8 +992,10 @@ public class BettaFishAI : MonoBehaviour
     }
 
     // Another tap while displaying keeps it going.
-    public void Display(Vector3 viewer)
+    // byViewer: at the finger (play), not at its own reflection.
+    public void Display(Vector3 viewer, bool byViewer = true)
     {
+        if (byViewer && mood && state != State.Display) mood.Played();
         displayViewer = viewer;
         if (state != State.Display)
         {
@@ -630,6 +1056,7 @@ public class BettaFishAI : MonoBehaviour
     public void SwimTo(Vector3 point)
     {
         tapExcitement = Mathf.Clamp01(tapExcitement + tapExcitementPerTap);
+        if (mood) mood.Played();
         // Food comes first; a gulp of air is only cut short by insistent tapping.
         // Just after a fright it won't come over.
         if (state == State.SeekFood || state == State.Eat || state == State.Flee || Time.time < shyUntil) return;
@@ -648,15 +1075,23 @@ public class BettaFishAI : MonoBehaviour
         if (state == State.Eat) return;
         food = null;
         tapExcitement = 0f;
-        shyUntil = Time.time + startleShyTime + 1.5f;
+        // A fish that knows you gets over it sooner and doesn't run as far; a stressed one hides sooner.
+        float calm = Mathf.Lerp(1f, 0.5f, Bond);
+        shyUntil = Time.time + (startleShyTime + 1.5f) * calm;
+        startleTimes.Add(Time.time);
+        startleTimes.RemoveAll(t => Time.time - t > hideWindow);
+        int hideAfter = Mathf.Max(2, hideAfterStartles + (Bond > 0.6f ? 1 : 0) - (mood && mood.Stress > 0.6f ? 1 : 0));
+        if (mood) mood.Startled();
+        if (startleTimes.Count >= hideAfter && EnterHide()) return;
         Bounds b = swimBounds ? swimBounds.bounds : new Bounds(transform.position, Vector3.one);
         Vector3 here = transform.position;
         float side = here.x - tapPoint.x;
         // Away from the finger along the length of the tank.
         float dir = Mathf.Abs(side) > 0.03f ? Mathf.Sign(side) : (here.x < b.center.x ? 1f : -1f);
         float room = dir > 0f ? b.max.x - boundsInset - here.x : here.x - (b.min.x + boundsInset);
-        if (room < fleeDistance * 0.5f) dir = -dir;   // cornered: dart past the finger to the open end
-        Vector3 target = here + new Vector3(dir * fleeDistance, -fleeDive, Random.Range(-0.1f, 0.1f));
+        float distance = fleeDistance * Mathf.Lerp(1f, 0.55f, Bond);
+        if (room < distance * 0.5f) dir = -dir;   // cornered: dart past the finger to the open end
+        Vector3 target = here + new Vector3(dir * distance, -fleeDive, Random.Range(-0.1f, 0.1f));
         state = State.Flee;
         bolting = false;
         settled = false;
@@ -689,7 +1124,8 @@ public class BettaFishAI : MonoBehaviour
     void SwimTowards(Vector3 target, float targetSpeed, bool strike = false, float accelerationBoost = 1f, float quickness = 0f)
     {
         // Hunger tires it out; food and fright still get its full speed.
-        if (state != State.SeekFood && state != State.Flee) targetSpeed *= Mathf.Lerp(1f, hungrySpeedFactor, Fatigue);
+        if (state != State.SeekFood && state != State.Flee) targetSpeed *= Mathf.Lerp(1f, hungrySpeedFactor, Fatigue) * (Night ? nightSpeedFactor : 1f)
+            * Mathf.Lerp(0.85f, 1.1f, Happy) * Mathf.Lerp(1f, 0.85f, Bored);
         Vector3 aim = targetSpeed > 0f ? Detour(target) : target;
         Vector3 direction = aim - transform.position;
         // Measured the whole way round, so it doesn't slow down as if arriving at the detour corner.
@@ -707,13 +1143,13 @@ public class BettaFishAI : MonoBehaviour
             // Straight above/below the heading is meaningless; keep the current one. The further up or
             // down the target, the wider that cone, so passing just under it doesn't spin the fish round.
             if (horizontal > Mathf.Max(0.03f, Mathf.Abs(direction.y) * 0.15f)) targetYaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-            float limit = state == State.SeekFood ? feedMaxPitch : state == State.SwimToTap || state == State.Flee ? tapMaxPitch
-                : state == State.Rest ? restMaxPitch : state == State.Breathe ? breatheMaxPitch
-                : state == State.Forage ? forageMaxPitch : maxPitch;
+            float limit = state == State.SeekFood ? feedMaxPitch : state == State.SwimToTap || state == State.Flee || state == State.Greet ? tapMaxPitch
+                : state == State.Rest ? restMaxPitch : state == State.Breathe || state == State.Nest ? breatheMaxPitch
+                : state == State.Forage || state == State.Inspect ? forageMaxPitch : maxPitch;
             if (climbingObstacle) limit = Mathf.Max(limit, climbMaxPitch);
             // Foraging it tips its nose at the spot while holding position, without sinking to it.
-            bool lookOnly = targetSpeed <= 0f && (state == State.Forage || state == State.Display);
-            if (targetSpeed > 0f || state == State.Breathe || lookOnly)
+            bool lookOnly = targetSpeed <= 0f && (state == State.Forage || state == State.Display || state == State.Inspect || state == State.Greet);
+            if (targetSpeed > 0f || state == State.Breathe || state == State.Nest || lookOnly)
             {
                 float rawPitch = -Mathf.Atan2(direction.y, horizontal) * Mathf.Rad2Deg;
                 targetPitch = Mathf.Clamp(rawPitch, -limit, limit);
@@ -804,7 +1240,7 @@ public class BettaFishAI : MonoBehaviour
         float turnFactor = horizontal < 0.15f ? 1f : Mathf.Clamp01(1f - Mathf.Abs(Mathf.DeltaAngle(yaw, targetYaw)) / 90f);
         // Food or a tap well above or below: keep climbing or diving through the turn, spiralling to it
         // instead of circling level at the same height and never getting closer.
-        if ((state == State.SeekFood || state == State.SwimToTap || state == State.Flee) && direction.sqrMagnitude > 0.0001f)
+        if ((state == State.SeekFood || state == State.SwimToTap || state == State.Flee || state == State.Greet) && direction.sqrMagnitude > 0.0001f)
             turnFactor = Mathf.Max(turnFactor, Mathf.Abs(direction.y) / direction.magnitude);
         // An excited fish tips its head up or down as quickly as it swings round.
         pitch = Mathf.MoveTowards(pitch, targetPitch * turnFactor, pitchDegreesPerSecond * (1f + 2f * quickness) * Time.deltaTime);
@@ -879,9 +1315,17 @@ public class BettaFishAI : MonoBehaviour
     {
         // A hungry fish spends more and more of its time looking for something to eat.
         if (Random.value < forageChance * Fatigue) { EnterForage(); return; }
+        // An emptier nest is more worth tending.
+        // A happy fish has more go in it; a bored one hangs about more.
+        float zest = Mathf.Lerp(0.5f, 1.5f, Happy);
+        if (!Night && hunger <= displayMaxHunger && Time.time >= nextNestTime
+            && Random.value < nestChance * zest * (1f - (nest ? nest.Fullness : 0f))) { EnterNest(); return; }
+        // A well-fed fish has the energy to guard its territory.
+        if (!Night && Time.time >= nextPatrolTime && Random.value < patrolChance * zest * (1f - Fatigue)) { EnterPatrol(); return; }
         float dice = Random.value;
-        if (dice < restChance) EnterRest();
-        else if (dice < restChance + idleChance) EnterIdle();
+        float lazy = 1f + 0.8f * Bored;
+        if (dice < restChance * lazy) EnterRest();
+        else if (dice < (restChance + idleChance) * lazy) EnterIdle();
         else EnterWander();
     }
 
@@ -898,7 +1342,9 @@ public class BettaFishAI : MonoBehaviour
         float best = float.NegativeInfinity;
         for (int i = 0; i < (escape ? 6 : 1); i++)
         {
-            Vector3 spot = AboveObstacles(ClampToBounds(new Vector3(Random.Range(b.min.x, b.max.x), y, TowardFront(b))));
+            // Bored, it often drifts up to the front glass, looking out for you.
+            float z = !escape && Random.value < 0.6f * Bored ? b.min.z : TowardFront(b);
+            Vector3 spot = AboveObstacles(ClampToBounds(new Vector3(Random.Range(b.min.x, b.max.x), y, z)));
             Vector3 to = Vector3.ProjectOnPlane(spot - here, Vector3.up);
             float score = to.magnitude < 0.2f ? -10f : Vector3.Dot(to.normalized, away);
             if (score > best) { best = score; destination = spot; }
@@ -1013,6 +1459,344 @@ public class BettaFishAI : MonoBehaviour
     {
         state = State.Idle;
         stateTimer = Random.Range(idleMinTime, idleMaxTime);
+        // A rested, well-fed fish sometimes stretches its fins while it hangs there.
+        if (stretchAt < 0f && Fatigue <= 0f && Time.time >= shyUntil && Random.value < stretchChance * Mathf.Lerp(0.5f, 1.5f, Happy))
+            stretchAt = Time.time + Random.Range(0.3f, Mathf.Max(0.4f, stateTimer - stretchDuration));
+    }
+
+    // Getting up from a rest: a yawn (BettaMouth), then often a stretch before it swims off.
+    void WakeUp()
+    {
+        WokeUp?.Invoke();
+        if (Random.value >= wakeStretchChance) { EnterWander(); return; }
+        EnterIdle();
+        stretchAt = Time.time + wakeStretchDelay;
+        stateTimer = Mathf.Max(stateTimer, wakeStretchDelay + stretchDuration + 0.3f);
+    }
+
+    // The rounds of its territory: the corners in turn along the walls, starting with the one ahead.
+    void EnterPatrol()
+    {
+        if (swimBounds == null) { EnterWander(); return; }
+        Bounds b = swimBounds.bounds;
+        float inset = boundsInset + 0.5f * BodyLength;
+        var corners = new[]
+        {
+            new Vector3(b.min.x + inset, 0f, b.min.z + inset), new Vector3(b.max.x - inset, 0f, b.min.z + inset),
+            new Vector3(b.max.x - inset, 0f, b.max.z - inset), new Vector3(b.min.x + inset, 0f, b.max.z - inset),
+        };
+        Vector3 here = transform.position;
+        Vector3 forward = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
+        int first = 0;
+        float best = float.NegativeInfinity;
+        for (int i = 0; i < corners.Length; i++)
+        {
+            float score = Vector3.Dot(Vector3.ProjectOnPlane(corners[i] - here, Vector3.up).normalized, forward);
+            if (score > best) { best = score; first = i; }
+        }
+        int way = Random.value < 0.5f ? 1 : corners.Length - 1;
+        Vector3 middle = new Vector3(b.center.x, 0f, b.center.z);
+        float low = Mathf.Lerp(NormalBottom(), NormalTop(), 0.25f), high = Mathf.Lerp(NormalBottom(), NormalTop(), 0.75f);
+        route.Clear();
+        routeFocus.Clear();
+        for (int i = 0; i < patrolStops; i++)
+        {
+            Vector3 corner = corners[(first + i * way) % corners.Length];
+            corner.y = Random.Range(low, high);
+            Vector3 stop = AboveObstacles(ClampToBounds(corner));
+            route.Add(stop);
+            // Looks out into the corner, past the stop.
+            routeFocus.Add(stop + (corner - middle).normalized * 0.4f);
+        }
+        state = State.Patrol;
+        nextPatrolTime = Time.time + patrolCooldown;
+        routeIndex = -1;
+        NextRouteStop();
+    }
+
+    void NextRouteStop()
+    {
+        if (++routeIndex >= route.Count) { ChooseNextCalmState(); return; }
+        settled = false;
+        destination = route[routeIndex];
+        stateTimer = 4f + Vector3.Distance(transform.position, destination) / Mathf.Max(0.05f, swimSpeed * patrolSpeedFactor * hungrySpeedFactor);
+    }
+
+    // Behind (or in among) the piece of decor that hides it best from the front (tall and close by), at
+    // about half its height. False when nothing will do; it then just flees.
+    bool EnterHide()
+    {
+        if (swimBounds == null) return false;
+        Vector3 here = transform.position;
+        float pad = BodyRadius + 0.06f;
+        float best = float.NegativeInfinity;
+        Vector3 spot = default;
+        foreach (var item in FindObjectsByType<AquariumDecorItem>(FindObjectsSortMode.None))
+        {
+            if (item.floats || item.wallMounted) continue;
+            Bounds d = DecorBounds(item);
+            float y = Mathf.Lerp(d.min.y, d.max.y, 0.4f);
+            Vector3 wanted = new Vector3(d.center.x, y, d.max.z + pad);
+            Vector3 behind = AboveObstacles(ClampToBounds(wanted));
+            // Hidden from the front: no further forward than its middle (in among a plant against the back
+            // wall will do) and below its top, even where other decor lifted the spot.
+            if (behind.z < d.center.z || behind.y > d.max.y - 0.05f) continue;
+            float score = Mathf.Min(d.size.y, 0.6f) - 0.4f * Vector3.Distance(here, behind);
+            if (score > best) { best = score; spot = behind; }
+        }
+        if (best == float.NegativeInfinity) return false;
+        state = State.Hide;
+        settled = false;
+        gulping = false;
+        bolting = false;
+        destination = spot;
+        stateTimer = 4f + Vector3.Distance(here, spot) / Mathf.Max(0.05f, swimSpeed * hideSpeedMultiplier);
+        return true;
+    }
+
+    // Up close to the front glass and facing it: its reflection may look like a rival.
+    void CheckReflection()
+    {
+        if (Time.time < nextReflectionCheck) return;
+        nextReflectionCheck = Time.time + 1f;
+        if (swimBounds == null || Night || Time.time < nextReflectionTime || Time.time < shyUntil || hunger > displayMaxHunger) return;
+        if (state != State.Wander && state != State.Idle && state != State.Patrol) return;
+        float glass = swimBounds.bounds.min.z;
+        Vector3 here = transform.position;
+        Vector3 facing = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
+        if (here.z - glass > reflectionDistance || Vector3.Dot(facing, Vector3.back) < 0.7f || Random.value >= reflectionChance * (1f + Bored)) return;
+        nextReflectionTime = Time.time + reflectionCooldown;
+        // The rival is its mirror image, as far behind the glass as it is in front of it.
+        Display(new Vector3(here.x, here.y, 2f * glass - here.z), false);
+        stateTimer = reflectionDisplayDuration;
+    }
+
+    // Lights on or off: a sleeping fish twitches (the lights-on wake-up follows), an awake one darts a little.
+    void ReactToLights()
+    {
+        if (mood) mood.Spooked();
+        if (sleeping) { currentSpeed = Mathf.Max(currentSpeed, lightFlinchSpeed); return; }
+        if (state == State.SeekFood || state == State.Eat || state == State.Flee || state == State.Hide || state == State.Breathe && gulping) return;
+        Vector2 dir = Random.insideUnitCircle.normalized;
+        Vector3 target = transform.position + new Vector3(dir.x, -0.2f, dir.y) * lightStartleDistance;
+        state = State.Flee;
+        bolting = false;
+        settled = false;
+        gulping = false;
+        destination = AboveObstacles(ClampToBounds(target));
+        stateTimer = 1.5f;
+        shyUntil = Mathf.Max(shyUntil, Time.time + 1f);
+    }
+
+    // Goes up to its nest, or starts one: under a floating plant if there is one, else by a side wall.
+    void EnterNest()
+    {
+        if (swimBounds == null) return;
+        if (nest == null)
+        {
+            var mouth = GetComponentInChildren<BettaMouth>();
+            nest = BubbleNest.Create(mouth ? mouth.bubbleMaterial : null);
+        }
+        if (!nest.HasSite || nest.Count == 0) nest.SetSite(NestSite());
+        state = State.Nest;
+        settled = false;
+        gulping = false;
+        nestShifted = true;                       // starts with a blow where it arrives
+        nestBlowsLeft = Random.Range(nestBlowsMin, nestBlowsMax + 1);
+        nestBlowTimer = 0f;
+        nestAddAt1 = nestAddAt2 = -1f;
+        nextNestTime = Time.time + nestCooldown;
+        destination = NestSpot();
+        stateTimer = 6f + Vector3.Distance(transform.position, destination) / Mathf.Max(0.05f, swimSpeed * 0.8f);
+    }
+
+    Vector3 NestSite()
+    {
+        Bounds b = swimBounds.bounds;
+        var plant = RandomFloatingPlant();
+        Vector3 site;
+        if (plant != null) site = plant.transform.position;
+        else
+        {
+            // Along a side wall, from the middle back: seen from the front, under the waterline, the
+            // surface near the front glass is out of view.
+            float inset = boundsInset + 0.1f;
+            site = new Vector3(Random.value < 0.5f ? b.min.x + inset : b.max.x - inset, 0f,
+                Mathf.Lerp(b.center.z, b.max.z - inset, Random.Range(0.2f, 1f)));
+        }
+        site = ClampToBounds(site);
+        site.y = waterSurfaceY;
+        return site;
+    }
+
+    // Somewhere under the raft, mouth at the surface.
+    Vector3 NestSpot()
+    {
+        Vector2 offset = Random.insideUnitCircle * (nest ? nest.radius * 0.6f : 0.05f);
+        Vector3 site = nest ? nest.Site : transform.position;
+        return ClampToBounds(new Vector3(site.x + offset.x, SurfaceTop(), site.z + offset.y), SurfaceTop());
+    }
+
+    AquariumDecorItem RandomFloatingPlant()
+    {
+        AquariumDecorItem pick = null;
+        int count = 0;
+        foreach (var item in FindObjectsByType<AquariumDecorItem>(FindObjectsSortMode.None))
+            if (item.floats && Random.Range(0, ++count) == 0) pick = item;
+        return pick;
+    }
+
+    // Lights off: settles to sleep soon after, and again a while after anything wakes it; lights on:
+    // wakes after a moment with a yawn and a stretch. Asleep it slowly turns pale.
+    void UpdateSleep()
+    {
+        bool night = Night;
+        if (lightsKnown && night != wasNight) ReactToLights();
+        lightsKnown = true;
+        if (night && !wasNight) sleepAt = Time.time + Random.Range(sleepDelayMin, sleepDelayMax);
+        if (!night && wasNight) { sleepAt = -1f; if (sleeping) wakeAt = Time.time + Random.Range(wakeDelayMin, wakeDelayMax); }
+        wasNight = night;
+        // Something got it up (food, a tap, a breath of air).
+        if (sleeping && state != State.Rest) { sleeping = false; wakeAt = -1f; }
+        if (!sleeping && night && sleepAt < 0f) sleepAt = Time.time + Random.Range(sleepResumeMin, sleepResumeMax);
+        if (sleeping && wakeAt >= 0f && Time.time >= wakeAt)
+        {
+            sleeping = false;
+            wakeAt = -1f;
+            WakeUp();
+        }
+        else if (!sleeping && night && Time.time >= sleepAt && Calm) EnterSleep();
+        float pale = Mathf.Max(sleeping && settled ? 1f : state == State.Hide ? hidePaleness : 0f, mood ? mood.Stress * 0.4f : 0f);
+        Paleness = Mathf.MoveTowards(Paleness, pale, Time.deltaTime / Mathf.Max(0.01f, pale > Paleness ? paleFadeIn : paleFadeOut));
+    }
+
+    // A rest that lasts until the lights come on: on the bottom or just under the surface as by day,
+    // or on top of a rock or wood, or under a floating plant.
+    void EnterSleep()
+    {
+        EnterRest();
+        sleeping = true;
+        sleepAt = -1f;
+        wakeAt = -1f;
+        float dice = Random.value;
+        if (dice < sleepOnDecorChance)
+        {
+            ScanObstacles();
+            Collider pick = null;
+            int count = 0;
+            foreach (var col in obstacles)
+                if (ClearHeight(col) <= NormalTop() && Random.Range(0, ++count) == 0) pick = col;
+            if (pick != null)
+            {
+                Vector3 top = pick.bounds.center;
+                float bottom = Mathf.Min(NormalBottom(), bottomRestY);
+                destination = AboveObstacles(ClampToBounds(new Vector3(top.x, bottom, top.z), NormalTop(), bottom));
+                restOnBottom = true;
+            }
+        }
+        else if (dice < sleepOnDecorChance + sleepUnderPlantChance)
+        {
+            var plant = RandomFloatingPlant();
+            if (plant != null)
+            {
+                Vector3 under = plant.transform.position;
+                under.y = NormalTop();
+                destination = ClampToBounds(under);
+                restOnBottom = false;
+            }
+        }
+        stateTimer = 6f + Vector3.Distance(transform.position, destination) / 0.08f;
+    }
+
+    // Already at the glass where you tapped: straight into the greeting wriggle, briefly.
+    void DanceAtTap(Vector3 viewer)
+    {
+        state = State.Greet;
+        greetViewer = viewer;
+        greetDancing = true;
+        greetElapsed = 0f;
+        settled = false;
+        stateTimer = Random.Range(2f, 3.5f);
+    }
+
+    // To the front glass in front of the viewer, at about their eye height.
+    void EnterGreet(Vector3 viewer)
+    {
+        if (swimBounds == null) return;
+        Bounds b = swimBounds.bounds;
+        greetViewer = viewer;
+        float y = Mathf.Clamp(viewer.y, Mathf.Lerp(NormalBottom(), NormalTop(), 0.3f), Mathf.Lerp(NormalBottom(), NormalTop(), 0.8f));
+        destination = DisplaySpot(new Vector3(viewer.x, y, b.min.z));
+        state = State.Greet;
+        settled = false;
+        greetDancing = false;
+        stateTimer = 4f + Vector3.Distance(transform.position, destination) / Mathf.Max(0.05f, swimSpeed);
+    }
+
+    // Spots around the piece (front, sides, front corners) at some height along it, nearest first,
+    // each with the point on the piece it noses at.
+    void EnterInspect(AquariumDecorItem item)
+    {
+        if (swimBounds == null) return;
+        Bounds d = DecorBounds(item);
+        float pad = BodyRadius + inspectStandOff;
+        var sides = new[] { Vector3.back, Vector3.left, Vector3.right, new Vector3(-1f, 0f, -1f).normalized, new Vector3(1f, 0f, -1f).normalized };
+        var spots = new List<Vector3>();
+        foreach (var side in sides)
+        {
+            float y = item.floats ? NormalTop() - 0.05f : Mathf.Lerp(d.min.y, d.max.y, Random.Range(0.3f, 0.7f));
+            Vector3 wanted = new Vector3(d.center.x + side.x * (d.extents.x + pad), y, d.center.z + side.z * (d.extents.z + pad));
+            Vector3 spot = AboveObstacles(ClampToBounds(wanted));
+            // Squeezed against the glass or lifted far over other decor: not a place to look from.
+            if (new Vector2(spot.x - wanted.x, spot.z - wanted.z).magnitude < 0.08f && Mathf.Abs(spot.y - y) < 0.25f) spots.Add(spot);
+        }
+        if (spots.Count == 0) return;
+        route.Clear();
+        routeFocus.Clear();
+        Vector3 from = transform.position;
+        while (spots.Count > 0 && route.Count < inspectViews)
+        {
+            int nearest = 0;
+            for (int i = 1; i < spots.Count; i++)
+                if ((spots[i] - from).sqrMagnitude < (spots[nearest] - from).sqrMagnitude) nearest = i;
+            from = spots[nearest];
+            spots.RemoveAt(nearest);
+            route.Add(from);
+            Vector3 focus = d.ClosestPoint(from);
+            focus.y = Mathf.Clamp(from.y, d.min.y, d.max.y);
+            routeFocus.Add(focus);
+        }
+        inspecting = item;
+        state = State.Inspect;
+        routeIndex = -1;
+        NextInspectView();
+    }
+
+    void NextInspectView()
+    {
+        if (++routeIndex >= route.Count || inspecting == null) { EndInspect(); return; }
+        settled = false;
+        destination = route[routeIndex];
+        stateTimer = 4f + Vector3.Distance(transform.position, destination) / Mathf.Max(0.05f, swimSpeed * inspectSpeedFactor * hungrySpeedFactor);
+    }
+
+    void EndInspect()
+    {
+        if (inspecting != null && mood) mood.SawSomethingNew();
+        inspecting = null;
+        // Another new piece waiting gets its turn after a moment.
+        inspectNoticeAt = Time.time + Random.Range(inspectNoticeMin, inspectNoticeMax);
+        EnterIdle();
+    }
+
+    // Plants have no collider, only their leaves to go by.
+    static Bounds DecorBounds(AquariumDecorItem item)
+    {
+        var col = item.GetComponent<Collider>();
+        if (col) return col.bounds;
+        Bounds bounds = new Bounds(item.transform.position, Vector3.one * 0.05f);
+        foreach (var r in item.GetComponentsInChildren<Renderer>()) bounds.Encapsulate(r.bounds);
+        return bounds;
     }
 
     void EnterEat()
@@ -1021,8 +1805,18 @@ public class BettaFishAI : MonoBehaviour
         state = State.Eat;
         stateTimer = eatDuration;
         if (animator) animator.SetTrigger(NibbleId);
+        // Now and then it spits the pellet straight out and goes after it again.
+        if (food != null && !food.Spat && Random.value < spitChance)
+        {
+            Vector3 ahead = ClampToBounds(food.transform.position + Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized * spitDistance, SurfaceTop(), FeedBottom());
+            food.Spit(ahead);
+            stateTimer = spitPause;
+            food = null;
+            return;
+        }
         if (food != null)
         {
+            if (mood) mood.Fed();
             food.Consume();
             hunger = Mathf.Clamp01(hunger - hungerPerPellet);
         }

@@ -48,10 +48,10 @@ public static class AquariumAssetInstaller
             if (Components<MainAquariumScreen>(main).Any(x => existing == null || !x.transform.IsChildOf(existing.transform)))
                 throw new InvalidOperationException("MainAquarium has another authored HUD; integrate it before installing this presentation.");
 
-            Directory.CreateDirectory("Assets/_Project/Scenes/Backups");
-            string backup = $"Assets/_Project/Scenes/Backups/MainAquarium-before-approved-assets-{DateTime.UtcNow:yyyyMMdd-HHmmss-fff}";
-            File.Copy(MainPath, backup + "-saved.unity");
-            EditorSceneManager.SaveScene(main, backup + "-working.unity", true);
+            string backupName = "MainAquarium-before-approved-assets-" + SceneBackups.Stamp();
+            string backup = SceneBackups.Dir + "/" + backupName;
+            SceneBackups.CopyFile(MainPath, backupName + "-saved");
+            SceneBackups.SaveCopy(main, backupName + "-working");
             // Clone all three roots and remap their cross-root references together. The source stays untouched.
             staging = new GameObject("AquariumEnvironment");
             SceneManager.MoveGameObjectToScene(staging, main);

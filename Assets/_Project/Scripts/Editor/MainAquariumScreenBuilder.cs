@@ -39,11 +39,9 @@ public static class MainAquariumScreenBuilder
         bool firstBuild = UnityEngine.Object.FindFirstObjectByType<MainAquariumScreen>(FindObjectsInactive.Include) == null;
 
         // Retain both the on-disk and any unsaved authored scene before making changes.
-        string backupDir = "Assets/_Project/Scenes/Backups";
-        Directory.CreateDirectory(backupDir);
-        string backupName = $"{backupDir}/MainAquarium-before-screen-{DateTime.UtcNow:yyyyMMdd-HHmmss-fff}";
-        File.Copy(ScenePath, backupName + "-saved.unity");
-        EditorSceneManager.SaveScene(scene, backupName + "-working.unity", true);
+        string backupName = "MainAquarium-before-screen-" + SceneBackups.Stamp();
+        SceneBackups.CopyFile(ScenePath, backupName + "-saved");
+        SceneBackups.SaveCopy(scene, backupName + "-working");
         Undo.IncrementCurrentGroup();
         int group = Undo.GetCurrentGroup();
         Undo.SetCurrentGroupName("Build redesigned MainAquarium screen");

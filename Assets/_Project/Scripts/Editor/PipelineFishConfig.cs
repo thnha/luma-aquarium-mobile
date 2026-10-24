@@ -64,6 +64,7 @@ public class PipelineFishConfig
         public float finBrightness = 1f;
         public float vibrance = 1f;
         public float brightness = 1f;
+        public float envReflection = 1f;
         public float baseTexture;
         public float finRimAlpha = 1f;
         public float[] finRim = { 0.9f, 1f };
@@ -153,6 +154,7 @@ public class PipelineFishConfig
         variant.finBrightness = look.finBrightness;
         variant.vibrance = look.vibrance;
         variant.brightness = look.brightness;
+        variant.envReflection = look.envReflection;
         variant.baseTexture = look.baseTexture;
         variant.finRimAlpha = look.finRimAlpha;
         variant.finRim = Range(look.finRim, "finRim", path);

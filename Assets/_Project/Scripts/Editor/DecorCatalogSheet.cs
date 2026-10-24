@@ -20,7 +20,8 @@ using UnityEngine.Networking;
 public static class DecorCatalogSheet
 {
     public const string CsvPath = AquariumDecorCatalogBuilder.Root + "/decor_catalog.csv";
-    public const string XlsxPath = AquariumDecorCatalogBuilder.Root + "/decor_catalog.xlsx";
+    // Outside Assets: the DecorShop folder is remote Addressables content, which cannot pack an .xlsx.
+    public const string XlsxPath = "Sheets/decor_catalog.xlsx";
     private static readonly AquariumDecorCategory[] TabOrder = { AquariumDecorCategory.Wood, AquariumDecorCategory.Rocks,
         AquariumDecorCategory.Coral, AquariumDecorCategory.Plants, AquariumDecorCategory.Moss, AquariumDecorCategory.Floating };
     private const string CatalogPath = AquariumDecorCatalogBuilder.Root + "/AquariumDecorCatalog.asset";
@@ -478,8 +479,8 @@ public static class DecorCatalogSheet
         GiftSheet.EnsureStarter(catalog);
         tabs.Insert(0, GiftSheet.Tab(catalog.giftPacks));
         if (surfaces != null) { SurfaceCatalogSheet.EnsureTanks(surfaces); tabs.AddRange(SurfaceCatalogSheet.Tabs(surfaces)); }
+        Directory.CreateDirectory(Path.GetDirectoryName(XlsxPath));
         File.WriteAllBytes(XlsxPath, ExportXlsx(tabs));
-        AssetDatabase.ImportAsset(XlsxPath);
         Debug.Log($"[Decor Catalog] Exported {catalog.offers.Length} items to {XlsxPath}");
         EditorUtility.RevealInFinder(XlsxPath);
     }

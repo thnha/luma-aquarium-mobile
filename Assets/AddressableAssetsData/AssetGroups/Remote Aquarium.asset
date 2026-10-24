@@ -15,6 +15,16 @@ MonoBehaviour:
   m_GroupName: Remote Aquarium
   m_GUID: 4fbed7c844acb4713ad03c162a2bb39e
   m_SerializeEntries:
+  - m_GUID: 0283c9d9329324f37bf53f36a1d9ef55
+    m_Address: Fish/SkyKoiBettaM4
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 075696030b92f469b929d46d985ea7d1
+    m_Address: Fish/GalaxyBetta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2081426f530b5447c94053cc5c66b91d
     m_Address: Fish/PlakatGalaxy
     m_ReadOnly: 0
@@ -35,13 +45,38 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7e02894ea2e764fbdb1968a9238f344d
+    m_Address: Fish/SkyKoiBetta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 884de8dcbf4664a0da8df7044211bf69
     m_Address: Fish/Plakat
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8c2cfda3001604da187abbabadb82dd1
+    m_Address: Fish/RedSteelBetta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 91ec18ea6ceb3449d8b0f539ae3f0040
+    m_Address: Fish/KoiBetta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b0f2844b66e1d43a0b18b3db739de6df
     m_Address: Fish/KoiNemoRig
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d6aa2157dc52140968a55f0803b9b79c
+    m_Address: Fish/RoyalKoiBetta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f8cc64d2a52554ad7a636492db01a52f
+    m_Address: Fish/BlueFlameBetta
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

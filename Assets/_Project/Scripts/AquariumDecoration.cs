@@ -41,6 +41,8 @@ public sealed class AquariumDecoration : MonoBehaviour
 
     public bool Editing { get; private set; }
     public AquariumDecorItem Selected { get; private set; }
+    // A piece was placed (new or moved) with Đặt; the fish comes to look at it once the editor closes.
+    public event Action<AquariumDecorItem> Placed;
     private bool isNew;
     private AquariumCarpet carpet;
     // Carpet brush: the species being painted (0 when not brushing), its shop kind, erase mode and the
@@ -641,11 +643,13 @@ public sealed class AquariumDecoration : MonoBehaviour
         if (isNew) items.Add(Selected);
         Remember(before, carpet.Snapshot());
         water?.Ripple(Selected.transform.position);
+        var placed = Selected;
         Selected = null;
         isNew = false;
         Settle();
         SaveLayout();
         Idle();
+        Placed?.Invoke(placed);
         return true;
     }
 

@@ -49,6 +49,13 @@ public class BettaSwimMotion : MonoBehaviour
     public float displayCurlAngle = 8f;      // degrees per spine joint at full curl
     public float displayFlickAngle = 10f;    // extra peduncle degrees at the peak of a flick
     public float displayFlickFrequency = 1.2f;
+    // Tail beating (BettaFishAI.TailBeat): fast, wide lashes of the rear body toward the rival,
+    // the head held still against them. Angles are per joint, so every fish on the shared rig
+    // lashes in proportion whatever its size.
+    public float tailBeatFrequency = 2.2f;
+    public float tailBeatLashAngle = 24f;    // degrees at Tail_Base at the peak of a lash toward the rival
+    [Range(0f, 1f)] public float tailBeatBias = 0.35f; // share of each lash held toward the rival
+    public float tailBeatRecoil = 3f;        // head degrees against each lash
 
     [Header("Fins")]
     // Pectorals fan steadily when hovering and slow down / fold in as the fish swims faster.
@@ -78,6 +85,8 @@ public class BettaSwimMotion : MonoBehaviour
     static readonly float[] StrokeWeights = { 0f, 0f, 0f, 0.3f, 1f };
     // Share of the display curl per spine joint: the C is deepest toward the tail.
     static readonly float[] CurlWeights = { 0.3f, 0.6f, 1f, 1f, 0.8f };
+    // Share of a tail-beat lash per spine joint: the rear half of the body swings the tail.
+    static readonly float[] TailBeatWeights = { 0f, 0.1f, 0.35f, 0.7f, 1f };
 
     // Rear spine: weight scales body wave and turn bend, index sets the wave delay.
     static readonly (string name, float weight, int index)[] SpineChain =
@@ -96,7 +105,7 @@ public class BettaSwimMotion : MonoBehaviour
     float[] jointDistance;                   // local units from the head pivot to each segment's joint
     Vector3[] bodyLine;
     float[] jointBend, jointPitch;
-    float bodyPhase, caudalPhase, finPhase, gillPhase, lastYaw, yawRate;
+    float bodyPhase, caudalPhase, tailBeatPhase, finPhase, gillPhase, lastYaw, yawRate;
     float gillSideL, gillSideR;              // +1 on the fish's right, -1 on its left: the opening direction
     float exertion;                           // slow-moving average of effort: quick to rise, slow to recover
 
@@ -270,21 +279,28 @@ public class BettaSwimMotion : MonoBehaviour
         float bodyAmplitude = Mathf.Lerp(bodyIdleAmplitude, bodySwimAmplitude, effort);
         float strokeAmplitude = Mathf.Lerp(strokeIdleAmplitude, strokeSwimAmplitude, effort)
             + Mathf.Min(maxTailKick, Mathf.Abs(yawRate) * turnTailKick);
-        float stroke = Mathf.Sin(caudalPhase) * strokeAmplitude;
+        // Tail beating takes over from the swim stroke and the display flicks.
+        float tailBeat = fish ? fish.TailBeat : 0f;
+        float calm = 1f - Mathf.Abs(tailBeat);
+        float stroke = Mathf.Sin(caudalPhase) * strokeAmplitude * calm;
         // A negative bend lays the tail out to the fish's right (as after turning right).
         float curl = fish ? fish.DisplayCurl : 0f;
         float flick = Mathf.Pow(Mathf.Max(0f, Mathf.Sin(Time.time * displayFlickFrequency * 2f * Mathf.PI)), 6f);
-        stroke -= curl * flick * displayFlickAngle;
+        stroke -= curl * flick * displayFlickAngle * calm;
+        // Each lash swings well out toward the rival and only partly back.
+        tailBeatPhase = Mathf.Abs(tailBeat) > 0.01f ? tailBeatPhase + tailBeatFrequency * TwoPi * dt : 0f;
+        float lash = tailBeat * tailBeatLashAngle * (tailBeatBias + (1f - tailBeatBias) * Mathf.Sin(tailBeatPhase));
         for (int i = 0; i < spine.Length; i++)
         {
             float wave = Mathf.Sin(bodyPhase - spine[i].index * wavePhaseStep) * bodyAmplitude;
             float angle = wave * spine[i].weight + stroke * StrokeWeights[i] + jointBend[i]
-                - curl * displayCurlAngle * CurlWeights[i];
+                - curl * displayCurlAngle * CurlWeights[i] - lash * TailBeatWeights[i];
             Apply(ref spine[i], Quaternion.AngleAxis(angle, up) * Quaternion.AngleAxis(jointPitch[i], side));
         }
 
         // Head swings slightly against each tail stroke (recoil), which sells the push.
-        Apply(ref head, Quaternion.AngleAxis(-Mathf.Sin(caudalPhase) * headRecoil * effort, up));
+        float recoil = -Mathf.Sin(caudalPhase) * headRecoil * effort * calm + lash / Mathf.Max(0.01f, tailBeatLashAngle) * tailBeatRecoil;
+        Apply(ref head, Quaternion.AngleAxis(recoil, up));
 
         // Pectorals fan hardest when hovering and fold in while cruising. Both fins beat nearly
         // together (a slight lag when hovering, in step when swimming); in a turn the outer fin

@@ -1,72 +1,72 @@
 ﻿id,nhóm,tên,mô tả,giá
-hornwort,Cây,Rong đuôi chó,Cây thủy sinh trồng nền · Lá đung đưa theo dòng nước,60
-cabomba,Cây,Rong la hán,Cây thủy sinh trồng nền · Lá đung đưa theo dòng nước,75
-vallisneria,Cây,Cỏ Vallisneria,Cây thủy sinh trồng nền · Lá đung đưa theo dòng nước,80
-rotala,Cây,Hồng liễu Rotala,Cây thủy sinh trồng nền · Lá đung đưa theo dòng nước,100
-anubias-petite,Cây,Ráy nana petite,"Trồng trên nền hoặc kéo lên lũa, đá để gắn",120
-java-fern,Cây,Dương xỉ Java,"Trồng trên nền hoặc kéo lên lũa, đá để gắn",130
-java-moss,Rêu,Rêu Java,"Trồng trên nền hoặc kéo lên lũa, đá để gắn",80
-christmas-moss,Rêu,Rêu Christmas,"Trồng trên nền hoặc kéo lên lũa, đá để gắn",100
-mini-fiss,Rêu,Rêu mini fiss,"Trồng trên nền hoặc kéo lên lũa, đá để gắn",110
-duckweed,Bèo,Bèo tấm,Bèo nổi trên mặt nước · Kéo để sắp xếp từng cụm,40
-salvinia,Bèo,Bèo ong,Bèo nổi trên mặt nước · Kéo để sắp xếp từng cụm,55
-frogbit,Bèo,Bèo Nhật,Bèo nổi trên mặt nước · Kéo để sắp xếp từng cụm,70
-wood-short,Lũa,Lũa khúc ngắn,"Lũa tự nhiên · Có 3 vị trí gắn ráy, dương xỉ hoặc rêu",120
-wood-long,Lũa,Lũa thân dài,"Lũa tự nhiên · Có 3 vị trí gắn ráy, dương xỉ hoặc rêu",180
-wood-arch,Lũa,Lũa cong,"Lũa tự nhiên · Có 3 vị trí gắn ráy, dương xỉ hoặc rêu",200
-wood-branches,Lũa,Lũa phân nhánh,"Lũa tự nhiên · Có 3 vị trí gắn ráy, dương xỉ hoặc rêu",230
-wood-roots,Lũa,Lũa chùm rễ,"Lũa tự nhiên · Có 3 vị trí gắn ráy, dương xỉ hoặc rêu",250
-wood-stump,Lũa,Lũa gốc cây,"Lũa tự nhiên · Có 3 vị trí gắn ráy, dương xỉ hoặc rêu",220
-river-pebbles,Đá,Đá cuội suối,"Đá tự nhiên · Gắn rêu, ráy hoặc dương xỉ lên mặt đá",70
-dragon-stone,Đá,Đá tai mèo,"Đá tự nhiên · Gắn rêu, ráy hoặc dương xỉ lên mặt đá",140
-lava-rock,Đá,Đá nham thạch,"Đá tự nhiên · Gắn rêu, ráy hoặc dương xỉ lên mặt đá",100
-seiryu,Đá,Đá vân Seiryu,"Đá tự nhiên · Gắn rêu, ráy hoặc dương xỉ lên mặt đá",160
-rock-cluster,Đá,Cụm đá tự nhiên,"Đá tự nhiên · Gắn rêu, ráy hoặc dương xỉ lên mặt đá",200
-mini-landscape,Đá,Hòn non bộ,Tiểu cảnh núi đá nhiều tầng · Gắn rêu lên các mỏm đá,320
-wood-linh-sam,Lũa,Lũa Linh Sam,"Gỗ cứng nâu đen, vân xoắn, chìm ngay · Có 3 vị trí gắn cây hoặc rêu",220
-wood-hai-son-tung,Lũa,Lũa Hải Sơn Tùng,"Nhiều nhánh nhỏ khẳng khiu, hợp làm tán cây hoặc rừng cây · Có 3 vị trí gắn",240
-wood-do-quyen,Lũa,Lũa Đỗ Quyên,"Thân mịn uốn lượn, vàng sáng chuyển nâu đỏ · Hợp bố cục chữ V · Có 3 vị trí gắn",230
-wood-spider,Lũa,Lũa Spider,Chùm rễ tua tủa tỏa từ một gốc nhỏ · Có 3 vị trí gắn cây hoặc rêu,190
-wood-san-da,Lũa,Lũa Săn Đá,"Gỗ nặng, gân guốc nứt nẻ như đá, hợp phối cùng đá · Có 3 vị trí gắn",250
-wood-mopani,Lũa,Lũa Mopani,"Khối gỗ dày hai màu sáng tối, chìm ngay · Có 3 vị trí gắn cây hoặc rêu",260
-wood-tra-gung,Lũa,Lũa Trà Gừng,"Nhánh nhỏ đan chằng chịt, gọn cho hồ mini · Có 3 vị trí gắn",120
-wood-bonsai,Lũa,Lũa Bonsai,"Dáng cổ thụ thu nhỏ: thân uốn chữ S, tầng cành xòe ngang · Có 3 vị trí gắn",320
-moss-mini-taiwan,Rêu,Rêu Mini Taiwan,"Taxiphyllum alternans · Lá li ti mọc thành thảm dày · Gắn lên đá, lũa hoặc trải nền",90
-moss-weeping,Rêu,Rêu Weeping,"Vesicularia ferriei · Nhánh rủ như liễu, đẹp nhất trên lũa cao · Gắn lên đá, lũa hoặc nền",120
-moss-flame,Rêu,Rêu Flame,"Taxiphyllum 'Flame' · Nhánh vươn thẳng, xoắn như ngọn lửa xanh · Gắn lên đá, lũa hoặc nền",130
-moss-wall-taiwan,Rêu,Tường rêu Mini Taiwan,"Tấm rêu dán kính sau hồ, phủ thảm dày · Ghép nhiều tấm thành tường rêu",220
-moss-wall-weeping,Rêu,Tường rêu Weeping,"Tấm rêu dán kính sau hồ, nhánh rủ xuống như thác · Ghép nhiều tấm thành tường rêu",260
-stone-elephant-skin,Đá,Đá da voi,"Mặt đá sần nhăn như da voi, xếp tầng tạo khe núi · Hợp hồ thủy sinh và hồ Koi",180
-stone-coral-rock,Đá,Đá san hô,"Xốp, nhẹ, nhiều lỗ; vừa làm nền vừa lọc, giữ pH cao ổn định · Hợp bể cá biển",150
-stone-lava-red,Đá,Đá nham thạch đỏ,"Xốp, lỗ li ti cho vi sinh trú ngụ và lọc nước · Lót nền hoặc phân tầng",110
-stone-sea-pebbles,Đá,Đá cuội biển,"Cuội tròn mượt nhiều màu, vẻ đẹp hoang sơ · Hợp hồ cá cảnh, thủy sinh lẫn hồ Koi",80
-stone-co-thach,Đá,Đá cổ thạch,"Góc cạnh, vân sọc trắng vàng · Điểm nhấn cao cấp cho hòn non bộ",260
-stone-tuyet-son,Đá,Đá tuyết sơn,Nền đen vân trắng như tuyết phủ đỉnh núi · Điểm nhấn cao cấp cho hòn non bộ,280
-coral-rubble,San hô,San hô vụn,San hô thật dạng vụn · Lót nền hoặc làm vật liệu lọc tăng pH cho bể nước mặn,90
-coral-block,San hô,San hô khối,"Khối san hô thật vân não · Dùng cho bể nước mặn, giúp ổn định pH",190
-coral-mushroom,San hô,San hô nấm,"San hô sống bể biển, đĩa màu rực rỡ · Cần ánh sáng và dòng chảy chuyên dụng",240
-coral-zoanthid,San hô,San hô đồng tiền,"Cụm polyp tròn như đồng xu nhiều màu · San hô sống, cần ánh sáng và dòng chảy",220
-coral-artificial-branch,San hô,San hô nhân tạo nhánh,"Silicon an toàn, màu tươi, dễ vệ sinh · Mang phong cách biển vào hồ nước ngọt",120
-coral-artificial-fan,San hô,San hô nhân tạo quạt,"Quạt biển silicon mềm, màu tươi, dễ vệ sinh · Hợp người mới chơi và hồ nước ngọt",130
-starter-anubias,Cây,Ráy Anubias,"Cây lá rộng · Trồng nền hoặc gắn lên lũa, đá",140
+hornwort,Cây,Rong đuôi chó,Cây thủy sinh trồng nền · Lá đung đưa theo dòng nước,1
+cabomba,Cây,Rong la hán,Cây thủy sinh trồng nền · Lá đung đưa theo dòng nước,1
+vallisneria,Cây,Cỏ Vallisneria,Cây thủy sinh trồng nền · Lá đung đưa theo dòng nước,1
+rotala,Cây,Hồng liễu Rotala,Cây thủy sinh trồng nền · Lá đung đưa theo dòng nước,1
+anubias-petite,Cây,Ráy nana petite,"Trồng trên nền hoặc kéo lên lũa, đá để gắn",1
+java-fern,Cây,Dương xỉ Java,"Trồng trên nền hoặc kéo lên lũa, đá để gắn",1
+java-moss,Rêu,Rêu Java,"Trồng trên nền hoặc kéo lên lũa, đá để gắn",1
+christmas-moss,Rêu,Rêu Christmas,"Trồng trên nền hoặc kéo lên lũa, đá để gắn",1
+mini-fiss,Rêu,Rêu mini fiss,"Trồng trên nền hoặc kéo lên lũa, đá để gắn",1
+duckweed,Bèo,Bèo tấm,Bèo nổi trên mặt nước · Kéo để sắp xếp từng cụm,1
+salvinia,Bèo,Bèo ong,Bèo nổi trên mặt nước · Kéo để sắp xếp từng cụm,1
+frogbit,Bèo,Bèo Nhật,Bèo nổi trên mặt nước · Kéo để sắp xếp từng cụm,1
+wood-short,Lũa,Lũa khúc ngắn,"Lũa tự nhiên · Có 3 vị trí gắn ráy, dương xỉ hoặc rêu",1
+wood-long,Lũa,Lũa thân dài,"Lũa tự nhiên · Có 3 vị trí gắn ráy, dương xỉ hoặc rêu",1
+wood-arch,Lũa,Lũa cong,"Lũa tự nhiên · Có 3 vị trí gắn ráy, dương xỉ hoặc rêu",1
+wood-branches,Lũa,Lũa phân nhánh,"Lũa tự nhiên · Có 3 vị trí gắn ráy, dương xỉ hoặc rêu",1
+wood-roots,Lũa,Lũa chùm rễ,"Lũa tự nhiên · Có 3 vị trí gắn ráy, dương xỉ hoặc rêu",1
+wood-stump,Lũa,Lũa gốc cây,"Lũa tự nhiên · Có 3 vị trí gắn ráy, dương xỉ hoặc rêu",1
+river-pebbles,Đá,Đá cuội suối,"Đá tự nhiên · Gắn rêu, ráy hoặc dương xỉ lên mặt đá",1
+dragon-stone,Đá,Đá tai mèo,"Đá tự nhiên · Gắn rêu, ráy hoặc dương xỉ lên mặt đá",1
+lava-rock,Đá,Đá nham thạch,"Đá tự nhiên · Gắn rêu, ráy hoặc dương xỉ lên mặt đá",1
+seiryu,Đá,Đá vân Seiryu,"Đá tự nhiên · Gắn rêu, ráy hoặc dương xỉ lên mặt đá",1
+rock-cluster,Đá,Cụm đá tự nhiên,"Đá tự nhiên · Gắn rêu, ráy hoặc dương xỉ lên mặt đá",1
+mini-landscape,Đá,Hòn non bộ,Tiểu cảnh núi đá nhiều tầng · Gắn rêu lên các mỏm đá,1
+wood-linh-sam,Lũa,Lũa Linh Sam,"Gỗ cứng nâu đen, vân xoắn, chìm ngay · Có 3 vị trí gắn cây hoặc rêu",1
+wood-hai-son-tung,Lũa,Lũa Hải Sơn Tùng,"Nhiều nhánh nhỏ khẳng khiu, hợp làm tán cây hoặc rừng cây · Có 3 vị trí gắn",1
+wood-do-quyen,Lũa,Lũa Đỗ Quyên,"Thân mịn uốn lượn, vàng sáng chuyển nâu đỏ · Hợp bố cục chữ V · Có 3 vị trí gắn",1
+wood-spider,Lũa,Lũa Spider,Chùm rễ tua tủa tỏa từ một gốc nhỏ · Có 3 vị trí gắn cây hoặc rêu,1
+wood-san-da,Lũa,Lũa Săn Đá,"Gỗ nặng, gân guốc nứt nẻ như đá, hợp phối cùng đá · Có 3 vị trí gắn",1
+wood-mopani,Lũa,Lũa Mopani,"Khối gỗ dày hai màu sáng tối, chìm ngay · Có 3 vị trí gắn cây hoặc rêu",1
+wood-tra-gung,Lũa,Lũa Trà Gừng,"Nhánh nhỏ đan chằng chịt, gọn cho hồ mini · Có 3 vị trí gắn",1
+wood-bonsai,Lũa,Lũa Bonsai,"Dáng cổ thụ thu nhỏ: thân uốn chữ S, tầng cành xòe ngang · Có 3 vị trí gắn",1
+moss-mini-taiwan,Rêu,Rêu Mini Taiwan,"Taxiphyllum alternans · Lá li ti mọc thành thảm dày · Gắn lên đá, lũa hoặc trải nền",1
+moss-weeping,Rêu,Rêu Weeping,"Vesicularia ferriei · Nhánh rủ như liễu, đẹp nhất trên lũa cao · Gắn lên đá, lũa hoặc nền",1
+moss-flame,Rêu,Rêu Flame,"Taxiphyllum 'Flame' · Nhánh vươn thẳng, xoắn như ngọn lửa xanh · Gắn lên đá, lũa hoặc nền",1
+moss-wall-taiwan,Rêu,Tường rêu Mini Taiwan,"Tấm rêu dán kính sau hồ, phủ thảm dày · Ghép nhiều tấm thành tường rêu",1
+moss-wall-weeping,Rêu,Tường rêu Weeping,"Tấm rêu dán kính sau hồ, nhánh rủ xuống như thác · Ghép nhiều tấm thành tường rêu",1
+stone-elephant-skin,Đá,Đá da voi,"Mặt đá sần nhăn như da voi, xếp tầng tạo khe núi · Hợp hồ thủy sinh và hồ Koi",1
+stone-coral-rock,Đá,Đá san hô,"Xốp, nhẹ, nhiều lỗ; vừa làm nền vừa lọc, giữ pH cao ổn định · Hợp bể cá biển",1
+stone-lava-red,Đá,Đá nham thạch đỏ,"Xốp, lỗ li ti cho vi sinh trú ngụ và lọc nước · Lót nền hoặc phân tầng",1
+stone-sea-pebbles,Đá,Đá cuội biển,"Cuội tròn mượt nhiều màu, vẻ đẹp hoang sơ · Hợp hồ cá cảnh, thủy sinh lẫn hồ Koi",1
+stone-co-thach,Đá,Đá cổ thạch,"Góc cạnh, vân sọc trắng vàng · Điểm nhấn cao cấp cho hòn non bộ",1
+stone-tuyet-son,Đá,Đá tuyết sơn,Nền đen vân trắng như tuyết phủ đỉnh núi · Điểm nhấn cao cấp cho hòn non bộ,1
+coral-rubble,San hô,San hô vụn,San hô thật dạng vụn · Lót nền hoặc làm vật liệu lọc tăng pH cho bể nước mặn,1
+coral-block,San hô,San hô khối,"Khối san hô thật vân não · Dùng cho bể nước mặn, giúp ổn định pH",1
+coral-mushroom,San hô,San hô nấm,"San hô sống bể biển, đĩa màu rực rỡ · Cần ánh sáng và dòng chảy chuyên dụng",1
+coral-zoanthid,San hô,San hô đồng tiền,"Cụm polyp tròn như đồng xu nhiều màu · San hô sống, cần ánh sáng và dòng chảy",1
+coral-artificial-branch,San hô,San hô nhân tạo nhánh,"Silicon an toàn, màu tươi, dễ vệ sinh · Mang phong cách biển vào hồ nước ngọt",1
+coral-artificial-fan,San hô,San hô nhân tạo quạt,"Quạt biển silicon mềm, màu tươi, dễ vệ sinh · Hợp người mới chơi và hồ nước ngọt",1
+starter-anubias,Cây,Ráy Anubias,"Cây lá rộng · Trồng nền hoặc gắn lên lũa, đá",1
 starter-stone,Đá,Đá suối tròn,Đá cuội tròn · Gắn rêu hoặc ráy lên mặt đá,80
-starter-wood,Lũa,Lũa nhánh cổ thụ,Lũa phân nhánh cao · Gắn cây hoặc rêu tại 3 vị trí,200
-wood-linh-sam-m,Lũa,Lũa Linh Sam · Vừa,"Cỡ vừa của Lũa Linh Sam · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm",440
-wood-linh-sam-l,Lũa,Lũa Linh Sam · Lớn,"Cỡ lớn của Lũa Linh Sam · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm",770
-wood-hai-son-tung-m,Lũa,Lũa Hải Sơn Tùng · Vừa,"Cỡ vừa của Lũa Hải Sơn Tùng · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm",480
-wood-hai-son-tung-l,Lũa,Lũa Hải Sơn Tùng · Lớn,"Cỡ lớn của Lũa Hải Sơn Tùng · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm",840
-wood-do-quyen-m,Lũa,Lũa Đỗ Quyên · Vừa,"Cỡ vừa của Lũa Đỗ Quyên · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm",460
-wood-do-quyen-l,Lũa,Lũa Đỗ Quyên · Lớn,"Cỡ lớn của Lũa Đỗ Quyên · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm",800
-wood-spider-m,Lũa,Lũa Spider · Vừa,"Cỡ vừa của Lũa Spider · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm",380
-wood-spider-l,Lũa,Lũa Spider · Lớn,"Cỡ lớn của Lũa Spider · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm",660
-wood-san-da-m,Lũa,Lũa Săn Đá · Vừa,"Cỡ vừa của Lũa Săn Đá · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm",500
-wood-san-da-l,Lũa,Lũa Săn Đá · Lớn,"Cỡ lớn của Lũa Săn Đá · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm",880
-wood-mopani-m,Lũa,Lũa Mopani · Vừa,"Cỡ vừa của Lũa Mopani · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm",520
-wood-mopani-l,Lũa,Lũa Mopani · Lớn,"Cỡ lớn của Lũa Mopani · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm",910
-wood-tra-gung-m,Lũa,Lũa Trà Gừng · Vừa,"Cỡ vừa của Lũa Trà Gừng · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm",240
-wood-tra-gung-l,Lũa,Lũa Trà Gừng · Lớn,"Cỡ lớn của Lũa Trà Gừng · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm",420
-wood-bonsai-m,Lũa,Lũa Bonsai · Vừa,"Cỡ vừa của Lũa Bonsai · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm",640
-wood-bonsai-l,Lũa,Lũa Bonsai · Lớn,"Cỡ lớn của Lũa Bonsai · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm",1120
+starter-wood,Lũa,Lũa nhánh cổ thụ,Lũa phân nhánh cao · Gắn cây hoặc rêu tại 3 vị trí,1
+wood-linh-sam-m,Lũa,Lũa Linh Sam · Vừa,"Cỡ vừa của Lũa Linh Sam · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm",1
+wood-linh-sam-l,Lũa,Lũa Linh Sam · Lớn,"Cỡ lớn của Lũa Linh Sam · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm",1
+wood-hai-son-tung-m,Lũa,Lũa Hải Sơn Tùng · Vừa,"Cỡ vừa của Lũa Hải Sơn Tùng · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm",1
+wood-hai-son-tung-l,Lũa,Lũa Hải Sơn Tùng · Lớn,"Cỡ lớn của Lũa Hải Sơn Tùng · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm",1
+wood-do-quyen-m,Lũa,Lũa Đỗ Quyên · Vừa,"Cỡ vừa của Lũa Đỗ Quyên · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm",1
+wood-do-quyen-l,Lũa,Lũa Đỗ Quyên · Lớn,"Cỡ lớn của Lũa Đỗ Quyên · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm",1
+wood-spider-m,Lũa,Lũa Spider · Vừa,"Cỡ vừa của Lũa Spider · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm",1
+wood-spider-l,Lũa,Lũa Spider · Lớn,"Cỡ lớn của Lũa Spider · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm",1
+wood-san-da-m,Lũa,Lũa Săn Đá · Vừa,"Cỡ vừa của Lũa Săn Đá · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm",1
+wood-san-da-l,Lũa,Lũa Săn Đá · Lớn,"Cỡ lớn của Lũa Săn Đá · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm",1
+wood-mopani-m,Lũa,Lũa Mopani · Vừa,"Cỡ vừa của Lũa Mopani · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm",1
+wood-mopani-l,Lũa,Lũa Mopani · Lớn,"Cỡ lớn của Lũa Mopani · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm",1
+wood-tra-gung-m,Lũa,Lũa Trà Gừng · Vừa,"Cỡ vừa của Lũa Trà Gừng · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm",1
+wood-tra-gung-l,Lũa,Lũa Trà Gừng · Lớn,"Cỡ lớn của Lũa Trà Gừng · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm",1
+wood-bonsai-m,Lũa,Lũa Bonsai · Vừa,"Cỡ vừa của Lũa Bonsai · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 2 điểm",1
+wood-bonsai-l,Lũa,Lũa Bonsai · Lớn,"Cỡ lớn của Lũa Bonsai · Gắn cây hoặc rêu lên thân, ngả được bằng nút Nghiêng · 3 điểm",1
 stone-elephant-skin-m,Đá,Đá da voi · Vừa,"Cỡ vừa của Đá da voi · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 2 điểm",360
 stone-elephant-skin-l,Đá,Đá da voi · Lớn,"Cỡ lớn của Đá da voi · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 3 điểm",630
 stone-coral-rock-m,Đá,Đá san hô · Vừa,"Cỡ vừa của Đá san hô · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 2 điểm",300
@@ -79,12 +79,12 @@ stone-co-thach-m,Đá,Đá cổ thạch · Vừa,"Cỡ vừa của Đá cổ th�
 stone-co-thach-l,Đá,Đá cổ thạch · Lớn,"Cỡ lớn của Đá cổ thạch · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 3 điểm",910
 stone-tuyet-son-m,Đá,Đá tuyết sơn · Vừa,"Cỡ vừa của Đá tuyết sơn · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 2 điểm",560
 stone-tuyet-son-l,Đá,Đá tuyết sơn · Lớn,"Cỡ lớn của Đá tuyết sơn · Chồng đá, gác lũa hoặc gắn rêu lên mặt đá · 3 điểm",980
-wood-co-thu,Lũa,Lũa cổ thụ đứng,"Thân to vươn cao gần chạm mặt nước, ngả được bằng nút Nghiêng · 6 vị trí gắn rêu, ráy · 3 điểm",900
+wood-co-thu,Lũa,Lũa cổ thụ đứng,"Thân to vươn cao gần chạm mặt nước, ngả được bằng nút Nghiêng · 6 vị trí gắn rêu, ráy · 3 điểm",1
 stone-iwagumi,Đá,Đá tảng chủ,Tảng đá đứng cao làm điểm nhấn chính kiểu Iwagumi · Gắn rêu ở chân và đỉnh · 3 điểm,700
 stone-slab,Đá,Đá phiến bậc,"Mặt trên phẳng để chồng thêm đá hoặc gác lũa, dựng núi đá nhiều tầng · 2 điểm",300
-vallisneria-tall,Cây,Hẹ nước Vallisneria cao,Cây hậu cảnh lá dài gần chạm mặt nước · Trồng sát kính sau · 1 điểm,180
-rotala-tall,Cây,Hồng liễu Rotala cao,"Bụi thân đứng cao, ngọn đỏ cam · Trồng hậu cảnh · 1 điểm",200
-amazon-sword,Cây,Kiếm Amazon,"Bụi lá to hình lưỡi kiếm, làm điểm nhấn trung cảnh · Tỉa hoặc cho mọc cao · 2 điểm",220
+vallisneria-tall,Cây,Hẹ nước Vallisneria cao,Cây hậu cảnh lá dài gần chạm mặt nước · Trồng sát kính sau · 1 điểm,1
+rotala-tall,Cây,Hồng liễu Rotala cao,"Bụi thân đứng cao, ngọn đỏ cam · Trồng hậu cảnh · 1 điểm",1
+amazon-sword,Cây,Kiếm Amazon,"Bụi lá to hình lưỡi kiếm, làm điểm nhấn trung cảnh · Tỉa hoặc cho mọc cao · 2 điểm",1
 stone-cliff,Đá,Đá vách núi,"Khối đá dài nhiều tầng dựng sát kính sau, che phần hồ phía sau và tạo chiều sâu · 3 điểm",800
-carpet-hairgrass,Rêu,Thảm Ngưu mao chiên,"Gói 10 ô thảm tiền cảnh · Chọn rồi kéo trên cát để trải, Tẩy để xoá · Không tính điểm",60
-carpet-monte-carlo,Rêu,Thảm Trân châu Nhật,"Gói 10 ô thảm tiền cảnh · Chọn rồi kéo trên cát để trải, Tẩy để xoá · Không tính điểm",70
+carpet-hairgrass,Rêu,Thảm Ngưu mao chiên,"Gói 10 ô thảm tiền cảnh · Chọn rồi kéo trên cát để trải, Tẩy để xoá · Không tính điểm",1
+carpet-monte-carlo,Rêu,Thảm Trân châu Nhật,"Gói 10 ô thảm tiền cảnh · Chọn rồi kéo trên cát để trải, Tẩy để xoá · Không tính điểm",1

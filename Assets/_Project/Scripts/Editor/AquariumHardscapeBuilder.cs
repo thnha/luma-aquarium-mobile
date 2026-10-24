@@ -32,8 +32,7 @@ public static class AquariumHardscapeBuilder
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode || SceneManager.GetActiveScene().path != Aquarium3DPreviewBuilder.PreviewPath)
             throw new InvalidOperationException("Open the preview in Edit Mode first.");
-        if (backup) EditorSceneManager.SaveScene(SceneManager.GetActiveScene(),
-            $"Assets/_Project/Scenes/Backups/Aquarium3D-before-hardscape-{DateTime.UtcNow:yyyyMMdd-HHmmss-fff}.unity", true);
+        if (backup) SceneBackups.SaveCopy(SceneManager.GetActiveScene(), "Aquarium3D-before-hardscape-" + SceneBackups.Stamp());
         foreach (string texture in new[] { "RiverStone", "RiverSand", "Driftwood" })
         {
             var importer = (TextureImporter)AssetImporter.GetAtPath(Root + "/Textures/" + texture + "-v3.png");

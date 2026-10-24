@@ -106,17 +106,14 @@ namespace Lumaquarium.UI
                 else hungerLabel.text = Loc.T("Độ no") + $"     {percent}%";
                 if (hudFullnessFill != null) SetFill(hudFullnessFill, fullness);
                 if (hudFullnessLabel != null) hudFullnessLabel.text = percent + "%";
-                behaviourLabel.text = Loc.T(fish.state switch
-                {
-                    BettaFishAI.State.SeekFood => "Đang tìm thức ăn",
-                    BettaFishAI.State.Eat => "Đang ăn",
-                    BettaFishAI.State.Rest => "Đang nghỉ",
-                    BettaFishAI.State.Breathe => "Đang lên mặt nước",
-                    BettaFishAI.State.Idle => "Đang thả mình",
-                    BettaFishAI.State.SwimToTap => "Đang bơi tới chỗ bạn chạm",
-                    BettaFishAI.State.Flee => "Giật mình bỏ chạy",
-                    _ => "Đang bơi thong thả"
-                });
+                // Turns between what it is doing (with its mood) and how close it is to you.
+                var mood = fish.Mood;
+                bool showBond = mood != null && Time.unscaledTime % 8f >= 5f;
+                behaviourLabel.enableAutoSizing = true;
+                behaviourLabel.fontSizeMin = 24;
+                behaviourLabel.fontSizeMax = 36;
+                behaviourLabel.text = showBond ? Loc.F("Thân thiết {0}% · {1}", Mathf.RoundToInt(mood.Bond * 100), Loc.T(BondTitle(mood.Bond)))
+                    : mood != null ? Loc.T(FeelingLabel(mood.Current)) + " · " + Loc.T(BehaviourText(fish)) : Loc.T(BehaviourText(fish));
             }
             if (FeedbackRoot.activeSelf && Time.unscaledTime >= feedbackUntil)
                 FeedbackRoot.SetActive(false);
@@ -126,6 +123,37 @@ namespace Lumaquarium.UI
                 carePortrait.sprite = fishPortrait.sprite;
             if (walletLabel != null && Time.unscaledTime >= walletRefreshAt) RefreshWallet();
         }
+
+        private static string BehaviourText(BettaFishAI fish) => fish.state switch
+        {
+            BettaFishAI.State.SeekFood => "Đang tìm thức ăn",
+            BettaFishAI.State.Eat => "Đang ăn",
+            BettaFishAI.State.Rest => fish.IsSleeping ? "Đang ngủ" : "Đang nghỉ",
+            BettaFishAI.State.Breathe => "Đang lên mặt nước",
+            BettaFishAI.State.Idle => "Đang thả mình",
+            BettaFishAI.State.SwimToTap => "Đang bơi tới chỗ bạn chạm",
+            BettaFishAI.State.Flee => "Giật mình bỏ chạy",
+            BettaFishAI.State.Display => "Đang xòe vây",
+            BettaFishAI.State.Forage => "Đang kiếm ăn",
+            BettaFishAI.State.Patrol => "Đang tuần tra",
+            BettaFishAI.State.Greet => "Đang chào bạn",
+            BettaFishAI.State.Inspect => "Đang xem đồ mới",
+            BettaFishAI.State.Nest => "Đang làm tổ bọt",
+            BettaFishAI.State.Hide => "Đang trốn",
+            _ => "Đang bơi thong thả"
+        };
+
+        private static string FeelingLabel(BettaMood.Feeling feeling) => feeling switch
+        {
+            BettaMood.Feeling.Happy => "Vui",
+            BettaMood.Feeling.Bored => "Chán",
+            BettaMood.Feeling.Scared => "Sợ",
+            BettaMood.Feeling.Hungry => "Đói",
+            BettaMood.Feeling.Sleepy => "Buồn ngủ",
+            _ => "Bình thường"
+        };
+
+        private static string BondTitle(float bond) => bond < 0.2f ? "Còn lạ" : bond < 0.45f ? "Quen dần" : bond < 0.7f ? "Thân" : "Rất thân";
 
         // Sliced fills keep their rounded ends by resizing; older scenes still use Filled images.
         private static void SetFill(UnityEngine.UI.Image fill, float amount)

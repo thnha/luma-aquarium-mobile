@@ -35,10 +35,9 @@ public static class ShopScreenBuilder
         if (fishShop == null || fishShop.offers == null || fishShop.offers.Length == 0)
             throw new InvalidOperationException("Run Lumaquarium/UI/Build Fish Shop Screen first (it bakes the fish portraits).");
         Ui3D.LoadFonts();
-        Directory.CreateDirectory("Assets/_Project/Scenes/Backups");
-        string stamp = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff");
-        File.Copy(scene.path, "Assets/_Project/Scenes/Backups/MainAquarium-before-shop-" + stamp + "-saved.unity");
-        EditorSceneManager.SaveScene(scene, "Assets/_Project/Scenes/Backups/MainAquarium-before-shop-" + stamp + "-working.unity", true);
+        string stamp = SceneBackups.Stamp();
+        SceneBackups.CopyFile(scene.path, "MainAquarium-before-shop-" + stamp + "-saved");
+        SceneBackups.SaveCopy(scene, "MainAquarium-before-shop-" + stamp + "-working");
 
         var built = Create(fishShop.offers, decoration);
         PrefabUtility.SaveAsPrefabAsset(built.gameObject, PrefabPath); // keeps the GUID, so a scene instance follows

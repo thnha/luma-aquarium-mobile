@@ -40,7 +40,7 @@ public static class FishLookSheet
             .Concat(Params("look", "pattern", "seed")).ToArray()),
         ("Cá – màu", Params("look", "primary", "secondary", "accent", "finEdge", "scaleEdgeDark", "scaleEdgeLight")),
         ("Cá – bề mặt", Params("look", "iridescence", "textureDetail", "silverSheen", "gloss", "blackGloss", "whiteScales",
-            "pigmentDepth", "scaleRelief", "scaleEdge", "scaleEdgeWidth", "vibrance", "brightness", "baseTexture")),
+            "pigmentDepth", "scaleRelief", "scaleEdge", "scaleEdgeWidth", "vibrance", "brightness", "envReflection", "baseTexture")),
         ("Cá – vây", Params("look", "finEdgeClear", "finRelief", "finTranslucency", "finBlack", "finBrightness",
             "finRimAlpha", "finRim", "caudalRim", "caudalStart")),
     };

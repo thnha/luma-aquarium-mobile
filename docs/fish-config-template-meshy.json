@@ -1,0 +1,24 @@
+{
+  "base": "MeshyColour",
+  "build": {
+    "input": "input/NewFish/meshy_zip/<Meshy folder>/<Meshy file>.fbx",
+    "flip": false,
+    "faces": 30000,
+    "depth": 1,
+    "width": 1,
+    "fins": {},
+    "finThickness": 0.2,
+    "landmarks": "",
+    "bake": true,
+    "body": "meshy",
+    "baseTexture": true,
+    "whitenPaleBlue": 0
+  },
+  "shop": {
+    "displayName": "New Fish",
+    "inShop": false,
+    "shopId": "new-fish",
+    "description": "",
+    "price": 0
+  }
+}

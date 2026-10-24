@@ -5,6 +5,8 @@ using UnityEngine.UI;
 // Keeps the foreground, water background and reflections on one lighting clock.
 // On top of the day/night clock the tank can be lit from above by daylight or by a lamp, and from
 // behind by a backlight; both lamps come in white, blue or red and blend in as smoothly as the clock.
+// Day and night follow the phone's clock (night from nightFromHour to nightToHour); the Ngày/Đêm
+// button overrides it until the clock next turns day or night.
 public sealed class AquariumLighting : MonoBehaviour
 {
     public enum TopSource { Daylight, Lamp }
@@ -20,6 +22,9 @@ public sealed class AquariumLighting : MonoBehaviour
     public float lampIntensity = 2f, backlightStrength = .75f;
     public string storageKey = "Lumaquarium.Lighting.v1";
     public bool persist = true;
+    public bool followClock = true;
+    [Range(0, 23)] public int nightFromHour = 21;
+    [Range(0, 23)] public int nightToHour = 6;
     public bool IsNight { get; private set; }
     public float NightBlend { get; private set; }
     public TopSource Top { get; private set; }
@@ -40,6 +45,8 @@ public sealed class AquariumLighting : MonoBehaviour
     private Light backFill;
     private MeshRenderer backPanel;
     private Material panelMaterial;
+    private bool clockNight;
+    private float nextClockCheck;
 
     public static Color ColorOf(LampColor color) => color switch
     {
@@ -61,10 +68,31 @@ public sealed class AquariumLighting : MonoBehaviour
         if (sun != null) { oldLightColor = sun.color; oldIntensity = sun.intensity; oldShadow = sun.shadowStrength; oldRotation = sun.transform.rotation; }
         BuildBacklight(decoration);
         Load();
-        ApplyImmediate(false);
+        clockNight = ClockSaysNight();
+        ApplyImmediate(followClock && clockNight);
     }
 
     public void Toggle() { IsNight = !IsNight; UpdateLabel(); }
+
+    // Night from nightFromHour until nightToHour, wrapping past midnight (21 to 6 by default).
+    public bool ClockSaysNight()
+    {
+        int hour = System.DateTime.Now.Hour;
+        return nightFromHour > nightToHour ? hour >= nightFromHour || hour < nightToHour
+            : hour >= nightFromHour && hour < nightToHour;
+    }
+
+    // When the clock turns day or night, the tank follows it again, whatever the button was set to.
+    private void FollowClock()
+    {
+        if (!followClock || Time.unscaledTime < nextClockCheck) return;
+        nextClockCheck = Time.unscaledTime + 5f;
+        bool night = ClockSaysNight();
+        if (night == clockNight) return;
+        clockNight = night;
+        IsNight = night;
+        UpdateLabel();
+    }
     public void ApplyImmediate(bool night)
     {
         IsNight = night;
@@ -86,6 +114,7 @@ public sealed class AquariumLighting : MonoBehaviour
     private void UpdateLabel() { if (label != null) label.text = Lumaquarium.Loc.T(IsNight ? "Ban đêm" : "Ban ngày"); }
     private void Update()
     {
+        FollowClock();
         float step = Time.unscaledDeltaTime / 1.5f;
         NightBlend = Mathf.MoveTowards(NightBlend, IsNight ? 1 : 0, step);
         LampBlend = Mathf.MoveTowards(LampBlend, Top == TopSource.Lamp ? 1 : 0, step);

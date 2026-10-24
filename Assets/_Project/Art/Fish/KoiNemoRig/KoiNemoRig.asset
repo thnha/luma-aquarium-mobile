@@ -20,8 +20,8 @@ MonoBehaviour:
   price: 0
   size: 1.5
   pattern: {fileID: 11400000, guid: 47ac8245d7a894d6abe1a3763c256013, type: 2}
-  primary: {r: 1, g: 0.0314, b: 0.0314, a: 1}
-  secondary: {r: 1, g: 0.8431, b: 0, a: 1}
+  primary: {r: 0.1216, g: 0.3098, b: 0.8196, a: 1}
+  secondary: {r: 1, g: 1, b: 1, a: 1}
   accent: {r: 0.09, g: 0.09, b: 0.09, a: 1}
   finEdge: {r: 1, g: 0.82, b: 0.2, a: 1}
   iridescence: 0.4

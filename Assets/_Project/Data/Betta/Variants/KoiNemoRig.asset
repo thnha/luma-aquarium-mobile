@@ -15,8 +15,8 @@ MonoBehaviour:
   displayName: Koi Nemo Betta
   modelPrefab: {fileID: 6706469586767245113, guid: a0314bf2013eb4dc395845dd52016a27, type: 3}
   pattern: {fileID: 11400000, guid: 47ac8245d7a894d6abe1a3763c256013, type: 2}
-  primary: {r: 1, g: 0.0314, b: 0.0314, a: 1}
-  secondary: {r: 1, g: 0.8431, b: 0, a: 1}
+  primary: {r: 0.1216, g: 0.3098, b: 0.8196, a: 1}
+  secondary: {r: 1, g: 1, b: 1, a: 1}
   accent: {r: 0.09, g: 0.09, b: 0.09, a: 1}
   finEdge: {r: 1, g: 0.82, b: 0.2, a: 1}
   iridescence: 0.4
@@ -38,6 +38,7 @@ MonoBehaviour:
   finBrightness: 1
   vibrance: 1
   brightness: 1
+  envReflection: 1
   baseTexture: 0
   finRimAlpha: 0.6
   finRim: {x: 0.55, y: 1}

@@ -121,6 +121,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
+    - _EnvReflection: 1
     - _EnvironmentReflections: 1
     - _FinBlack: 0
     - _FinBrightness: 1

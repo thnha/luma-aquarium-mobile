@@ -194,6 +194,7 @@ Thêm một món vào kho?	Add one to storage?
 Đỏ, cam, xanh · Plakat đuôi ngắn	Red, orange, blue · short-tailed Plakat
 Xanh dương, trắng, đen · Koi Nemo đuôi tròn	Blue, white, black · round-tailed Koi Nemo
 Koi Galaxy: thân trắng ngọc mảng đỏ tươi, lưng vảy đen, mang trắng viền đỏ, vây vàng nghệ	Koi Galaxy: pearl-white body with bright red patches, black-scaled back, white gills edged in red, saffron fins
+Xanh da trời, đỏ, cam · màu gốc theo mô hình	Sky blue, red, orange · original model colours
 Đá sỏi	Pebble stone
 Vách đá sỏi tự nhiên của hồ	The tank's natural pebble-stone wall
 Đá xám	Grey slate
@@ -377,3 +378,25 @@ Lũa Đỗ Quyên · Vừa	Azalea root · Medium
 Đá san hô · Vừa	Coral stone · Medium
 Đá tuyết sơn · Lớn	Snow mountain stone · Large
 Đá tuyết sơn · Vừa	Snow mountain stone · Medium
+Xanh dương, đỏ, cam · màu gốc theo mô hình	Blue, red, orange · original model colours
+Koi xanh, đỏ, vàng, tím · màu gốc theo mô hình	Koi blue, red, yellow, purple · original model colours
+Koi xanh hoàng gia, đỏ, vàng · màu gốc theo mô hình	Koi royal blue, red, yellow · original model colours
+Đang ngủ	Sleeping
+Đang xòe vây	Flaring
+Đang kiếm ăn	Foraging
+Đang tuần tra	Patrolling
+Đang chào bạn	Saying hello
+Đang xem đồ mới	Checking out something new
+Đang làm tổ bọt	Building a bubble nest
+Đang trốn	Hiding
+Vui	Happy
+Chán	Bored
+Sợ	Scared
+Đói	Hungry
+Buồn ngủ	Sleepy
+Bình thường	Calm
+Thân thiết {0}% · {1}	Bond {0}% · {1}
+Còn lạ	Shy of you
+Quen dần	Getting used to you
+Thân	Friends
+Rất thân	Best friends

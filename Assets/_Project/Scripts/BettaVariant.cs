@@ -57,6 +57,8 @@ public class BettaVariant : ScriptableObject
     [Range(0.5f, 2f)] public float vibrance = 1f;
     [Tooltip("Brightness of the whole lit fish. 1 = as lit.")]
     [Range(0.5f, 2f)] public float brightness = 1f;
+    [Tooltip("Reflection of the surroundings. It greys dark colours and washes out reds; 1 = full, 0 = none.")]
+    [Range(0f, 1f)] public float envReflection = 1f;
     [Tooltip("Keep the model's own colour texture instead of the pattern (fish built with build.baseTexture). 0 = pattern.")]
     [Range(0f, 1f)] public float baseTexture;
 

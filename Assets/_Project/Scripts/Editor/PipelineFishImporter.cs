@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -28,9 +29,22 @@ public static class PipelineFishImporter
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             throw new InvalidOperationException("Exit Play Mode before importing pipeline fish.");
+        // The Blender build copies files in behind Unity's back: pick them up first.
+        AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
         PipelineFishConfig.CreateMissingAssets(FishDir);
-        foreach (var fish in All()) Build(fish);
+        // One broken fish must not hold back the others or the shop.
+        var failed = new List<string>();
+        foreach (var fish in All())
+        {
+            try { Build(fish); }
+            catch (Exception e)
+            {
+                failed.Add(fish.name);
+                Debug.LogError("[Lumaquarium] Pipeline fish " + fish.name + " not built: " + e.Message);
+            }
+        }
         AssetDatabase.SaveAssets();
+        if (failed.Count > 0) Debug.LogError("[Lumaquarium] Not built (see above): " + string.Join(", ", failed));
         FishShopScreenBuilder.Build(false);
         ShopScreenBuilder.Build(); // re-reads the fish offers and removes the fish shop canvas again
     }

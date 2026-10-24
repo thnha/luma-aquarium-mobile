@@ -45508,6 +45508,9 @@ MonoBehaviour:
   displayHeadDown: 12
   displayWagAngle: 1.5
   displayWagFrequency: 3.5
+  displayTailBeatChance: 0.7
+  displayTailBeatMinTime: 1.2
+  displayTailBeatMaxTime: 2.4
   displayTurnQuickness: 0.3
   displayTurnGlide: 0.25
   hungryFrom: 0.5
@@ -45523,6 +45526,71 @@ MonoBehaviour:
   forageMinTime: 3
   forageMaxTime: 6
   peckSpeed: 0.15
+  stretchChance: 0.3
+  wakeStretchChance: 0.7
+  wakeStretchDelay: 1
+  stretchDuration: 1.4
+  stretchSpread: 0.8
+  stretchShiverAngle: 2
+  stretchShiverFrequency: 7
+  patrolChance: 0.2
+  patrolCooldown: 45
+  patrolStops: 4
+  patrolSpeedFactor: 0.8
+  patrolPauseMin: 0.6
+  patrolPauseMax: 1.5
+  greetDelayMin: 1.5
+  greetDelayMax: 3
+  greetAwaySeconds: 30
+  greetGiveUpTime: 20
+  greetSpeedMultiplier: 1.8
+  greetDuration: 5
+  greetBobHeight: 0.025
+  greetBobFrequency: 1.1
+  greetWagAngle: 5
+  greetWagFrequency: 2.6
+  greetHeadUp: 10
+  inspectNoticeMin: 0.8
+  inspectNoticeMax: 2
+  inspectViews: 3
+  inspectSpeedFactor: 0.8
+  inspectStandOff: 0.08
+  inspectLookMin: 1.2
+  inspectLookMax: 2.5
+  inspectPeckChance: 0.6
+  nestChance: 0.15
+  nestCooldown: 60
+  nestBlowsMin: 4
+  nestBlowsMax: 8
+  nestBubblesPerBlow: 3
+  nestShiftChance: 0.4
+  sleepDelayMin: 2
+  sleepDelayMax: 5
+  sleepResumeMin: 6
+  sleepResumeMax: 12
+  wakeDelayMin: 1
+  wakeDelayMax: 3
+  sleepOnDecorChance: 0.4
+  sleepUnderPlantChance: 0.25
+  sleepBreatheFactor: 0.35
+  nightSpeedFactor: 0.75
+  paleFadeIn: 4
+  paleFadeOut: 1.5
+  hideAfterStartles: 3
+  hideWindow: 20
+  hideSpeedMultiplier: 2.4
+  hideMinTime: 12
+  hideMaxTime: 20
+  hidePaleness: 0.35
+  reflectionChance: 0.15
+  reflectionDistance: 0.25
+  reflectionCooldown: 90
+  reflectionDisplayDuration: 6
+  spitChance: 0.25
+  spitDistance: 0.05
+  spitPause: 0.6
+  lightStartleDistance: 0.25
+  lightFlinchSpeed: 0.2
 --- !u!4 &1294991845
 Transform:
   m_ObjectHideFlags: 0
@@ -45569,6 +45637,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BettaAppearance
   variant: {fileID: 11400000, guid: 6c339132a70a748ab9e999cc22658f90, type: 2}
+  sleepDesaturate: 0.45
+  sleepDim: 0.15
 --- !u!1 &1296431585
 GameObject:
   m_ObjectHideFlags: 0

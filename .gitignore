@@ -77,8 +77,7 @@ crashlytics-build.properties
 __pycache__/
 
 # Scene copies the editor builders write before changing a scene
-/Assets/_Project/Scenes/Backups/
-/Assets/_Project/Scenes/Backups.meta
+/Backups/
 
 # Cloud Code module (CloudCode/): its project and solution files are source, its build output is not
 !/CloudCode/**/*.csproj

@@ -33,11 +33,7 @@ public static class AquariumNaturalVisualsBuilder
         if (placement == null || SceneManager.GetActiveScene().path != Aquarium3DPreviewBuilder.PreviewPath)
             throw new InvalidOperationException("Open the 3D preview before upgrading it.");
         if (backup)
-        {
-            Directory.CreateDirectory("Assets/_Project/Scenes/Backups");
-            EditorSceneManager.SaveScene(SceneManager.GetActiveScene(),
-                $"Assets/_Project/Scenes/Backups/Aquarium3D-before-natural-{DateTime.UtcNow:yyyyMMdd-HHmmss-fff}.unity", true);
-        }
+            SceneBackups.SaveCopy(SceneManager.GetActiveScene(), "Aquarium3D-before-natural-" + SceneBackups.Stamp());
         PrepareLeafTexture();
         var prefab = BuildPlant();
         Undo.RecordObject(placement, "Upgrade plant inventory");

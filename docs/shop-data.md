@@ -4,7 +4,7 @@ Tên, mô tả và giá của mọi thứ trong shop (cá, đồ trang trí, th�
 
 ## Bảng giá
 
-Workbook `Art/Aquarium3D/DecorShop/decor_catalog.xlsx` có các tab sau:
+Workbook `Sheets/decor_catalog.xlsx` (nằm ngoài `Assets/`: file .xlsx trong thư mục remote content làm build Addressables lỗi) có các tab sau:
 
 | Tab | Nội dung | Lưu vào |
 |---|---|---|

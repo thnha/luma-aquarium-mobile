@@ -1,0 +1,336 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3820751746546245650
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3483256761230384183}
+  - component: {fileID: 4563782314925764381}
+  - component: {fileID: 7575040471671731932}
+  - component: {fileID: 2920915621269851011}
+  - component: {fileID: 4484981773550931876}
+  - component: {fileID: 9014027300260245473}
+  m_Layer: 0
+  m_Name: RoyalKoiBetta
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3483256761230384183
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3820751746546245650}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2145706619783137571}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4563782314925764381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3820751746546245650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce1adae7064f1426c96a5e64d570ca3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaSwimMotion
+  fish: {fileID: 0}
+  skeletonRoot: {fileID: 2145706619783137571}
+  bodyIdleFrequency: 0.4
+  bodySwimFrequency: 1
+  bodyIdleAmplitude: 0.5
+  bodySwimAmplitude: 3
+  wavePhaseStep: 0.6
+  caudalIdleFrequency: 0.6
+  caudalSwimFrequency: 1.4
+  strokeIdleAmplitude: 2
+  strokeSwimAmplitude: 8
+  thrustPulse: 0.3
+  headRecoil: 0.6
+  trailFollowSpeed: 0.35
+  maxSegmentBend: 26
+  pitchBendScale: 0.5
+  maxSegmentPitchBend: 10
+  turnTailKick: 0.08
+  maxTailKick: 12
+  displayCurlAngle: 8
+  displayFlickAngle: 10
+  displayFlickFrequency: 1.2
+  tailBeatFrequency: 2.2
+  tailBeatLashAngle: 24
+  tailBeatBias: 0.35
+  tailBeatRecoil: 3
+  pectoralHoverFrequency: 2
+  pectoralCruiseFrequency: 1.1
+  pectoralHoverAmplitude: 16
+  pectoralCruiseAmplitude: 6
+  pectoralHoverLag: 0.1
+  pectoralTurnBoost: 0.3
+  gillRestFrequency: 0.7
+  gillActiveFrequency: 1.6
+  gillOpenAngle: 12
+  gillFlareAngle: 20
+--- !u!114 &7575040471671731932
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3820751746546245650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea7f5184e47724b42a7a5e53788f9429, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaFinPhysics
+  skeletonRoot: {fileID: 2145706619783137571}
+  fish: {fileID: 0}
+  caudal:
+    rootStiffness: 0.1
+    tipStiffness: 0.035
+    damping: 0.18
+    maxAngle: 22
+    ripple: 0.005
+    speedStiffening: 1.3
+    sag: 0.15
+  dorsalAnal:
+    rootStiffness: 0.14
+    tipStiffness: 0.06
+    damping: 0.24
+    maxAngle: 22
+    ripple: 0.002
+    speedStiffening: 2.5
+    sag: 0.08
+  pelvic:
+    rootStiffness: 0.16
+    tipStiffness: 0.06
+    damping: 0.18
+    maxAngle: 35
+    ripple: 0.002
+    speedStiffening: 2
+    sag: 0.2
+  pectoral:
+    rootStiffness: 0.2
+    tipStiffness: 0.1
+    damping: 0.16
+    maxAngle: 35
+    ripple: 0.002
+    speedStiffening: 1.5
+    sag: 0
+  flowDrag: 0.5
+  dorsalRaise: 12
+  caudalSpread: 0
+  caudalDroop: 0
+  flareSpread: 28
+  flareRaise: 14
+  hungerFold: 20
+  skippedChains:
+  - Tail_Crown_01_01
+  - Tail_Crown_02_01
+  - Tail_Crown_03_01
+  - Tail_Crown_04_01
+  - Tail_Crown_05_01
+  - Tail_Crown_06_01
+  - Tail_Crown_07_01
+  - Tail_Crown_08_01
+  - Tail_Crown_09_01
+  - Tail_Crown_10_01
+  - Tail_Crown_11_01
+  - Tail_Crown_12_01
+  - Dorsal_Crown_01_01
+  - Dorsal_Crown_02_01
+  - Dorsal_Crown_03_01
+  - Dorsal_Crown_04_01
+  - Dorsal_Crown_05_01
+  - Dorsal_Crown_06_01
+  - Dorsal_Crown_07_01
+  - Dorsal_Crown_08_01
+  - Dorsal_Crown_09_01
+  - Anal_Crown_01_01
+  - Anal_Crown_02_01
+  - Anal_Crown_03_01
+  - Anal_Crown_04_01
+  - Anal_Crown_05_01
+  - Anal_Crown_06_01
+  - Anal_Crown_07_01
+  - Anal_Crown_08_01
+  - Anal_Crown_09_01
+  - Anal_Crown_10_01
+  - Anal_Crown_11_01
+--- !u!114 &2920915621269851011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3820751746546245650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f72c8581d89b2450d87ae105b90ebcae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaReactions
+  fish: {fileID: 0}
+  animator: {fileID: 7908433325574268705}
+  viewCamera: {fileID: 0}
+  flareCooldown: 2
+  maxTapSeconds: 0.3
+  maxTapMovePixels: 20
+--- !u!114 &4484981773550931876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3820751746546245650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d8e685ddcb334db4afc9b484018aeb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaMouth
+  skeletonRoot: {fileID: 2145706619783137571}
+  bubbleMaterial: {fileID: 2100000, guid: f192f1ee71f1845f39788389f419341d, type: 2}
+  yawnMinInterval: 20
+  yawnMaxInterval: 50
+  bubbleSize: {x: 0.012, y: 0.022}
+  bubbleRiseSpeed: 0.22
+  surfaceFloatTime: {x: 4, y: 9}
+--- !u!114 &9014027300260245473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3820751746546245650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 972504744c4264e3c94ffdd6b48e95ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaRiggedModel
+  animator: {fileID: 7908433325574268705}
+  reactions: {fileID: 2920915621269851011}
+--- !u!1001 &1895361990136540872
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3483256761230384183}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.9848078
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.1736482
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      propertyPath: m_Name
+      value: RoyalKoiBetta
+      objectReference: {fileID: 0}
+    - target: {fileID: 2471858576730599816, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      propertyPath: m_Quality
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2471858576730599816, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: b32ea10fa9dd24dcfb1061d0a2973a54, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7908433325574268705}
+  m_SourcePrefab: {fileID: 100100000, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+--- !u!1 &1624889490672751513 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+  m_PrefabInstance: {fileID: 1895361990136540872}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &7908433325574268705
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1624889490672751513}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 22100000, guid: 825ca539c88834c42b213caafb5e0fa5, type: 2}
+  m_CullingMode: 1
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!4 &2145706619783137571 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 5c4da990323164a77bdd4b9117a15f40, type: 3}
+  m_PrefabInstance: {fileID: 1895361990136540872}
+  m_PrefabAsset: {fileID: 0}

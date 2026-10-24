@@ -1,7 +1,7 @@
 using UnityEngine;
 
 // Mouth life of a pipeline fish (on its model prefab, next to BettaReactions):
-// - yawns now and then while idling or resting (Yawn clip),
+// - yawns now and then while idling or resting, and on waking from a rest (Yawn clip),
 // - lets bubbles out of the mouth when BettaFishAI gulps air or blows bubbles at the surface, on the
 //   frames where the Gulp / Bubble clips press the lips shut (betta-splendens/pipeline/mouth_clips.py).
 // Bubbles rise to the surface and float there for a while, like the start of a bubble nest.
@@ -14,7 +14,6 @@ public sealed class BettaMouth : MonoBehaviour
     public Vector2 bubbleSize = new Vector2(0.012f, 0.022f);
     public float bubbleRiseSpeed = 0.22f;         // m/s
     public Vector2 surfaceFloatTime = new Vector2(4f, 9f);
-    public float popVolume = 0.6f;                // fish bubbles are smaller than the pump's
 
     static readonly int YawnId = Animator.StringToHash("Yawn");
     static readonly float[] GulpBubbleTimes = { 9f / 24f };
@@ -48,6 +47,7 @@ public sealed class BettaMouth : MonoBehaviour
         if (!fish) return;
         fish.Gulped += OnGulp;
         fish.BlowingBubbles += OnBlow;
+        fish.WokeUp += OnWake;
     }
 
     void OnDisable()
@@ -55,6 +55,7 @@ public sealed class BettaMouth : MonoBehaviour
         if (!fish) return;
         fish.Gulped -= OnGulp;
         fish.BlowingBubbles -= OnBlow;
+        fish.WokeUp -= OnWake;
     }
 
     void OnDestroy()
@@ -69,6 +70,14 @@ public sealed class BettaMouth : MonoBehaviour
     }
 
     void OnBlow() => Schedule(BlowBubbleTimes);
+
+    // Getting up from a rest it always yawns first.
+    void OnWake()
+    {
+        if (!animator) return;
+        animator.SetTrigger(YawnId);
+        yawnTimer = Random.Range(yawnMinInterval, yawnMaxInterval);
+    }
 
     void Schedule(float[] times)
     {
@@ -100,7 +109,7 @@ public sealed class BettaMouth : MonoBehaviour
         }
     }
 
-    // Bubbles that reach the surface stop there, drift a little and pop (audibly) when their time is up.
+    // Bubbles that reach the surface stop there, drift a little and pop when their time is up.
     void LateUpdate()
     {
         if (!bubbles || !fish || bubbles.particleCount == 0) return;
@@ -109,9 +118,8 @@ public sealed class BettaMouth : MonoBehaviour
         for (int i = 0; i < n; i++)
         {
             if (particles[i].position.y < surface) continue;
-            if (particles[i].remainingLifetime <= 0.1f)   // pop it now, so no frame step skips the sound
+            if (particles[i].remainingLifetime <= 0.1f)
             {
-                if (AquariumAudio.Current != null) AquariumAudio.Current.PlayBloop(particles[i].position, popVolume);
                 particles[i].remainingLifetime = 0f;
                 continue;
             }

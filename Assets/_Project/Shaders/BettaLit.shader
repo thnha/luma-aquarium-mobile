@@ -130,6 +130,8 @@ Shader "Lumaquarium/Betta Lit"
         // Lit colour of the whole fish: saturation and brightness (1 = as lit). Underwater light makes it read dull.
         _Vibrance("Vibrance", Range(0.5, 2.0)) = 1.0
         _Brightness("Brightness", Range(0.5, 2.0)) = 1.0
+        // Reflection of the surroundings (sky probe): 1 = full, 0 = none. It greys dark colours and washes out reds.
+        _EnvReflection("Environment Reflection", Range(0.0, 1.0)) = 1.0
         // Keep the base map's own colours instead of the pattern (pipeline fish with build.baseTexture)
         _BaseTexture("Base Texture", Range(0.0, 1.0)) = 0.0
         // Editmode props
@@ -299,11 +301,41 @@ Shader "Lumaquarium/Betta Lit"
                 gBettaPositionOS = TransformWorldToObject(input.positionWS);
                 gBettaHasPos = 1.0h;
                 half edgeAlpha = BettaFinEdgeClip(input.uv);
-                LitPassFragment(input, outColor
-            #ifdef _WRITE_RENDERING_LAYERS
-                    , outRenderingLayers
+                // LitPassFragment (URP LitForwardPass.hlsl), inlined so the surface is at hand for the
+                // environment reflection below.
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+                SurfaceData surfaceData;
+                InitializeStandardLitSurfaceData(input.uv, surfaceData);
+            #ifdef LOD_FADE_CROSSFADE
+                LODFadeCrossFade(input.positionCS);
             #endif
-                );
+                InputData inputData;
+                InitializeInputData(input, surfaceData.normalTS, inputData);
+                SETUP_DEBUG_TEXTURE_DATA(inputData, UNDO_TRANSFORM_TEX(input.uv, _BaseMap));
+            #if defined(_DBUFFER)
+                ApplyDecalToSurfaceData(input.positionCS, surfaceData, inputData);
+            #endif
+                InitializeBakedGIData(input, inputData);
+                half4 color = UniversalFragmentPBR(inputData, surfaceData);
+                if (_EnvReflection < 0.999h)
+                {
+                    // Take back part of the sky reflection UniversalFragmentPBR added (same terms as its
+                    // GlobalIllumination): on a Meshy colour fish it lays a grey film over blacks and reds.
+                    BRDFData brdfData;
+                    InitializeBRDFData(surfaceData, brdfData);
+                    half3 reflectVector = reflect(-inputData.viewDirectionWS, inputData.normalWS);
+                    half fresnelTerm = Pow4(1.0h - saturate(dot(inputData.normalWS, inputData.viewDirectionWS)));
+                    half3 env = GlossyEnvironmentReflection(reflectVector, inputData.positionWS, brdfData.perceptualRoughness,
+                        surfaceData.occlusion, inputData.normalizedScreenSpaceUV) * EnvironmentBRDFSpecular(brdfData, fresnelTerm);
+                    color.rgb = max(color.rgb - env * (1.0h - _EnvReflection), 0.0h);
+                }
+                color.rgb = MixFog(color.rgb, inputData.fogCoord);
+                color.a = OutputAlpha(color.a, IsSurfaceTypeTransparent(_Surface));
+                outColor = color;
+            #ifdef _WRITE_RENDERING_LAYERS
+                outRenderingLayers = EncodeMeshRenderingLayer();
+            #endif
                 outColor.rgb += BettaFinTransmission(input.positionWS, normalize(input.normalWS));
                 half luma = dot(outColor.rgb, half3(0.2126h, 0.7152h, 0.0722h));
                 outColor.rgb = max(lerp(luma.xxx, outColor.rgb, _Vibrance), 0.0h) * _Brightness;

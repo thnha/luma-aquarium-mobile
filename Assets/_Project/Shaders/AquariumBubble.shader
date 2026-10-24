@@ -1,7 +1,8 @@
 Shader "Lumaquarium/Aquarium Bubble"
 {
     Properties { _NightEnvironmentTex("Night environment", 2D) = "gray" {}
-        _EnvironmentTex("Aquarium environment", 2D) = "gray" {} }
+        _EnvironmentTex("Aquarium environment", 2D) = "gray" {}
+        _Foam("Foam (bubble nest)", Range(0, 1)) = 0 }
     SubShader
     {
         Tags { "RenderPipeline"="UniversalPipeline" "Queue"="Transparent+10" "RenderType"="Transparent" }
@@ -17,6 +18,9 @@ Shader "Lumaquarium/Aquarium Bubble"
             TEXTURE2D(_EnvironmentTex); SAMPLER(sampler_EnvironmentTex);
             TEXTURE2D(_NightEnvironmentTex); SAMPLER(sampler_NightEnvironmentTex);
             float _AquariumNight;
+            CBUFFER_START(UnityPerMaterial)
+            float _Foam;
+            CBUFFER_END
             struct Attributes { float4 positionOS:POSITION; float2 uv:TEXCOORD0; float4 color:COLOR; };
             struct Varyings { float4 positionCS:SV_POSITION; float2 uv:TEXCOORD0; float4 color:COLOR; float4 screen:TEXCOORD1; };
             Varyings Vert(Attributes i)
@@ -45,6 +49,9 @@ Shader "Lumaquarium/Aquarium Bubble"
                 color+=lerp(half3(1,.99,.88),half3(.38,.65,1),_AquariumNight)*(highlight*.9+crescent*.6);
                 color*=1-saturate(-p.y)*rim*.48;
                 float alpha=(.035+fresnel*.38+rim*.18+highlight*.62+crescent*.25)*edge*i.color.a;
+                // A nest bubble is coated in saliva and packed with others: milky rather than clear.
+                color=lerp(color,lerp(half3(.86,.92,.93),half3(.36,.5,.68),_AquariumNight)+(highlight*.5+crescent*.3),_Foam*.7);
+                alpha=lerp(alpha,max(alpha,(.42+fresnel*.4)*edge*i.color.a),_Foam);
                 return half4(color,saturate(alpha));
             }
             ENDHLSL

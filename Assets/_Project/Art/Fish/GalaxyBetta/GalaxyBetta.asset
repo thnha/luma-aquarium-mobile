@@ -21,10 +21,10 @@ MonoBehaviour:
   size: 1.5
   pattern: {fileID: 11400000, guid: 2f17b3cb6629e4981bf03dd0ac306bfb, type: 2}
   primary: {r: 1, g: 1, b: 1, a: 1}
-  secondary: {r: 0.22, g: 0.225, b: 0.24, a: 1}
-  accent: {r: 1, g: 0.03, b: 0.03, a: 1}
-  finEdge: {r: 1, g: 0.66, b: 0.04, a: 1}
-  iridescence: 0.4
+  secondary: {r: 0.2196, g: 0.2235, b: 0.2392, a: 1}
+  accent: {r: 1, g: 0.0314, b: 0.0314, a: 1}
+  finEdge: {r: 1, g: 0.6588, b: 0.0392, a: 1}
+  iridescence: 0.1
   seed: 3
   bodySwimAmplitude: 3
   strokeSwimAmplitude: 8

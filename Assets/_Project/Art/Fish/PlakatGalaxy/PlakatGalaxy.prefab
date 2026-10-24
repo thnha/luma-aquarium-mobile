@@ -71,6 +71,10 @@ MonoBehaviour:
   displayCurlAngle: 8
   displayFlickAngle: 10
   displayFlickFrequency: 1.2
+  tailBeatFrequency: 2.2
+  tailBeatLashAngle: 24
+  tailBeatBias: 0.35
+  tailBeatRecoil: 3
   pectoralHoverFrequency: 2
   pectoralCruiseFrequency: 1.1
   pectoralHoverAmplitude: 16
@@ -204,7 +208,6 @@ MonoBehaviour:
   bubbleSize: {x: 0.012, y: 0.022}
   bubbleRiseSpeed: 0.22
   surfaceFloatTime: {x: 4, y: 9}
-  popVolume: 0.6
 --- !u!114 &7708764418832649915
 MonoBehaviour:
   m_ObjectHideFlags: 0
