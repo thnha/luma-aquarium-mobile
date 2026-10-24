@@ -75,6 +75,9 @@ public sealed class AquariumDecoration : MonoBehaviour
     private Lumaquarium.UI.DecorInventoryPanel inventory;
     private readonly List<RaycastResult> uiHits = new List<RaycastResult>();
     private readonly List<AquariumDecorItem> items = new List<AquariumDecorItem>();
+    // Faint copies of the selection ring around every other piece while arranging, so they are easy to find and tap.
+    private readonly List<LineRenderer> markers = new List<LineRenderer>();
+    private static readonly Color MarkerColor = new Color(1, 1, 1, .55f);
     // World-space vertices of each placed stone or piece of wood, read when something is stacked on it.
     private readonly Dictionary<AquariumDecorItem, (Vector3[] points, Bounds bounds)> surfaceCache =
         new Dictionary<AquariumDecorItem, (Vector3[] points, Bounds bounds)>();
@@ -716,14 +719,6 @@ public sealed class AquariumDecoration : MonoBehaviour
         CloseEditor();
     }
 
-    // Tapping another piece places the selected one where it stands (or puts it back when it cannot stand
-    // there) and picks the new one.
-    private void Switch(AquariumDecorItem item)
-    {
-        if (Selected != null && !ConfirmPlacement()) RestoreSelection();
-        Select(item);
-    }
-
     // Thêm: the storage sheet opens over the tank; a piece picked there is placed in this session.
     public void Add()
     {
@@ -755,6 +750,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         foreach (var button in new[] { tiltButton, trimButton, growButton, addButton, undoButton, doneButton })
             if (button != null) button.SetActive(false);
         selectionRing.gameObject.SetActive(false);
+        ShowMarkers();
         // Xong stays tappable under the Thêm sheet; leaving closes the sheet too.
         if (inventory != null && inventory.gameObject.activeInHierarchy) screen.ClosePanels();
         screen.toolbar.SetActive(true);
@@ -798,14 +794,26 @@ public sealed class AquariumDecoration : MonoBehaviour
             return;
         }
         bool pressFrame = pointer.press.wasPressedThisFrame;
-        // A press on another piece picks it; it then moves only once the finger travels, and this tap never places it.
+        // A press on a piece, or inside its ring, picks it while nothing is selected; it then moves only once the
+        // finger travels, and this tap never places it.
+        if (pressFrame && Selected == null)
+        {
+            var item = PickAt(position, ray);
+            if (item != null)
+            {
+                Select(item);
+                pressOnSelected = pickedThisPress = true;
+            }
+            return;
+        }
+        // With a piece in hand a press on another is ignored until Đặt, Hủy or Cất.
         if (pressFrame && Physics.Raycast(ray, out var picked, 30, 1 << 8, QueryTriggerInteraction.Collide))
         {
             var item = picked.collider.GetComponentInParent<AquariumDecorItem>();
             if (item != Selected && items.Contains(item))
             {
-                Switch(item);
-                pressOnSelected = pickedThisPress = true;
+                pressInTank = false;
+                instruction.text = Loc.T("Đặt món đang chọn xong rồi mới chọn món khác");
                 return;
             }
         }
@@ -838,6 +846,66 @@ public sealed class AquariumDecoration : MonoBehaviour
     }
 
     // Only the nearest piece counts, so a selected piece hidden behind another never swallows the tap.
+    // Picking: every piece under the finger or whose ring (at least a fingertip wide) holds the tap is a candidate.
+    // Pieces riding on another come first, then those right under the finger, then clearly smaller ones, then the
+    // nearest; tapping the same spot again
+    // after the last pick moves on to the next candidate, so a stone under its moss can still be reached.
+    private float MinTapRadius => Screen.width * .045f;
+    private float RepeatTapSlop => Screen.width * .035f;
+    private AquariumDecorItem lastPick;
+    private Vector2 lastPickSpot;
+    private readonly List<(AquariumDecorItem item, bool under, float distance)> pickCandidates =
+        new List<(AquariumDecorItem, bool, float)>();
+
+    private AquariumDecorItem PickAt(Vector2 tap, Ray ray)
+    {
+        pickCandidates.Clear();
+        var under = new HashSet<AquariumDecorItem>();
+        foreach (var hit in Physics.RaycastAll(ray, 30, 1 << 8, QueryTriggerInteraction.Collide))
+        {
+            var item = hit.collider.GetComponentInParent<AquariumDecorItem>();
+            if (item != null) under.Add(item);
+        }
+        foreach (var item in items)
+        {
+            if (item == null) continue;
+            Vector3 centre = item.wallMounted ? item.transform.position + Vector3.up * item.wallSize.y * .5f : item.transform.position;
+            float size = PickSize(item);
+            Vector3 screen = viewCamera.WorldToScreenPoint(centre);
+            if (screen.z <= 0) continue;
+            float ring = Vector2.Distance(screen, viewCamera.WorldToScreenPoint(centre + viewCamera.transform.right * size));
+            float distance = Vector2.Distance(tap, screen);
+            bool hit = under.Contains(item);
+            if (hit || distance <= Mathf.Max(MinTapRadius, ring)) pickCandidates.Add((item, hit, distance));
+        }
+        if (pickCandidates.Count == 0) return null;
+        pickCandidates.Sort((a, b) =>
+        {
+            int riding = Riding(b.item).CompareTo(Riding(a.item));
+            if (riding != 0) return riding;
+            int touched = b.under.CompareTo(a.under);
+            if (touched != 0) return touched;
+            // Only a clearly smaller piece (moss beside a stone) wins on size; between similar ones the nearer does.
+            float sizeA = PickSize(a.item), sizeB = PickSize(b.item);
+            if (sizeA * 1.5f < sizeB) return -1;
+            if (sizeB * 1.5f < sizeA) return 1;
+            return a.distance.CompareTo(b.distance);
+        });
+        int next = 0;
+        if (lastPick != null && (tap - lastPickSpot).sqrMagnitude < RepeatTapSlop * RepeatTapSlop)
+        {
+            int last = pickCandidates.FindIndex(x => x.item == lastPick);
+            if (last >= 0) next = (last + 1) % pickCandidates.Count;
+        }
+        lastPick = pickCandidates[next].item;
+        lastPickSpot = tap;
+        return lastPick;
+    }
+
+    private bool Riding(AquariumDecorItem item) => item.transform.parent != itemsRoot;
+    private static float PickSize(AquariumDecorItem item) =>
+        item.wallMounted ? Mathf.Max(item.wallSize.x, item.wallSize.y) * .5f : item.footprint;
+
     private bool HitsSelected(Ray ray) =>
         Physics.Raycast(ray, out var hit, 30, 1 << 8, QueryTriggerInteraction.Collide) &&
         hit.collider.GetComponentInParent<AquariumDecorItem>() == Selected;
@@ -857,6 +925,29 @@ public sealed class AquariumDecoration : MonoBehaviour
         if (undoButton != null) undoButton.GetComponent<UnityEngine.UI.Button>().interactable = undoLayout != null;
         if (idle) instruction.text = Loc.T(undoLayout != null ? "Chạm một món để chỉnh • Hoàn tác để lùi lần vừa rồi • Xong khi hoàn tất" :
             "Chạm một món để chỉnh • Thêm để lấy đồ trong kho • Xong khi hoàn tất");
+        ShowMarkers();
+    }
+
+    // Every placed piece but the selected one (and what rides on it) gets a white ring while arranging.
+    private void ShowMarkers()
+    {
+        int used = 0;
+        if (Editing && !Brushing)
+            foreach (var item in items)
+            {
+                if (item == null || (Selected != null && item.transform.IsChildOf(Selected.transform))) continue;
+                if (used == markers.Count)
+                {
+                    var marker = Instantiate(selectionRing.gameObject, selectionRing.transform.parent).GetComponent<LineRenderer>();
+                    marker.name = "PieceMarker";
+                    marker.widthMultiplier = selectionRing.widthMultiplier * .7f;
+                    marker.startColor = marker.endColor = MarkerColor;
+                    markers.Add(marker);
+                }
+                markers[used].gameObject.SetActive(true);
+                DrawRing(markers[used++], item);
+            }
+        for (int i = used; i < markers.Count; i++) markers[i].gameObject.SetActive(false);
     }
 
     // Nothing selected: the camera looks over the whole tank again.
@@ -892,11 +983,16 @@ public sealed class AquariumDecoration : MonoBehaviour
             Selected.tiltable ? "Kéo trên cát hoặc lên đá • Xoay, Nghiêng rồi chọn Đặt" : "Kéo trên cát hoặc lên đá để chồng • Xoay rồi chọn Đặt");
         selectionRing.gameObject.SetActive(true);
         selectionRing.startColor = selectionRing.endColor = valid ? new Color(.6f, 1, .55f) : new Color(1, .25f, .15f);
-        if (Selected.wallMounted)
+        DrawRing(selectionRing, Selected);
+    }
+
+    private static void DrawRing(LineRenderer ring, AquariumDecorItem item)
+    {
+        if (item.wallMounted)
         {
             // A rectangle on the glass, drawn just in front of the panel.
-            selectionRing.transform.position = Selected.transform.position + Vector3.back * .05f;
-            Vector2 size = Selected.wallSize;
+            ring.transform.position = item.transform.position + Vector3.back * .05f;
+            Vector2 size = item.wallSize;
             for (int i = 0; i < 49; i++)
             {
                 float t = (i % 48) / 48f * 2 * (size.x + size.y), x, y;
@@ -904,15 +1000,15 @@ public sealed class AquariumDecoration : MonoBehaviour
                 else if (t < size.x + size.y) { x = size.x; y = t - size.x; }
                 else if (t < 2 * size.x + size.y) { x = 2 * size.x + size.y - t; y = size.y; }
                 else { x = 0; y = 2 * (size.x + size.y) - t; }
-                selectionRing.SetPosition(i, new Vector3(x - size.x * .5f, y, 0));
+                ring.SetPosition(i, new Vector3(x - size.x * .5f, y, 0));
             }
             return;
         }
-        selectionRing.transform.position = Selected.transform.position + Vector3.up * .012f;
+        ring.transform.position = item.transform.position + Vector3.up * .012f;
         for (int i = 0; i < 49; i++)
         {
             float angle = i * Mathf.PI * 2 / 48;
-            selectionRing.SetPosition(i, new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * Selected.footprint);
+            ring.SetPosition(i, new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * item.footprint);
         }
     }
 

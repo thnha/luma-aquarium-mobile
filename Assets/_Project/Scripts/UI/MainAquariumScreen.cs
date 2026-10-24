@@ -205,7 +205,11 @@ namespace Lumaquarium.UI
         public void ToggleDecorate() => TogglePanel(decoratePanel);
         public void ToggleSettings() => TogglePanel(settingsPanel);
         public void ToggleLighting() { if (lightingPanel != null) TogglePanel(lightingPanel); }
-        public void ToggleTanks() { if (tankPanel != null) TogglePanel(tankPanel); }
+        public void ToggleTanks()
+        {
+            if (shop != null) shop.OpenTab(ShopTab.Tanks);
+            else if (tankPanel != null) TogglePanel(tankPanel);
+        }
 
         public void OpenDecorate()
         {

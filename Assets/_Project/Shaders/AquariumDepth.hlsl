@@ -33,4 +33,24 @@ half3 AquariumBackLight(float3 normal, float3 view, float3 world, float transmis
     float depth = .45 + .55 * saturate((world.z - _AquariumFogNear) / max(.001, _AquariumFogFar - _AquariumFogNear));
     return _AquariumBackLightColor.rgb * (rim + through) * depth;
 }
+
+// Leaves meeting the glass fold against it instead of passing through: whatever reaches into the last
+// 9 cm before a pane is squeezed into them, more the further it would have gone (4 cm looked pressed flat).
+float AquariumSqueeze(float value, float wall, float band)
+{
+    float over = max(0, value - (wall - band));
+    return value - over + band * (1 - exp(-over / band));
+}
+
+float3 AquariumWallPush(float3 world)
+{
+    // Unset (a scene without AquariumTank) the box is zero: leave the leaves alone.
+    if (_AquariumTankBox.x <= 0) return world;
+    const float band = .09, gap = .005;
+    world.x = AquariumSqueeze(world.x, _AquariumTankBox.x - gap, band);
+    world.x = -AquariumSqueeze(-world.x, _AquariumTankBox.x - gap, band);
+    world.z = AquariumSqueeze(world.z, _AquariumTankBox.z - gap, band);
+    world.z = -AquariumSqueeze(-world.z, -_AquariumTankBox.y - gap, band);
+    return world;
+}
 #endif

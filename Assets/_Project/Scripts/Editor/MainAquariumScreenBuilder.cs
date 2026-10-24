@@ -411,10 +411,41 @@ public static class MainAquariumScreenBuilder
         return buttons;
     }
 
+    // The Trang trí sheet runs from above the bottom bar to just under the header, so taller phones show more rows.
+    private const float DecorateTop = 390;
+
+    private static void FitDecorateGrid(UnityEngine.UI.GridLayoutGroup layout)
+    {
+        layout.cellSize = new Vector2(176, 224);
+        layout.spacing = new Vector2(12, 12);
+        layout.constraintCount = 5;
+    }
+
+    // Stretches a Trang trí sheet built at the old fixed height and gives it the five-column grid.
+    [MenuItem("Lumaquarium/UI/Fit Decorate Sheet")]
+    public static void FitDecorateSheet()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            throw new InvalidOperationException("Exit Play mode before fitting the decorate sheet.");
+        var scene = SceneManager.GetActiveScene();
+        var controller = UnityEngine.Object.FindFirstObjectByType<MainAquariumScreen>(FindObjectsInactive.Include);
+        if (scene.path != ScenePath || controller == null || controller.decoratePanel == null)
+            throw new InvalidOperationException("Open MainAquarium with its built HUD first.");
+        var panel = (RectTransform)controller.decoratePanel.transform;
+        var layout = panel.GetComponentInChildren<UnityEngine.UI.GridLayoutGroup>(true);
+        Undo.RecordObjects(new UnityEngine.Object[] { panel, layout }, "Fit decorate sheet");
+        Ui3D.Edges(panel, Vector2.zero, Vector2.one, new Vector2(Side, SheetBottom), new Vector2(-Side, -DecorateTop));
+        FitDecorateGrid(layout);
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        Debug.Log("[Lumaquarium] Decorate sheet fitted.");
+    }
+
     // Owned decorations by group. Cards follow the catalog order so their index is the offer index.
     private static void BuildDecorate(MainAquariumScreen controller, RectTransform safe, AquariumDecoration decoration)
     {
         var panel = Sheet("DecoratePanel", safe, "Trang trí", 1150, controller);
+        Ui3D.Edges(panel, Vector2.zero, Vector2.one, new Vector2(Side, SheetBottom), new Vector2(-Side, -DecorateTop));
         controller.decoratePanel = panel.gameObject;
         var inventory = panel.gameObject.AddComponent<DecorInventoryPanel>();
         inventory.aquarium = controller;
@@ -455,10 +486,8 @@ public static class MainAquariumScreenBuilder
         Ui3D.Edges(grid, new Vector2(0, 1), Vector2.one, Vector2.zero, Vector2.zero);
         grid.pivot = new Vector2(.5f, 1);
         var layout = grid.gameObject.AddComponent<UnityEngine.UI.GridLayoutGroup>();
-        layout.cellSize = new Vector2(221, 262);
-        layout.spacing = new Vector2(14, 14);
         layout.constraint = UnityEngine.UI.GridLayoutGroup.Constraint.FixedColumnCount;
-        layout.constraintCount = 4;
+        FitDecorateGrid(layout);
         grid.gameObject.AddComponent<UnityEngine.UI.ContentSizeFitter>().verticalFit = UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize;
         var scroll = items.gameObject.AddComponent<UnityEngine.UI.ScrollRect>();
         scroll.content = grid;

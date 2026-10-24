@@ -33,6 +33,12 @@ public sealed class LocalizationTests
     }
 
     [Test]
+    public void GroupedShopLabelsAreTranslated()
+    {
+        AssertTranslated(new[] { "Tiểu cảnh", "Hồ", "Nền hồ", "Rêu & bèo", "Tìm cá...", "Tìm tiểu cảnh...", "Tìm hồ, thành, nền..." });
+    }
+
+    [Test]
     public void FormatsKeepTheirPlaceholders()
     {
         var wrong = Table().Where(p => Placeholders(p.Key) != Placeholders(p.Value)).Select(p => p.Key).ToList();

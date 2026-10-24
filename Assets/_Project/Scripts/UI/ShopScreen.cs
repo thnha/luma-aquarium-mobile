@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 
 namespace Lumaquarium.UI
 {
-    // The one shop (layout 3): search, a sliding row of tabs (ShopTab order), a price sort and a grid of cards
+    // The grouped shop: compact text tabs, contextual categories, search/sort and two-column cards
     // made from a template. A tapped card shows in the details bar, whose buttons buy, place a decoration,
     // or put a fish, wall or floor style into use. Purchases with a price ask for confirmation.
     public sealed class ShopScreen : MonoBehaviour
@@ -20,6 +20,11 @@ namespace Lumaquarium.UI
         public UnityEngine.UI.Button clearSearch, backButton, sortButton, primaryButton, secondaryButton, confirmButton, cancelButton;
         public TMP_Text balanceLabel, sortLabel, title, description, priceLabel, feedback, confirmationText, primaryLabel, secondaryLabel;
         public UnityEngine.UI.Image portrait;
+        public UnityEngine.UI.Button[] groupButtons;
+        public UnityEngine.UI.Image[] groupSurfaces;
+        public TMP_Text[] groupLabels;
+        public RectTransform categoryTray, searchRow;
+        public UnityEngine.UI.Image sortIcon;
         public UnityEngine.UI.Button[] tabButtons;
         public UnityEngine.UI.Image[] tabSurfaces;
         public TMP_Text[] tabLabels;
@@ -30,11 +35,26 @@ namespace Lumaquarium.UI
         public Color tabLabelOff = new Color32(255, 248, 230, 255);
 
         private static readonly string[] SortNames = { "Mặc định", "Giá: Thấp → Cao", "Giá: Cao → Thấp" };
+        public static readonly ShopTab[][] CategoryTabs =
+        {
+            new[] { ShopTab.Fish },
+            new[] { ShopTab.All, ShopTab.Plants, ShopTab.Wood, ShopTab.Rocks, ShopTab.Moss, ShopTab.Coral },
+            new[] { ShopTab.Tanks, ShopTab.Walls, ShopTab.Substrates }
+        };
+        public static readonly string[][] CategoryNames =
+        {
+            new[] { "Cá" },
+            new[] { "Tất cả", "Cây", "Lũa", "Đá", "Rêu & bèo", "San hô" },
+            new[] { "Tank", "Thành hồ", "Nền hồ" }
+        };
+        private static readonly float[] DecorCategoryWidths = { 155, 110, 110, 100, 235, 150 };
+        private static readonly float[] AquariumCategoryWidths = { 210, 290, 260 };
         private readonly List<ShopCard> cards = new List<ShopCard>();
         private List<ShopEntry> entries, visible = new List<ShopEntry>();
         private FishShopInventory inventory;
         private Dictionary<int, int> placed = new Dictionary<int, int>();
         private ShopTab tab;
+        private ShopGroup group;
         private ShopSort sort;
         private ShopEntry selected, pending;
         private float previousAlpha;
@@ -49,10 +69,15 @@ namespace Lumaquarium.UI
         private void Awake()
         {
             inventory = new FishShopInventory(Decoration != null ? Decoration.inventoryStorageKey : FishShopInventory.DefaultStorageKey);
+            for (int i = 0; i < groupButtons.Length; i++)
+            {
+                var target = (ShopGroup)i;
+                groupButtons[i].onClick.AddListener(() => SelectGroup(target));
+            }
             for (int i = 0; i < tabButtons.Length; i++)
             {
-                var target = (ShopTab)i;
-                tabButtons[i].onClick.AddListener(() => SelectTab(target));
+                int index = i;
+                tabButtons[i].onClick.AddListener(() => SelectTab(CategoryTabs[(int)group][index]));
             }
             search.onValueChanged.AddListener(_ => Rebuild(true));
             clearSearch.onClick.AddListener(() => search.text = "");
@@ -75,16 +100,17 @@ namespace Lumaquarium.UI
             if (active != null) ApplyFish(active);
         }
 
-        // Centres the active tab in the sliding strip.
         private void ShowActiveTab()
         {
-            var strip = tabButtons[0].GetComponentInParent<UnityEngine.UI.ScrollRect>();
-            if (strip == null) return;
-            Canvas.ForceUpdateCanvases();
-            var current = (RectTransform)tabButtons[(int)tab].transform;
-            float room = strip.content.rect.width - strip.viewport.rect.width;
-            if (room <= 0) return;
-            strip.horizontalNormalizedPosition = Mathf.Clamp01((current.anchoredPosition.x - current.pivot.x * current.rect.width + current.rect.width / 2 - strip.viewport.rect.width / 2) / room);
+            bool hasCategories = group != ShopGroup.Fish;
+            categoryTray.gameObject.SetActive(hasCategories);
+            float top = hasCategories ? 438 : 330;
+            searchRow.offsetMin = new Vector2(searchRow.offsetMin.x, -top - 116);
+            searchRow.offsetMax = new Vector2(searchRow.offsetMax.x, -top);
+            var grid = (RectTransform)scroll.transform;
+            grid.offsetMax = new Vector2(grid.offsetMax.x, -top - 144);
+            if (search.placeholder is TMP_Text placeholder)
+                placeholder.text = Loc.T(group == ShopGroup.Fish ? "Tìm cá..." : group == ShopGroup.Decor ? "Tìm tiểu cảnh..." : "Tìm hồ, thành, nền...");
         }
 
         private void Update()
@@ -111,7 +137,8 @@ namespace Lumaquarium.UI
             confirmation.SetActive(false);
             pending = null;
             feedback.text = "";
-            tab = ShopTab.All;
+            group = ShopGroup.Fish;
+            tab = ShopTab.Fish;
             sort = ShopSort.Default;
             selected = null;
             search.SetTextWithoutNotify("");
@@ -136,6 +163,7 @@ namespace Lumaquarium.UI
         public void OpenTab(ShopTab target, string id = null)
         {
             Open();
+            group = ShopQuery.GroupOf(target);
             tab = target;
             selected = id != null ? Entries.Find(e => e.id == id) : null;
             Rebuild(true);
@@ -166,6 +194,17 @@ namespace Lumaquarium.UI
             ShowActiveTab();
         }
 
+        public void SelectGroup(ShopGroup target)
+        {
+            if (confirmation.activeSelf) return;
+            group = target;
+            tab = CategoryTabs[(int)group][0];
+            search.SetTextWithoutNotify("");
+            feedback.text = "";
+            Rebuild(true);
+            ShowActiveTab();
+        }
+
         private void Select(int index)
         {
             if (confirmation.activeSelf || index >= visible.Count) return;
@@ -177,7 +216,7 @@ namespace Lumaquarium.UI
         // Re-runs tab / search / sort; keeps the selection while it is still listed, else selects the first card.
         private void Rebuild(bool toTop)
         {
-            visible = ShopQuery.Filter(Entries, tab, search.text, sort);
+            visible = ShopQuery.Filter(Entries, group, tab, search.text, sort);
             if (selected == null || !visible.Contains(selected)) selected = visible.Count > 0 ? visible[0] : null;
             while (cards.Count < visible.Count)
             {
@@ -195,13 +234,26 @@ namespace Lumaquarium.UI
             inventory.Reload();
             placed = Decoration != null ? Decoration.PlacedCounts() : placed;
             balanceLabel.text = Money(inventory.Balance);
-            sortLabel.text = Loc.T(SortNames[(int)sort]);
+            if (sortLabel != null) sortLabel.text = Loc.T(SortNames[(int)sort]);
+            if (sortIcon != null) sortIcon.color = sort == ShopSort.Default ? UiInk : new Color32(69, 112, 58, 255);
             clearSearch.gameObject.SetActive(!string.IsNullOrEmpty(search.text));
+            for (int i = 0; i < groupButtons.Length; i++)
+            {
+                bool on = i == (int)group;
+                groupSurfaces[i].color = on ? Color.white : Color.clear;
+                groupLabels[i].color = on ? tabLabelOn : tabLabelOff;
+            }
             for (int i = 0; i < tabButtons.Length; i++)
             {
-                bool on = i == (int)tab;
-                if (i < tabSurfaces.Length) tabSurfaces[i].color = on ? Color.white : Color.clear;
-                if (i < tabLabels.Length) tabLabels[i].color = on ? tabLabelOn : tabLabelOff;
+                bool shown = i < CategoryTabs[(int)group].Length;
+                tabButtons[i].gameObject.SetActive(shown);
+                if (!shown) continue;
+                bool on = CategoryTabs[(int)group][i] == tab || (tab == ShopTab.Floating && CategoryTabs[(int)group][i] == ShopTab.Moss);
+                tabSurfaces[i].sprite = on ? cardSelected : cardNormal;
+                tabLabels[i].text = Loc.T(CategoryNames[(int)group][i]);
+                tabLabels[i].color = tabLabelOn;
+                float[] widths = group == ShopGroup.Decor ? DecorCategoryWidths : AquariumCategoryWidths;
+                tabButtons[i].GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = widths[i];
             }
             for (int i = 0; i < cards.Count; i++)
             {
@@ -209,9 +261,9 @@ namespace Lumaquarium.UI
                 cards[i].gameObject.SetActive(shown);
                 if (!shown) continue;
                 var entry = visible[i];
-                bool owned = Owned(entry), priced = !owned && entry.price > 0;
-                cards[i].Show(entry.portrait, Loc.T(entry.name), owned ? "" : priced ? Money(entry.price) : Loc.T("Miễn phí"), priced,
-                    Status(entry), entry == selected ? cardSelected : cardNormal);
+                cards[i].Show(entry.portrait, Loc.T(entry.name), Money(entry.price), true,
+                    Status(entry), entry == selected ? cardSelected : cardNormal, Active(entry),
+                    entry.kind == ShopKind.Tank ? AquariumTank.Find(entry.id) : null);
             }
             emptyLabel.SetActive(visible.Count == 0);
             details.SetActive(selected != null);
@@ -250,7 +302,7 @@ namespace Lumaquarium.UI
                 int stock = Stock(entry);
                 return stock > 0 ? Loc.F("Kho {0}", stock) : "";
             }
-            return Active(entry) ? Loc.T("Đang dùng") : Owned(entry) ? Loc.T("Đã có") : "";
+            return Active(entry) ? "" : Owned(entry) ? Loc.T("Đã có") : "";
         }
 
         // Stock = bought minus placed; the inventory and placed counts are read once per Refresh.
@@ -268,6 +320,8 @@ namespace Lumaquarium.UI
             ShopKind.Fish => inventory.ActiveId == entry.id,
             ShopKind.Wall => Decoration.surfaces.Wall(inventory.ActiveWall)?.id == entry.id,
             ShopKind.Substrate => Decoration.surfaces.Substrate(inventory.ActiveSubstrate)?.id == entry.id,
+            ShopKind.Tank => (Decoration.GetComponent<AquariumTank>()?.Current?.id
+                ?? (string.IsNullOrEmpty(inventory.ActiveTank) ? AquariumTank.Specs[0].id : inventory.ActiveTank)) == entry.id,
             _ => false
         };
 
@@ -348,6 +402,7 @@ namespace Lumaquarium.UI
             ShopKind.Fish => ShopSave.FishSlot,
             ShopKind.Wall => ShopSave.WallSlot,
             ShopKind.Substrate => ShopSave.FloorSlot,
+            ShopKind.Tank => ShopSave.TankSlot,
             _ => null
         };
 
@@ -359,6 +414,7 @@ namespace Lumaquarium.UI
                 case ShopKind.Fish: ApplyFish(fishOffers[entry.source]); break;
                 case ShopKind.Wall: if (tank != null) tank.ApplyWall(entry.id); break;
                 case ShopKind.Substrate: if (tank != null) tank.ApplySubstrate(entry.id); break;
+                case ShopKind.Tank: if (tank != null) tank.Switch(entry.id); break;
             }
         }
 
@@ -390,6 +446,7 @@ namespace Lumaquarium.UI
         }
 
         private static string Money(int amount) => Loc.Money(amount);
+        private static readonly Color UiInk = new Color32(52, 60, 45, 255);
 
         private void OnDisable() { if (IsOpen) Close(); }
     }

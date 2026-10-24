@@ -5,6 +5,8 @@ Shader "Lumaquarium/Aquarium Nature"
         _BaseColor("Color", Color) = (.4,.5,.3,1)
         _Detail("Surface variation", Range(0,1)) = .3
         _Scale("Grain scale", Float) = 45
+        // Set per renderer by AquariumDecorItem on plant foliage; stone and wood stay rigid.
+        [Toggle] _WallPush("Fold against the glass", Float) = 0
     }
     SubShader
     {
@@ -26,6 +28,7 @@ Shader "Lumaquarium/Aquarium Nature"
             half4 _BaseColor;
             float _Detail;
             float _Scale;
+            float _WallPush;
             CBUFFER_END
             struct Attributes { float4 positionOS:POSITION; float3 normalOS:NORMAL; float4 color:COLOR; };
             struct Varyings { float4 positionCS:SV_POSITION; float3 world:TEXCOORD0; float3 normal:TEXCOORD1; float4 color:COLOR; };
@@ -33,6 +36,7 @@ Shader "Lumaquarium/Aquarium Nature"
             {
                 Varyings o;
                 o.world = TransformObjectToWorld(input.positionOS.xyz);
+                if (_WallPush > .5) o.world = AquariumWallPush(o.world);
                 o.positionCS = TransformWorldToHClip(o.world);
                 o.normal = TransformObjectToWorldNormal(input.normalOS);
                 o.color = input.color;

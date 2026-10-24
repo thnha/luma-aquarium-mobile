@@ -8,7 +8,7 @@ using UnityEngine.Audio;
 // - while the pump runs, a stream of bubble pops timed like an air stone: at random, in little clusters, its rate
 //   slowly breathing up and down; mostly small high "tons", now and then a big low "bloop". Each sounds where a
 //   RisingBubbles bubble last burst, and two never start closer than minGap, so they don't pile up,
-// - droplet ticks for each ripple from a tap (a moved decoration stays silent); the fish at the surface only stirs the bed,
+// - droplet ticks for each ripple from a tap, off for now (rippleVolume 0; a moved decoration stays silent); the fish at the surface only stirs the bed,
 //   its sound is the gulp BettaMouth plays when it takes air.
 // SetMuffled moves the mixer to its "Muffled" snapshot while a shop covers the tank. Shops and fish reach the
 // tank's audio through Current, since the environment arrives with the scene rather than wired to them.
@@ -21,7 +21,7 @@ public sealed class AquariumAudio : MonoBehaviour
     public AudioMixerGroup waterGroup, bubblesGroup, sfxGroup;
     public AudioClip waterLoop, bubbleLoop;
     public AudioClip[] bloops, tons, ripples, gulps;
-    [Range(0, 1)] public float waterVolume = 0f, bubbleVolume = 0f, bloopVolume = .25f, rippleVolume = .5f, gulpVolume = .55f;
+    [Range(0, 1)] public float waterVolume = 0f, bubbleVolume = 0f, bloopVolume = .25f, rippleVolume = 0f, gulpVolume = .55f;
     public float popRate = 4;                                // average pops per second at full pump
     [Range(0, 1)] public float bloopShare = .15f;             // share of pops from a big bubble
     [Range(0, 1)] public float breathDepth = .6f;             // how far the rate swells and fades

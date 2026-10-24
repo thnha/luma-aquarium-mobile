@@ -142,6 +142,7 @@ Kéo trên cát để trải thảm • Còn {0} ô • Chọn Xong để lưu	D
 Chiều cao ×{0:0.0} • Tỉa hoặc Mọc tiếp, rồi chọn Đặt	Height ×{0:0.0} • Trim or Grow more, then tap Place
 Chạm một món để chỉnh • Hoàn tác để lùi lần vừa rồi • Xong khi hoàn tất	Tap an item to adjust • Undo reverts the last change • Done when finished
 Chạm một món để chỉnh • Thêm để lấy đồ trong kho • Xong khi hoàn tất	Tap an item to adjust • Add takes items from storage • Done when finished
+Đặt món đang chọn xong rồi mới chọn món khác	Place the selected item before picking another
 Vòng đỏ: không còn chỗ trống ở đây. Kéo sang chỗ khác.	Red ring: there's no room here. Drag it somewhere else.
 Đã gắn lên lũa/đá • Xoay rồi chọn Đặt	Attached to wood/stone • Rotate, then tap Place
 Kéo trên kính sau hồ • Ghép nhiều tấm thành tường rêu • Chọn Đặt	Drag on the back glass • Join panels into a moss wall • Tap Place
@@ -400,3 +401,11 @@ Còn lạ	Shy of you
 Quen dần	Getting used to you
 Thân	Friends
 Rất thân	Best friends
+Tiểu cảnh	Aquascape
+Hồ	Aquarium
+Tank	Tank
+Nền hồ	Substrate
+Rêu & bèo	Moss & floaters
+Tìm cá...	Search fish...
+Tìm tiểu cảnh...	Search aquascape...
+Tìm hồ, thành, nền...	Search tanks and surfaces...

@@ -6387,7 +6387,7 @@ MonoBehaviour:
   waterVolume: 0
   bubbleVolume: 0
   bloopVolume: 0.25
-  rippleVolume: 0.5
+  rippleVolume: 0
   gulpVolume: 0.55
   popRate: 4
   bloopShare: 0.15

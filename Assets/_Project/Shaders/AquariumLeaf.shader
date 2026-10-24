@@ -6,6 +6,8 @@ Shader "Lumaquarium/Aquarium Leaf"
         [MainColor] _BaseColor("Tint", Color) = (1,1,1,1)
         _Cutoff("Cutout", Range(0,1)) = .45
         _Sway("Current movement", Range(0,.04)) = .008
+        // Set per renderer by AquariumDecorItem on plant foliage.
+        [Toggle] _WallPush("Fold against the glass", Float) = 0
     }
     SubShader
     {
@@ -22,6 +24,7 @@ Shader "Lumaquarium/Aquarium Leaf"
         half4 _BaseColor;
         float _Cutoff;
         float _Sway;
+        float _WallPush;
         CBUFFER_END
         struct Attributes { float4 positionOS:POSITION; float3 normalOS:NORMAL; float2 uv:TEXCOORD0; float4 color:COLOR; };
         struct Varyings { float4 positionCS:SV_POSITION; float3 world:TEXCOORD0; float3 normal:TEXCOORD1; float2 uv:TEXCOORD2; half4 color:COLOR; };
@@ -32,7 +35,7 @@ Shader "Lumaquarium/Aquarium Leaf"
             float flex=uv.y*uv.y;
             world.x+=sin(_Time.y*.92+phase)*_Sway*flex;
             world.z+=sin(_Time.y*.63+phase+1.7)*_Sway*.65*flex;
-            return world;
+            return _WallPush>.5?AquariumWallPush(world):world;
         }
         Varyings Vert(Attributes i)
         {

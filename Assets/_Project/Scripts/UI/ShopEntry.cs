@@ -4,9 +4,11 @@ using UnityEngine;
 namespace Lumaquarium.UI
 {
     // Tab order in the shop's tab row.
-    public enum ShopTab { All, Fish, Wood, Rocks, Coral, Plants, Moss, Floating, Walls, Substrates }
+    public enum ShopTab { All, Fish, Wood, Rocks, Coral, Plants, Moss, Floating, Walls, Substrates, Tanks }
 
-    public enum ShopKind { Decor, Fish, Wall, Substrate }
+    public enum ShopGroup { Fish, Decor, Aquarium }
+
+    public enum ShopKind { Decor, Fish, Wall, Substrate, Tank }
 
     // One card in the shop. `source` indexes the list it came from: the fish offers, the decoration
     // catalog's offers, or the surface catalog's walls / substrates. `order` is the default sort position.
@@ -66,6 +68,17 @@ namespace Lumaquarium.UI
                     var floor = surfaces.substrates[i];
                     Add(ShopTab.Substrates, ShopKind.Substrate, i, floor.id, floor.displayName, floor.description, floor.price, floor.portrait);
                 }
+            }
+            // Tank catalog rows override built-in names/prices, as in AquariumTank.ApplyCatalog.
+            // Older or partial catalogs must keep every tank size reachable.
+            for (int i = 0; i < AquariumTank.Specs.Length; i++)
+            {
+                var spec = AquariumTank.Specs[i];
+                var offer = surfaces?.tanks != null ? System.Array.Find(surfaces.tanks, t => t != null && t.id == spec.id) : null;
+                Add(ShopTab.Tanks, ShopKind.Tank, i, spec.id,
+                    !string.IsNullOrEmpty(offer?.displayName) ? offer.displayName : spec.displayName,
+                    !string.IsNullOrEmpty(offer?.description) ? offer.description : spec.description,
+                    offer != null && offer.price >= 0 ? offer.price : spec.price, null);
             }
             return list;
         }

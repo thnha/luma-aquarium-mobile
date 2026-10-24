@@ -1,6 +1,4 @@
 using System;
-using System.IO;
-using System.Linq;
 using Lumaquarium.UI;
 using TMPro;
 using UnityEditor;
@@ -9,15 +7,14 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-// The one shop (layout 3: search, sliding tabs, price sort, 4-column grid, details bar). Installs it in
+// The approved compact shop: three text groups, contextual categories, search/sort and two-column cards.
 // MainAquarium and removes the fish and decoration shop canvases; their prefabs and scripts stay in the project.
 public static class ShopScreenBuilder
 {
     private const string PrefabPath = Ui3D.Root + "/Prefabs/Shop.prefab";
     private const string FishPrefabPath = Ui3D.Root + "/Prefabs/FishShop.prefab";
     private const string ScenePath = "Assets/_Project/Scenes/MainAquarium.unity";
-    // ShopTab order.
-    public static readonly string[] TabNames = { "Tất cả", "Cá", "Lũa", "Đá", "San hô", "Cây", "Rong rêu", "Bèo", "Thành hồ", "Cát nền" };
+    public static readonly string[] TabNames = { "Cá", "Tiểu cảnh", "Hồ" };
 
     [MenuItem("Lumaquarium/UI/Build Shop Screen")]
     public static void Build()
@@ -39,7 +36,8 @@ public static class ShopScreenBuilder
         SceneBackups.CopyFile(scene.path, "MainAquarium-before-shop-" + stamp + "-saved");
         SceneBackups.SaveCopy(scene, "MainAquarium-before-shop-" + stamp + "-working");
 
-        var built = Create(fishShop.offers, decoration);
+        var current = UnityEngine.Object.FindFirstObjectByType<ShopScreen>(FindObjectsInactive.Include);
+        var built = Create(current != null && current.fishOffers != null && current.fishOffers.Length > 0 ? current.fishOffers : fishShop.offers, decoration);
         PrefabUtility.SaveAsPrefabAsset(built.gameObject, PrefabPath); // keeps the GUID, so a scene instance follows
         UnityEngine.Object.DestroyImmediate(built.gameObject);
         if (UnityEngine.Object.FindFirstObjectByType<ShopScreen>(FindObjectsInactive.Include) == null)
@@ -87,8 +85,7 @@ public static class ShopScreenBuilder
         if (PrefabUtility.IsPartOfPrefabInstance(target)) PrefabUtility.RecordPrefabInstancePropertyModifications(target);
     }
 
-    // Layout on the 1080 × 1920 canvas, measured down from the safe area's top: header 40–172, search 196–308,
-    // tabs 330–480, sort 490–594, grid 614 to 440 above the bottom, details bar the bottom 24–424.
+    // 1080-wide canvas: compact header/groups, optional categories, shared search/sort row and a scrollable grid.
     private static ShopScreen Create(FishShopOffer[] offers, AquariumDecoration decoration)
     {
         var root = Ui3D.Canvas("ShopHUD", 30);
@@ -112,11 +109,8 @@ public static class ShopScreenBuilder
         safe.gameObject.AddComponent<SafeArea>();
 
         Header(shop, safe);
+        Tabs(shop, safe);
         Search(shop, safe);
-        Tabs(shop, safe, offers, decoration);
-        shop.sortButton = Ui3D.Button("Sort", safe, "Mặc định", Ui3D.Style.Secondary, 38);
-        Ui3D.Edges((RectTransform)shop.sortButton.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(44, -594), new Vector2(524, -490));
-        shop.sortLabel = shop.sortButton.GetComponentInChildren<TMP_Text>();
         Grid(shop, safe);
         Details(shop, safe);
         Confirmation(shop, content);
@@ -130,7 +124,7 @@ public static class ShopScreenBuilder
         Ui3D.TopStrip(header, 44, 44, 40, 132);
         shop.backButton = Ui3D.RoundButton("BackButton", header, "utility_back");
         Ui3D.At((RectTransform)shop.backButton.transform, new Vector2(0, .5f), new Vector2(0, .5f), Vector2.zero, new Vector2(122, 122));
-        var title = Ui3D.Text("Title", header, "Shop", 62, Ui3D.Cream, true, TextAlignmentOptions.MidlineLeft);
+        var title = Ui3D.Text("Title", header, "Cửa hàng", 62, Ui3D.Cream, true, TextAlignmentOptions.MidlineLeft);
         Ui3D.Edges(title.rectTransform, Vector2.zero, Vector2.one, new Vector2(150, 0), new Vector2(-320, 0));
         var wallet = Ui3D.Image("Wallet", header, "ui3d_chip");
         Ui3D.At(wallet.rectTransform, new Vector2(1, .5f), new Vector2(1, .5f), Vector2.zero, new Vector2(300, 122));
@@ -142,9 +136,12 @@ public static class ShopScreenBuilder
 
     private static void Search(ShopScreen shop, RectTransform safe)
     {
-        var field = Ui3D.Image("Search", safe, "ui3d_chip");
+        var row = Ui3D.Rect("SearchRow", safe);
+        Ui3D.TopStrip(row, 44, 44, 330, 116);
+        shop.searchRow = row;
+        var field = Ui3D.Image("Search", row, "ui3d_chip");
         field.raycastTarget = true;
-        Ui3D.TopStrip(field.rectTransform, 44, 44, 196, 112);
+        Ui3D.Edges(field.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, new Vector2(-142, 0));
         var area = Ui3D.Rect("TextArea", field.transform);
         Ui3D.Edges(area, Vector2.zero, Vector2.one, new Vector2(40, 14), new Vector2(-130, -8));
         area.gameObject.AddComponent<RectMask2D>();
@@ -165,81 +162,74 @@ public static class ShopScreenBuilder
         shop.search = input;
         shop.clearSearch = Ui3D.RoundButton("Clear", field.transform, "utility_close", true);
         Ui3D.At((RectTransform)shop.clearSearch.transform, new Vector2(1, .5f), new Vector2(1, .5f), new Vector2(-14, 2), new Vector2(92, 92));
+        shop.sortButton = Ui3D.Button("Sort", row, "", Ui3D.Style.Secondary);
+        Ui3D.At((RectTransform)shop.sortButton.transform, new Vector2(1, .5f), new Vector2(1, .5f), Vector2.zero, new Vector2(116, 116));
+        foreach (var label in shop.sortButton.GetComponentsInChildren<TMP_Text>()) UnityEngine.Object.DestroyImmediate(label.gameObject);
+        var up = Ui3D.Icon("Ascending", shop.sortButton.transform, "utility_back");
+        up.color = Ui3D.Ink;
+        Ui3D.At(up.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(-15, 5), new Vector2(62, 62));
+        up.rectTransform.localRotation = Quaternion.Euler(0, 0, -90);
+        shop.sortIcon = up;
+        var down = Ui3D.Icon("Descending", shop.sortButton.transform, "utility_back");
+        down.color = Ui3D.Ink;
+        Ui3D.At(down.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(15, 5), new Vector2(62, 62));
+        down.rectTransform.localRotation = Quaternion.Euler(0, 0, 90);
     }
 
-    private static void Tabs(ShopScreen shop, RectTransform safe, FishShopOffer[] offers, AquariumDecoration decoration)
+    private static void Tabs(ShopScreen shop, RectTransform safe)
     {
-        var tray = Ui3D.Image("Tabs", safe, "ui3d_tab_tray");
-        tray.raycastTarget = true;
-        Ui3D.TopStrip(tray.rectTransform, 44, 44, 330, 150);
-        var viewport = Ui3D.Rect("Viewport", tray.transform);
-        Ui3D.Edges(viewport, Vector2.zero, Vector2.one, new Vector2(12, 18), new Vector2(-12, -10));
-        viewport.gameObject.AddComponent<RectMask2D>();
-        var row = Ui3D.Rect("Row", viewport);
-        row.anchorMin = Vector2.zero;
-        row.anchorMax = new Vector2(0, 1);
-        row.pivot = new Vector2(0, .5f);
-        row.offsetMin = row.offsetMax = Vector2.zero;
+        var tray = Ui3D.Image("Groups", safe, "ui3d_tab_tray");
+        Ui3D.TopStrip(tray.rectTransform, 44, 44, 194, 116);
+        var row = Ui3D.Rect("Row", tray.transform);
+        Ui3D.Stretch(row, 12);
         var layout = row.gameObject.AddComponent<HorizontalLayoutGroup>();
         layout.spacing = 8;
         layout.childControlWidth = layout.childControlHeight = true;
-        layout.childForceExpandWidth = false;
-        layout.childForceExpandHeight = true;
-        row.gameObject.AddComponent<ContentSizeFitter>().horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-        var scroll = tray.gameObject.AddComponent<ScrollRect>();
-        scroll.content = row;
-        scroll.viewport = viewport;
-        scroll.horizontal = true;
-        scroll.vertical = false;
-        scroll.movementType = ScrollRect.MovementType.Clamped;
-
-        var icons = TabIcons(offers, decoration);
-        int count = TabNames.Length;
-        shop.tabButtons = new Button[count];
-        shop.tabSurfaces = new Image[count];
-        shop.tabLabels = new TMP_Text[count];
-        for (int i = 0; i < count; i++)
+        layout.childForceExpandWidth = layout.childForceExpandHeight = true;
+        shop.groupButtons = new Button[3];
+        shop.groupSurfaces = new Image[3];
+        shop.groupLabels = new TMP_Text[3];
+        for (int i = 0; i < 3; i++)
         {
-            var tab = Ui3D.Image("Tab" + i, row, "ui3d_tab_on");
-            tab.color = i == 0 ? Color.white : Color.clear;
-            tab.raycastTarget = true;
-            tab.gameObject.AddComponent<LayoutElement>().preferredWidth = 150;
-            var button = tab.gameObject.AddComponent<Button>();
-            button.targetGraphic = tab;
+            var surface = Ui3D.Image("Group" + i, row, "ui3d_tab_on");
+            surface.color = i == 0 ? Color.white : Color.clear;
+            surface.raycastTarget = true;
+            surface.gameObject.AddComponent<LayoutElement>().preferredWidth = 300;
+            var button = surface.gameObject.AddComponent<Button>();
+            button.targetGraphic = surface;
             button.transition = Selectable.Transition.None;
-            var icon = Ui3D.Rect("Icon", tab.transform).gameObject.AddComponent<Image>();
-            icon.sprite = icons[i];
-            icon.preserveAspect = true;
-            icon.raycastTarget = false;
-            Ui3D.At(icon.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -4), new Vector2(100, 84));
-            var label = Ui3D.Text("Label", tab.transform, TabNames[i], 28, i == 0 ? Ui3D.Ink : Ui3D.Cream, true);
-            Ui3D.Edges(label.rectTransform, Vector2.zero, new Vector2(1, 0), new Vector2(4, 4), new Vector2(-4, 36));
-            shop.tabButtons[i] = button;
-            shop.tabSurfaces[i] = tab;
-            shop.tabLabels[i] = label;
+            var label = Ui3D.Text("Label", surface.transform, TabNames[i], 42, i == 0 ? Ui3D.Ink : Ui3D.Cream, true);
+            Ui3D.Edges(label.rectTransform, Vector2.zero, Vector2.one, new Vector2(8, 10), new Vector2(-8, 0));
+            shop.groupButtons[i] = button;
+            shop.groupSurfaces[i] = surface;
+            shop.groupLabels[i] = label;
         }
-    }
-
-    // Each tab shows one of its own items; Tất cả uses the shop icon.
-    private static Sprite[] TabIcons(FishShopOffer[] offers, AquariumDecoration decoration)
-    {
-        Sprite Decor(AquariumDecorCategory category) =>
-            decoration.catalog.offers.FirstOrDefault(o => o.category == category && o.portrait != null)?.portrait;
-        var surfaces = decoration.surfaces;
-        return new[]
+        var categories = Ui3D.Rect("Categories", safe);
+        Ui3D.TopStrip(categories, 44, 44, 330, 88);
+        shop.categoryTray = categories;
+        var categoryLayout = categories.gameObject.AddComponent<HorizontalLayoutGroup>();
+        categoryLayout.spacing = 10;
+        categoryLayout.childControlWidth = categoryLayout.childControlHeight = true;
+        categoryLayout.childForceExpandWidth = false;
+        categoryLayout.childForceExpandHeight = true;
+        shop.tabButtons = new Button[6];
+        shop.tabSurfaces = new Image[6];
+        shop.tabLabels = new TMP_Text[6];
+        for (int i = 0; i < 6; i++)
         {
-            Ui3D.Require("action_shop"), offers[0].portrait,
-            Decor(AquariumDecorCategory.Wood), Decor(AquariumDecorCategory.Rocks), Decor(AquariumDecorCategory.Coral),
-            Decor(AquariumDecorCategory.Plants), Decor(AquariumDecorCategory.Moss), Decor(AquariumDecorCategory.Floating),
-            surfaces.walls.Length > 1 ? surfaces.walls[1].portrait : null,
-            surfaces.substrates.Length > 1 ? surfaces.substrates[1].portrait : null
-        };
+            var button = Ui3D.Button("Category" + i, categories, ShopScreen.CategoryNames[1][i], Ui3D.Style.Secondary, 32);
+            button.transition = Selectable.Transition.None;
+            button.gameObject.AddComponent<LayoutElement>().preferredWidth = 150;
+            shop.tabButtons[i] = button;
+            shop.tabSurfaces[i] = button.GetComponent<Image>();
+            shop.tabLabels[i] = button.GetComponentInChildren<TMP_Text>();
+        }
     }
 
     private static void Grid(ShopScreen shop, RectTransform safe)
     {
         var area = Ui3D.Rect("Grid", safe);
-        Ui3D.Edges(area, Vector2.zero, Vector2.one, new Vector2(44, 440), new Vector2(-44, -614));
+        Ui3D.Edges(area, Vector2.zero, Vector2.one, new Vector2(44, 480), new Vector2(-44, -474));
         area.gameObject.AddComponent<RectMask2D>();
         var hit = area.gameObject.AddComponent<Image>();
         hit.color = Color.clear; // drags between cards still scroll
@@ -249,11 +239,11 @@ public static class ShopScreenBuilder
         cells.pivot = new Vector2(.5f, 1);
         cells.offsetMin = cells.offsetMax = Vector2.zero;
         var grid = cells.gameObject.AddComponent<GridLayoutGroup>();
-        grid.cellSize = new Vector2(232, 312);
-        grid.spacing = new Vector2(14, 16);
+        grid.cellSize = new Vector2(482, 470);
+        grid.spacing = new Vector2(28, 28);
         grid.padding = new RectOffset(0, 0, 4, 24);
         grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        grid.constraintCount = 4;
+        grid.constraintCount = 2;
         grid.childAlignment = TextAnchor.UpperCenter;
         cells.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         var scroll = area.gameObject.AddComponent<ScrollRect>();
@@ -280,50 +270,84 @@ public static class ShopScreenBuilder
         card.portrait = Ui3D.Rect("Portrait", surface.transform).gameObject.AddComponent<Image>();
         card.portrait.preserveAspect = true;
         card.portrait.raycastTarget = false;
-        Ui3D.Edges(card.portrait.rectTransform, new Vector2(0, 1), Vector2.one, new Vector2(14, -184), new Vector2(-14, -12));
-        card.title = Ui3D.Text("Name", surface.transform, "", 30, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
-        card.title.textWrappingMode = TextWrappingModes.NoWrap;
+        Ui3D.Edges(card.portrait.rectTransform, new Vector2(0, 1), Vector2.one, new Vector2(24, -296), new Vector2(-24, -18));
+        card.title = Ui3D.Text("Name", surface.transform, "", 40, Ui3D.Ink, true, TextAlignmentOptions.TopLeft);
+        card.title.textWrappingMode = TextWrappingModes.Normal;
         card.title.overflowMode = TextOverflowModes.Ellipsis;
-        Ui3D.Edges(card.title.rectTransform, new Vector2(0, 1), Vector2.one, new Vector2(18, -236), new Vector2(-14, -190));
-        var coin = Ui3D.Icon("Coin", surface.transform, "utility_coin");
-        Ui3D.At(coin.rectTransform, Vector2.zero, Vector2.zero, new Vector2(16, 22), new Vector2(48, 48));
+        Ui3D.Edges(card.title.rectTransform, new Vector2(0, 1), Vector2.one, new Vector2(30, -390), new Vector2(-30, -306));
+        var priceRow = Ui3D.Rect("PriceRow", surface.transform);
+        Ui3D.At(priceRow, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-30, 28), new Vector2(180, 62));
+        var priceLayout = priceRow.gameObject.AddComponent<HorizontalLayoutGroup>();
+        priceLayout.spacing = 10;
+        priceLayout.childAlignment = TextAnchor.MiddleRight;
+        priceLayout.childControlWidth = priceLayout.childControlHeight = true;
+        priceLayout.childForceExpandWidth = priceLayout.childForceExpandHeight = false;
+        priceRow.gameObject.AddComponent<ContentSizeFitter>().horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+        var coin = Ui3D.Icon("Coin", priceRow, "utility_coin");
+        var coinSize = coin.gameObject.AddComponent<LayoutElement>();
+        coinSize.preferredWidth = coinSize.preferredHeight = 62;
         card.coin = coin.gameObject;
-        card.price = Ui3D.Text("Price", surface.transform, "", 32, Ui3D.PriceInk, true, TextAlignmentOptions.MidlineLeft);
-        Ui3D.Edges(card.price.rectTransform, Vector2.zero, new Vector2(1, 0), new Vector2(70, 20), new Vector2(-14, 72));
+        card.price = Ui3D.Text("Price", priceRow, "", 44, Ui3D.PriceInk, true, TextAlignmentOptions.MidlineRight);
+        card.price.enableAutoSizing = false;
+        card.price.textWrappingMode = TextWrappingModes.NoWrap;
+        var shadow = card.price.gameObject.AddComponent<Shadow>();
+        shadow.effectColor = new Color(1, .97f, .9f, .9f);
+        shadow.effectDistance = new Vector2(0, -2);
         var badge = Ui3D.Badge("Status", surface.transform, "", true, out var status);
         Ui3D.At(badge.rectTransform, Vector2.one, Vector2.one, new Vector2(-8, -8), new Vector2(150, 52));
         card.status = status;
         card.statusBadge = badge.gameObject;
+        var check = Ui3D.Image("ActiveCheck", surface.transform, "ui3d_round", false);
+        Ui3D.At(check.rectTransform, Vector2.one, Vector2.one, new Vector2(-16, -16), new Vector2(96, 96));
+        var glyph = Ui3D.Icon("Check", check.transform, "utility_confirm");
+        Ui3D.Stretch(glyph.rectTransform, 21);
+        card.activeCheck = check.gameObject;
+        var tankPreview = Ui3D.Rect("TankPreview", surface.transform);
+        Ui3D.Edges(tankPreview, new Vector2(0, 1), Vector2.one, new Vector2(24, -296), new Vector2(-24, -18));
+        var glass = Ui3D.Solid("Glass", tankPreview, new Color(.66f, .86f, .8f, .38f));
+        Ui3D.At(glass.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(290, 190));
+        var outline = glass.gameObject.AddComponent<Outline>();
+        outline.effectColor = new Color(.35f, .57f, .49f, 1);
+        outline.effectDistance = new Vector2(5, -5);
+        var sand = Ui3D.Solid("Sand", glass.transform, new Color(.76f, .66f, .44f, .95f));
+        Ui3D.Edges(sand.rectTransform, Vector2.zero, new Vector2(1, .16f), Vector2.zero, Vector2.zero);
+        card.tankPreview = tankPreview.gameObject;
+        card.tankShape = glass.rectTransform;
+        check.transform.SetAsLastSibling();
         return card;
     }
 
     private static void Details(ShopScreen shop, RectTransform safe)
     {
         var panel = Ui3D.Panel("Details", safe);
-        Ui3D.BottomStrip(panel.rectTransform, 24, 24, 24, 400);
+        Ui3D.BottomStrip(panel.rectTransform, 24, 24, 24, 430);
         shop.details = panel.gameObject;
         shop.portrait = Ui3D.Rect("Portrait", panel.transform).gameObject.AddComponent<Image>();
-        shop.portrait.preserveAspect = true;
-        shop.portrait.raycastTarget = false;
-        Ui3D.At(shop.portrait.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(36, 8), new Vector2(270, 270));
-        shop.title = Ui3D.Text("Title", panel.transform, "", 48, Ui3D.Ink, true, TextAlignmentOptions.TopLeft);
-        Ui3D.Edges(shop.title.rectTransform, new Vector2(0, 1), Vector2.one, new Vector2(330, -100), new Vector2(-36, -36));
-        shop.description = Ui3D.Text("Description", panel.transform, "", 32, Ui3D.Muted, false, TextAlignmentOptions.TopLeft);
+        shop.portrait.gameObject.SetActive(false);
+        shop.title = Ui3D.Text("Title", panel.transform, "", 48, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.TopStrip(shop.title.rectTransform, 48, 280, 30, 68);
+        var coin = Ui3D.Icon("Coin", panel.transform, "utility_coin");
+        Ui3D.At(coin.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-190, -38), new Vector2(56, 56));
+        shop.priceCoin = coin.gameObject;
+        shop.priceLabel = Ui3D.Text("Price", panel.transform, "", 42, Ui3D.PriceInk, true, TextAlignmentOptions.MidlineRight);
+        Ui3D.At(shop.priceLabel.rectTransform, Vector2.one, Vector2.one, new Vector2(-48, -36), new Vector2(220, 60));
+        shop.description = Ui3D.Text("Description", panel.transform, "", 34, Ui3D.Muted, false, TextAlignmentOptions.TopLeft);
         shop.description.enableAutoSizing = false;
         shop.description.overflowMode = TextOverflowModes.Ellipsis;
-        Ui3D.Edges(shop.description.rectTransform, new Vector2(0, 1), Vector2.one, new Vector2(330, -186), new Vector2(-36, -104));
-        var coin = Ui3D.Icon("Coin", panel.transform, "utility_coin");
-        Ui3D.At(coin.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(330, -196), new Vector2(56, 56));
-        shop.priceCoin = coin.gameObject;
-        shop.priceLabel = Ui3D.Text("Price", panel.transform, "", 42, Ui3D.PriceInk, true, TextAlignmentOptions.MidlineLeft);
-        Ui3D.Edges(shop.priceLabel.rectTransform, new Vector2(0, 1), new Vector2(.5f, 1), new Vector2(396, -254), new Vector2(0, -194));
-        shop.feedback = Ui3D.Text("Feedback", panel.transform, "", 30, Ui3D.Forest, false, TextAlignmentOptions.MidlineRight);
-        Ui3D.Edges(shop.feedback.rectTransform, new Vector2(.5f, 1), Vector2.one, new Vector2(0, -254), new Vector2(-36, -194));
-        shop.secondaryButton = Ui3D.Button("Buy", panel.transform, "Mua 1", Ui3D.Style.Secondary, 40);
-        Ui3D.At((RectTransform)shop.secondaryButton.transform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-400, 28), new Vector2(300, 116));
+        Ui3D.TopStrip(shop.description.rectTransform, 48, 48, 108, 100);
+        shop.feedback = Ui3D.Text("Feedback", panel.transform, "", 30, Ui3D.Forest, false, TextAlignmentOptions.MidlineLeft);
+        Ui3D.TopStrip(shop.feedback.rectTransform, 48, 48, 212, 44);
+        var actions = Ui3D.Rect("Actions", panel.transform);
+        Ui3D.BottomStrip(actions, 48, 48, 32, 132);
+        var layout = actions.gameObject.AddComponent<HorizontalLayoutGroup>();
+        layout.spacing = 20;
+        layout.childControlWidth = layout.childControlHeight = true;
+        layout.childForceExpandWidth = layout.childForceExpandHeight = true;
+        shop.secondaryButton = Ui3D.Button("Buy", actions, "Mua 1", Ui3D.Style.Secondary, 42);
+        shop.secondaryButton.gameObject.AddComponent<LayoutElement>().preferredWidth = 440;
         shop.secondaryLabel = shop.secondaryButton.GetComponentInChildren<TMP_Text>();
-        shop.primaryButton = Ui3D.Button("Action", panel.transform, "Mua", Ui3D.Style.Primary, 40);
-        Ui3D.At((RectTransform)shop.primaryButton.transform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-36, 28), new Vector2(350, 116));
+        shop.primaryButton = Ui3D.Button("Action", actions, "Mua", Ui3D.Style.Primary, 42);
+        shop.primaryButton.gameObject.AddComponent<LayoutElement>().preferredWidth = 440;
         shop.primaryLabel = shop.primaryButton.GetComponentInChildren<TMP_Text>();
     }
 

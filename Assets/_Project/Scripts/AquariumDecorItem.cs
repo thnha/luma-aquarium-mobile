@@ -24,6 +24,22 @@ public sealed class AquariumDecorItem : MonoBehaviour
     // Stones, wood and corals: they can rest on top of one another.
     public bool Stacks => !floats && !wallMounted && !attachable && foliage == null;
 
+    private static readonly int WallPush = Shader.PropertyToID("_WallPush");
+
+    // Leaves fold against the glass instead of passing through it (AquariumWallPush in the leaf shaders).
+    // Moss walls and carpets already lie flat against glass and sand.
+    private void Start()
+    {
+        if (foliage == null || wallMounted || carpet > 0) return;
+        var block = new MaterialPropertyBlock();
+        foreach (var renderer in foliage.GetComponentsInChildren<Renderer>(true))
+        {
+            renderer.GetPropertyBlock(block);
+            block.SetFloat(WallPush, 1);
+            renderer.SetPropertyBlock(block);
+        }
+    }
+
     private void LateUpdate()
     {
         if (foliage != null)

@@ -10,6 +10,22 @@ namespace Lumaquarium.UI
     // The shop's tab / search / sort, kept free of scene objects so it can be tested.
     public static class ShopQuery
     {
+        public static ShopGroup GroupOf(ShopTab tab) => tab switch
+        {
+            ShopTab.Fish => ShopGroup.Fish,
+            ShopTab.Tanks or ShopTab.Walls or ShopTab.Substrates => ShopGroup.Aquarium,
+            _ => ShopGroup.Decor
+        };
+
+        public static List<ShopEntry> Filter(IReadOnlyList<ShopEntry> entries, ShopGroup group, ShopTab tab, string search, ShopSort sort)
+        {
+            var inGroup = entries.Where(e => GroupOf(e.tab) == group);
+            // Rêu & bèo is a single shop category; their catalog and inventory categories stay separate.
+            if (group == ShopGroup.Decor && (tab == ShopTab.Moss || tab == ShopTab.Floating))
+                return Filter(inGroup.Where(e => e.tab == ShopTab.Moss || e.tab == ShopTab.Floating).ToList(), ShopTab.All, search, sort);
+            return Filter(inGroup.ToList(), tab, search, sort);
+        }
+
         // Lower case without Vietnamese marks, so "lua" finds "Lũa" and "da" finds "Đá".
         public static string Normalize(string text)
         {
