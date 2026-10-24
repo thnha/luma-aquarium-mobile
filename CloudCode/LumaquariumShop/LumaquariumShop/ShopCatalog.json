@@ -1,5 +1,5 @@
 {
-    "version": "0f1149c390a2dc06",
+    "version": "48b09902ffe41e80",
     "items": [
         {
             "id": "blue-flame-betta",
@@ -33,6 +33,11 @@
         },
         {
             "id": "red-steel-betta",
+            "slot": "fish",
+            "price": 0
+        },
+        {
+            "id": "royal-koi-betta",
             "slot": "fish",
             "price": 0
         },

@@ -796,4 +796,4 @@ MonoBehaviour:
     - id: starter-wood
       slot: 
       count: 2
-  serverCatalogVersion: 0f1149c390a2dc06
+  serverCatalogVersion: 48b09902ffe41e80
