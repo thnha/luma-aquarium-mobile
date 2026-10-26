@@ -137,20 +137,9 @@ MonoBehaviour:
   caudalDroop: 0
   flareSpread: 28
   flareRaise: 14
-  hungerFold: 20
+  foldClose: 0.35
+  pleatAmount: 0.5
   skippedChains:
-  - Tail_Crown_01_01
-  - Tail_Crown_02_01
-  - Tail_Crown_03_01
-  - Tail_Crown_04_01
-  - Tail_Crown_05_01
-  - Tail_Crown_06_01
-  - Tail_Crown_07_01
-  - Tail_Crown_08_01
-  - Tail_Crown_09_01
-  - Tail_Crown_10_01
-  - Tail_Crown_11_01
-  - Tail_Crown_12_01
   - Dorsal_Crown_01_01
   - Dorsal_Crown_02_01
   - Dorsal_Crown_03_01
@@ -160,17 +149,8 @@ MonoBehaviour:
   - Dorsal_Crown_07_01
   - Dorsal_Crown_08_01
   - Dorsal_Crown_09_01
-  - Anal_Crown_01_01
-  - Anal_Crown_02_01
-  - Anal_Crown_03_01
-  - Anal_Crown_04_01
-  - Anal_Crown_05_01
-  - Anal_Crown_06_01
-  - Anal_Crown_07_01
-  - Anal_Crown_08_01
-  - Anal_Crown_09_01
-  - Anal_Crown_10_01
-  - Anal_Crown_11_01
+  caudalCoupling: 0.6
+  dorsalAnalCoupling: 0.9
 --- !u!114 &2249245994478992499
 MonoBehaviour:
   m_ObjectHideFlags: 0

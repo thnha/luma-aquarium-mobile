@@ -24,7 +24,7 @@ namespace Lumaquarium.UI
         public UnityEngine.UI.Image[] groupSurfaces;
         public TMP_Text[] groupLabels;
         public RectTransform categoryTray, searchRow;
-        public UnityEngine.UI.Image sortIcon;
+        public UnityEngine.UI.Image sortIcon, sortDownIcon;
         public UnityEngine.UI.Button[] tabButtons;
         public UnityEngine.UI.Image[] tabSurfaces;
         public TMP_Text[] tabLabels;
@@ -235,7 +235,7 @@ namespace Lumaquarium.UI
             placed = Decoration != null ? Decoration.PlacedCounts() : placed;
             balanceLabel.text = Money(inventory.Balance);
             if (sortLabel != null) sortLabel.text = Loc.T(SortNames[(int)sort]);
-            if (sortIcon != null) sortIcon.color = sort == ShopSort.Default ? UiInk : new Color32(69, 112, 58, 255);
+            RefreshSortIcon();
             clearSearch.gameObject.SetActive(!string.IsNullOrEmpty(search.text));
             for (int i = 0; i < groupButtons.Length; i++)
             {
@@ -269,6 +269,25 @@ namespace Lumaquarium.UI
             details.SetActive(selected != null);
             if (selected != null) ShowDetails(selected);
             if (busy) primaryButton.interactable = secondaryButton.interactable = false;
+        }
+
+        private void RefreshSortIcon()
+        {
+            if (sortIcon == null || sortDownIcon == null) return;
+            bool defaultOrder = sort == ShopSort.Default;
+            bool showUp = sort != ShopSort.PriceDescending;
+            bool showDown = sort != ShopSort.PriceAscending;
+            Color color = defaultOrder ? UiInk : new Color32(69, 112, 58, 255);
+            SetSortDirection(sortIcon, showUp, defaultOrder ? 15 : 3, defaultOrder ? 38 : 52, color);
+            SetSortDirection(sortDownIcon, showDown, defaultOrder ? -11 : 3, defaultOrder ? 38 : 52, color);
+        }
+
+        private static void SetSortDirection(UnityEngine.UI.Image image, bool shown, float y, float size, Color color)
+        {
+            image.gameObject.SetActive(shown);
+            image.color = color;
+            image.rectTransform.anchoredPosition = new Vector2(23, y);
+            image.rectTransform.sizeDelta = new Vector2(size, size);
         }
 
         private void ShowDetails(ShopEntry entry)

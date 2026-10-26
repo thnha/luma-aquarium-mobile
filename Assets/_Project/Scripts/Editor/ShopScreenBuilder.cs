@@ -165,15 +165,18 @@ public static class ShopScreenBuilder
         shop.sortButton = Ui3D.Button("Sort", row, "", Ui3D.Style.Secondary);
         Ui3D.At((RectTransform)shop.sortButton.transform, new Vector2(1, .5f), new Vector2(1, .5f), Vector2.zero, new Vector2(116, 116));
         foreach (var label in shop.sortButton.GetComponentsInChildren<TMP_Text>()) UnityEngine.Object.DestroyImmediate(label.gameObject);
+        var priceCoin = Ui3D.Icon("PriceSortCoin", shop.sortButton.transform, "utility_coin");
+        Ui3D.At(priceCoin.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(-22, 3), new Vector2(54, 54));
         var up = Ui3D.Icon("Ascending", shop.sortButton.transform, "utility_back");
         up.color = Ui3D.Ink;
-        Ui3D.At(up.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(-15, 5), new Vector2(62, 62));
+        Ui3D.At(up.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(23, 15), new Vector2(38, 38));
         up.rectTransform.localRotation = Quaternion.Euler(0, 0, -90);
         shop.sortIcon = up;
         var down = Ui3D.Icon("Descending", shop.sortButton.transform, "utility_back");
         down.color = Ui3D.Ink;
-        Ui3D.At(down.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(15, 5), new Vector2(62, 62));
+        Ui3D.At(down.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(23, -11), new Vector2(38, 38));
         down.rectTransform.localRotation = Quaternion.Euler(0, 0, 90);
+        shop.sortDownIcon = down;
     }
 
     private static void Tabs(ShopScreen shop, RectTransform safe)
