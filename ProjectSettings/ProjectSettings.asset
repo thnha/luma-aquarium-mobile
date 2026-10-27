@@ -11,16 +11,16 @@ PlayerSettings:
   defaultScreenOrientation: 0
   targetDevice: 2
   useOnDemandResources: 0
-  accelerometerFrequency: 60
+  accelerometerFrequency: 0
   companyName: thnha
   productName: Betta Fish Aquarium 3D
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
-  m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
+  m_SplashScreenBackgroundColor: {r: 0.025, g: 0.13, b: 0.14, a: 1}
   m_ShowUnitySplashScreen: 1
-  m_ShowUnitySplashLogo: 1
-  m_SplashScreenOverlayOpacity: 1
-  m_SplashScreenAnimation: 1
+  m_ShowUnitySplashLogo: 0
+  m_SplashScreenOverlayOpacity: 0
+  m_SplashScreenAnimation: 0
   m_SplashScreenLogoStyle: 1
   m_SplashScreenDrawMode: 0
   m_SplashScreenBackgroundAnimationZoom: 1
@@ -148,8 +148,7 @@ PlayerSettings:
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
   bundleVersion: 0.1.0
-  preloadedAssets:
-  - {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -177,7 +176,7 @@ PlayerSettings:
   buildNumber:
     Standalone: 0
     VisionOS: 0
-    iPhone: 14
+    iPhone: 17
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
   AndroidBundleVersionCode: 2
@@ -222,16 +221,16 @@ PlayerSettings:
   tvOSTopShelfImageLayers2x: []
   tvOSTopShelfImageWideLayers: []
   tvOSTopShelfImageWideLayers2x: []
-  iOSLaunchScreenType: 0
-  iOSLaunchScreenPortrait: {fileID: 0}
-  iOSLaunchScreenLandscape: {fileID: 0}
+  iOSLaunchScreenType: 1
+  iOSLaunchScreenPortrait: {fileID: 2800000, guid: f57670b4fd9de4185bbc1571640b8dc2, type: 3}
+  iOSLaunchScreenLandscape: {fileID: 2800000, guid: f57670b4fd9de4185bbc1571640b8dc2, type: 3}
   iOSLaunchScreenBackgroundColor:
     serializedVersion: 2
     rgba: 0
   iOSLaunchScreenFillPct: 100
   iOSLaunchScreenSize: 100
-  iOSLaunchScreeniPadType: 0
-  iOSLaunchScreeniPadImage: {fileID: 0}
+  iOSLaunchScreeniPadType: 1
+  iOSLaunchScreeniPadImage: {fileID: 2800000, guid: f57670b4fd9de4185bbc1571640b8dc2, type: 3}
   iOSLaunchScreeniPadBackgroundColor:
     serializedVersion: 2
     rgba: 0
@@ -274,8 +273,8 @@ PlayerSettings:
   useCustomProguardFile: 0
   AndroidTargetArchitectures: 2
   AndroidAllowedArchitectures: -13
-  AndroidSplashScreenScale: 0
-  androidSplashScreen: {fileID: 0}
+  AndroidSplashScreenScale: 2
+  androidSplashScreen: {fileID: 2800000, guid: f57670b4fd9de4185bbc1571640b8dc2, type: 3}
   AndroidKeystoreName: 
   AndroidKeyaliasName: 
   AndroidEnableArmv9SecurityFeatures: 0
@@ -817,9 +816,9 @@ PlayerSettings:
   ps4IncludedModules: []
   ps4attribVROutputEnabled: 0
   monoEnv: 
-  splashScreenBackgroundSourceLandscape: {fileID: 0}
-  splashScreenBackgroundSourcePortrait: {fileID: 0}
-  blurSplashScreenBackground: 1
+  splashScreenBackgroundSourceLandscape: {fileID: 21300000, guid: f57670b4fd9de4185bbc1571640b8dc2, type: 3}
+  splashScreenBackgroundSourcePortrait: {fileID: 21300000, guid: f57670b4fd9de4185bbc1571640b8dc2, type: 3}
+  blurSplashScreenBackground: 0
   spritePackerPolicy: 
   webGLMemorySize: 32
   webGLExceptionSupport: 1
@@ -849,7 +848,9 @@ PlayerSettings:
   webGLCloseOnQuit: 0
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    Android: LEVELPLAY_DEPENDENCIES_INSTALLED
+    iPhone: LEVELPLAY_DEPENDENCIES_INSTALLED
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
@@ -926,7 +927,8 @@ PlayerSettings:
   XboxOneOverrideIdentityName: 
   XboxOneOverrideIdentityPublisher: 
   vrEditorSettings: {}
-  cloudServicesEnabled: {}
+  cloudServicesEnabled:
+    Purchasing: 0
   luminIcon:
     m_Name: 
     m_ModelFolderPath: 

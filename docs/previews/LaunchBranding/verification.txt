@@ -1,0 +1,10 @@
+Branding verified: 2026-10-27T02:44:58.4208910Z
+Product: Betta Fish Aquarium 3D
+Shared artwork: Assets/_Project/UI/Backgrounds/AquariumLaunch.png
+Unity splash: enabled, static, no Unity logo, no blur/overlay
+iOS: iPhone portrait/landscape and iPad launch image configured
+Android: launch image configured, scale-to-fill
+Start: canvas, raycaster, controls and controller references valid
+Loading: shared launch artwork and controller references valid
+Entry scene: StartGame
+Device builds have not been installed or tested by this check.

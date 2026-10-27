@@ -24,7 +24,8 @@ public sealed class FrontEndAssetImporter : AssetPostprocessor
         importer.wrapMode = TextureWrapMode.Clamp;
         importer.filterMode = FilterMode.Bilinear;
         importer.npotScale = TextureImporterNPOTScale.None;
-        importer.maxTextureSize = 2048;
+        // Icons show at about 260 px on a 1080-wide canvas; the 1254 px action sources need no more than 512.
+        importer.maxTextureSize = assetPath.StartsWith(Root + "/Icons/", StringComparison.Ordinal) ? 512 : 2048;
         importer.textureCompression = TextureImporterCompression.Uncompressed;
         importer.spriteBorder = BorderFor(Path.GetFileNameWithoutExtension(assetPath));
         var settings = new TextureImporterSettings();

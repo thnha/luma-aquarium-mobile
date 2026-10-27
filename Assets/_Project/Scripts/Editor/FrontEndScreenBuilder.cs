@@ -96,42 +96,71 @@ public static class FrontEndScreenBuilder
         Debug.Log("[Lumaquarium] StartGame, LoginGame and LoadingGame built. MainAquarium preserved.");
     }
 
-    // Start and guest login are one screen; LoginGame keeps only the coming-soon account form.
+    // Splash and Start share one full-bleed illustration; controls remain live UI.
     private static void BuildStart()
     {
-        var canvas = NewScreen(FrontEndScenes.Start);
+        var canvas = NewScreen(FrontEndScenes.Start, "AquariumLaunch");
         var controller = canvas.gameObject.AddComponent<StartGameScreen>();
+        var scrim = Picture("ControlsScrim", canvas, "FrontEndScrim");
+        Stretch(scrim.rectTransform);
         var safe = SafeRoot(canvas);
-        var subtitle = Header(safe, "Lumaquarium", "Hồ cá của riêng bạn");
-        var card = Ui3D.Panel("StartPanel", safe);
-        Ui3D.At(card.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 88), new Vector2(1000, 690));
-        var title = Ui3D.Text("Title", card.transform, "Một góc hồ dành cho bạn", 60, Ui3D.Ink, true);
-        Ui3D.TopStrip(title.rectTransform, 50, 50, 60, 80);
-        var description = Ui3D.Text("Description", card.transform, "Bắt đầu ngay, không cần tài khoản", 40, Ui3D.Muted);
-        Ui3D.TopStrip(description.rectTransform, 50, 50, 145, 56);
-        var start = Ui3D.Button("StartButton", card.transform, "Chơi ngay", Ui3D.Style.Primary, 50);
-        Ui3D.TopStrip((RectTransform)start.transform, 60, 60, 230, 150);
-        var account = Ui3D.Button("AccountButton", card.transform, "Đăng nhập tài khoản", Ui3D.Style.Secondary);
-        Ui3D.TopStrip((RectTransform)account.transform, 60, 60, 400, 150);
-        var accountLabel = account.GetComponentInChildren<TMP_Text>();
-        accountLabel.rectTransform.offsetMax = new Vector2(-200, -6);
-        var soon = Ui3D.Badge("Soon", account.transform, "Sắp có", true, out var soonLabel);
-        Ui3D.At(soon.rectTransform, new Vector2(1, .5f), new Vector2(1, .5f), new Vector2(-34, 4), new Vector2(180, 66));
-        // Accounts are not built yet: the button stays on the grey locked surface and cannot be tapped.
-        account.interactable = false;
-        account.GetComponent<UnityEngine.UI.Image>().sprite = Ui3D.Require("ui3d_button_disabled");
-        soon.color = new Color(.86f, .84f, .8f);
-        soonLabel.color = Ui3D.Disabled;
-        var note = Ui3D.Text("LocalSaveNote", card.transform, "Tiến trình chơi khách lưu trên thiết bị này", 34, Ui3D.Muted);
-        Ui3D.TopStrip(note.rectTransform, 50, 50, 575, 56);
-        var feedback = Text("Feedback", safe, "", 31, Cream);
-        At(feedback.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 800), new Vector2(940, 80));
+        var controls = Rect("StartControls", safe);
+        Stretch(controls);
+        var reveal = controls.gameObject.AddComponent<CanvasGroup>();
+        var start = Ui3D.Button("StartButton", controls, "Chơi ngay", Ui3D.Style.Primary, 56);
+        At((RectTransform)start.transform, new Vector2(.5f, .15f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(820, 150));
+        var note = Ui3D.Text("LocalSaveNote", controls, "Tiến trình lưu trên thiết bị này", 30, Cream);
+        At(note.rectTransform, new Vector2(.5f, .075f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(960, 64));
+        var feedback = Text("Feedback", controls, "", 31, Cream);
+        At(feedback.rectTransform, new Vector2(.5f, .24f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(940, 80));
         Assign(controller, "startButton", start);
-        Assign(controller, "accountButton", account);
         Assign(controller, "startLabel", start.GetComponentInChildren<TMP_Text>());
-        Assign(controller, "subtitle", subtitle);
         Assign(controller, "feedback", feedback);
+        Assign(controller, "startControls", reveal);
         SaveScreen(canvas, FrontEndScenes.Start);
+    }
+
+    // Rebuild only the approved start screen, leaving Login, Loading and the aquarium intact.
+    public static void BuildBrandedStart()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            throw new InvalidOperationException("Exit Play Mode before updating the start screen.");
+        string path = SceneRoot + FrontEndScenes.Start + ".unity";
+        for (int i = 0; i < SceneManager.sceneCount; i++)
+            if (SceneManager.GetSceneAt(i).path == path && SceneManager.GetSceneAt(i).isDirty)
+                throw new InvalidOperationException("Save StartGame before updating it.");
+        var previous = SceneManager.GetActiveScene();
+        bodyFont = FontAsset("Nunito-SemiBold");
+        titleFont = FontAsset("Nunito-ExtraBold");
+        Ui3D.LoadFonts();
+        try { BuildStart(); }
+        finally
+        {
+            if (previous.IsValid() && previous.isLoaded) SceneManager.SetActiveScene(previous);
+        }
+        AssetDatabase.SaveAssets();
+    }
+
+    // Rebuild only the account screen (Apple / Google sign-in), leaving Start, Loading and the aquarium intact.
+    [MenuItem("Lumaquarium/UI/Build Login Screen")]
+    public static void BuildLoginOnly()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            throw new InvalidOperationException("Exit Play Mode before updating the login screen.");
+        string path = SceneRoot + FrontEndScenes.Login + ".unity";
+        for (int i = 0; i < SceneManager.sceneCount; i++)
+            if (SceneManager.GetSceneAt(i).path == path && SceneManager.GetSceneAt(i).isDirty)
+                throw new InvalidOperationException("Save LoginGame before updating it.");
+        var previous = SceneManager.GetActiveScene();
+        bodyFont = FontAsset("Nunito-SemiBold");
+        titleFont = FontAsset("Nunito-ExtraBold");
+        Ui3D.LoadFonts();
+        try { BuildLogin(); }
+        finally
+        {
+            if (previous.IsValid() && previous.isLoaded) SceneManager.SetActiveScene(previous);
+        }
+        AssetDatabase.SaveAssets();
     }
 
     private static void BuildLogin()
@@ -145,47 +174,42 @@ public static class FrontEndScreenBuilder
         At(heading.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(190, -40), new Vector2(700, 122));
 
         var form = Ui3D.Panel("AccountPanel", safe);
-        Ui3D.At(form.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 88), new Vector2(1000, 1210));
-        var soon = Ui3D.Badge("Soon", form.transform, "SẮP CÓ", true, out _);
-        At(soon.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -50), new Vector2(210, 66));
+        Ui3D.At(form.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 88), new Vector2(1000, 1010));
         var title = Ui3D.Text("AccountTitle", form.transform, "Đăng nhập tài khoản", 60, Ui3D.Ink, true);
-        Ui3D.TopStrip(title.rectTransform, 50, 50, 130, 80);
-        var description = Ui3D.Text("AccountAvailability", form.transform, "Đồng bộ hồ giữa nhiều thiết bị sẽ mở trong bản sau", 38, Ui3D.Muted);
-        Ui3D.TopStrip(description.rectTransform, 50, 50, 215, 100);
-        var emailLabel = Ui3D.Text("EmailLabel", form.transform, "Email", 34, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
-        Ui3D.TopStrip(emailLabel.rectTransform, 74, 70, 330, 50);
-        var email = Input("EmailInput", form.transform, "ban@vidu.com", -445, false);
-        email.contentType = TMP_InputField.ContentType.EmailAddress;
-        var passwordLabel = Ui3D.Text("PasswordLabel", form.transform, "Mật khẩu", 34, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
-        Ui3D.TopStrip(passwordLabel.rectTransform, 74, 70, 540, 50);
-        var password = Input("PasswordInput", form.transform, "Mật khẩu", -655, true);
-        email.interactable = password.interactable = false;
-        var submit = Ui3D.Button("AccountSubmitButton", form.transform, "Đăng nhập", Ui3D.Style.Primary);
-        Ui3D.TopStrip((RectTransform)submit.transform, 70, 70, 750, 150);
-        submit.interactable = false;
+        Ui3D.TopStrip(title.rectTransform, 50, 50, 60, 80);
+        var description = Ui3D.Text("AccountAvailability", form.transform, "Giữ xu và cá khi đổi máy hoặc cài lại game", 38, Ui3D.Muted);
+        Ui3D.TopStrip(description.rectTransform, 50, 50, 145, 100);
+        // LoginGameScreen hides Apple off iOS and moves Google into its slot.
+        var apple = Ui3D.Button("AppleSignInButton", form.transform, "Đăng nhập bằng Apple", Ui3D.Style.Primary);
+        Ui3D.TopStrip((RectTransform)apple.transform, 70, 70, 280, 150);
+        var google = Ui3D.Button("GoogleSignInButton", form.transform, "Đăng nhập bằng Google", Ui3D.Style.Secondary);
+        Ui3D.TopStrip((RectTransform)google.transform, 70, 70, 455, 150);
         var divider = Ui3D.Solid("Divider", form.transform, Ui3D.Divider);
-        Ui3D.TopStrip(divider.rectTransform, 70, 70, 925, 4);
+        Ui3D.TopStrip(divider.rectTransform, 70, 70, 635, 4);
         var guest = Ui3D.Button("ReturnToGuestButton", form.transform, "Chơi với tư cách khách", Ui3D.Style.Primary);
-        Ui3D.TopStrip((RectTransform)guest.transform, 70, 70, 955, 150);
-        var note = Ui3D.Text("PrivacyNote", form.transform, "Không gửi hay lưu thông tin đăng nhập", 32, Ui3D.Muted);
-        Ui3D.TopStrip(note.rectTransform, 50, 50, 1115, 50);
+        Ui3D.TopStrip((RectTransform)guest.transform, 70, 70, 665, 150);
+        var note = Ui3D.Text("PrivacyNote", form.transform, "Chỉ dùng tài khoản để lưu hồ của bạn", 32, Ui3D.Muted);
+        Ui3D.TopStrip(note.rectTransform, 50, 50, 840, 50);
 
         var feedback = Text("Feedback", safe, "", 30, Cream);
-        At(feedback.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 1320), new Vector2(960, 80));
+        At(feedback.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 1120), new Vector2(960, 80));
         Assign(controller, "accountPanel", form.gameObject);
+        Assign(controller, "appleButton", apple);
+        Assign(controller, "googleButton", google);
         Assign(controller, "returnToGuestButton", guest);
         Assign(controller, "backButton", back);
-        Assign(controller, "password", password);
         Assign(controller, "feedback", feedback);
         SaveScreen(canvas, FrontEndScenes.Login);
     }
 
     private static void BuildLoading()
     {
-        var canvas = NewScreen(FrontEndScenes.Loading);
+        var canvas = NewScreen(FrontEndScenes.Loading, "AquariumLaunch");
         var controller = canvas.gameObject.AddComponent<GameLoadingScreen>();
+        // The title is already in the shared launch artwork, just as on StartGame.
+        var scrim = Picture("ControlsScrim", canvas, "FrontEndScrim");
+        Stretch(scrim.rectTransform);
         var safe = SafeRoot(canvas);
-        Header(safe, "Lumaquarium", "Góc hồ đang chờ bạn");
         var card = Ui3D.Panel("LoadingPanel", safe);
         Ui3D.At(card.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 88), new Vector2(1000, 500));
         var status = Ui3D.Text("LoadingStatus", card.transform, "Đang chuẩn bị hồ cá...", 46, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
@@ -220,7 +244,7 @@ public static class FrontEndScreenBuilder
         SaveScreen(canvas, FrontEndScenes.Loading);
     }
 
-    private static RectTransform NewScreen(string name)
+    private static RectTransform NewScreen(string name, string backgroundName = "AquariumFrontEnd")
     {
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
         SceneManager.SetActiveScene(scene);
@@ -240,11 +264,12 @@ public static class FrontEndScreenBuilder
         scaler.referenceResolution = new Vector2(1080, 1920);
         scaler.matchWidthOrHeight = 0;
         root.gameObject.AddComponent<UnityEngine.UI.GraphicRaycaster>();
-        var background = Picture("AquariumBackground", root, "AquariumFrontEnd");
+        var background = Picture("AquariumBackground", root, backgroundName);
         Stretch(background.rectTransform);
         var fitter = background.gameObject.AddComponent<UnityEngine.UI.AspectRatioFitter>();
         fitter.aspectMode = UnityEngine.UI.AspectRatioFitter.AspectMode.EnvelopeParent;
         fitter.aspectRatio = background.sprite.rect.width / background.sprite.rect.height;
+        if (backgroundName == "AquariumLaunch") return root;
         var scrim = Picture("BottomScrim", root, "FrontEndScrim");
         Stretch(scrim.rectTransform);
         var tint = Picture("SoftTint", root, null);
@@ -264,6 +289,10 @@ public static class FrontEndScreenBuilder
     private static TMP_Text Header(Transform parent, string title, string subtitle)
     {
         var label = Text("Title", parent, title, 92, Cream, titleFont);
+        label.enableAutoSizing = true;
+        label.fontSizeMin = 40;
+        label.fontSizeMax = 92;
+        label.textWrappingMode = TextWrappingModes.NoWrap;
         At(label.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -135), new Vector2(950, 135));
         var small = Text("Subtitle", parent, subtitle, 36, Cream);
         At(small.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -255), new Vector2(950, 80));

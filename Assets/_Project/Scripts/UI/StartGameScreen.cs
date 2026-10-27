@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,15 +13,38 @@ namespace Lumaquarium.UI
         [SerializeField] private TMP_Text startLabel;
         [SerializeField] private TMP_Text subtitle;
         [SerializeField] private TMP_Text feedback;
+        [SerializeField] private CanvasGroup startControls;
         private bool transitioning;
 
         private void Awake()
         {
+            if (startControls != null)
+            {
+                startControls.alpha = 0;
+                startControls.interactable = false;
+                startControls.blocksRaycasts = false;
+            }
             startButton.onClick.AddListener(Begin);
             if (accountButton != null) accountButton.onClick.AddListener(OpenAccount);
             bool returning = FrontEndScenes.HasGuestProfile;
             if (startLabel != null) startLabel.text = Loc.T(returning ? "Tiếp tục hồ của bạn" : "Chơi ngay");
             if (subtitle != null) subtitle.text = Loc.T(returning ? "Chào mừng bạn trở lại" : "Hồ cá của riêng bạn");
+        }
+
+        private IEnumerator Start()
+        {
+            if (startControls == null) yield break;
+            // Continue directly from the static splash, revealing only the controls.
+            float elapsed = 0;
+            while (elapsed < .45f)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                startControls.alpha = Mathf.SmoothStep(0, 1, elapsed / .45f);
+                yield return null;
+            }
+            startControls.alpha = 1;
+            startControls.interactable = true;
+            startControls.blocksRaycasts = true;
         }
 
         private void OnDestroy()

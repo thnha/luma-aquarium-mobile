@@ -1,3 +1,4 @@
+using Lumaquarium.Account;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,30 +11,50 @@ namespace Lumaquarium.UI
         [SerializeField] private GameObject accountPanel;
         [SerializeField] private UnityEngine.UI.Button guestButton;
         [SerializeField] private UnityEngine.UI.Button accountButton;
+        [SerializeField] private UnityEngine.UI.Button appleButton;
+        [SerializeField] private UnityEngine.UI.Button googleButton;
         [SerializeField] private UnityEngine.UI.Button returnToGuestButton;
         [SerializeField] private UnityEngine.UI.Button backButton;
         [SerializeField] private TMP_InputField password;
         [SerializeField] private TMP_Text feedback;
         private bool transitioning;
+        private bool signingIn;
 
-        // The redesigned LoginGame only holds the account form; guest play starts from StartGame.
-        // guestPanel/guestButton/accountButton stay optional for scenes built before the redesign.
+        // The redesigned LoginGame holds Apple / Google sign-in; guest play starts from StartGame.
+        // guestPanel/guestButton/accountButton/password stay optional for scenes built before the redesign.
         private void Awake()
         {
             if (guestButton != null) guestButton.onClick.AddListener(PlayAsGuest);
             if (accountButton != null) accountButton.onClick.AddListener(ShowAccount);
+            if (appleButton != null) appleButton.onClick.AddListener(SignInWithApple);
+            if (googleButton != null) googleButton.onClick.AddListener(SignInWithGoogle);
             returnToGuestButton.onClick.AddListener(guestPanel != null ? (UnityEngine.Events.UnityAction)ShowGuest : PlayAsGuest);
             backButton.onClick.AddListener(Back);
+            ShowProviders();
             if (guestPanel != null) ShowGuest();
             else ShowAccount();
         }
+
+        private void Update() => AccountSignIn.Update();
 
         private void OnDestroy()
         {
             if (guestButton != null) guestButton.onClick.RemoveAllListeners();
             if (accountButton != null) accountButton.onClick.RemoveAllListeners();
+            if (appleButton != null) appleButton.onClick.RemoveAllListeners();
+            if (googleButton != null) googleButton.onClick.RemoveAllListeners();
             returnToGuestButton.onClick.RemoveAllListeners();
             backButton.onClick.RemoveListener(Back);
+        }
+
+        // Apple only exists on iOS; when it is hidden, Google moves up into its slot.
+        private void ShowProviders()
+        {
+            if (appleButton == null || googleButton == null) return;
+            if (AccountSignIn.AppleSupported) return;
+            var google = (RectTransform)googleButton.transform;
+            google.anchoredPosition = ((RectTransform)appleButton.transform).anchoredPosition;
+            appleButton.gameObject.SetActive(false);
         }
 
         public void ShowAccount()
@@ -46,36 +67,76 @@ namespace Lumaquarium.UI
         public void ShowGuest()
         {
             if (transitioning) return;
-            password.text = string.Empty;
+            if (password != null) password.text = string.Empty;
             if (guestPanel == null) return;
             accountPanel.SetActive(false);
             guestPanel.SetActive(true);
         }
 
+        public void SignInWithApple() => SignIn(true);
+        public void SignInWithGoogle() => SignIn(false);
+
+        private async void SignIn(bool withApple)
+        {
+            if (transitioning || signingIn) return;
+            signingIn = true;
+            SetInteractable(false);
+            feedback.text = Loc.T("Đang đăng nhập…");
+            var result = withApple ? await AccountSignIn.SignInWithApple() : await AccountSignIn.SignInWithGoogle();
+            signingIn = false;
+            if (this == null) return;
+            switch (result)
+            {
+                case SignInResult.Success:
+                    FrontEndScenes.EnsureGuestProfile();
+                    feedback.text = string.Empty;
+                    OpenAquarium();
+                    return;
+                case SignInResult.Canceled: feedback.text = string.Empty; break;
+                case SignInResult.Offline: feedback.text = Loc.T("Không có mạng. Vui lòng thử lại."); break;
+                case SignInResult.Unavailable: feedback.text = Loc.T("Cách đăng nhập này chưa dùng được trên máy này."); break;
+                default: feedback.text = Loc.T("Đăng nhập không thành công. Vui lòng thử lại."); break;
+            }
+            SetInteractable(true);
+        }
+
         public void PlayAsGuest()
         {
-            if (transitioning) return;
+            if (transitioning || signingIn) return;
+            FrontEndScenes.EnsureGuestProfile();
+            OpenAquarium();
+        }
+
+        private void OpenAquarium()
+        {
             if (!Application.CanStreamedLevelBeLoaded(FrontEndScenes.Loading))
             {
                 feedback.text = Loc.T("Chưa thể mở hồ cá. Vui lòng thử lại.");
+                SetInteractable(true);
                 return;
             }
 
-            FrontEndScenes.EnsureGuestProfile();
-            password.text = string.Empty;
+            if (password != null) password.text = string.Empty;
             transitioning = true;
-            if (guestButton != null) guestButton.interactable = false;
-            if (accountButton != null) accountButton.interactable = false;
-            returnToGuestButton.interactable = false;
-            backButton.interactable = false;
+            SetInteractable(false);
             SceneManager.LoadSceneAsync(FrontEndScenes.Loading);
+        }
+
+        private void SetInteractable(bool value)
+        {
+            if (guestButton != null) guestButton.interactable = value;
+            if (accountButton != null) accountButton.interactable = value;
+            if (appleButton != null) appleButton.interactable = value;
+            if (googleButton != null) googleButton.interactable = value;
+            returnToGuestButton.interactable = value;
+            backButton.interactable = value;
         }
 
         public void Back()
         {
-            if (transitioning || !Application.CanStreamedLevelBeLoaded(FrontEndScenes.Start)) return;
+            if (transitioning || signingIn || !Application.CanStreamedLevelBeLoaded(FrontEndScenes.Start)) return;
             transitioning = true;
-            password.text = string.Empty;
+            if (password != null) password.text = string.Empty;
             SceneManager.LoadSceneAsync(FrontEndScenes.Start);
         }
     }

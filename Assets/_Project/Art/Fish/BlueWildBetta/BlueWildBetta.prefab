@@ -1,0 +1,316 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6506951863514965538
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4038807935563435148}
+  - component: {fileID: 830300043558696729}
+  - component: {fileID: 5497937166440222800}
+  - component: {fileID: 2179003858837039831}
+  - component: {fileID: 5948741066131993258}
+  - component: {fileID: 3339585691849107760}
+  m_Layer: 0
+  m_Name: BlueWildBetta
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4038807935563435148
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6506951863514965538}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7208887965878598651}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &830300043558696729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6506951863514965538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce1adae7064f1426c96a5e64d570ca3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaSwimMotion
+  fish: {fileID: 0}
+  skeletonRoot: {fileID: 7208887965878598651}
+  bodyIdleFrequency: 0.4
+  bodySwimFrequency: 1
+  bodyIdleAmplitude: 0.5
+  bodySwimAmplitude: 3
+  wavePhaseStep: 0.6
+  caudalIdleFrequency: 0.6
+  caudalSwimFrequency: 1.4
+  strokeIdleAmplitude: 2
+  strokeSwimAmplitude: 8
+  thrustPulse: 0.3
+  headRecoil: 0.6
+  trailFollowSpeed: 0.35
+  maxSegmentBend: 26
+  pitchBendScale: 0.5
+  maxSegmentPitchBend: 10
+  turnTailKick: 0.08
+  maxTailKick: 12
+  displayCurlAngle: 8
+  displayFlickAngle: 10
+  displayFlickFrequency: 1.2
+  tailBeatFrequency: 2.2
+  tailBeatLashAngle: 24
+  tailBeatBias: 0.35
+  tailBeatRecoil: 3
+  pectoralHoverFrequency: 2
+  pectoralCruiseFrequency: 1.1
+  pectoralHoverAmplitude: 16
+  pectoralCruiseAmplitude: 6
+  pectoralHoverLag: 0.1
+  pectoralTurnBoost: 0.3
+  gillRestFrequency: 0.7
+  gillActiveFrequency: 1.6
+  gillOpenAngle: 12
+  gillFlareAngle: 20
+--- !u!114 &5497937166440222800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6506951863514965538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea7f5184e47724b42a7a5e53788f9429, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaFinPhysics
+  skeletonRoot: {fileID: 7208887965878598651}
+  fish: {fileID: 0}
+  caudal:
+    rootStiffness: 0.1
+    tipStiffness: 0.035
+    damping: 0.18
+    maxAngle: 22
+    ripple: 0.005
+    speedStiffening: 1.3
+    sag: 0.15
+  dorsalAnal:
+    rootStiffness: 0.14
+    tipStiffness: 0.06
+    damping: 0.24
+    maxAngle: 22
+    ripple: 0.002
+    speedStiffening: 2.5
+    sag: 0.08
+  pelvic:
+    rootStiffness: 0.16
+    tipStiffness: 0.06
+    damping: 0.18
+    maxAngle: 35
+    ripple: 0.002
+    speedStiffening: 2
+    sag: 0.2
+  pectoral:
+    rootStiffness: 0.2
+    tipStiffness: 0.1
+    damping: 0.16
+    maxAngle: 35
+    ripple: 0.002
+    speedStiffening: 1.5
+    sag: 0
+  flowDrag: 0.5
+  dorsalRaise: 12
+  caudalSpread: 0
+  caudalDroop: 0
+  flareSpread: 28
+  flareRaise: 14
+  foldClose: 0.35
+  pleatAmount: 0.5
+  skippedChains:
+  - Dorsal_Crown_01_01
+  - Dorsal_Crown_02_01
+  - Dorsal_Crown_03_01
+  - Dorsal_Crown_04_01
+  - Dorsal_Crown_05_01
+  - Dorsal_Crown_06_01
+  - Dorsal_Crown_07_01
+  - Dorsal_Crown_08_01
+  - Dorsal_Crown_09_01
+  caudalCoupling: 0.6
+  dorsalAnalCoupling: 0.9
+--- !u!114 &2179003858837039831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6506951863514965538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f72c8581d89b2450d87ae105b90ebcae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaReactions
+  fish: {fileID: 0}
+  animator: {fileID: 8205384393932218804}
+  viewCamera: {fileID: 0}
+  flareCooldown: 2
+  maxTapSeconds: 0.3
+  maxTapMovePixels: 20
+--- !u!114 &5948741066131993258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6506951863514965538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d8e685ddcb334db4afc9b484018aeb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaMouth
+  skeletonRoot: {fileID: 7208887965878598651}
+  bubbleMaterial: {fileID: 2100000, guid: f192f1ee71f1845f39788389f419341d, type: 2}
+  yawnMinInterval: 20
+  yawnMaxInterval: 50
+  bubbleSize: {x: 0.012, y: 0.022}
+  bubbleRiseSpeed: 0.22
+  surfaceFloatTime: {x: 4, y: 9}
+--- !u!114 &3339585691849107760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6506951863514965538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 972504744c4264e3c94ffdd6b48e95ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BettaRiggedModel
+  animator: {fileID: 8205384393932218804}
+  reactions: {fileID: 2179003858837039831}
+--- !u!1001 &7170192489191922704
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4038807935563435148}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.9848078
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.1736482
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -6765985735603531714, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      propertyPath: m_Quality
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: -6765985735603531714, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 71b253ebd08a8459dab417c39ad1bd18, type: 2}
+    - target: {fileID: 919132149155446097, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      propertyPath: m_Name
+      value: BlueWildBetta
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8205384393932218804}
+  m_SourcePrefab: {fileID: 100100000, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+--- !u!4 &7208887965878598651 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+  m_PrefabInstance: {fileID: 7170192489191922704}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8016633584950993217 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 275ff96f13d2948abba923640be5c1e3, type: 3}
+  m_PrefabInstance: {fileID: 7170192489191922704}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &8205384393932218804
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8016633584950993217}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 22100000, guid: a32d70ebc3298435ab50b167acb7b3a4, type: 2}
+  m_CullingMode: 1
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

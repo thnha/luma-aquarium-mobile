@@ -14,6 +14,19 @@ public sealed class ShopModule
     public Task<ShopReply> GetState(IExecutionContext context, IGameApiClient gameApiClient) =>
         Logic(context, gameApiClient).GetState();
 
+    [CloudCodeFunction("GetAdRewardStatus")]
+    public Task<ShopReply> GetAdRewardStatus(IExecutionContext context, IGameApiClient gameApiClient) =>
+        Logic(context, gameApiClient).GetAdRewardStatus();
+
+    [CloudCodeFunction("ClaimAdReward")]
+    public Task<ShopReply> ClaimAdReward(IExecutionContext context, IGameApiClient gameApiClient, string requestId) =>
+        Logic(context, gameApiClient).ClaimAdReward(requestId);
+
+    [CloudCodeFunction("ClaimAppStorePurchase")]
+    public Task<ShopReply> ClaimAppStorePurchase(IExecutionContext context, IGameApiClient gameApiClient, string productId, string transactionId) =>
+        new ShopLogic(new CloudSaveShopStore(context, gameApiClient), CatalogResource.Catalog, appStore: new AppStoreApi(context, gameApiClient))
+            .ClaimAppStorePurchase(productId, transactionId);
+
     [CloudCodeFunction("BuyItem")]
     public Task<ShopReply> BuyItem(IExecutionContext context, IGameApiClient gameApiClient, string id, string catalogVersion) =>
         Logic(context, gameApiClient).Buy(id, catalogVersion);

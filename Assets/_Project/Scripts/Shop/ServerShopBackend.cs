@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Lumaquarium.UI;
 using UnityEngine;
@@ -23,6 +24,8 @@ namespace Lumaquarium.Shop
     public sealed class ServerShopBackend : IShopBackend
     {
         private readonly IShopCloud cloud;
+        private readonly SemaphoreSlim requests = new SemaphoreSlim(1, 1);
+        public AdRewardStatus AdStatus { get; private set; }
 
         public string StorageKey { get; }
         // AquariumDecorCatalog.serverCatalogVersion, set when the aquarium opens.
@@ -49,9 +52,27 @@ namespace Lumaquarium.Shop
 
         public Task<string> ApplyGifts() => Send("ApplyGifts", new Dictionary<string, object>());
 
+        public Task<string> GetAdRewardStatus() => ImportPending ? Task.FromResult(ShopError.Offline)
+            : Send("GetAdRewardStatus", new Dictionary<string, object>());
+
+        public Task<string> ClaimAdReward(string requestId) => ImportPending ? Task.FromResult(ShopError.Offline)
+            : Send("ClaimAdReward", new Dictionary<string, object> { ["requestId"] = requestId });
+
+        // An App Store coin pack: the server asks Apple about the transaction and adds the pack's coins once.
+        public Task<string> ClaimPurchase(string productId, string transactionId) => ImportPending ? Task.FromResult(ShopError.Offline)
+            : Send("ClaimAppStorePurchase", new Dictionary<string, object> { ["productId"] = productId, ["transactionId"] = transactionId });
+
         public Task<string> Import(string save) => Send("ImportLocalSave", new Dictionary<string, object> { ["save"] = save });
 
         private async Task<string> Send(string function, Dictionary<string, object> args)
+        {
+            // Keep responses in order: a slower status read must not overwrite a newer purchase/reward save.
+            await requests.WaitAsync();
+            try { return await SendOnce(function, args); }
+            finally { requests.Release(); }
+        }
+
+        private async Task<string> SendOnce(string function, Dictionary<string, object> args)
         {
             ShopReply reply;
             try { reply = await cloud.Call(function, args); }
@@ -62,6 +83,7 @@ namespace Lumaquarium.Shop
             }
             if (reply == null) return ShopError.Rejected;
             if (!string.IsNullOrEmpty(reply.State) && !new FishShopInventory(StorageKey).ReplaceWith(reply.State)) return ShopError.Rejected;
+            if (reply.Ads != null) AdStatus = reply.Ads;
             return reply.Error ?? ShopError.None;
         }
     }

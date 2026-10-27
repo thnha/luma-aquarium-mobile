@@ -382,6 +382,7 @@ Lũa Đỗ Quyên · Vừa	Azalea root · Medium
 Xanh dương, đỏ, cam · màu gốc theo mô hình	Blue, red, orange · original model colours
 Koi xanh, đỏ, vàng, tím · màu gốc theo mô hình	Koi blue, red, yellow, purple · original model colours
 Koi xanh hoàng gia, đỏ, vàng · màu gốc theo mô hình	Koi royal blue, red, yellow · original model colours
+Xanh dương, đỏ, trắng, vàng · màu gốc theo mô hình	Blue, red, white, yellow · original model colours
 Đang ngủ	Sleeping
 Đang xòe vây	Flaring
 Đang kiếm ăn	Foraging
@@ -409,3 +410,54 @@ Rêu & bèo	Moss & floaters
 Tìm cá...	Search fish...
 Tìm tiểu cảnh...	Search aquascape...
 Tìm hồ, thành, nền...	Search tanks and surfaces...
+Betta Samurai Đen	Black Samurai Betta
+Samurai đen, vảy trắng bạc · màu gốc theo mô hình	Black samurai, silver-white scales · original model colours
+Betta Ong Xanh	Blue Bee Betta
+Đen xanh dương, khoang vàng · màu gốc theo mô hình	Black and blue with a yellow band · original model colours
+Betta Trắng Ngọc Lam	Teal White Betta
+Thân trắng, đuôi xanh ngọc lam, vây bụng cam · màu gốc theo mô hình	White body, teal tail, orange pelvic fins · original model colours
+Betta Hồng Ngọc Tím	Purple Ruby Betta
+Thân tím hồng, đầu và vây đỏ hồng ngọc viền trắng · màu gốc theo mô hình	Pink-purple body, ruby-red head and fins with white edges · original model colours
+Betta Rồng Xanh	Blue Dragon Betta
+Betta hoang dã xanh lam, đốm đen trên vây · màu gốc theo mô hình	Blue wild betta with black-spotted fins · original model colours
+Betta Hổ Vàng	Gold Tiger Betta
+Thân cam vàng đốm đen, đầu trắng hồng, đuôi đen ánh tím · màu gốc theo mô hình	Orange-gold body with black spots, pink-white head, purple-black tail · original model colours
+Betta Gấu Trúc Xanh	Blue Panda Betta
+Thân trắng hồng đốm đen, đuôi trắng mảng xanh dương đậm · màu gốc theo mô hình	Pink-white body with black spots, white tail with deep blue patches · original model colours
+Betta Koi Vàng	Yellow Koi Betta
+Thân vàng cam đốm xanh, đuôi vàng chuyển trắng xanh · màu gốc theo mô hình	Yellow-orange body with blue spots, yellow tail fading to blue-white · original model colours
+
+Tiến trình lưu trên thiết bị này	Progress is saved on this device
+
+# Rewarded ads
+Quyền riêng tư	Privacy options
+Đang nhận thưởng...	Claiming reward...
+Thử nhận lại thưởng	Retry reward claim
+Đang chuẩn bị quảng cáo...	Preparing ads...
+Kết nối server để xem quảng cáo	Connect to claim ad rewards
+Đã hết lượt hôm nay	Daily ad limit reached
+Xem tiếp sau {0} giây	Next video in {0} seconds
+Đang tải quảng cáo...	Loading ad...
+Xem video +{0} xu · Còn {1} lượt	Watch video +{0} coins · {1} left
+Chưa thể tải quảng cáo. Vui lòng thử lại.	Cannot load ads yet. Please try again.
+Chưa cấu hình quảng cáo.	Ads are not configured yet.
+Chưa có quảng cáo. Vui lòng thử lại sau.	No ad available. Please try again later.
+Không mở được quảng cáo. Vui lòng thử lại.	Could not show the ad. Please try again.
+Đã nhận thưởng quảng cáo!	Ad reward received!
+Vui lòng chờ trước khi xem quảng cáo tiếp theo.	Please wait before watching another ad.
+Bạn đã nhận đủ thưởng quảng cáo hôm nay.	You have received all ad rewards for today.
+App Store không xác nhận giao dịch này.	The App Store did not confirm this purchase.
+Đang chờ phụ huynh duyệt giao dịch.	Waiting for a parent to approve the purchase.
+Đã nhận xu. Cảm ơn bạn!	Coins received. Thank you!
+Đã thanh toán. Xu sẽ được cộng khi có mạng.	Paid. Your coins will be added when you are back online.
+Đã thanh toán. Xu sẽ được cộng ở lần thử sau.	Paid. Your coins will be added on the next try.
+Đã hủy giao dịch.	Purchase cancelled.
+Chưa mua được. Vui lòng thử lại.	The purchase did not go through. Please try again.
+Giữ xu và cá khi đổi máy hoặc cài lại game	Keep your coins and fish when you change phones or reinstall
+Đăng nhập bằng Apple	Sign in with Apple
+Đăng nhập bằng Google	Sign in with Google
+Chỉ dùng tài khoản để lưu hồ của bạn	Your account is only used to save your tank
+Đang đăng nhập…	Signing in…
+Không có mạng. Vui lòng thử lại.	No connection. Please try again.
+Cách đăng nhập này chưa dùng được trên máy này.	This sign-in option isn't available on this device yet.
+Đăng nhập không thành công. Vui lòng thử lại.	Sign-in failed. Please try again.

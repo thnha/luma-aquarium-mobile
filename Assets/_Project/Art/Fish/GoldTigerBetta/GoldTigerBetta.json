@@ -1,0 +1,25 @@
+{
+  "base": "MeshyColour",
+  "build": {
+    "input": "input/2610_2013/fixed/2610_2013_fixed.fbx",
+    "flip": false,
+    "faces": 30000,
+    "depth": 1,
+    "width": 1,
+    "fins": {},
+    "finThickness": 0.2,
+    "landmarks": "",
+    "bake": true,
+    "body": "meshy",
+    "baseTexture": true,
+    "whitenPaleBlue": 0,
+    "colourReference": "input/2610_2013/reference"
+  },
+  "shop": {
+    "displayName": "Betta Hổ Vàng",
+    "inShop": true,
+    "shopId": "gold-tiger-betta",
+    "description": "Thân cam vàng đốm đen, đầu trắng hồng, đuôi đen ánh tím · màu gốc theo mô hình",
+    "price": 0
+  }
+}

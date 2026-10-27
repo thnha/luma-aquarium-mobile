@@ -1,0 +1,8 @@
+PASS
+Frames advanced: 41
+Controls fade: visible, interactive, raycasts enabled
+EventSystem: exactly one
+Button center raycast: hits StartButton
+Button label: Tiếp tục hồ của bạn
+LoadingGame: available
+No profile writes or remote scene loads were performed.

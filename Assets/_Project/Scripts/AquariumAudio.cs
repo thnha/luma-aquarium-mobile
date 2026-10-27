@@ -53,13 +53,32 @@ public sealed class AquariumAudio : MonoBehaviour
     {
         Current = this;
         if (water != null) water.Rippled += OnRipple;
+        AudioSettings.OnAudioConfigurationChanged += OnAudioConfigurationChanged;
     }
 
     void OnDisable()
     {
         if (Current == this) Current = null;
         if (water != null) water.Rippled -= OnRipple;
+        AudioSettings.OnAudioConfigurationChanged -= OnAudioConfigurationChanged;
         SetMuffled(false, 0);   // snapshots outlive the scene: never leave the next one muffled
+    }
+
+    // A lost or switched output device (headphones, Bluetooth, a call) can leave FMOD stuck on silent output:
+    // re-initialise it, then bring the beds back, since a reset stops every source. Reset raises this event
+    // again with deviceWasChanged false, and the isPlaying check keeps that second pass harmless.
+    void OnAudioConfigurationChanged(bool deviceWasChanged)
+    {
+        if (deviceWasChanged) AudioSettings.Reset(AudioSettings.GetConfiguration());
+        Restart(waterSource);
+        Restart(bubbleSource);
+    }
+
+    static void Restart(AudioSource source)
+    {
+        if (source == null || source.clip == null || source.isPlaying) return;
+        source.time = Random.Range(0, source.clip.length);
+        source.Play();
     }
 
     public static void Muffle(bool muffled) { if (Current != null) Current.SetMuffled(muffled); }

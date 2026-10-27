@@ -24,6 +24,9 @@ namespace Lumaquarium.Shop
         public List<Amount> items = new List<Amount>();
         public List<InUse> equipped = new List<InUse>();
         public List<string> grantsApplied = new List<string>();
+        public AdRewardProgress ads = new AdRewardProgress();
+        // Store purchases already paid out ("apple:<transactionId>"), kept for good so none pays twice.
+        public List<string> purchases = new List<string>();
 
         public static bool IsSlot(string slot) => slot == FishSlot || slot == WallSlot || slot == FloorSlot || slot == TankSlot;
 
@@ -45,7 +48,9 @@ namespace Lumaquarium.Shop
             wallet = wallet.ConvertAll(x => new Amount { id = x.id, count = x.count }),
             items = items.ConvertAll(x => new Amount { id = x.id, count = x.count }),
             equipped = equipped.ConvertAll(x => new InUse { slot = x.slot, id = x.id }),
-            grantsApplied = new List<string>(grantsApplied)
+            grantsApplied = new List<string>(grantsApplied),
+            ads = (ads ?? new AdRewardProgress()).Copy(),
+            purchases = new List<string>(purchases ?? new List<string>())
         };
 
         public static int Count(List<Amount> list, string id) => list.Find(x => x.id == id)?.count ?? 0;
@@ -70,6 +75,10 @@ namespace Lumaquarium.Shop
             save.items ??= new List<Amount>();
             save.equipped ??= new List<InUse>();
             save.grantsApplied ??= new List<string>();
+            save.ads ??= new AdRewardProgress();
+            save.ads.recentClaims ??= new List<string>();
+            save.purchases ??= new List<string>();
+            if (save.ads.claimed < 0 || save.ads.lastClaimUtc < 0) return null;
             bool ValidAmounts(List<Amount> list)
             {
                 var seen = new HashSet<string>();

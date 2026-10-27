@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a187246822bbb47529482707f3e0eff8, type: 3}
+  m_Name: GoogleMobileAdsSettings
+  m_EditorClassIdentifier: GoogleMobileAds.Editor::GoogleMobileAds.Editor.GoogleMobileAdsSettings
+  adMobAndroidAppId: 
+  adMobIOSAppId: ca-app-pub-7579661417191346~4508454086
+  enableKotlinXCoroutinesPackagingOption: 1
+  enableGradleBuildPreProcessor: 1
+  disableOptimizeInitialization: 0
+  disableOptimizeAdLoading: 0
+  userTrackingUsageDescription: "Cho ph\xE9p s\u1EED d\u1EE5ng m\xE3 \u0111\u1ECBnh
+    danh thi\u1EBFt b\u1ECB \u0111\u1EC3 hi\u1EC3n th\u1ECB qu\u1EA3ng c\xE1o ph\xF9
+    h\u1EE3p v\xE0 \u0111o l\u01B0\u1EDDng hi\u1EC7u qu\u1EA3 qu\u1EA3ng c\xE1o."
+  userLanguage: en
+  overrideDefaultGmaAndroidSdk: 0
+  selectedGmaAndroidSdk: 0
+  enableExternalDependencyManager: 1
+  edmPackageDetected: 1
+  addedEdmVersion: 2.1.0

@@ -1,15 +1,15 @@
 {
   "build": {
-    "input": "input/PlakatGalaxy/2_beta.fbx",
+    "input": "input/2610_1905/fixed/2610_1905_fixed.fbx",
     "flip": false,
     "faces": 30000,
     "depth": 1,
-    "width": 1.5,
-    "fins": {"pectoral": 1.15, "pectoralFan": 1.0},
+    "width": 1,
+    "fins": {},
     "finThickness": 0.2,
     "landmarks": "",
     "bake": true,
-    "body": "master"
+    "body": "meshy"
   },
   "shop": {
     "displayName": "Plakat Galaxy",

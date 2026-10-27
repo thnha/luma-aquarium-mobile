@@ -64,6 +64,29 @@ public sealed class ShopServiceTests
     }
 
     [Test]
+    public void RewardClaimsSendOnlyTheRequestIdAndApplyTheServerWallet()
+    {
+        var cloud = new FakeCloud { Answer = _ => new ShopReply { State = SaveWith(60), Ads = new AdRewardStatus { Coins = 20, Remaining = 8 } } };
+        var server = new ServerShopBackend(cloud, Key);
+        Assert.AreEqual(ShopError.None, Run(server.ClaimAdReward("claim-id")));
+        Assert.AreEqual("ClaimAdReward", cloud.Calls[0].function);
+        Assert.AreEqual("claim-id", cloud.Calls[0].args["requestId"]);
+        Assert.AreEqual(1, cloud.Calls[0].args.Count, "the client cannot choose the reward amount");
+        Assert.AreEqual(60, Balance());
+        Assert.AreEqual(8, server.AdStatus.Remaining);
+    }
+
+    [Test]
+    public void RewardClaimsWaitForTheOldSaveImport()
+    {
+        PlayerPrefs.SetString(Key, SaveWith(40));
+        var cloud = new FakeCloud();
+        Assert.AreEqual(ShopError.Offline, Run(new ServerShopBackend(cloud, Key).ClaimAdReward("claim-id")));
+        Assert.AreEqual(0, cloud.Calls.Count);
+        Assert.AreEqual(40, Balance());
+    }
+
+    [Test]
     public void ARefusalStillBringsTheServersSave()
     {
         PlayerPrefs.SetInt(Key + ".imported", 1);

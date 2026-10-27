@@ -1,0 +1,26 @@
+{
+  "base": "MeshyColour",
+  "build": {
+    "input": "input/2610_2022/fixed/2610_2022_fixed.fbx",
+    "flip": true,
+    "tailBase": [0.02, 0.29, 0.08],
+    "faces": 30000,
+    "depth": 1,
+    "width": 1,
+    "fins": {},
+    "finThickness": 0.2,
+    "landmarks": "",
+    "bake": true,
+    "body": "meshy",
+    "baseTexture": true,
+    "whitenPaleBlue": 0,
+    "colourReference": "input/2610_2022/reference"
+  },
+  "shop": {
+    "displayName": "Betta Rồng Xanh",
+    "inShop": true,
+    "shopId": "blue-wild-betta",
+    "description": "Betta hoang dã xanh lam, đốm đen trên vây · màu gốc theo mô hình",
+    "price": 0
+  }
+}

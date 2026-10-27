@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f782e909e6f4416e97ca931601db3a05, type: 3}
+  m_Name: BlackSamuraiBetta
+  m_EditorClassIdentifier: Assembly-CSharp::BettaVariant
+  displayName: "Betta Samurai \u0110en"
+  modelPrefab: {fileID: 962703239038315923, guid: 154d587b95d3c4737931546deb7e6fdf, type: 3}
+  pattern: {fileID: 11400000, guid: 2f17b3cb6629e4981bf03dd0ac306bfb, type: 2}
+  primary: {r: 1, g: 1, b: 1, a: 1}
+  secondary: {r: 0.2196, g: 0.2235, b: 0.2392, a: 1}
+  accent: {r: 1, g: 0.0314, b: 0.0314, a: 1}
+  finEdge: {r: 1, g: 0.6588, b: 0.0392, a: 1}
+  iridescence: 0.1
+  textureDetail: 0.6
+  silverSheen: 1
+  gloss: 1
+  blackGloss: 0
+  whiteScales: 0
+  pigmentDepth: 0
+  finEdgeClear: 1
+  finRelief: 0.8
+  finTranslucency: 0.9
+  scaleRelief: 0.55
+  scaleEdge: 0
+  scaleEdgeWidth: 0.35
+  scaleEdgeDark: {r: 0.6196, g: 0.4196, b: 0.2196, a: 1}
+  scaleEdgeLight: {r: 0.298, g: 0.298, b: 0.3294, a: 1}
+  finBlack: 0
+  finBrightness: 1
+  vibrance: 1.3
+  brightness: 1.2
+  envReflection: 0
+  baseTexture: 1
+  finRimAlpha: 0.85
+  finRim: {x: 0.55, y: 1}
+  caudalRim: {x: 0.6, y: 1}
+  caudalStart: 0.55
+  seed: 3

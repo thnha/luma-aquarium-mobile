@@ -1,0 +1,25 @@
+{
+  "base": "MeshyColour",
+  "build": {
+    "input": "input/2610_1905/fixed/2610_1905_fixed.fbx",
+    "flip": false,
+    "faces": 30000,
+    "depth": 1,
+    "width": 1,
+    "fins": {},
+    "finThickness": 0.2,
+    "landmarks": "",
+    "bake": true,
+    "body": "meshy",
+    "baseTexture": true,
+    "whitenPaleBlue": 0,
+    "colourReference": "input/2610_1905/reference"
+  },
+  "shop": {
+    "displayName": "Betta Trắng Ngọc Lam",
+    "inShop": true,
+    "shopId": "teal-white-betta",
+    "description": "Thân trắng, đuôi xanh ngọc lam, vây bụng cam · màu gốc theo mô hình",
+    "price": 0
+  }
+}

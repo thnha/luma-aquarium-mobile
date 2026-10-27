@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Lumaquarium.UI;
 using TMPro;
 using UnityEditor;
@@ -37,7 +38,7 @@ public static class ShopScreenBuilder
         SceneBackups.SaveCopy(scene, "MainAquarium-before-shop-" + stamp + "-working");
 
         var current = UnityEngine.Object.FindFirstObjectByType<ShopScreen>(FindObjectsInactive.Include);
-        var built = Create(current != null && current.fishOffers != null && current.fishOffers.Length > 0 ? current.fishOffers : fishShop.offers, decoration);
+        var built = Create(MergeFishOffers(current != null ? current.fishOffers : null, fishShop.offers), decoration);
         PrefabUtility.SaveAsPrefabAsset(built.gameObject, PrefabPath); // keeps the GUID, so a scene instance follows
         UnityEngine.Object.DestroyImmediate(built.gameObject);
         if (UnityEngine.Object.FindFirstObjectByType<ShopScreen>(FindObjectsInactive.Include) == null)
@@ -50,6 +51,14 @@ public static class ShopScreenBuilder
         EditorSceneManager.SaveScene(scene);
         AssetDatabase.SaveAssets();
         Debug.Log("[Lumaquarium] Shop installed: " + TabNames.Length + " tabs; the old fish and decoration shops were removed from the scene.");
+    }
+
+    // The fish shop's offers (every inShop pipeline fish) in their order; an offer the shop already has is kept as
+    // it is, so the new fish of an import show up and fish taken out of the shop drop out.
+    public static FishShopOffer[] MergeFishOffers(FishShopOffer[] current, FishShopOffer[] pipeline)
+    {
+        if (current == null || current.Length == 0) return pipeline;
+        return pipeline.Select(o => current.FirstOrDefault(c => c != null && c.id == o.id && c.IsValid) ?? o).ToArray();
     }
 
     // Called by the HUD builder too, so rebuilding the HUD reconnects the shop.

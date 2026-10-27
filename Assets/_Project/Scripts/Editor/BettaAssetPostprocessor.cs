@@ -59,13 +59,19 @@ public class BettaAssetPostprocessor : AssetPostprocessor
         if (!assetPath.StartsWith(FishDir)) return;
         var mask = (TextureImporter)assetImporter;
         // Baked detail (fish_bake.py): _Normal is a tangent-space normal map, _Detail is cavity (R) and AO (G).
-        // Both are smooth data at 2048, so block compression is fine there.
+        // Both are smooth data at 2048, so block compression is fine there; phones get them at 1024.
         if (assetPath.EndsWith("_Normal.png") || assetPath.EndsWith("_Detail.png"))
         {
             mask.textureType = assetPath.EndsWith("_Normal.png") ? TextureImporterType.NormalMap : TextureImporterType.Default;
             mask.sRGBTexture = false;
             mask.maxTextureSize = 2048;
             mask.textureCompression = TextureImporterCompression.CompressedHQ;
+            foreach (string platform in new[] { "iPhone", "Android" })
+                mask.SetPlatformTextureSettings(new TextureImporterPlatformSettings
+                {
+                    name = platform, overridden = true, maxTextureSize = 1024,
+                    format = TextureImporterFormat.Automatic, textureCompression = TextureImporterCompression.CompressedHQ,
+                });
             return;
         }
         // Scale cells (scale_edges.py): exact centre UVs per scale, read point-sampled.

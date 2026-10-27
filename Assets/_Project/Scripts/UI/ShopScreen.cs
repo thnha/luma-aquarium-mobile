@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Lumaquarium.Shop;
+using Lumaquarium.Ads;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -61,7 +62,12 @@ namespace Lumaquarium.UI
         private bool previousInteractable, previousRaycasts, previousOrbit;
         private bool busy; // waiting for the server: buying and using are locked
 
+        private RewardedAdShopPanel rewardedPanel;
+        private CoinPackShopPanel coinPanel;
+        public bool TransactionBusy => busy || confirmation.activeSelf;
+
         public bool IsOpen => content != null && content.activeSelf;
+        public int Balance { get { inventory.Reload(); return inventory.Balance; } }
         private AquariumDecoration Decoration => aquarium != null ? aquarium.decoration : null;
         private List<ShopEntry> Entries => entries ??= ShopEntry.Build(fishOffers,
             Decoration != null ? Decoration.catalog : null, Decoration != null ? Decoration.surfaces : null);
@@ -98,13 +104,18 @@ namespace Lumaquarium.UI
             if (active == null && fish != null && fishOffers != null)
                 active = Array.Find(fishOffers, o => o != null && o.IsValid && o.variant == fish.variant);
             if (active != null) ApplyFish(active);
+            rewardedPanel = gameObject.AddComponent<RewardedAdShopPanel>();
+            rewardedPanel.Initialize(this);
+            coinPanel = gameObject.AddComponent<CoinPackShopPanel>();
+            coinPanel.Initialize(this, rewardedPanel.Active ? RewardedAdShopPanel.RowHeight : 0);
         }
 
         private void ShowActiveTab()
         {
             bool hasCategories = group != ShopGroup.Fish;
             categoryTray.gameObject.SetActive(hasCategories);
-            float top = hasCategories ? 438 : 330;
+            float top = (hasCategories ? 438 : 330) + (rewardedPanel != null && rewardedPanel.Active ? RewardedAdShopPanel.RowHeight : 0)
+                + (coinPanel != null && coinPanel.Active ? CoinPackShopPanel.RowHeight : 0);
             searchRow.offsetMin = new Vector2(searchRow.offsetMin.x, -top - 116);
             searchRow.offsetMax = new Vector2(searchRow.offsetMax.x, -top);
             var grid = (RectTransform)scroll.transform;

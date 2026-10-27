@@ -6,7 +6,7 @@ namespace LumaquariumShop;
 // The shop as the server runs it. Every change reads the player's save, runs one ShopRules rule on it and writes
 // it back with the write lock it was read with, so two calls at once cannot both spend the same coins; a conflict
 // reads again and runs the rule again. Every reply carries the save as it now is.
-public sealed class ShopLogic
+public sealed partial class ShopLogic
 {
     public const int ImportCoinCap = 5000;
     public const int ImportItemCap = 99;
@@ -14,11 +14,15 @@ public sealed class ShopLogic
     public static readonly JsonSerializerOptions Json = new() { IncludeFields = true };
     private readonly IShopStore store;
     private readonly ShopCatalog catalog;
+    private readonly Func<DateTimeOffset> utcNow;
+    private readonly IAppStore? appStore;
 
-    public ShopLogic(IShopStore store, ShopCatalog catalog)
+    public ShopLogic(IShopStore store, ShopCatalog catalog, Func<DateTimeOffset>? utcNow = null, IAppStore? appStore = null)
     {
         this.store = store;
         this.catalog = catalog;
+        this.utcNow = utcNow ?? (() => DateTimeOffset.UtcNow);
+        this.appStore = appStore;
     }
 
     public Task<ShopReply> GetState() => Change(_ => ShopError.None);
@@ -65,6 +69,8 @@ public sealed class ShopLogic
     private ShopSave? Filtered(ShopSave? save)
     {
         if (save == null) return null;
+        save.ads = new AdRewardProgress(); // Local data never supplies server ad counters or claim IDs.
+        save.purchases = new List<string>(); // Nor store purchases already paid out.
         var packs = catalog.giftPacks.Select(p => p.id).ToHashSet();
         save.wallet.RemoveAll(x => x.id != ShopSave.Coins);
         save.items.RemoveAll(x => SlotOf(x.id) == null);
@@ -87,11 +93,12 @@ public sealed class ShopLogic
         return null;
     }
 
-    private async Task<ShopReply> Change(Func<ShopSave, string> rule)
+    private async Task<ShopReply> Change(Func<ShopSave, string> rule, bool requireExisting = false)
     {
         for (int attempt = 0; attempt < Attempts; attempt++)
         {
             var stored = await store.Load();
+            if (requireExisting && stored.Json == null) return Reply(ShopError.Rejected, null);
             var save = stored.Json == null ? new ShopSave() : Parse(stored.Json);
             if (save == null) return Reply(ShopError.SaveUnreadable, null);
             string before = JsonSerializer.Serialize(save, Json);

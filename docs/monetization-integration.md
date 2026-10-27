@@ -10,6 +10,48 @@ Người chơi ── xem video ─▶ LevelPlay ──▶ "xem xong" ──▶ 
 Google / Apple / LevelPlay ── chuyển khoản hằng tháng ──▶ ngân hàng của bạn
 ```
 
+## iOS AdMob trực tiếp — cập nhật 2026-10-27
+
+Theo lựa chọn mới, iOS dùng **Google Mobile Ads trực tiếp** thay LevelPlay. Các phần LevelPlay bên dưới là hướng dẫn thiết kế cũ; không dùng để cấu hình luồng iOS hiện tại. SDK LevelPlay/adapter có sẵn được giữ nguyên để không xoá công việc trước đó; runtime mới chỉ khởi tạo AdMob.
+
+### Lấy Rewarded Ad Unit ID
+
+1. Đăng nhập [AdMob](https://admob.google.com/), **Apps → Lumaquarium iOS → Ad units → Add ad unit → Rewarded**.
+2. Đặt tên `ios_rewarded_coins`, reward amount **20**, reward item **xu**, rồi **Create ad unit**.
+3. Sao chép ID dạng `ca-app-pub-…/…`. App ID dùng dấu `~` và đã có trong Google Mobile Ads Settings; đây là hai ID khác nhau.
+4. Điền ID vào `Assets/_Project/Resources/AdMobConfig.json`, thuộc tính `iosRewardedAdUnitId`. Giữ `useTestAds: true` khi phát triển/TestFlight thử nghiệm. Chỉ đổi thành `false` khi chuẩn bị phát hành với ad unit thật.
+
+Mặc định dùng test rewarded iOS `ca-app-pub-3940256099942544/1712485313` của Google. ID thật chưa được cung cấp. Nếu dùng ID thật để kiểm thử, phải đăng ký thiết bị test trong AdMob trước.
+
+### Quyền riêng tư và iOS
+
+- Trong **AdMob → Privacy & messaging**, tạo/publish thông báo áp dụng cho app (European regulations và IDFA/ATT khi phù hợp). UMP dùng chính App ID trong Google Mobile Ads Settings để tải thông báo.
+- `AdMobRewardedAds` gọi UMP Update mỗi lần mở app, hiển thị form nếu cần và chỉ tải quảng cáo khi `CanRequestAds()` cho phép. Nút **Quyền riêng tư** trong shop hiện khi UMP yêu cầu.
+- Mô tả ATT nằm trong Google Mobile Ads Settings. Google postprocessor thêm App ID, mô tả ATT và SKAdNetwork vào Info.plist; `AdMobIosPostprocessor` weak-link AppTrackingTransparency.framework.
+
+### Luồng và server
+
+- Shop có nút video, phần thưởng, lượt còn lại và thời gian chờ. Chỉ callback **earned reward** mới gửi `ClaimAdReward(requestId)`; đóng sớm không nhận xu.
+- `GetAdRewardStatus` trả mức thưởng/lượt/thời gian chờ từ server. Settings mặc định trong `ShopCatalog.adRewards`: 20 xu, 10/ngày UTC+7, 60 giây.
+- Khác với đề xuất bộ đếm ở key `ads` trước đây, trạng thái quảng cáo nằm trong **cùng protected key `shop` với ví**, để cộng xu và tăng lượt bằng một lần ghi có write lock. Import save local luôn bỏ trạng thái quảng cáo.
+- Client lưu request ID sau callback earned và gửi lại khi mở shop/trở lại app hoặc bấm **Thử nhận lại thưởng**. Server giữ 100 request ID gần nhất để không cộng trùng, kể cả qua nửa đêm. Không tự cộng xu trên client.
+- Chưa triển khai AdMob SSV. Như rủi ro đã chấp nhận trong spec, gọi trực tiếp endpoint vẫn có thể nhận tối đa định mức quảng cáo/ngày. SSV cần endpoint riêng xác minh chữ ký của Google.
+
+### Deploy và kiểm tra máy thật
+
+Chạy từ thư mục `mobile`, deploy **trước** bản client mới:
+
+```sh
+Tools/deploy_cloud_code.sh
+dotnet test CloudCode/LumaquariumShop.Tests
+```
+
+Trong Unity bật **Lumaquarium → Shop → Use Server in Editor** nếu thử reward server trong Editor. UI chỉ thêm rewarded row khi dùng backend server và chạy iOS/Editor; Android chưa bật.
+
+Trên iPhone: kiểm tra form UMP/ATT, ad có nhãn test, xem xong tăng đúng 20 xu, đóng sớm không tăng, mất mạng khi nhận thưởng rồi thử lại không cộng trùng, cooldown 60 giây, hết 10 lượt và nút quyền riêng tư. Chưa thể xác nhận native SDK/linker hoặc ad serving chỉ bằng EditMode; cần export Xcode và chạy trên thiết bị. Cập nhật App Privacy/privacy policy/app-ads.txt theo cấu hình phát hành.
+
+Nguồn: [tạo rewarded unit](https://support.google.com/admob/answer/7311747?hl=en), [Unity rewarded API](https://developers.google.com/admob/unity/rewarded), [test IDs iOS](https://developers.google.com/admob/ios/test-ads), [Unity UMP](https://developers.google.com/admob/unity/privacy).
+
 ## 0. Chặn trước khi bán bằng tiền thật
 
 Làm ở M-B, **trước** M-C (xem `.superpowers/sdd/progress.md`, phần Final review):

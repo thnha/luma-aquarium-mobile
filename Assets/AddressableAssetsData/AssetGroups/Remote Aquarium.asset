@@ -20,6 +20,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 04cbb72eb774b4e2b82bcff110d05345
+    m_Address: Fish/BlackSamuraiBetta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 075696030b92f469b929d46d985ea7d1
     m_Address: Fish/GalaxyBetta
     m_ReadOnly: 0
@@ -45,6 +50,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7184446ca16664c5ca76628fa519d02f
+    m_Address: Fish/BluePandaBetta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 78b653dfe628947b8b1788dc531c360d
+    m_Address: Fish/BlueWildBetta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7e02894ea2e764fbdb1968a9238f344d
     m_Address: Fish/SkyKoiBetta
     m_ReadOnly: 0
@@ -65,8 +80,38 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 95f5e5c9653eb4449ad386b13921f64e
+    m_Address: Fish/TealWhiteBetta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 98a654e35f2f34ad99f8bda7c7a203bc
+    m_Address: Fish/BlueBeeBetta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a3a12ec0302654602927568532cf5c54
+    m_Address: Fish/GoldTigerBetta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b0ca0acf8e0bb4df1bb5c7b3a427cf1e
+    m_Address: Fish/PurpleRubyBetta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b0f2844b66e1d43a0b18b3db739de6df
     m_Address: Fish/KoiNemoRig
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b1cb17311c3b84001a45d9d9e89ca589
+    m_Address: Fish/NemoKoiBetta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c7fdf15e25a5c4eaaa4c0bcb5919618d
+    m_Address: Fish/YellowKoiBetta
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -77,6 +122,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f8cc64d2a52554ad7a636492db01a52f
     m_Address: Fish/BlueFlameBetta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: faa07521063704f828b4e65b4953f6e4
+    m_Address: Fish/ColorfulBetta
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

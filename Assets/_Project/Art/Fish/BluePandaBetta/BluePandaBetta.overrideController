@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: BluePandaBetta
+  m_Controller: {fileID: 9100000, guid: 705f5859822f84590a992f4322957413, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: -8945691123924629249, guid: 46c403cbd938249c5a3075c3c8c2dd83, type: 3}
+    m_OverrideClip: {fileID: -8945691123924629249, guid: d6ed051e2b5c447f1af11eb3cf044207, type: 3}
+  - m_OriginalClip: {fileID: -4086864642940237741, guid: 46c403cbd938249c5a3075c3c8c2dd83, type: 3}
+    m_OverrideClip: {fileID: -4086864642940237741, guid: d6ed051e2b5c447f1af11eb3cf044207, type: 3}
+  - m_OriginalClip: {fileID: -6783905571792141121, guid: 46c403cbd938249c5a3075c3c8c2dd83, type: 3}
+    m_OverrideClip: {fileID: -6783905571792141121, guid: d6ed051e2b5c447f1af11eb3cf044207, type: 3}
+  - m_OriginalClip: {fileID: 3883155493392930285, guid: 46c403cbd938249c5a3075c3c8c2dd83, type: 3}
+    m_OverrideClip: {fileID: 3883155493392930285, guid: d6ed051e2b5c447f1af11eb3cf044207, type: 3}
+  - m_OriginalClip: {fileID: 4366627357116430096, guid: 46c403cbd938249c5a3075c3c8c2dd83, type: 3}
+    m_OverrideClip: {fileID: 4366627357116430096, guid: d6ed051e2b5c447f1af11eb3cf044207, type: 3}
+  - m_OriginalClip: {fileID: -6837831294930128448, guid: 46c403cbd938249c5a3075c3c8c2dd83, type: 3}
+    m_OverrideClip: {fileID: -6837831294930128448, guid: d6ed051e2b5c447f1af11eb3cf044207, type: 3}
+  - m_OriginalClip: {fileID: -8551759973696592793, guid: 46c403cbd938249c5a3075c3c8c2dd83, type: 3}
+    m_OverrideClip: {fileID: -8551759973696592793, guid: d6ed051e2b5c447f1af11eb3cf044207, type: 3}
+  - m_OriginalClip: {fileID: 635965436658257319, guid: 46c403cbd938249c5a3075c3c8c2dd83, type: 3}
+    m_OverrideClip: {fileID: 635965436658257319, guid: d6ed051e2b5c447f1af11eb3cf044207, type: 3}

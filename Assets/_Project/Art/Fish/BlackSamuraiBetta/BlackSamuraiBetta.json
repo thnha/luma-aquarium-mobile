@@ -1,0 +1,25 @@
+{
+  "base": "MeshyColour",
+  "build": {
+    "input": "input/2610_1709_good/fixed/2610_1709_fixed.fbx",
+    "flip": false,
+    "faces": 30000,
+    "depth": 1,
+    "width": 1,
+    "fins": {},
+    "finThickness": 0.2,
+    "landmarks": "",
+    "bake": true,
+    "body": "meshy",
+    "baseTexture": true,
+    "whitenPaleBlue": 0,
+    "colourReference": "input/2610_1709_good/reference"
+  },
+  "shop": {
+    "displayName": "Betta Samurai Đen",
+    "inShop": true,
+    "shopId": "black-samurai-betta",
+    "description": "Samurai đen, vảy trắng bạc · màu gốc theo mô hình",
+    "price": 0
+  }
+}

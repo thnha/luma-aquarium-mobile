@@ -1,0 +1,25 @@
+{
+  "base": "MeshyColour",
+  "build": {
+    "input": "input/2610_1510_good/fixed/KoiBetta2610_fixed.fbx",
+    "flip": false,
+    "faces": 30000,
+    "depth": 1,
+    "width": 1,
+    "fins": {},
+    "finThickness": 0.2,
+    "landmarks": "",
+    "bake": true,
+    "body": "meshy",
+    "baseTexture": true,
+    "whitenPaleBlue": 0,
+    "colourReference": "input/2610_1510_good/reference"
+  },
+  "shop": {
+    "displayName": "Nemo Koi Betta",
+    "inShop": true,
+    "shopId": "nemo-koi-betta",
+    "description": "Koi đỏ, cam, xanh dương, trắng · màu gốc theo mô hình",
+    "price": 0
+  }
+}

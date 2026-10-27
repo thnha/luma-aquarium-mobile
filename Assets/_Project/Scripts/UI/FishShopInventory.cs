@@ -127,6 +127,13 @@ namespace Lumaquarium.UI
 
         public string Select(string slot, string id) => Change(next => ShopRules.Select(next, slot, id));
 
+        // Only for an Editor coin pack bought on the Unity IAP Fake Store with the local rules (IAPManager).
+        public string AddCoins(int coins) => Change(next =>
+        {
+            ShopSave.Add(next.wallet, Coins, coins);
+            return ShopError.None;
+        });
+
         public void ApplyGifts(IEnumerable<AquariumGiftPack> packs)
         {
             Reload();

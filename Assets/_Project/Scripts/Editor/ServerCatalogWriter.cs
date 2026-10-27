@@ -14,6 +14,15 @@ using UnityEngine;
 // content: the server refuses a purchase from a game showing other prices. Pull and every content build run it.
 public static class ServerCatalogWriter
 {
+    // Ad pacing can change without invalidating the prices in already-published aquarium content.
+    [System.Serializable]
+    private sealed class PriceCatalog
+    {
+        public string version = "";
+        public List<CatalogItem> items;
+        public List<GiftPack> giftPacks;
+    }
+
     public const string RelativePath = "CloudCode/LumaquariumShop/LumaquariumShop/ShopCatalog.json";
     private const string DecorCatalogPath = AquariumDecorCatalogBuilder.Root + "/AquariumDecorCatalog.asset";
 
@@ -38,7 +47,7 @@ public static class ServerCatalogWriter
             foreach (var t in surfaces.tanks ?? new AquariumTankOffer[0]) Add(t.id, t.price);
         }
         catalog.giftPacks = FishShopInventory.ToShared(decor.giftPacks);
-        catalog.version = Hash(JsonUtility.ToJson(catalog));
+        catalog.version = Hash(JsonUtility.ToJson(new PriceCatalog { items = catalog.items, giftPacks = catalog.giftPacks }));
         return catalog;
     }
 

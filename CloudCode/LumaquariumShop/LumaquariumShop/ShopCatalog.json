@@ -1,13 +1,43 @@
 {
-    "version": "48b09902ffe41e80",
+    "version": "98b6edf4d410a937",
     "items": [
+        {
+            "id": "black-samurai-betta",
+            "slot": "fish",
+            "price": 0
+        },
+        {
+            "id": "blue-bee-betta",
+            "slot": "fish",
+            "price": 0
+        },
         {
             "id": "blue-flame-betta",
             "slot": "fish",
             "price": 0
         },
         {
+            "id": "blue-panda-betta",
+            "slot": "fish",
+            "price": 0
+        },
+        {
+            "id": "blue-wild-betta",
+            "slot": "fish",
+            "price": 0
+        },
+        {
+            "id": "colorful-betta",
+            "slot": "fish",
+            "price": 0
+        },
+        {
             "id": "galaxy-betta",
+            "slot": "fish",
+            "price": 0
+        },
+        {
+            "id": "gold-tiger-betta",
             "slot": "fish",
             "price": 0
         },
@@ -22,12 +52,22 @@
             "price": 0
         },
         {
+            "id": "nemo-koi-betta",
+            "slot": "fish",
+            "price": 0
+        },
+        {
             "id": "plakat",
             "slot": "fish",
             "price": 0
         },
         {
             "id": "plakat-galaxy",
+            "slot": "fish",
+            "price": 0
+        },
+        {
+            "id": "purple-ruby-betta",
             "slot": "fish",
             "price": 0
         },
@@ -48,6 +88,16 @@
         },
         {
             "id": "sky-koi-betta-m4",
+            "slot": "fish",
+            "price": 0
+        },
+        {
+            "id": "teal-white-betta",
+            "slot": "fish",
+            "price": 0
+        },
+        {
+            "id": "yellow-koi-betta",
             "slot": "fish",
             "price": 0
         },
@@ -617,6 +667,25 @@
                     "count": 2
                 }
             ]
+        }
+    ],
+    "adRewards": {
+        "coins": 20,
+        "dailyLimit": 10,
+        "cooldownSeconds": 60
+    },
+    "coinPacks": [
+        {
+            "productId": "com.thnha.bettafishaquarium.coins_1000",
+            "coins": 1000
+        },
+        {
+            "productId": "com.thnha.bettafishaquarium.coins_6000",
+            "coins": 6000
+        },
+        {
+            "productId": "com.thnha.bettafishaquarium.coins_10000",
+            "coins": 10000
         }
     ]
 }

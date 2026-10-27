@@ -87,6 +87,9 @@ namespace Lumaquarium.Shop
             ShopError.Owned => Loc.T("Bạn đã có món này."),
             ShopError.Offline => Loc.T("Cần kết nối mạng để mua và đổi đồ."),
             ShopError.PriceChanged => Loc.T("Giá vừa được cập nhật. Mở lại game để xem giá mới."),
+            ShopError.AdCooldown => Loc.T("Vui lòng chờ trước khi xem quảng cáo tiếp theo."),
+            ShopError.AdDailyLimit => Loc.T("Bạn đã nhận đủ thưởng quảng cáo hôm nay."),
+            ShopError.PurchaseInvalid => Loc.T("App Store không xác nhận giao dịch này."),
             _ => Loc.T("Chưa lưu được giao dịch. Vui lòng thử lại.")
         };
     }
