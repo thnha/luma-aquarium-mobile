@@ -81,7 +81,7 @@ public static class MainAquariumScreenBuilder
         BuildTanks(controller, safe);
         BuildDecorate(controller, safe, decoration);
 
-        var restore = Ui3D.RoundButton("RestoreHudButton", safe, "utility_hide");
+        var restore = Ui3D.RoundButton("RestoreHudButton", safe, "utility_close");
         Ui3D.At((RectTransform)restore.transform, Vector2.one, Vector2.one, new Vector2(-44, -50), new Vector2(122, 122));
         Wire(restore, controller.ToggleHud);
         controller.restoreButton = restore.gameObject;
@@ -176,7 +176,7 @@ public static class MainAquariumScreenBuilder
         Ui3D.At(coin.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(16, 3), new Vector2(84, 84));
         controller.walletLabel = Ui3D.Text("Balance", wallet.transform, "1.250", 46, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
         Ui3D.Edges(controller.walletLabel.rectTransform, Vector2.zero, Vector2.one, new Vector2(106, 12), new Vector2(-22, -6));
-        var hide = HeaderButton("HideButton", header, "utility_hide");
+        var hide = HeaderButton("HideButton", header, "utility_view");
         Ui3D.At((RectTransform)hide.transform, Vector2.one, Vector2.one, new Vector2(0, -172), new Vector2(150, 150));
         Wire(hide, controller.ToggleHud);
     }
@@ -559,6 +559,18 @@ public static class MainAquariumScreenBuilder
     }
 
     // Owned decorations by group. Cards follow the catalog order so their index is the offer index.
+    public static void RefreshDecoratePanel(MainAquariumScreen controller)
+    {
+        var old=controller.decoratePanel;
+        var parent=(RectTransform)old.transform.parent;
+        int index=old.transform.GetSiblingIndex();
+        UnityEngine.Object.DestroyImmediate(old);
+        BuildDecorate(controller,parent,controller.decoration);
+        controller.decoratePanel.transform.SetSiblingIndex(index);
+        controller.decoratePanel.SetActive(false);
+        EditorUtility.SetDirty(controller);
+    }
+
     private static void BuildDecorate(MainAquariumScreen controller, RectTransform safe, AquariumDecoration decoration)
     {
         var panel = Sheet("DecoratePanel", safe, "Trang trí", 1150, controller);

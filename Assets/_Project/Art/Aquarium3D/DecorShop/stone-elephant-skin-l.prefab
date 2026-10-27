@@ -55,9 +55,9 @@ MonoBehaviour:
   attachable: 0
   supportsPlants: 1
   plantMounts:
-  - {x: -0.32370698, y: 0.7271965, z: -0.016706849}
-  - {x: -0.38093248, y: 0.72660065, z: -0.09164312}
-  - {x: -0.40123075, y: 0.7248201, z: -0.0340099}
+  - {x: -0.37936887, y: 0.72263986, z: -0.027077544}
+  - {x: -0.3093399, y: 0.72130674, z: -0.012532173}
+  - {x: -0.37614504, y: 0.720119, z: -0.089955404}
   wallMounted: 0
   wallSize: {x: 0, y: 0}
   points: 3
@@ -82,8 +82,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.225, y: 0.7621965, z: 0.83060026}
-  m_Center: {x: -0.000000059604645, y: 0.35859826, z: 0}
+  m_Size: {x: 1.225, y: 0.7576398, z: 0.88137746}
+  m_Center: {x: 0, y: 0.35631993, z: 0.000000029802322}
 --- !u!1 &7957531314911293161
 GameObject:
   m_ObjectHideFlags: 0

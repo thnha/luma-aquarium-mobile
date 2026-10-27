@@ -27,6 +27,7 @@ public static class AquariumSurfaceBuilder
         var stone = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/_Project/Art/Aquarium3D/Textures/RiverStone-v3.png");
         var sand = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/_Project/Art/Aquarium3D/Textures/RiverSand-v3.png");
         if (stone == null || sand == null) throw new InvalidOperationException("Run the hardscape builder first (RiverStone-v3 / RiverSand-v3).");
+        var authoredWalls = AuthoredWalls();
 
         var catalog = AssetDatabase.LoadAssetAtPath<AquariumSurfaceCatalog>(CatalogPath);
         if (catalog == null) { catalog = ScriptableObject.CreateInstance<AquariumSurfaceCatalog>(); AssetDatabase.CreateAsset(catalog, CatalogPath); }
@@ -44,7 +45,7 @@ public static class AquariumSurfaceBuilder
                 Draw((u, v) => Ornament(u, v, Hex(0x1F3B3A), Hex(0xD9B45A))), 1.2f),
             Wall("wall_jade", "Hoa văn xanh ngọc", "Hoa văn xanh ngọc trên nền sáng", 450,
                 Draw((u, v) => Ornament(u, v, Hex(0xBFE3E0), Hex(0x2E8C88))), 1.2f),
-        };
+        }.Concat(authoredWalls).ToArray();
         catalog.substrates = new[]
         {
             Floor("sand_river", "Cát vàng", "Cát sông vàng kèm sỏi nhỏ", 0, Read(sand, Color.white), 5, true, Color.white, true),
@@ -68,6 +69,48 @@ public static class AquariumSurfaceBuilder
         AssetDatabase.SaveAssets();
         Assign(catalog);
         Debug.Log($"[Lumaquarium] Surface catalog: {catalog.walls.Length} walls, {catalog.substrates.Length} floors.");
+    }
+
+    // Authored ImageGen albedos are source artwork: rebuild portraits/import settings, never overwrite the PNGs.
+    private static AquariumWallStyle[] AuthoredWalls()
+    {
+        var styles = new[]
+        {
+            ("wall_basalt", "Đá núi lửa đen", "Vách đá núi lửa đen với khe nứt tự nhiên", 400, .65f),
+            ("wall_limestone", "Đá vôi trắng", "Vách đá vôi trắng ngà với hốc đá mềm mại", 400, .55f),
+            ("wall_sandstone", "Sa thạch phân tầng", "Vách sa thạch vàng cam với vân đá uốn lượn", 450, .5f),
+            ("wall_amazon_roots", "Rễ cây Amazon", "Vách rễ cây nâu đan xen như rừng ngập nước", 550, .45f),
+            ("wall_frosted_aqua", "Kính mờ xanh sương", "Vách kính mờ xanh ngọc nhạt dịu mắt", 350, .4f),
+            ("wall_matte_black", "Đen nhám", "Vách đen nhám tối giản làm nổi bật màu cá", 300, .5f),
+            ("wall_dragon_stone", "Đá rồng", "Vách đá rồng màu đất với nhiều hốc phong hóa", 500, .55f),
+            ("wall_pearl_marble", "Cẩm thạch ngọc trai", "Vách cẩm thạch trắng kem với đường vân thanh mảnh", 550, .5f),
+            ("wall_turquoise_mosaic", "Mosaic xanh ngọc", "Vách gạch mosaic xanh ngọc với mạch gạch màu kem", 600, .6f),
+            ("wall_sunken_relic", "Di tích chìm", "Vách đá cổ chạm khắc hình học phủ rêu nhẹ", 650, .45f),
+        };
+        foreach (var style in styles)
+            if (!File.Exists($"{Dir}/{style.Item1}.png"))
+                throw new InvalidOperationException($"Missing authored wall texture: {Dir}/{style.Item1}.png");
+        return styles.Select(style =>
+        {
+            string path = $"{Dir}/{style.Item1}.png";
+            AssetDatabase.ImportAsset(path);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(path);
+            importer.textureType = TextureImporterType.Default;
+            importer.sRGBTexture = true;
+            importer.wrapMode = TextureWrapMode.Repeat;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.maxTextureSize = 1024;
+            importer.mipmapEnabled = true;
+            importer.isReadable = false;
+            importer.textureCompression = TextureImporterCompression.Compressed;
+            importer.SaveAndReimport();
+            var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            return new AquariumWallStyle
+            {
+                id = style.Item1, displayName = style.Item2, description = style.Item3, price = style.Item4,
+                tiling = style.Item5, albedo = texture, portrait = SavePortrait(style.Item1, Read(texture, Color.white))
+            };
+        }).ToArray();
     }
 
     // The environment prefab and the open MainAquarium both get the catalog (like the decoration catalog).

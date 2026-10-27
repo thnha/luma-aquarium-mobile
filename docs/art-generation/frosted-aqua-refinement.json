@@ -1,0 +1,8 @@
+{
+  "id": "wall_frosted_aqua",
+  "source": "/Users/nha-tran/.codex/generated_images/01a17df7-374d-7a42-ae2e-48b64cd017b1/exec-ab14cc1e-1ec7-42b6-bfb5-110fe2def737.png",
+  "prompt": "Use case: precise-object-edit. Edit target: provided frosted aqua texture. Keep the exact pale aqua/ivory color palette and square flat edge-to-edge material framing. CHANGE ONLY surface detail: remove all visible mineral veins, marbling, mottled speckles, cracks and coarse patterns. The result must be a VERY SMOOTH serene frosted-glass diffuse albedo, 95 percent less textural contrast than the input. Soft extremely broad low contrast cloudy aqua shading ONLY, a hint of microscopic matte grain. This must look like smooth frosted glass, not stone, not plaster, not ice. No reflections, no directional lighting, no highlights, no water caustics, no border, no text, no objects. Seamlessly tileable along both axes. Opaque square image.",
+  "editTarget": "/Users/nha-tran/.codex/generated_images/01a17df7-374d-7a42-ae2e-48b64cd017b1/exec-b8794b92-822f-4dbf-82d4-520d177f2671.png",
+  "tool": "built-in image_gen",
+  "reason": "Reduce coarse marbling to match the approved smooth frosted-glass concept."
+}

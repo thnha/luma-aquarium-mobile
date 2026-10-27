@@ -66,7 +66,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9c51513bdc4db48e8b793dee18e5e546, type: 2}
+  - {fileID: 2100000, guid: dc484d58c8838492fa7fe74f155c815e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -145,9 +145,9 @@ MonoBehaviour:
   attachable: 0
   supportsPlants: 1
   plantMounts:
-  - {x: 0.105, y: 0.13182846, z: 0}
-  - {x: -0.077423505, y: 0.13182846, z: 0.057416875}
-  - {x: 0.009179033, y: 0.13182846, z: -0.08467459}
+  - {x: -0.004321317, y: 0.08366983, z: -0.0066920808}
+  - {x: -0.09395339, y: 0.061730087, z: -0.023219813}
+  - {x: 0.09747801, y: 0.053584065, z: 0.0052259034}
   wallMounted: 0
   wallSize: {x: 0, y: 0}
   points: 1
@@ -172,5 +172,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.44971314, y: 0.16682847, z: 0.35003445}
-  m_Center: {x: 0.00080242753, y: 0.060914233, z: -0.008610845}
+  m_Size: {x: 0.32673016, y: 0.11866982, z: 0.26192972}
+  m_Center: {x: 0, y: 0.03683491, z: -0.000000007450581}

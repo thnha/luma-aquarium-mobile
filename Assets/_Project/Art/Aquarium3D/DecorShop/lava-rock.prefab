@@ -55,9 +55,9 @@ MonoBehaviour:
   attachable: 0
   supportsPlants: 1
   plantMounts:
-  - {x: 0.03296198, y: 0.3739653, z: -0.04339571}
-  - {x: -0.04275709, y: 0.36228365, z: 0.029714193}
-  - {x: -0.029975519, y: 0.35557613, z: -0.039463963}
+  - {x: 0.019319778, y: 0.15155265, z: 0.0013589705}
+  - {x: -0.047504168, y: 0.13994679, z: -0.014566168}
+  - {x: -0.0005435748, y: 0.13398448, z: -0.055849206}
   wallMounted: 0
   wallSize: {x: 0, y: 0}
   points: 1
@@ -82,8 +82,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.45256928, y: 0.41123214, z: 0.4367399}
-  m_Center: {x: -0.000058054924, y: 0.18084922, z: -0.004199967}
+  m_Size: {x: 0.3132176, y: 0.18655266, z: 0.30775115}
+  m_Center: {x: 0, y: 0.07077633, z: 0}
 --- !u!1 &7610292736932268979
 GameObject:
   m_ObjectHideFlags: 0
@@ -150,7 +150,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f22d69dd4acce491f8e5cdde0a098c15, type: 2}
+  - {fileID: 2100000, guid: dc484d58c8838492fa7fe74f155c815e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

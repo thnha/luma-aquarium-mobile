@@ -27,6 +27,7 @@ Material:
     m_Floats:
     - _Detail: 0.18
     - _Scale: 95
+    - _WallPush: 0
     m_Colors:
     - _BaseColor: {r: 0.36, g: 0.6, b: 0.14, a: 1}
   m_BuildTextureStacks: []

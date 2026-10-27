@@ -1,0 +1,67 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-27",
+  "reference": "User-approved ten wall studies. Generate one flat square material per style; no screenshot crops.",
+  "records": [
+    {
+      "id": "wall_basalt",
+      "prompt": "Use case: stylized-concept. Asset type: seamless square albedo texture for a mobile 3D freshwater aquarium interior wall. Primary request: Charcoal black volcanic basalt cliff, irregular angular chunky rock plates and fine pores, dark cool grays but readable, natural fractures, NOT bricks. Composition: orthographic straight-on FLAT MATERIAL SCAN filling the entire square edge to edge. Seamlessly tileable on BOTH axes; all four edges match with no border, no vignette, no central focal object. Material details at medium scale visible in game. Style: realistic game PBR diffuse color texture, rich carefully restrained natural color, soft ambient occlusion in crevices only. Neutral even diffuse illumination, NO directional cast shadows, NO bright specular highlights, NO water, NO caustics, NO fish, NO plants, NO tank, NO floor, NO perspective, NO writing or labels, NO grid/contact sheet. Output one square texture only, opaque background.",
+      "source": "/Users/nha-tran/.codex/generated_images/01a17df7-374d-7a42-ae2e-48b64cd017b1/exec-ea232c4e-e167-41af-8d1b-1d04202a9344.png",
+      "asset": "Assets/_Project/Art/Aquarium3D/Surfaces/wall_basalt.png"
+    },
+    {
+      "id": "wall_limestone",
+      "prompt": "Use case: stylized-concept. Asset type: seamless square albedo texture for a mobile 3D freshwater aquarium interior wall. Primary request: Ivory cream limestone cliff, eroded rounded pale mineral formations and small irregular pockets, elegant natural warm off-white rock. Composition: orthographic straight-on FLAT MATERIAL SCAN filling the entire square edge to edge. Seamlessly tileable on BOTH axes; all four edges match with no border, no vignette, no central focal object. Material details at medium scale visible in game. Style: realistic game PBR diffuse color texture, rich carefully restrained natural color, soft ambient occlusion in crevices only. Neutral even diffuse illumination, NO directional cast shadows, NO bright specular highlights, NO water, NO caustics, NO fish, NO plants, NO tank, NO floor, NO perspective, NO writing or labels, NO grid/contact sheet. Output one square texture only, opaque background.",
+      "source": "/Users/nha-tran/.codex/generated_images/01a17df7-374d-7a42-ae2e-48b64cd017b1/exec-b45f0c39-a03c-4de8-8e23-32d4e1dd4c38.png",
+      "asset": "Assets/_Project/Art/Aquarium3D/Surfaces/wall_limestone.png"
+    },
+    {
+      "id": "wall_sandstone",
+      "prompt": "Use case: stylized-concept. Asset type: seamless square albedo texture for a mobile 3D freshwater aquarium interior wall. Primary request: Warm amber beige sedimentary sandstone cliff, thin gently flowing horizontal wavy layered bands, restrained terracotta and caramel, NOT bricks. Composition: orthographic straight-on FLAT MATERIAL SCAN filling the entire square edge to edge. Seamlessly tileable on BOTH axes; all four edges match with no border, no vignette, no central focal object. Material details at medium scale visible in game. Style: realistic game PBR diffuse color texture, rich carefully restrained natural color, soft ambient occlusion in crevices only. Neutral even diffuse illumination, NO directional cast shadows, NO bright specular highlights, NO water, NO caustics, NO fish, NO plants, NO tank, NO floor, NO perspective, NO writing or labels, NO grid/contact sheet. Output one square texture only, opaque background.",
+      "source": "/Users/nha-tran/.codex/generated_images/01a17df7-374d-7a42-ae2e-48b64cd017b1/exec-561ba2cf-76bd-45aa-99a6-351a187fd8ed.png",
+      "asset": "Assets/_Project/Art/Aquarium3D/Surfaces/wall_sandstone.png"
+    },
+    {
+      "id": "wall_amazon_roots",
+      "prompt": "Use case: stylized-concept. Asset type: seamless square albedo texture for a mobile 3D freshwater aquarium interior wall. Primary request: Interwoven natural dark chocolate tree roots forming a wall of dense twisting woody relief and deeply textured bark, vertical and diagonal intertwined roots, root shapes continue past tile edges. NOT straight wooden boards. Composition: orthographic straight-on FLAT MATERIAL SCAN filling the entire square edge to edge. Seamlessly tileable on BOTH axes; all four edges match with no border, no vignette, no central focal object. Material details at medium scale visible in game. Style: realistic game PBR diffuse color texture, rich carefully restrained natural color, soft ambient occlusion in crevices only. Neutral even diffuse illumination, NO directional cast shadows, NO bright specular highlights, NO water, NO caustics, NO fish, NO plants, NO tank, NO floor, NO perspective, NO writing or labels, NO grid/contact sheet. Output one square texture only, opaque background.",
+      "source": "/Users/nha-tran/.codex/generated_images/01a17df7-374d-7a42-ae2e-48b64cd017b1/exec-087fe1dc-a6ab-4f24-acd9-5008c52304cf.png",
+      "asset": "Assets/_Project/Art/Aquarium3D/Surfaces/wall_amazon_roots.png"
+    },
+    {
+      "id": "wall_frosted_aqua",
+      "prompt": "Use case: stylized-concept. Asset type: seamless square albedo texture for a mobile 3D freshwater aquarium interior wall. Primary request: Smooth softly frosted aqua glass surface, serene pale aqua and ivory cloudy gradients with tiny fine matte grain, minimal non-directional diffuse cloudy color, no seams or glass frame, no highlights. Composition: orthographic straight-on FLAT MATERIAL SCAN filling the entire square edge to edge. Seamlessly tileable on BOTH axes; all four edges match with no border, no vignette, no central focal object. Material details at medium scale visible in game. Style: realistic game PBR diffuse color texture, rich carefully restrained natural color, soft ambient occlusion in crevices only. Neutral even diffuse illumination, NO directional cast shadows, NO bright specular highlights, NO water, NO caustics, NO fish, NO plants, NO tank, NO floor, NO perspective, NO writing or labels, NO grid/contact sheet. Output one square texture only, opaque background.",
+      "source": "/Users/nha-tran/.codex/generated_images/01a17df7-374d-7a42-ae2e-48b64cd017b1/exec-b8794b92-822f-4dbf-82d4-520d177f2671.png",
+      "asset": "Assets/_Project/Art/Aquarium3D/Surfaces/wall_frosted_aqua.png"
+    },
+    {
+      "id": "wall_matte_black",
+      "prompt": "Use case: stylized-concept. Asset type: seamless square albedo texture for a mobile 3D freshwater aquarium interior wall. Primary request: Perfectly smooth deep charcoal matte black surface with extremely subtle even micrograin, minimal sophisticated material. Uniform almost-black color, not rock, no cracks, no bright spots. Composition: orthographic straight-on FLAT MATERIAL SCAN filling the entire square edge to edge. Seamlessly tileable on BOTH axes; all four edges match with no border, no vignette, no central focal object. Material details at medium scale visible in game. Style: realistic game PBR diffuse color texture, rich carefully restrained natural color, soft ambient occlusion in crevices only. Neutral even diffuse illumination, NO directional cast shadows, NO bright specular highlights, NO water, NO caustics, NO fish, NO plants, NO tank, NO floor, NO perspective, NO writing or labels, NO grid/contact sheet. Output one square texture only, opaque background.",
+      "source": "/Users/nha-tran/.codex/generated_images/01a17df7-374d-7a42-ae2e-48b64cd017b1/exec-5e0a2438-325c-40dd-b77e-fe93e45784c0.png",
+      "asset": "Assets/_Project/Art/Aquarium3D/Surfaces/wall_matte_black.png"
+    },
+    {
+      "id": "wall_dragon_stone",
+      "prompt": "Use case: stylized-concept. Asset type: seamless square albedo texture for a mobile 3D freshwater aquarium interior wall. Primary request: Warm ochre brown dragon stone (Ohko) rocky cliff, highly eroded craggy ridges and many small irregular honeycomb cavities and elongated natural holes, characteristic aquascaping dragon stone. Composition: orthographic straight-on FLAT MATERIAL SCAN filling the entire square edge to edge. Seamlessly tileable on BOTH axes; all four edges match with no border, no vignette, no central focal object. Material details at medium scale visible in game. Style: realistic game PBR diffuse color texture, rich carefully restrained natural color, soft ambient occlusion in crevices only. Neutral even diffuse illumination, NO directional cast shadows, NO bright specular highlights, NO water, NO caustics, NO fish, NO plants, NO tank, NO floor, NO perspective, NO writing or labels, NO grid/contact sheet. Output one square texture only, opaque background.",
+      "source": "/Users/nha-tran/.codex/generated_images/01a17df7-374d-7a42-ae2e-48b64cd017b1/exec-d13c7012-34ce-4285-b9ef-0577412b24c5.png",
+      "asset": "Assets/_Project/Art/Aquarium3D/Surfaces/wall_dragon_stone.png"
+    },
+    {
+      "id": "wall_pearl_marble",
+      "prompt": "Use case: stylized-concept. Asset type: seamless square albedo texture for a mobile 3D freshwater aquarium interior wall. Primary request: Elegant ivory pearl marble with thin restrained warm gray and beige flowing veins, creamy pearl white base, fine subtle cloudy mineral translucency, polished stone diffuse albedo without reflections. No gold. Composition: orthographic straight-on FLAT MATERIAL SCAN filling the entire square edge to edge. Seamlessly tileable on BOTH axes; all four edges match with no border, no vignette, no central focal object. Material details at medium scale visible in game. Style: realistic game PBR diffuse color texture, rich carefully restrained natural color, soft ambient occlusion in crevices only. Neutral even diffuse illumination, NO directional cast shadows, NO bright specular highlights, NO water, NO caustics, NO fish, NO plants, NO tank, NO floor, NO perspective, NO writing or labels, NO grid/contact sheet. Output one square texture only, opaque background.",
+      "source": "/Users/nha-tran/.codex/generated_images/01a17df7-374d-7a42-ae2e-48b64cd017b1/exec-643f3367-1a6c-4325-99ae-7fa5d58a95ad.png",
+      "asset": "Assets/_Project/Art/Aquarium3D/Surfaces/wall_pearl_marble.png"
+    },
+    {
+      "id": "wall_turquoise_mosaic",
+      "prompt": "Use case: stylized-concept. Asset type: seamless square albedo texture for a mobile 3D freshwater aquarium interior wall. Primary request: Artisan turquoise teal ceramic mosaic made of many small square tiles arranged in a clean aligned grid with thin warm ivory grout, softly varied sea-glass turquoise and teal hues, ceramic subtle glaze crazing. Tile grid seamless across borders. Not blue swimming pool plastic. Composition: orthographic straight-on FLAT MATERIAL SCAN filling the entire square edge to edge. Seamlessly tileable on BOTH axes; all four edges match with no border, no vignette, no central focal object. Material details at medium scale visible in game. Style: realistic game PBR diffuse color texture, rich carefully restrained natural color, soft ambient occlusion in crevices only. Neutral even diffuse illumination, NO directional cast shadows, NO bright specular highlights, NO water, NO caustics, NO fish, NO plants, NO tank, NO floor, NO perspective, NO writing or labels, NO grid/contact sheet. Output one square texture only, opaque background.",
+      "source": "/Users/nha-tran/.codex/generated_images/01a17df7-374d-7a42-ae2e-48b64cd017b1/exec-e43c6fe3-5674-4439-8097-b7137f9e1ce6.png",
+      "asset": "Assets/_Project/Art/Aquarium3D/Surfaces/wall_turquoise_mosaic.png"
+    },
+    {
+      "id": "wall_sunken_relic",
+      "prompt": "Use case: stylized-concept. Asset type: seamless square albedo texture for a mobile 3D freshwater aquarium interior wall. Primary request: Ancient weathered olive-gray temple stone wall, subtle carved repeating geometric diamond and stepped relief motifs, worn edges and stone cracks, small muted moss in recessed grout, sophisticated lost underwater civilization ruins. No faces, no letters, no statues. Composition: orthographic straight-on FLAT MATERIAL SCAN filling the entire square edge to edge. Seamlessly tileable on BOTH axes; all four edges match with no border, no vignette, no central focal object. Material details at medium scale visible in game. Style: realistic game PBR diffuse color texture, rich carefully restrained natural color, soft ambient occlusion in crevices only. Neutral even diffuse illumination, NO directional cast shadows, NO bright specular highlights, NO water, NO caustics, NO fish, NO plants, NO tank, NO floor, NO perspective, NO writing or labels, NO grid/contact sheet. Output one square texture only, opaque background.",
+      "source": "/Users/nha-tran/.codex/generated_images/01a17df7-374d-7a42-ae2e-48b64cd017b1/exec-aca701a9-7fa0-42a4-b51d-898fa7ca77b6.png",
+      "asset": "Assets/_Project/Art/Aquarium3D/Surfaces/wall_sunken_relic.png"
+    }
+  ]
+}

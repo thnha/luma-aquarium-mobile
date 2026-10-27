@@ -7,7 +7,7 @@ using UnityEngine;
 // and seed always produce the same mesh, so rebuilding the catalog never reshuffles the shop.
 public static class DriftwoodSpeciesBuilder
 {
-    public enum Shape { Upright, Slanted, Lying, V }
+    public enum Shape { Upright, Slanted, Lying, V, Arch }
     public enum Tone { Grain, Blend, TwoTone }
 
     public sealed class Species
@@ -16,14 +16,16 @@ public static class DriftwoodSpeciesBuilder
         public int depth; public float[] len, rDec, start, up, wander; public int[] kids; public Vector2[] spread;
         public float r0, curl, ridgeK, ridge, sharp, twist, lump, lumpF, tip;
         public Color colA, colB; public Tone tone;
+        // Buttress roots flaring from the trunk base over the sand; they grow by the depth-1 rules.
+        public int roots; public float rootLen = 1;
     }
 
     public static readonly Species[] All =
     {
         new Species { id="wood-linh-sam", name="Lũa Linh Sam", price=220, shape=Shape.Slanted,
             description="Gỗ cứng nâu đen, vân xoắn, chìm ngay · Có 3 vị trí gắn cây hoặc rêu",
-            depth=2, len=new[]{.56f,.24f,.11f}, r0=.058f, rDec=new[]{.48f,.5f}, kids=new[]{4,2}, start=new[]{.3f,.35f},
-            spread=new[]{new Vector2(22,50),new Vector2(25,50)}, up=new[]{.05f,.05f,.06f}, wander=new[]{.16f,.2f,.22f},
+            depth=3, len=new[]{.56f,.26f,.13f,.06f}, r0=.058f, rDec=new[]{.5f,.55f,.6f}, kids=new[]{4,3,2}, start=new[]{.3f,.3f,.3f},
+            spread=new[]{new Vector2(22,50),new Vector2(25,50),new Vector2(25,55)}, up=new[]{.05f,.05f,.06f,.07f}, wander=new[]{.16f,.22f,.26f,.3f},
             curl=2.2f, ridgeK=9, ridge=.11f, sharp=2.5f, twist=9, lump=.14f, lumpF=9, tip=.12f,
             colA=new Color(.3f,.2f,.14f), colB=new Color(.12f,.08f,.06f), tone=Tone.Grain },
         new Species { id="wood-hai-son-tung", name="Lũa Hải Sơn Tùng", price=240, shape=Shape.Upright,
@@ -46,15 +48,15 @@ public static class DriftwoodSpeciesBuilder
             colA=new Color(.68f,.54f,.38f), colB=new Color(.45f,.33f,.22f), tone=Tone.Grain },
         new Species { id="wood-san-da", name="Lũa Săn Đá", price=250, shape=Shape.Upright,
             description="Gỗ nặng, gân guốc nứt nẻ như đá, hợp phối cùng đá · Có 3 vị trí gắn",
-            depth=1, len=new[]{.44f,.32f}, r0=.07f, rDec=new[]{.6f}, kids=new[]{3}, start=new[]{.22f},
-            spread=new[]{new Vector2(48,80)}, up=new[]{.03f,.04f}, wander=new[]{.14f,.18f},
-            curl=1.8f, ridgeK=13, ridge=.22f, sharp=7, twist=5, lump=.24f, lumpF=7, tip=.2f,
+            depth=2, len=new[]{.44f,.28f,.1f}, r0=.07f, rDec=new[]{.55f,.45f}, kids=new[]{3,2}, start=new[]{.22f,.35f},
+            spread=new[]{new Vector2(40,70),new Vector2(25,55)}, up=new[]{.03f,.04f,.05f}, wander=new[]{.14f,.2f,.26f},
+            curl=1.8f, ridgeK=13, ridge=.22f, sharp=7, twist=5, lump=.24f, lumpF=7, tip=.3f, roots=4, rootLen=.7f,
             colA=new Color(.44f,.4f,.36f), colB=new Color(.27f,.23f,.2f), tone=Tone.Grain },
-        new Species { id="wood-mopani", name="Lũa Mopani", price=260, shape=Shape.Lying,
+        new Species { id="wood-mopani", name="Lũa Mopani", price=260, shape=Shape.Upright,
             description="Khối gỗ dày hai màu sáng tối, chìm ngay · Có 3 vị trí gắn cây hoặc rêu",
-            depth=1, len=new[]{.3f,.2f}, r0=.07f, rDec=new[]{.64f}, kids=new[]{3}, start=new[]{.2f},
-            spread=new[]{new Vector2(45,85)}, up=new[]{.02f,.04f}, wander=new[]{.3f,.34f},
-            curl=1.8f, ridgeK=3, ridge=.02f, sharp=1, twist=1, lump=.28f, lumpF=6, tip=.5f,
+            depth=2, len=new[]{.3f,.18f,.08f}, r0=.06f, rDec=new[]{.6f,.5f}, kids=new[]{4,2}, start=new[]{.2f,.3f},
+            spread=new[]{new Vector2(45,95),new Vector2(30,70)}, up=new[]{0,0,.02f}, wander=new[]{.4f,.45f,.45f},
+            curl=3, ridgeK=5, ridge=.08f, sharp=1.5f, twist=3, lump=.3f, lumpF=12, tip=.45f, roots=3, rootLen=.8f,
             colA=new Color(1,.84f,.58f), colB=new Color(.2f,.1f,.05f), tone=Tone.TwoTone },
         new Species { id="wood-tra-gung", name="Lũa Trà Gừng", price=120, shape=Shape.Upright,
             description="Nhánh nhỏ đan chằng chịt, gọn cho hồ mini · Có 3 vị trí gắn",
@@ -70,6 +72,49 @@ public static class DriftwoodSpeciesBuilder
             colA=new Color(.42f,.31f,.22f), colB=new Color(.24f,.17f,.12f), tone=Tone.Grain },
     };
 
+    // The first six shop driftwoods (kinds 15–20, ids unchanged), redesigned from bare Bezier tubes.
+    private static readonly Color WarmA = new Color(.5f,.34f,.21f), WarmB = new Color(.24f,.15f,.09f);
+    public static readonly Species[] Classic =
+    {
+        new Species { id="wood-short", shape=Shape.Lying,
+            depth=2, len=new[]{.32f,.14f,.06f}, r0=.038f, rDec=new[]{.55f,.5f}, kids=new[]{3,2}, start=new[]{.2f,.3f},
+            spread=new[]{new Vector2(40,75),new Vector2(25,55)}, up=new[]{0,.08f,.06f}, wander=new[]{.3f,.3f,.3f},
+            curl=2.5f, ridgeK=9, ridge=.13f, sharp=2.5f, twist=7, lump=.2f, lumpF=11, tip=.55f,
+            colA=WarmA, colB=WarmB, tone=Tone.Grain },
+        new Species { id="wood-long", shape=Shape.Lying,
+            depth=2, len=new[]{.6f,.2f,.09f}, r0=.04f, rDec=new[]{.5f,.5f}, kids=new[]{5,2}, start=new[]{.2f,.3f},
+            spread=new[]{new Vector2(35,70),new Vector2(25,55)}, up=new[]{.03f,.08f,.06f}, wander=new[]{.2f,.26f,.3f},
+            curl=2.2f, ridgeK=7, ridge=.1f, sharp=2, twist=6, lump=.14f, lumpF=9, tip=.3f,
+            colA=WarmA, colB=WarmB, tone=Tone.Grain },
+        new Species { id="wood-arch", shape=Shape.Arch,
+            depth=2, len=new[]{.8f,.15f,.07f}, r0=.04f, rDec=new[]{.45f,.5f}, kids=new[]{3,2}, start=new[]{.35f,.3f},
+            spread=new[]{new Vector2(30,60),new Vector2(25,55)}, up=new[]{-.42f,.06f,.06f}, wander=new[]{.1f,.25f,.3f},
+            curl=1.6f, ridgeK=7, ridge=.1f, sharp=2, twist=7, lump=.15f, lumpF=8, tip=.6f,
+            colA=WarmA, colB=WarmB, tone=Tone.Grain },
+        new Species { id="wood-branches", shape=Shape.Upright,
+            depth=3, len=new[]{.44f,.22f,.11f,.05f}, r0=.042f, rDec=new[]{.5f,.55f,.6f}, kids=new[]{4,3,2}, start=new[]{.3f,.25f,.3f},
+            spread=new[]{new Vector2(25,50),new Vector2(25,55),new Vector2(25,55)}, up=new[]{.04f,.06f,.07f,.08f}, wander=new[]{.2f,.24f,.28f,.3f},
+            curl=2, ridgeK=7, ridge=.09f, sharp=2, twist=6, lump=.14f, lumpF=10, tip=.14f,
+            colA=WarmA, colB=WarmB, tone=Tone.Grain },
+        new Species { id="wood-roots", shape=Shape.Upright,
+            depth=2, len=new[]{.4f,.2f,.08f}, r0=.04f, rDec=new[]{.5f,.5f}, kids=new[]{3,2}, start=new[]{.45f,.3f},
+            spread=new[]{new Vector2(25,50),new Vector2(25,55)}, up=new[]{.05f,.02f,.05f}, wander=new[]{.16f,.3f,.3f},
+            curl=2, ridgeK=6, ridge=.08f, sharp=1.5f, twist=5, lump=.14f, lumpF=10, tip=.16f, roots=7, rootLen=1.1f,
+            colA=WarmA, colB=WarmB, tone=Tone.Grain },
+        new Species { id="wood-stump", shape=Shape.Upright,
+            depth=1, len=new[]{.26f,.13f}, r0=.062f, rDec=new[]{.4f}, kids=new[]{2}, start=new[]{.5f},
+            spread=new[]{new Vector2(35,60)}, up=new[]{.02f,.05f}, wander=new[]{.1f,.25f},
+            curl=1.5f, ridgeK=14, ridge=.18f, sharp=3, twist=2, lump=.12f, lumpF=9, tip=.7f, roots=7, rootLen=1.1f,
+            colA=new Color(.46f,.32f,.2f), colB=new Color(.2f,.13f,.08f), tone=Tone.Grain },
+    };
+
+    // The driftwood every new tank starts with (prefab BranchingDriftwoodNatural, kind 2).
+    public static readonly Species Starter = new Species { id="starter-wood", shape=Shape.Slanted,
+        depth=3, len=new[]{.5f,.24f,.11f,.05f}, r0=.045f, rDec=new[]{.5f,.55f,.6f}, kids=new[]{4,3,2}, start=new[]{.3f,.3f,.3f},
+        spread=new[]{new Vector2(25,55),new Vector2(25,55),new Vector2(25,55)}, up=new[]{.08f,.06f,.07f,.08f}, wander=new[]{.16f,.24f,.28f,.3f},
+        curl=2, ridgeK=7, ridge=.1f, sharp=2, twist=6, lump=.14f, lumpF=10, tip=.14f, roots=3, rootLen=.8f,
+        colA=WarmA, colB=WarmB, tone=Tone.Grain };
+
     public static Mesh Build(Species sp,int seed,out Vector3[] plantMounts,out float footprint,int maxMounts=3)
     {
         var g = new Grower(sp, seed);
@@ -79,10 +124,15 @@ public static class DriftwoodSpeciesBuilder
             case Shape.Upright: g.Grow(Vector3.zero,new Vector3((g.Next()-.5f)*.2f,1,(g.Next()-.5f)*.2f),0,r0,1,1); break;
             case Shape.Slanted: g.Grow(new Vector3(-.1f,0,0),new Vector3(.8f,.6f,.05f),0,r0,1.1f,.35f); break;
             case Shape.Lying: g.Grow(new Vector3(-.25f,r0*.55f,0),new Vector3(1,.06f,.12f),0,r0,1.15f,0); break;
+            // A negative trunk `up` bends the arch back down until it rests on the sand.
+            case Shape.Arch: g.Grow(new Vector3(-.2f,0,0),new Vector3(.45f,.9f,.04f),0,r0,1,1); break;
             default:
                 g.Grow(new Vector3(-.015f,0,0),new Vector3(-.6f,.8f,.05f),0,r0*.8f,.95f,.5f);
                 g.Grow(new Vector3(.015f,0,.01f),new Vector3(.62f,.78f,-.05f),0,r0*.8f,.95f,.5f); break;
         }
+        // Roots draw from the generator after the trunk, so species without roots keep their exact mesh.
+        if (sp.roots > 0)
+            g.Roots(sp.shape==Shape.Slanted?new Vector3(-.1f,0,0):sp.shape==Shape.Arch?new Vector3(-.2f,0,0):Vector3.zero,sp.roots,r0,sp.rootLen);
         return g.Finish(out plantMounts,out footprint,maxMounts);
     }
 
@@ -133,9 +183,9 @@ public static class DriftwoodSpeciesBuilder
 
         private static Vector3 Perpendicular(Vector3 t) => Vector3.Cross(t,Mathf.Abs(t.y)<.9f?Vector3.up:Vector3.right).normalized;
 
-        public void Grow(Vector3 p0,Vector3 dir,int depth,float rStart,float lenScale,float upMul)
+        public void Grow(Vector3 p0,Vector3 dir,int depth,float rStart,float lenScale,float upMul,float tip = -1)
         {
-            float length = sp.len[depth]*lenScale*(.8f+.4f*Next()), rEnd = rStart*sp.tip;
+            float length = sp.len[depth]*lenScale*(.8f+.4f*Next()), rEnd = rStart*(tip < 0 ? sp.tip : tip);
             float step = Mathf.Min(.02f,Mathf.Max(.01f,rStart*.9f));
             int n = Mathf.Max(4,Mathf.CeilToInt(length/step));
             float o0 = Next()*100, o1 = Next()*100, o2 = Next()*100;
@@ -170,6 +220,18 @@ public static class DriftwoodSpeciesBuilder
                 float angle = Mathf.Lerp(sp.spread[depth].x,sp.spread[depth].y,Next())*Mathf.Deg2Rad;
                 Vector3 childDir = tangent*Mathf.Cos(angle) + perp*Mathf.Sin(angle);
                 Grow(points[i],childDir,depth+1,Mathf.Max(.0028f,radii[i]*sp.rDec[depth]*(.85f+.3f*Next())),1-t*.35f,1);
+            }
+        }
+
+        // Roots leave the base angled down; the sand stops them, so they crawl outward and taper to a point.
+        public void Roots(Vector3 basePoint,int count,float r0,float lenScale)
+        {
+            float phase = Next()*Mathf.PI*2;
+            for (int k = 0; k < count; k++)
+            {
+                float a = phase + k*Mathf.PI*2/count + (Next()-.5f)*.9f;
+                var dir = new Vector3(Mathf.Cos(a),-.35f-.25f*Next(),Mathf.Sin(a));
+                Grow(basePoint+Vector3.up*(r0*.9f),dir,1,r0*(.45f+.2f*Next()),lenScale*(.75f+.5f*Next()),-1,.15f);
             }
         }
 

@@ -23,9 +23,9 @@ public static partial class AquariumDecorCatalogBuilder
     {
         id="wood-co-thu", name="Lũa cổ thụ đứng", price=900, shape=DriftwoodSpeciesBuilder.Shape.Upright,
         description="Thân to vươn cao gần chạm mặt nước, ngả được bằng nút Nghiêng · 6 vị trí gắn rêu, ráy · 3 điểm",
-        depth=2, len=new[]{1.45f,.5f,.22f}, r0=.1f, rDec=new[]{.45f,.5f}, kids=new[]{5,3}, start=new[]{.35f,.3f},
-        spread=new[]{new Vector2(30,55),new Vector2(25,50)}, up=new[]{.02f,.05f,.06f}, wander=new[]{.12f,.2f,.24f},
-        curl=1.6f, ridgeK=9, ridge=.12f, sharp=2.5f, twist=4, lump=.16f, lumpF=5, tip=.22f,
+        depth=3, len=new[]{1.45f,.5f,.22f,.09f}, r0=.1f, rDec=new[]{.45f,.5f,.55f}, kids=new[]{5,3,2}, start=new[]{.35f,.3f,.3f},
+        spread=new[]{new Vector2(30,55),new Vector2(25,50),new Vector2(25,55)}, up=new[]{.02f,.05f,.06f,.07f}, wander=new[]{.12f,.2f,.24f,.28f},
+        curl=1.6f, ridgeK=9, ridge=.12f, sharp=2.5f, twist=4, lump=.16f, lumpF=5, tip=.22f, roots=6, rootLen=1.2f,
         colA=new Color(.36f,.24f,.16f), colB=new Color(.14f,.09f,.06f), tone=DriftwoodSpeciesBuilder.Tone.Grain
     };
 
@@ -85,7 +85,7 @@ public static partial class AquariumDecorCatalogBuilder
         AddPiece(offers,"stone-slab","Đá phiến bậc",300,AquariumDecorCategory.Rocks,
             "Mặt trên phẳng để chồng thêm đá hoặc gác lũa, dựng núi đá nhiều tầng · 2 điểm",kind++,2,item =>
             {
-                Model("Stone",item.transform,Fitted(Piece("stone-elephant-skin"),new Vector3(.62f,.16f,.48f),"stone-slab"),speciesStone);
+                Model("Stone",item.transform,Fitted(Piece("stone-elephant-skin"),SlabSize,"stone-slab"),speciesStone);
                 item.footprint=.27f;item.supportsPlants=true;item.plantMounts=TopMounts(item.gameObject);
             });
         AddPiece(offers,"vallisneria-tall","Hẹ nước Vallisneria cao",180,AquariumDecorCategory.Plants,
@@ -100,10 +100,9 @@ public static partial class AquariumDecorCatalogBuilder
         AddPiece(offers,"stone-cliff","Đá vách núi",800,AquariumDecorCategory.Rocks,
             "Khối đá dài nhiều tầng dựng sát kính sau, che phần hồ phía sau và tạo chiều sâu · 3 điểm",kind++,3,item =>
             {
-                Model("Stone",item.transform,Fitted(Piece("stone-elephant-skin"),new Vector3(.95f,1.3f,.34f),"stone-cliff"),speciesStone);
+                Model("Stone",item.transform,Fitted(Piece("stone-cliff"),CliffSize,"stone-cliff"),speciesStone);
                 item.footprint=.3f;item.supportsPlants=true;item.plantMounts=TopMounts(item.gameObject);
             });
-        // Carpets are painted with the brush; the prefab is a patch for the shop portrait.
         string[] carpetIds={"carpet-hairgrass","carpet-monte-carlo"};
         string[] carpetNames={"Thảm Ngưu mao chiên","Thảm Trân châu Nhật"};
         int[] carpetPrices={60,70};
@@ -111,18 +110,49 @@ public static partial class AquariumDecorCatalogBuilder
         {
             int species=i+1;string id=carpetIds[i];
             AddPiece(offers,id,carpetNames[i],carpetPrices[i],AquariumDecorCategory.Moss,
-                $"Gói {AquariumCarpet.PackCells} ô thảm tiền cảnh · Chọn rồi kéo trên cát để trải, Tẩy để xoá · Không tính điểm",kind++,0,item =>
-                {
-                    item.carpet=species;item.footprint=.1f;
-                    var vertices=new List<Vector3>();var colors=new List<Color>();var triangles=new List<int>();
-                    var random=new System.Random(species);
-                    for(int x=-2;x<=2;x++)for(int z=-1;z<=1;z++)
-                        AquariumCarpet.AddTuft(vertices,colors,triangles,species,new Vector3(x*.035f,0,z*.035f),random);
-                    var mesh=new Mesh();mesh.SetVertices(vertices);mesh.SetColors(colors);mesh.SetTriangles(triangles,0);
-                    mesh.RecalculateNormals();mesh.RecalculateBounds();
-                    Model("Leaves",item.transform,Store(mesh,id),Nature("Carpet",Color.white));
-                });
+                $"Gói {AquariumCarpet.PackCells} ô thảm tiền cảnh · Chọn rồi kéo trên cát để trải, Tẩy để xoá · Không tính điểm",kind++,0,
+                item => BuildCarpet(item,species,id));
         }
+    }
+
+    // Climbing carpets grow on the sand, on stone and wood and on the back glass. They came after the coral
+    // collection, on kinds 100+, so no released kind or offer moves.
+    private sealed class Carpet { public string id, name, description; public int species, kind, price; }
+    private static readonly Carpet[] Climbing =
+    {
+        new Carpet { id="carpet-hc-cuba", name="Thảm Trân châu Cuba", species=3, kind=100, price=80,
+            description="Lá li ti xanh non phủ kín như nhung" },
+        new Carpet { id="carpet-java-moss", name="Thảm rêu Java", species=4, kind=101, price=70,
+            description="Rêu lông vũ xanh đậm bò sát mặt lũa, đá" },
+        new Carpet { id="carpet-riccia", name="Thảm rêu Riccia", species=5, kind=102, price=75,
+            description="Tản rêu chẻ nhánh xanh chanh, bám đá thành đệm" },
+        new Carpet { id="carpet-marimo", name="Thảm tảo Marimo", species=6, kind=103, price=90,
+            description="Tảo cầu xanh thẫm mọc thành đệm tròn mịn" },
+    };
+
+    private static void AddClimbingCarpets(List<AquariumDecorOffer> offers)
+    {
+        foreach (var carpet in Climbing)
+        {
+            if(offers.Exists(o=>o.prefab.kind==carpet.kind))
+                throw new InvalidOperationException("Carpet kind conflicts with a released item: "+carpet.kind);
+            AddPiece(offers,carpet.id,carpet.name,carpet.price,AquariumDecorCategory.Moss,
+                $"{carpet.description} · Gói {AquariumCarpet.PackCells} ô · Kéo trên cát, lũa, đá hoặc kính sau để trải, Tẩy để xoá · Không tính điểm",
+                carpet.kind,0,item => BuildCarpet(item,carpet.species,carpet.id));
+        }
+    }
+
+    // Carpets are painted with the brush; the prefab is a patch for the shop portrait.
+    private static void BuildCarpet(AquariumDecorItem item,int species,string id)
+    {
+        item.carpet=species;item.footprint=.1f;
+        var vertices=new List<Vector3>();var colors=new List<Color>();var triangles=new List<int>();
+        var random=new System.Random(species);
+        for(int x=-2;x<=2;x++)for(int z=-1;z<=1;z++)
+            AquariumCarpet.AddTuft(vertices,colors,triangles,species,new Vector3(x*.035f,0,z*.035f),random);
+        var mesh=new Mesh();mesh.SetVertices(vertices);mesh.SetColors(colors);mesh.SetTriangles(triangles,0);
+        mesh.RecalculateNormals();mesh.RecalculateBounds();
+        Model("Leaves",item.transform,Store(mesh,id),Nature("Carpet",Color.white));
     }
 
     // A rosette of broad blades: inner leaves stand upright, outer ones arch outward.
@@ -153,8 +183,11 @@ public static partial class AquariumDecorCatalogBuilder
 
     private static int Price(float price) => Mathf.RoundToInt(price/10)*10;
 
+    private static readonly Vector3 SlabSize=new Vector3(.62f,.16f,.48f),CliffSize=new Vector3(.95f,1.3f,.34f);
+
     private static StoneCoralBuilder.Piece Piece(string id) =>
-        Array.Find(StoneCoralBuilder.All,x=>x.id==id) ?? throw new InvalidOperationException("Missing stone "+id);
+        Array.Find(StoneCoralBuilder.All,x=>x.id==id) ?? Array.Find(StoneCoralBuilder.Redesign,x=>x.id==id)
+        ?? throw new InvalidOperationException("Missing stone "+id);
 
     // Same steps as the other shop items: build, add a trigger box for picking, save, bake a portrait.
     private static void AddPiece(List<AquariumDecorOffer> offers,string id,string name,int price,AquariumDecorCategory category,

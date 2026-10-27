@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &2780817338026886908
+--- !u!1 &2364025370424429932
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,23 +8,23 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6217948808479105134}
-  - component: {fileID: 6154883233503778055}
-  - component: {fileID: 6733885261507394983}
-  m_Layer: 0
-  m_Name: Stone
+  - component: {fileID: 3928614733387174261}
+  - component: {fileID: 6870010815245638491}
+  - component: {fileID: 1884434140381287381}
+  m_Layer: 8
+  m_Name: Coral
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &6217948808479105134
+--- !u!4 &3928614733387174261
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2780817338026886908}
+  m_GameObject: {fileID: 2364025370424429932}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -33,21 +33,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7785212272203842654}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &6154883233503778055
+--- !u!33 &6870010815245638491
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2780817338026886908}
+  m_GameObject: {fileID: 2364025370424429932}
   m_Mesh: {fileID: 4300000, guid: 8c4f8d30a14bb434cbfd4704dd216518, type: 2}
---- !u!23 &6733885261507394983
+--- !u!23 &1884434140381287381
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2780817338026886908}
+  m_GameObject: {fileID: 2364025370424429932}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -66,7 +66,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 6ef848be87b4442888116b8e249a9c20, type: 2}
+  - {fileID: 2100000, guid: 471aa32411ddd414b85bb012f7514213, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -121,7 +121,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6217948808479105134}
+  - {fileID: 3928614733387174261}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5614675725701440680
@@ -137,7 +137,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AquariumDecorItem
   kind: 50
-  footprint: 0.16733927
+  footprint: 0.17013586
   foliage: {fileID: 0}
   phase: 0
   instanceId: 
@@ -169,5 +169,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.35967854, y: 0.2245414, z: 0.33869585}
-  m_Center: {x: -0.000000007450581, y: 0.099770695, z: 0.000000007450581}
+  m_Size: {x: 0.28973508, y: 0.28373638, z: 0.3502717}
+  m_Center: {x: 0.016862039, y: 0.1368682, z: -0.023289196}

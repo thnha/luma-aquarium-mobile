@@ -6222,8 +6222,8 @@ MonoBehaviour:
   - {fileID: 5390425330897966064, guid: af9f9911aed9c4930b43d15dcab7700f, type: 3}
   - {fileID: 6869654201320046118, guid: 81261743fe8724435a0ea2a6e8b0e07d, type: 3}
   - {fileID: 3152260865794229726, guid: 57238bb8dd097480a913fced94ed83a5, type: 3}
-  - {fileID: 3581557651243262696, guid: 884eb1499c63649469a7b9a1d9efbdea, type: 3}
-  - {fileID: 2037892123915975756, guid: 8f360411791c744a1ba0e6f4e335e052, type: 3}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 7527994210034968102, guid: 3c88099c4a3e340c080c31d765548d33, type: 3}
   - {fileID: 4927247566915813110, guid: 3b99d4af8413542cabc9c7fbefee1aa7, type: 3}
   - {fileID: 6401732364208571238, guid: 7ef4a06fcce0f4e78b36e0698d288635, type: 3}
@@ -6273,6 +6273,39 @@ MonoBehaviour:
   - {fileID: 3989047059476645257, guid: 61026824b39b64684abee47d28a54201, type: 3}
   - {fileID: 372091871193312422, guid: 0a16100a156e04c339a3951fbd799348, type: 3}
   - {fileID: 1043661354643398393, guid: 3ec7c82008ec14344934462368824d56, type: 3}
+  - {fileID: 4883359410029969841, guid: 6c9a4f2079d37493f9e9dd526b055f5f, type: 3}
+  - {fileID: 5018478039269572280, guid: 8d9d6d155e1d94ba887aaaae4728f80d, type: 3}
+  - {fileID: 6812107445838559366, guid: 4db6d6b11cdb945449a3d7c623c5fdc0, type: 3}
+  - {fileID: 8292261463706520607, guid: 5a7a0b67ee4f74e4daa99937356261df, type: 3}
+  - {fileID: 1391971458270302840, guid: 8efff1471071f4152b0dfa5cab419cff, type: 3}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 8859247139415442457, guid: 9f6e2e0ff69af47c8a01990edcc4bdbf, type: 3}
+  - {fileID: 948312147005354301, guid: 5d975e211b5b348c687018ee03b0a113, type: 3}
+  - {fileID: 9039320599654230094, guid: 1c8d5b40300214934a98aa60817c2412, type: 3}
+  - {fileID: 3610425767879744149, guid: 94d1c0733a4614d789b7dc8f62dbceea, type: 3}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 3454007436831452383, guid: 61bc178f7d8024e67881833cea241d74, type: 3}
+  - {fileID: 1878222259562718551, guid: accf831fce97747e4934effaf06702b4, type: 3}
+  - {fileID: 5447497536356289614, guid: 04df63691f2954a80a5d9b1047a88c7f, type: 3}
+  - {fileID: 6451999130110690678, guid: 78137323226424b4e86051691ce3b7c3, type: 3}
+  - {fileID: 7089858664931993145, guid: 347b6a0c2f7e74eb6bdbaf03f2c0f78a, type: 3}
+  - {fileID: 1963564475831799169, guid: 5b603d06ed3f143baaa41797da252bdf, type: 3}
+  - {fileID: 5292689508629438561, guid: 6b8eef4f963f7448e8954a4e98c71a1b, type: 3}
+  - {fileID: 3227466454604189387, guid: ccc830cba347b407b8833fa811e98bef, type: 3}
+  - {fileID: 8860639217932803189, guid: 2af11d688e5844fb7b885bfd96e4ba02, type: 3}
+  - {fileID: 5142530976775649680, guid: 330eecc1fbae74fc79167a8907404cff, type: 3}
+  - {fileID: 7205391875004481162, guid: 0f99ec0048c774e87aaed3d612e9a5ec, type: 3}
+  - {fileID: 4747179248264388062, guid: d12ca7038d38749d9be6428a695a831c, type: 3}
   catalog: {fileID: 11400000, guid: 7794c97f9f0e3470b936e1d249cf6cb7, type: 2}
   surfaces: {fileID: 11400000, guid: 9f3416f1039e34e4e8bfe19bbb6bba2a, type: 2}
   inventoryStorageKey: Lumaquarium.FishShop.v1
@@ -6343,6 +6376,9 @@ MonoBehaviour:
   backlightStrength: 0.75
   storageKey: Lumaquarium.Lighting.v1
   persist: 1
+  followClock: 1
+  nightFromHour: 21
+  nightToHour: 6
 --- !u!114 &6711924937353748411
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17495,6 +17531,9 @@ MonoBehaviour:
   feedbackRoot: {fileID: 0}
   muteLabel: {fileID: 5633167526665015186}
   languageLabel: {fileID: 0}
+  accountTitle: {fileID: 0}
+  accountDetail: {fileID: 0}
+  accountLabel: {fileID: 0}
   hud: {fileID: 5281912746202035024}
   decoration: {fileID: 3482791865683105501}
   fishShop: {fileID: 0}

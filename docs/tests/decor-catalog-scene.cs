@@ -5,9 +5,11 @@ System.Action<bool,string> check = (ok,label) => { if(!ok) throw new System.Exce
 var catalog = d.GetType().GetField("catalog").GetValue(d) as UnityEngine.ScriptableObject;
 check(catalog != null,"Catalog connected to aquarium");
 check(UnityEngine.Object.FindObjectsByType<BettaFishAI>(UnityEngine.FindObjectsSortMode.None).Length==1,"Preserve one fish");
+// Unused kinds (the retired moss walls, gaps before the climbing carpets) stay empty.
 foreach(var p in d.prefabs)
 {
-    check(p!=null && p.GetComponentsInChildren<UnityEngine.MeshRenderer>().Length>0,"Renderable prefab");
+    if(p==null) continue;
+    check(p.GetComponentsInChildren<UnityEngine.MeshRenderer>().Length>0,"Renderable prefab");
     check(p.GetComponent<UnityEngine.Collider>()!=null,"Selectable prefab");
     check(p.kind>=0 && d.prefabs[p.kind]==p,"Stable layout kind");
 }

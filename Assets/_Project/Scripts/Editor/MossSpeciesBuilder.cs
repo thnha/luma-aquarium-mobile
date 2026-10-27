@@ -37,46 +37,11 @@ public static class MossSpeciesBuilder
         fronds=90, branchlets=0, radius=.06f, height=.024f, length=.018f, leaf=.0065f,
         dark=new Color(.11f,.3f,.08f), light=new Color(.33f,.58f,.15f) };
 
-    // A moss panel for the back glass: patches of one species grown over a dark mat that hides the
-    // glass between them. Panels lie in the XY plane, facing -Z, with the pivot at the bottom centre.
-    public sealed class Wall
-    {
-        public string id, name, description; public int price; public Species moss; public Vector2 size; public int frondsPerPatch;
-    }
-
-    public static readonly Wall[] Walls =
-    {
-        new Wall { id="moss-wall-taiwan", name="Tường rêu Mini Taiwan", price=220, moss=All[0], size=new Vector2(.4f,.32f), frondsPerPatch=7,
-            description="Tấm rêu dán kính sau hồ, phủ thảm dày · Ghép nhiều tấm thành tường rêu" },
-        new Wall { id="moss-wall-weeping", name="Tường rêu Weeping", price=260, moss=All[1], size=new Vector2(.4f,.32f), frondsPerPatch=6,
-            description="Tấm rêu dán kính sau hồ, nhánh rủ xuống như thác · Ghép nhiều tấm thành tường rêu" },
-    };
-
     public static Mesh Build(Species sp,out float footprint)
     {
         var g = new Grower(sp);
         for (int n = 0; n < sp.fronds; n++) g.Grow(n);
         return g.Finish(out footprint);
-    }
-
-    public static Mesh BuildWall(Wall wall)
-    {
-        // Patches grow as on the sand, then turn so "up" points out of the glass; gravity in that
-        // patch space is -Z, so weeping fronds still hang toward the floor.
-        var g = new Grower(wall.moss) { gravity = Vector3.back };
-        g.Backing(wall.size);
-        var turn = Quaternion.Euler(-90,0,0);
-        float spacing = wall.moss.radius*1.3f;
-        int columns = Mathf.Max(1,Mathf.RoundToInt(wall.size.x/spacing)), rows = Mathf.Max(1,Mathf.RoundToInt(wall.size.y/spacing)), n = 0;
-        for (int r = 0; r < rows; r++)
-            for (int c = 0; c < columns; c++)
-            {
-                var center = new Vector3(((c+.5f)/columns-.5f)*wall.size.x,(r+.5f)/rows*wall.size.y,0);
-                int start = g.Mark();
-                for (int k = 0; k < wall.frondsPerPatch; k++) g.Grow(n++);
-                g.Place(start,turn,center);
-            }
-        return g.Finish(out _);
     }
 
     private sealed class Grower
@@ -88,8 +53,6 @@ public static class MossSpeciesBuilder
         private readonly List<Vector2> uvs = new List<Vector2>();
         private readonly List<Color> colors = new List<Color>();
         private readonly List<int> triangles = new List<int>();
-        // World "down" in the space fronds grow in; on the back glass that space is turned.
-        public Vector3 gravity = Vector3.down;
 
         public Grower(Species species) { sp = species; rng = new System.Random(4271 + species.id.Length*97); }
 
@@ -207,12 +170,12 @@ public static class MossSpeciesBuilder
             var radial = new Vector3(Mathf.Cos(a),0,Mathf.Sin(a));
             Vector3 start = radial*(core*sp.radius*.22f) + Vector3.up*(sp.height*(.55f+.45f*Next())*(1-core*.4f));
             float length = sp.length*(.75f+.4f*Next());
-            var pull = gravity*(1.5f+.4f*Next());
+            var pull = Vector3.down*(1.5f+.4f*Next());
             var main = Path(start,radial*.8f + Vector3.up*.6f,length,8,pull,.04f);
             var normal = Vector3.up;
             Stem(main,.0015f);
             Pinnate(main,normal,sp.leaf,.65f,0,1);
-            Branchlets(main,normal,length,gravity*2.2f);
+            Branchlets(main,normal,length,Vector3.down*2.2f);
         }
 
         // Flame: upright strands that twist as they climb, leaves pressed close to the stem.
@@ -276,34 +239,6 @@ public static class MossSpeciesBuilder
                 case Habit.Flame: FlameStrand(n); break;
                 default: FanFrond(n); break;
             }
-        }
-
-        public int Mark() => vertices.Count;
-
-        // Moves everything grown since `start` into place on the panel.
-        public void Place(int start,Quaternion rotation,Vector3 offset)
-        {
-            for (int i = start; i < vertices.Count; i++) vertices[i] = rotation*vertices[i] + offset;
-        }
-
-        // A lumpy dark mat just off the glass, so no bare glass shows between the patches.
-        public void Backing(Vector2 size)
-        {
-            const int columns = 10, rows = 8;
-            int start = vertices.Count;
-            for (int r = 0; r <= rows; r++)
-                for (int c = 0; c <= columns; c++)
-                {
-                    float u = c/(float)columns, v = r/(float)rows;
-                    float lump = Mathf.PerlinNoise(u*4+sp.id.Length,v*4+3);
-                    vertices.Add(new Vector3((u-.5f)*size.x,v*size.y,-.003f-.006f*lump));
-                    uvs.Add(new Vector2(u,v)); colors.Add(Color.Lerp(sp.dark*.55f,sp.dark,lump));
-                    if (r < rows && c < columns)
-                    {
-                        int i = start+r*(columns+1)+c;
-                        triangles.AddRange(new[]{i,i+columns+1,i+1,i+1,i+columns+1,i+columns+2});
-                    }
-                }
         }
 
         public Mesh Finish(out float footprint)

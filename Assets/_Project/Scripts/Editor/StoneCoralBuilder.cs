@@ -7,20 +7,21 @@ using UnityEngine;
 // form plus colours; vertex colours carry its colour. Stones and dead coral sit over the neutral
 // RiverStone-v3 grain, live and artificial coral use a smooth untextured material. The same
 // piece and seed always produce the same mesh, so rebuilding the catalog never reshuffles the shop.
-public static class StoneCoralBuilder
+public static partial class StoneCoralBuilder
 {
-    public enum Form { ElephantSkin, CoralRock, Lava, SeaPebbles, CoThach, TuyetSon, CoralRubble, CoralBlock, Mushroom, Zoanthid, PlasticBranch, PlasticFan }
+    public enum Form { ElephantSkin, CoralRock, Lava, SeaPebbles, CoThach, TuyetSon, CoralRubble, CoralBlock, Mushroom, Zoanthid, PlasticBranch, PlasticFan,
+        RiverPebbles, DragonStone, Seiryu, Cluster, Penjing, Cliff, DeepElephantSkin }
 
     public sealed class Piece
     {
         public string id, name, description; public int price; public Form form;
         public bool smooth; public Color colA, colB, accent;
-        public bool IsCoral => form >= Form.CoralRubble;
+        public bool IsCoral => form >= Form.CoralRubble && form <= Form.PlasticFan;
     }
 
     public static readonly Piece[] All =
     {
-        new Piece { id="stone-elephant-skin", name="Đá da voi", price=180, form=Form.ElephantSkin,
+        new Piece { id="stone-elephant-skin", name="Đá da voi", price=180, form=Form.DeepElephantSkin,
             description="Mặt đá sần nhăn như da voi, xếp tầng tạo khe núi · Hợp hồ thủy sinh và hồ Koi",
             colA=new Color(.66f,.66f,.64f), colB=new Color(.4f,.4f,.39f), accent=new Color(.22f,.22f,.22f) },
         new Piece { id="stone-coral-rock", name="Đá san hô", price=150, form=Form.CoralRock,
@@ -74,7 +75,8 @@ public static class StoneCoralBuilder
             case Form.Mushroom: Mushroom(m); break;
             case Form.Zoanthid: Zoanthid(m); break;
             case Form.PlasticBranch: PlasticBranch(m); break;
-            default: PlasticFan(m); break;
+            case Form.PlasticFan: PlasticFan(m); break;
+            default: Redesigned(m); break;
         }
         return m.Finish(out footprint);
     }

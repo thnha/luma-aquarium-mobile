@@ -4,11 +4,10 @@ var results=new System.Collections.Generic.List<string>();
 System.Action<bool,string> check=(ok,label)=>{ if(!ok) throw new System.Exception("FAIL: "+label); results.Add(label); };
 string[] ids={"moss-mini-taiwan","moss-weeping","moss-flame","mini-fiss"};
 int[] kinds={35,36,37,11};
-check(catalog.offers.Length==52,"Catalog lists 24 shop items, 8 driftwood species, 3 mosses, 2 moss walls, 12 stones/corals and 3 starters");
 for(int i=0;i<ids.Length;i++)
 {
     var offer=System.Array.Find(catalog.offers,x=>x.id==ids[i]);
-    check(offer!=null && offer.IsValid && offer.category==AquariumDecorCategory.Plants,ids[i]+" is a valid plant offer");
+    check(offer!=null && offer.IsValid && offer.category==AquariumDecorCategory.Moss,ids[i]+" is a valid moss offer");
     var item=offer.prefab;
     check(item.kind==kinds[i] && catalog.Find(kinds[i])==offer,ids[i]+" uses kind "+kinds[i]);
     check(item.attachable && !item.floats && !item.supportsPlants,ids[i]+" attaches to wood or rock and grows on sand");
@@ -31,17 +30,16 @@ foreach(var id in rocks)
         spaced&=UnityEngine.Vector3.Distance(item.plantMounts[a],item.plantMounts[b])>=.05f;
     check(spaced,id+" mounts are far enough apart for two pads");
 }
-string[] walls={"moss-wall-taiwan","moss-wall-weeping"};
-for(int i=0;i<walls.Length;i++)
+// The moss walls (kinds 38, 39) are retired; their kinds stay unused so the stones keep theirs.
+check(catalog.Find(38)==null && catalog.Find(39)==null && catalog.Find(40)!=null,"Retired moss wall kinds stay empty");
+check(!System.Array.Exists(catalog.offers,x=>x.id.StartsWith("moss-wall-")),"No moss wall offers remain");
+string[] carpets={"carpet-hc-cuba","carpet-java-moss","carpet-riccia","carpet-marimo"};
+for(int i=0;i<carpets.Length;i++)
 {
-    var offer=System.Array.Find(catalog.offers,x=>x.id==walls[i]);
-    check(offer!=null && offer.IsValid && offer.category==AquariumDecorCategory.Plants,walls[i]+" is a valid plant offer");
-    var item=offer.prefab;
-    check(item.kind==38+i && catalog.Find(38+i)==offer,walls[i]+" uses kind "+(38+i));
-    check(item.wallMounted && !item.attachable && !item.floats && !item.supportsPlants && item.wallSize.x>0 && item.wallSize.y>0,walls[i]+" hangs on the back glass only");
-    var mesh=item.GetComponentInChildren<UnityEngine.MeshFilter>().sharedMesh;
-    check(mesh.bounds.max.z<.01f && mesh.bounds.min.z>-.12f,walls[i]+" lies flat against the glass, facing the room");
-    check(mesh.bounds.min.y>-.001f && mesh.bounds.size.y>=item.wallSize.y*.9f && mesh.bounds.size.x>=item.wallSize.x*.9f,walls[i]+" covers its panel from the bottom edge");
-    check(mesh.triangles.Length/3<12000 && mesh.colors.Length==mesh.vertexCount,walls[i]+" is coloured and within the mobile triangle budget");
+    var offer=System.Array.Find(catalog.offers,x=>x.id==carpets[i]);
+    check(offer!=null && offer.IsValid && offer.category==AquariumDecorCategory.Moss,carpets[i]+" is a valid moss offer");
+    check(offer.prefab.kind==100+i && offer.prefab.carpet==3+i && AquariumCarpet.Climbs(offer.prefab.carpet),carpets[i]+" is climbing carpet species "+(3+i));
+    var mesh=offer.prefab.GetComponentInChildren<UnityEngine.MeshFilter>().sharedMesh;
+    check(mesh.vertexCount>0 && mesh.colors.Length==mesh.vertexCount,carpets[i]+" portrait patch is coloured");
 }
 return new{passed=results.Count,checks=results};

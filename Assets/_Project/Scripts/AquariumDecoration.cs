@@ -49,7 +49,9 @@ public sealed class AquariumDecoration : MonoBehaviour
     // carpet as it was when the brush opened, for Hủy.
     private int brushSpecies, brushKind;
     private bool erasing;
-    private byte[] carpetBefore;
+    private AquariumCarpet.State carpetBefore;
+    // Mesh colliders put on stone and wood while a climbing carpet is brushed, so it lands on their faces.
+    private readonly Dictionary<Collider, AquariumDecorItem> brushColliders = new Dictionary<Collider, AquariumDecorItem>();
     private readonly Dictionary<GameObject, string> dockLabels = new Dictionary<GameObject, string>();
     public bool Brushing => brushSpecies > 0;
     private Vector3 originalPosition;
@@ -71,7 +73,7 @@ public sealed class AquariumDecoration : MonoBehaviour
     // Đặt or Cất, which Hoàn tác brings back (one step).
     private Layout before;
     private Layout undoLayout;
-    private byte[] undoCarpet;
+    private AquariumCarpet.State undoCarpet;
     private Lumaquarium.UI.DecorInventoryPanel inventory;
     private readonly List<RaycastResult> uiHits = new List<RaycastResult>();
     private readonly List<AquariumDecorItem> items = new List<AquariumDecorItem>();
@@ -82,6 +84,7 @@ public sealed class AquariumDecoration : MonoBehaviour
     private readonly Dictionary<AquariumDecorItem, (Vector3[] points, Bounds bounds)> surfaceCache =
         new Dictionary<AquariumDecorItem, (Vector3[] points, Bounds bounds)>();
     public int Count => items.Count;
+    public AquariumDecorItem FindPlaced(string id) => string.IsNullOrEmpty(id) ? null : items.Find(x => x != null && x.instanceId == id);
     public int Points
     {
         get
@@ -132,8 +135,8 @@ public sealed class AquariumDecoration : MonoBehaviour
         item != null && host != null && host != item && host.supportsPlants && host.plantMounts != null &&
         host.plantMounts.Length > 0 && items.Contains(host) && DecorPlacementRules.CanMountOn(RoleOf(item), RoleOf(host));
     // The back glass is the far edge of the placement area; moss walls cover it up to below the surface.
-    private float WallZ => max.y;
-    private float WallTop => water != null ? water.surfaceY - .08f : floorY + 1.8f;
+    public float WallZ => max.y;
+    public float WallTop => water != null ? water.surfaceY - .08f : floorY + 1.8f;
 
     // Where an item comes to rest for a dragged point: on the sand or the stone and wood below it,
     // on the surface, or on the back glass.
@@ -170,8 +173,8 @@ public sealed class AquariumDecoration : MonoBehaviour
         var points = new List<Vector3>();
         foreach (var filter in item.GetComponentsInChildren<MeshFilter>())
         {
-            // Plants attached to the piece are not part of its surface.
-            if (filter.sharedMesh == null || !filter.sharedMesh.isReadable || filter.GetComponentInParent<AquariumDecorItem>() != item) continue;
+            // Plants attached to the piece and carpet grown on it are not part of its surface.
+            if (!OwnMesh(filter, item)) continue;
             var matrix = filter.transform.localToWorldMatrix;
             foreach (var v in filter.sharedMesh.vertices) points.Add(matrix.MultiplyPoint3x4(v));
         }
@@ -180,6 +183,10 @@ public sealed class AquariumDecoration : MonoBehaviour
         surfaceCache[item] = (result, bounds);
         return result;
     }
+
+    private static bool OwnMesh(MeshFilter filter, AquariumDecorItem item) =>
+        filter.sharedMesh != null && filter.sharedMesh.isReadable && filter.GetComponentInParent<AquariumDecorItem>() == item &&
+        !filter.name.StartsWith(AquariumCarpet.PatchLayerName, StringComparison.Ordinal);
 
     // A piece resting on stone or wood rather than on the sand.
     private bool Raised(AquariumDecorItem item, Vector3 p) => item.Stacks && p.y > SandAt(p) + .03f;
@@ -319,6 +326,18 @@ public sealed class AquariumDecoration : MonoBehaviour
         brushSpecies = prefabs[kind].carpet;
         erasing = false;
         carpetBefore = carpet.Snapshot();
+        if (AquariumCarpet.Climbs(brushSpecies))
+            foreach (var item in items)
+            {
+                if (item == null || !item.supportsPlants) continue;
+                foreach (var filter in item.GetComponentsInChildren<MeshFilter>())
+                {
+                    if (!OwnMesh(filter, item)) continue;
+                    var collider = filter.gameObject.AddComponent<MeshCollider>();
+                    collider.sharedMesh = filter.sharedMesh;
+                    brushColliders[collider] = item;
+                }
+            }
         Relabel("PlacementAction1", "Tẩy");
         Relabel("PlacementAction3", "Xong");
         ShowDock();
@@ -330,8 +349,10 @@ public sealed class AquariumDecoration : MonoBehaviour
     private void BrushHint()
     {
         int left = Mathf.Max(0, BrushAllowance - carpet.Count(brushSpecies));
-        instruction.text = erasing ? Loc.T("Kéo trên cát để xoá thảm • Chọn Trải để trải tiếp") :
-            left > 0 ? Loc.F("Kéo trên cát để trải thảm • Còn {0} ô • Chọn Xong để lưu", left) : Loc.T("Đã trải hết số ô đã mua • Mua thêm gói trong cửa hàng");
+        bool climbs = AquariumCarpet.Climbs(brushSpecies);
+        instruction.text = erasing ? Loc.T(climbs ? "Kéo trên cát, lũa, đá hoặc kính sau để xoá thảm • Chọn Trải để trải tiếp" : "Kéo trên cát để xoá thảm • Chọn Trải để trải tiếp") :
+            left > 0 ? Loc.F(climbs ? "Kéo trên cát, lũa, đá hoặc kính sau để trải thảm • Còn {0} ô • Chọn Xong để lưu" : "Kéo trên cát để trải thảm • Còn {0} ô • Chọn Xong để lưu", left) :
+            Loc.T("Đã trải hết số ô đã mua • Mua thêm gói trong cửa hàng");
     }
 
     private void Relabel(string name, string label)
@@ -348,6 +369,8 @@ public sealed class AquariumDecoration : MonoBehaviour
         if (!Brushing) return;
         brushSpecies = 0;
         carpetBefore = null;
+        foreach (var collider in brushColliders.Keys) if (collider != null) Destroy(collider);
+        brushColliders.Clear();
         foreach (var entry in dockLabels)
         {
             var text = entry.Key.GetComponentInChildren<TMP_Text>();
@@ -455,6 +478,30 @@ public sealed class AquariumDecoration : MonoBehaviour
             if (wood != null) return AttachTo(wood, hitPoint);
         }
         return SurfaceHit(ray, Selected, out var point) && MoveTo(point);
+    }
+
+    // Paints (or erases) where the ray first meets the sand, or for a climbing species a stone, a piece of
+    // wood or the back glass. Returns whether anything changed.
+    private bool Brush(Ray ray)
+    {
+        int species = erasing ? 0 : brushSpecies;
+        bool onSand = SurfaceHit(ray, null, out var sand);
+        float nearest = onSand ? Vector3.Distance(ray.origin, sand) : float.PositiveInfinity;
+        if (AquariumCarpet.Climbs(brushSpecies))
+        {
+            AquariumDecorItem host = null; Vector3 point = default, normal = default; bool found = false;
+            foreach (var hit in Physics.RaycastAll(ray, 30, ~0, QueryTriggerInteraction.Ignore))
+                if (hit.distance < nearest && brushColliders.TryGetValue(hit.collider, out var item))
+                { host = item; point = hit.point; normal = hit.normal; nearest = hit.distance; found = true; }
+            if (new Plane(Vector3.back, new Vector3(0, 0, WallZ)).Raycast(ray, out float wall) && wall < nearest)
+            {
+                var glass = ray.GetPoint(wall);
+                if (glass.x > min.x && glass.x < max.x && glass.y > SandAt(glass) && glass.y < WallTop)
+                { host = null; point = glass; normal = Vector3.back; found = true; }
+            }
+            if (found) return carpet.PaintSurface(host, point, normal, .07f, species, BrushAllowance);
+        }
+        return onSand && carpet.Paint(sand, .1f, species, BrushAllowance);
     }
 
     // Where the ray meets the sand (or the water surface for floating plants). The sloped sand is
@@ -793,7 +840,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         Ray ray = viewCamera.ScreenPointToRay(position);
         if (Brushing)
         {
-            if (SurfaceHit(ray, null, out var sand) && carpet.Paint(sand, .1f, erasing ? 0 : brushSpecies, BrushAllowance)) BrushHint();
+            if (Brush(ray)) BrushHint();
             return;
         }
         bool pressFrame = pointer.press.wasPressedThisFrame;
@@ -961,7 +1008,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         ShowDock();
     }
 
-    private void Remember(Layout layout, byte[] carpetCells)
+    private void Remember(Layout layout, AquariumCarpet.State carpetCells)
     {
         undoLayout = layout;
         undoCarpet = carpetCells;
@@ -1059,9 +1106,11 @@ public sealed class AquariumDecoration : MonoBehaviour
     private bool Apply(Layout layout)
     {
         if (layout?.items == null) return false;
+        // Pieces of retired kinds (the moss walls) are left out instead of failing the whole layout.
+        var entries = layout.items.FindAll(e => e == null || e.kind < 0 || e.kind >= prefabs.Length || prefabs[e.kind] != null);
         var loaded = new List<AquariumDecorItem>();
         var byId = new Dictionary<string, AquariumDecorItem>();
-        foreach (var entry in layout.items)
+        foreach (var entry in entries)
         {
             if (entry == null || entry.kind < 0 || entry.kind >= prefabs.Length || prefabs[entry.kind] == null ||
                 !float.IsFinite(entry.x) || !float.IsFinite(entry.y) || !float.IsFinite(entry.z) || !float.IsFinite(entry.yaw) ||
@@ -1079,12 +1128,12 @@ public sealed class AquariumDecoration : MonoBehaviour
         // Parents are resolved after all entries, independent of the order in the save.
         for (int i = 0; i < loaded.Count; i++)
         {
-            var entry = layout.items[i]; var item = loaded[i];
+            var entry = entries[i]; var item = loaded[i];
             if (!string.IsNullOrEmpty(entry.parentId))
             {
                 if (!byId.TryGetValue(entry.parentId, out var host) || host == item || !host.supportsPlants ||
                     !DecorPlacementRules.CanMountOn(RoleOf(item), RoleOf(host)) ||
-                    !string.IsNullOrEmpty(layout.items[loaded.IndexOf(host)].parentId)) { Discard(loaded); return false; }
+                    !string.IsNullOrEmpty(entries[loaded.IndexOf(host)].parentId)) { Discard(loaded); return false; }
                 Vector3 local = new Vector3(entry.x, entry.y, entry.z);
                 if (host.plantMounts == null || !Array.Exists(host.plantMounts, x => Vector3.Distance(x, local) < .005f))
                 { Discard(loaded); return false; }
@@ -1099,6 +1148,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         items.Clear(); items.AddRange(loaded);
         Discard(previous);
         surfaceCache.Clear();
+        if (carpet != null) carpet.Refresh();
         return true;
     }
 

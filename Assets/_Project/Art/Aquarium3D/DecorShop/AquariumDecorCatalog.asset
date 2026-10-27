@@ -296,23 +296,6 @@ MonoBehaviour:
     price: 1
     prefab: {fileID: 3152260865794229726, guid: 57238bb8dd097480a913fced94ed83a5, type: 3}
     portrait: {fileID: 21300000, guid: 7981d182aa8c549c189ab311accc1f0e, type: 3}
-  - id: moss-wall-taiwan
-    displayName: "T\u01B0\u1EDDng r\xEAu Mini Taiwan"
-    description: "T\u1EA5m r\xEAu d\xE1n k\xEDnh sau h\u1ED3, ph\u1EE7 th\u1EA3m
-      d\xE0y \xB7 Gh\xE9p nhi\u1EC1u t\u1EA5m th\xE0nh t\u01B0\u1EDDng r\xEAu"
-    category: 4
-    price: 1
-    prefab: {fileID: 3581557651243262696, guid: 884eb1499c63649469a7b9a1d9efbdea, type: 3}
-    portrait: {fileID: 21300000, guid: e947f0f33ab8645bbad5dafa2ffed00f, type: 3}
-  - id: moss-wall-weeping
-    displayName: "T\u01B0\u1EDDng r\xEAu Weeping"
-    description: "T\u1EA5m r\xEAu d\xE1n k\xEDnh sau h\u1ED3, nh\xE1nh r\u1EE7 xu\u1ED1ng
-      nh\u01B0 th\xE1c \xB7 Gh\xE9p nhi\u1EC1u t\u1EA5m th\xE0nh t\u01B0\u1EDDng
-      r\xEAu"
-    category: 4
-    price: 1
-    prefab: {fileID: 2037892123915975756, guid: 8f360411791c744a1ba0e6f4e335e052, type: 3}
-    portrait: {fileID: 21300000, guid: 64653a5e0daf34456b859de4d159d493, type: 3}
   - id: stone-elephant-skin
     displayName: "\u0110\xE1 da voi"
     description: "M\u1EB7t \u0111\xE1 s\u1EA7n nh\u0103n nh\u01B0 da voi, x\u1EBFp
@@ -375,42 +358,41 @@ MonoBehaviour:
     prefab: {fileID: 4827623027934760729, guid: 15a50e6c1f694454394d2ec808f35ad9, type: 3}
     portrait: {fileID: 21300000, guid: df144b4a6a82f48828b2ded017b1fbe3, type: 3}
   - id: coral-block
-    displayName: "San h\xF4 kh\u1ED1i"
-    description: "Kh\u1ED1i san h\xF4 th\u1EADt v\xE2n n\xE3o \xB7 D\xF9ng cho b\u1EC3
-      n\u01B0\u1EDBc m\u1EB7n, gi\xFAp \u1ED5n \u0111\u1ECBnh pH"
+    displayName: "San h\xF4 n\xE3o xanh v\xE0ng"
+    description: "Kh\u1ED1i xanh ng\u1ECDc v\u1EDBi g\xE2n n\u1ED5i u\u1ED1n l\u01B0\u1EE3n
+      m\xE0u v\xE0ng \xB7 \u0110i\u1EC3m nh\u1EA5n ti\u1EC1n c\u1EA3nh"
     category: 3
     price: 1
     prefab: {fileID: 5968119375522399583, guid: 83ceb97d0f82e443784bea328ad41f0c, type: 3}
     portrait: {fileID: 21300000, guid: e01257dde5998433795e9f132f0708be, type: 3}
   - id: coral-mushroom
-    displayName: "San h\xF4 n\u1EA5m"
-    description: "San h\xF4 s\u1ED1ng b\u1EC3 bi\u1EC3n, \u0111\u0129a m\xE0u r\u1EF1c
-      r\u1EE1 \xB7 C\u1EA7n \xE1nh s\xE1ng v\xE0 d\xF2ng ch\u1EA3y chuy\xEAn d\u1EE5ng"
+    displayName: "San h\xF4 n\u1EA5m xanh vi\u1EC1n t\xEDm"
+    description: "N\u0103m \u0111\u0129a th\u1ECBt xanh ng\u1ECDc x\u1EBFp c\u1EE5m,
+      g\xE2n t\u1ECFa v\xE0 vi\u1EC1n t\xEDm g\u1EE3n s\xF3ng"
     category: 3
     price: 1
     prefab: {fileID: 1084338484231488539, guid: a4c3742bb935a4c0581d5b6a828fe116, type: 3}
     portrait: {fileID: 21300000, guid: aa2fe4b88609346b8ad3b27d7d09c61e, type: 3}
   - id: coral-zoanthid
-    displayName: "San h\xF4 \u0111\u1ED3ng ti\u1EC1n"
-    description: "C\u1EE5m polyp tr\xF2n nh\u01B0 \u0111\u1ED3ng xu nhi\u1EC1u m\xE0u
-      \xB7 San h\xF4 s\u1ED1ng, c\u1EA7n \xE1nh s\xE1ng v\xE0 d\xF2ng ch\u1EA3y"
+    displayName: "San h\xF4 \u0111\u1ED3ng ti\u1EC1n \u0111a s\u1EAFc"
+    description: "Th\u1EA3m polyp t\xE2m cam, v\xF2ng xanh v\xE0 tua t\xEDm \xB7
+      Ph\u1EE7 \u0111\xE1 ti\u1EC1n c\u1EA3nh"
     category: 3
     price: 1
     prefab: {fileID: 7220260656153194921, guid: a16c5c582e62c44679473d73415a3d17, type: 3}
     portrait: {fileID: 21300000, guid: a1a983015a7a1411a9b4ed8132dc3c2a, type: 3}
   - id: coral-artificial-branch
-    displayName: "San h\xF4 nh\xE2n t\u1EA1o nh\xE1nh"
-    description: "Silicon an to\xE0n, m\xE0u t\u01B0\u01A1i, d\u1EC5 v\u1EC7 sinh
-      \xB7 Mang phong c\xE1ch bi\u1EC3n v\xE0o h\u1ED3 n\u01B0\u1EDBc ng\u1ECDt"
+    displayName: "San h\xF4 s\u1EEBng h\u01B0\u01A1u h\u1ED3ng"
+    description: "T\xE1n nh\xE1nh h\u1ED3ng \u0111\xE0o d\xE0y, \u0111\u1EA7u kem
+      \xB7 \u0110\u1EBF \u0111\xE1 s\u1ED1ng t\u1EF1 nhi\xEAn"
     category: 3
     price: 1
     prefab: {fileID: 5614675725701440680, guid: 47720d66f965741588405ea43c20b92d, type: 3}
     portrait: {fileID: 21300000, guid: 09007a4f0ebdf4add9953dbd674f7330, type: 3}
   - id: coral-artificial-fan
-    displayName: "San h\xF4 nh\xE2n t\u1EA1o qu\u1EA1t"
-    description: "Qu\u1EA1t bi\u1EC3n silicon m\u1EC1m, m\xE0u t\u01B0\u01A1i, d\u1EC5
-      v\u1EC7 sinh \xB7 H\u1EE3p ng\u01B0\u1EDDi m\u1EDBi ch\u01A1i v\xE0 h\u1ED3
-      n\u01B0\u1EDBc ng\u1ECDt"
+    displayName: "Qu\u1EA1t bi\u1EC3n \u0111\u1ECF"
+    description: "Qu\u1EA1t \u0111\u1ECF m\u1EA3nh v\u1EDBi m\u1EA1ng nh\xE1nh \u0111an
+      nh\u01B0 ren \xB7 \u0110i\u1EC3m nh\u1EA5n h\u1EADu c\u1EA3nh"
     category: 3
     price: 1
     prefab: {fileID: 1540067837692001380, guid: 6f426f2b8b6e242979a9758702090750, type: 3}
@@ -769,6 +751,189 @@ MonoBehaviour:
     price: 1
     prefab: {fileID: 1043661354643398393, guid: 3ec7c82008ec14344934462368824d56, type: 3}
     portrait: {fileID: 21300000, guid: ef024fa33101a41dbbc683aedbf361fb, type: 3}
+  - id: coral-plating
+    displayName: "San h\xF4 \u0111\u0129a t\u1EA7ng xanh ng\u1ECDc"
+    description: "Ti\u1EC3u c\u1EA3nh san h\xF4 3D \xB7 B\u1ED9 m\u1EABu \u0111\xE3
+      duy\u1EC7t"
+    category: 3
+    price: 280
+    prefab: {fileID: 4883359410029969841, guid: 6c9a4f2079d37493f9e9dd526b055f5f, type: 3}
+    portrait: {fileID: 21300000, guid: 2c343240652274c63a9ad6c2c6fc61de, type: 3}
+  - id: coral-purple-branch
+    displayName: "San h\xF4 nh\xE1nh t\xEDm"
+    description: "Ti\u1EC3u c\u1EA3nh san h\xF4 3D \xB7 B\u1ED9 m\u1EABu \u0111\xE3
+      duy\u1EC7t"
+    category: 3
+    price: 260
+    prefab: {fileID: 5018478039269572280, guid: 8d9d6d155e1d94ba887aaaae4728f80d, type: 3}
+    portrait: {fileID: 21300000, guid: 791c33c11aa0d4e678f9d0ea38702ffc, type: 3}
+  - id: coral-torch
+    displayName: "San h\xF4 \u0111u\u1ED1c v\xE0ng"
+    description: "Ti\u1EC3u c\u1EA3nh san h\xF4 3D \xB7 B\u1ED9 m\u1EABu \u0111\xE3
+      duy\u1EC7t"
+    category: 3
+    price: 300
+    prefab: {fileID: 6812107445838559366, guid: 4db6d6b11cdb945449a3d7c623c5fdc0, type: 3}
+    portrait: {fileID: 21300000, guid: 161bf89587bac46e6a1eeccf4d2e970f, type: 3}
+  - id: coral-blue-tube
+    displayName: "San h\xF4 \u1ED1ng xanh"
+    description: "Ti\u1EC3u c\u1EA3nh san h\xF4 3D \xB7 B\u1ED9 m\u1EABu \u0111\xE3
+      duy\u1EC7t"
+    category: 3
+    price: 270
+    prefab: {fileID: 8292261463706520607, guid: 5a7a0b67ee4f74e4daa99937356261df, type: 3}
+    portrait: {fileID: 21300000, guid: 7a419e1a0f8e946c386002251583e11e, type: 3}
+  - id: coral-lobophyllia
+    displayName: "San h\xF4 th\u1ECBt h\u1ED3ng cam"
+    description: "Ti\u1EC3u c\u1EA3nh san h\xF4 3D \xB7 B\u1ED9 m\u1EABu \u0111\xE3
+      duy\u1EC7t"
+    category: 3
+    price: 290
+    prefab: {fileID: 1391971458270302840, guid: 8efff1471071f4152b0dfa5cab419cff, type: 3}
+    portrait: {fileID: 21300000, guid: 0f465523eba1c47b6a267a5097478fb8, type: 3}
+  - id: carpet-hc-cuba
+    displayName: "Th\u1EA3m Tr\xE2n ch\xE2u Cuba"
+    description: "L\xE1 li ti xanh non ph\u1EE7 k\xEDn nh\u01B0 nhung \xB7 G\xF3i
+      10 \xF4 \xB7 K\xE9o tr\xEAn c\xE1t, l\u0169a, \u0111\xE1 ho\u1EB7c k\xEDnh
+      sau \u0111\u1EC3 tr\u1EA3i, T\u1EA9y \u0111\u1EC3 xo\xE1 \xB7 Kh\xF4ng t\xEDnh
+      \u0111i\u1EC3m"
+    category: 4
+    price: 80
+    prefab: {fileID: 8859247139415442457, guid: 9f6e2e0ff69af47c8a01990edcc4bdbf, type: 3}
+    portrait: {fileID: 21300000, guid: 2e725e0fbbb7c4575874c3836b4c6308, type: 3}
+  - id: carpet-java-moss
+    displayName: "Th\u1EA3m r\xEAu Java"
+    description: "R\xEAu l\xF4ng v\u0169 xanh \u0111\u1EADm b\xF2 s\xE1t m\u1EB7t
+      l\u0169a, \u0111\xE1 \xB7 G\xF3i 10 \xF4 \xB7 K\xE9o tr\xEAn c\xE1t, l\u0169a,
+      \u0111\xE1 ho\u1EB7c k\xEDnh sau \u0111\u1EC3 tr\u1EA3i, T\u1EA9y \u0111\u1EC3
+      xo\xE1 \xB7 Kh\xF4ng t\xEDnh \u0111i\u1EC3m"
+    category: 4
+    price: 70
+    prefab: {fileID: 948312147005354301, guid: 5d975e211b5b348c687018ee03b0a113, type: 3}
+    portrait: {fileID: 21300000, guid: 98681932351824f0794fe806cd4f5431, type: 3}
+  - id: carpet-riccia
+    displayName: "Th\u1EA3m r\xEAu Riccia"
+    description: "T\u1EA3n r\xEAu ch\u1EBB nh\xE1nh xanh chanh, b\xE1m \u0111\xE1
+      th\xE0nh \u0111\u1EC7m \xB7 G\xF3i 10 \xF4 \xB7 K\xE9o tr\xEAn c\xE1t, l\u0169a,
+      \u0111\xE1 ho\u1EB7c k\xEDnh sau \u0111\u1EC3 tr\u1EA3i, T\u1EA9y \u0111\u1EC3
+      xo\xE1 \xB7 Kh\xF4ng t\xEDnh \u0111i\u1EC3m"
+    category: 4
+    price: 75
+    prefab: {fileID: 9039320599654230094, guid: 1c8d5b40300214934a98aa60817c2412, type: 3}
+    portrait: {fileID: 21300000, guid: ade81ac8f53fe448aa6a57349b107122, type: 3}
+  - id: carpet-marimo
+    displayName: "Th\u1EA3m t\u1EA3o Marimo"
+    description: "T\u1EA3o c\u1EA7u xanh th\u1EABm m\u1ECDc th\xE0nh \u0111\u1EC7m
+      tr\xF2n m\u1ECBn \xB7 G\xF3i 10 \xF4 \xB7 K\xE9o tr\xEAn c\xE1t, l\u0169a,
+      \u0111\xE1 ho\u1EB7c k\xEDnh sau \u0111\u1EC3 tr\u1EA3i, T\u1EA9y \u0111\u1EC3
+      xo\xE1 \xB7 Kh\xF4ng t\xEDnh \u0111i\u1EC3m"
+    category: 4
+    price: 90
+    prefab: {fileID: 3610425767879744149, guid: 94d1c0733a4614d789b7dc8f62dbceea, type: 3}
+    portrait: {fileID: 21300000, guid: c7ab4781fdc6042fea8bf4fdcb40dbec, type: 3}
+  - id: ludwigia-red
+    displayName: "Rau m\u01B0\u01A1ng \u0111\u1ECF Super Red"
+    description: "B\u1EE5i th\xE2n \u0111\u1EE9ng, l\xE1 tr\xF2n chuy\u1EC3n t\u1EEB
+      xanh sang \u0111\u1ECF r\u01B0\u1EE3u \u1EDF ng\u1ECDn \xB7 Tr\u1ED3ng h\u1EADu
+      c\u1EA3nh \xB7 1 \u0111i\u1EC3m"
+    category: 0
+    price: 150
+    prefab: {fileID: 3454007436831452383, guid: 61bc178f7d8024e67881833cea241d74, type: 3}
+    portrait: {fileID: 21300000, guid: a6f2014ec52f04e93bd5059effc5b169, type: 3}
+  - id: water-wisteria
+    displayName: "Thu\u1EF7 c\xFAc"
+    description: "L\xE1 x\u1EBB thu\u1EF3 nh\u01B0 ren, xanh non \xB7 Tr\u1ED3ng
+      h\u1EADu c\u1EA3nh \xB7 1 \u0111i\u1EC3m"
+    category: 0
+    price: 110
+    prefab: {fileID: 1878222259562718551, guid: accf831fce97747e4934effaf06702b4, type: 3}
+    portrait: {fileID: 21300000, guid: 8f869f68559874548860f16a2b286480, type: 3}
+  - id: anubias-hammock
+    displayName: "R\xE1y l\xE1 v\xF5ng"
+    description: "M\u1ED9t l\xE1 to n\u1EB1m ngang g\u1EA7n m\u1EB7t n\u01B0\u1EDBc
+      cho betta ngh\u1EC9 \xB7 H\u1EADu, trung c\u1EA3nh \xB7 1 \u0111i\u1EC3m"
+    category: 0
+    price: 160
+    prefab: {fileID: 5447497536356289614, guid: 04df63691f2954a80a5d9b1047a88c7f, type: 3}
+    portrait: {fileID: 21300000, guid: 130a00b20ff804fbda4e292404244e3b, type: 3}
+  - id: tiger-lotus-red
+    displayName: "S\xFAng h\u1ED5 \u0111\u1ECF"
+    description: "B\u1EE5i l\xE1 \u0111\u1ECF t\xEDa c\xF3 v\xE2n, th\xEAm l\xE1
+      s\xFAng v\u01B0\u01A1n l\xEAn g\u1EA7n m\u1EB7t n\u01B0\u1EDBc \xB7 \u0110i\u1EC3m
+      nh\u1EA5n trung c\u1EA3nh \xB7 2 \u0111i\u1EC3m"
+    category: 0
+    price: 260
+    prefab: {fileID: 6451999130110690678, guid: 78137323226424b4e86051691ce3b7c3, type: 3}
+    portrait: {fileID: 21300000, guid: 96924f1b990ef48d6aa61dc0c7a93d65, type: 3}
+  - id: madagascar-lace
+    displayName: "L\u01B0\u1EDBi Madagascar"
+    description: "L\xE1 d\xE0i nh\u01B0 t\u1EA5m l\u01B0\u1EDBi \u0111an, nh\xECn
+      xuy\xEAn qua \u0111\u01B0\u1EE3c \xB7 C\xE2y hi\u1EBFm cho trung c\u1EA3nh
+      \xB7 2 \u0111i\u1EC3m"
+    category: 0
+    price: 320
+    prefab: {fileID: 7089858664931993145, guid: 347b6a0c2f7e74eb6bdbaf03f2c0f78a, type: 3}
+    portrait: {fileID: 21300000, guid: 71937cdf4b8f24c99960994eaca43d7d, type: 3}
+  - id: crypt-wendtii
+    displayName: "R\xE1y Crypt n\xE2u"
+    description: "B\u1EE5i l\xE1 thu\xF4n m\xE9p g\u1EE3n s\xF3ng m\xE0u \u0111\u1ED3ng
+      n\xE2u \xB7 Trung c\u1EA3nh \xB7 1 \u0111i\u1EC3m"
+    category: 0
+    price: 100
+    prefab: {fileID: 1963564475831799169, guid: 5b603d06ed3f143baaa41797da252bdf, type: 3}
+    portrait: {fileID: 21300000, guid: 68df7f4854b294e2e90617df91a1133b, type: 3}
+  - id: alternanthera-mini
+    displayName: "Huy\u1EBFt t\xE2m lan mini"
+    description: "B\u1EE5i r\u1EADm l\xE1 nh\u1ECF h\u1ED3ng \u0111\u1ECF \xB7 Th\xEAm
+      m\xE0u \u1EA5m gi\u1EEFa h\u1ED3 \xB7 1 \u0111i\u1EC3m"
+    category: 0
+    price: 130
+    prefab: {fileID: 5292689508629438561, guid: 6b8eef4f963f7448e8954a4e98c71a1b, type: 3}
+    portrait: {fileID: 21300000, guid: 55ada431c2907435dbc441842db16f88, type: 3}
+  - id: bucephalandra
+    displayName: "R\xE1y Buce xanh \xE1nh kim"
+    description: "L\xE1 nh\u1ECF xanh th\u1EABm \xE1nh xanh d\u01B0\u01A1ng, l\xE1
+      non \u0111\u1ECF n\xE2u \xB7 Tr\u1ED3ng tr\xEAn n\u1EC1n ho\u1EB7c k\xE9o l\xEAn
+      l\u0169a, \u0111\xE1 \u0111\u1EC3 g\u1EAFn"
+    category: 0
+    price: 140
+    prefab: {fileID: 3227466454604189387, guid: ccc830cba347b407b8833fa811e98bef, type: 3}
+    portrait: {fileID: 21300000, guid: e0c97e0cf0ccb43d696ee75f117a9dde, type: 3}
+  - id: downoi
+    displayName: "Downoi l\xE1 xo\u0103n"
+    description: "C\xE1c c\u1EE5m hoa th\u1ECB nh\u1ECF l\xE1 xo\u0103n xanh t\u01B0\u01A1i
+      \xB7 Tr\u1ED3ng ti\u1EC1n c\u1EA3nh"
+    category: 0
+    price: 90
+    prefab: {fileID: 8860639217932803189, guid: 2af11d688e5844fb7b885bfd96e4ba02, type: 3}
+    portrait: {fileID: 21300000, guid: 583ed3af8033646739843660566e7d10, type: 3}
+  - id: red-root-floater
+    displayName: "B\xE8o r\u1EC5 \u0111\u1ECF"
+    description: "L\xE1 tr\xF2n nh\u1ECF \u0111\u1ECF, r\u1EC5 \u0111\u1ECF bu\xF4ng
+      xu\u1ED1ng n\u01B0\u1EDBc \xB7 K\xE9o \u0111\u1EC3 s\u1EAFp x\u1EBFp t\u1EEBng
+      c\u1EE5m"
+    category: 5
+    price: 70
+    prefab: {fileID: 5142530976775649680, guid: 330eecc1fbae74fc79167a8907404cff, type: 3}
+    portrait: {fileID: 21300000, guid: 1a57572b881144f619b279b95662094f, type: 3}
+  - id: water-lettuce
+    displayName: "B\xE8o c\xE1i mini"
+    description: "Hoa th\u1ECB l\xE1 nhung c\xF3 g\xE2n, r\u1EC5 tua d\xE0i, t\u1EA1o
+      b\xF3ng r\xE2m cho betta \xB7 K\xE9o \u0111\u1EC3 s\u1EAFp x\u1EBFp t\u1EEBng
+      c\u1EE5m"
+    category: 5
+    price: 80
+    prefab: {fileID: 7205391875004481162, guid: 0f99ec0048c774e87aaed3d612e9a5ec, type: 3}
+    portrait: {fileID: 21300000, guid: 2ed9690a59fc94579a783fc84bf9109a, type: 3}
+  - id: mosaic-plant
+    displayName: "B\xE8o kh\u1EA3m \u0111\u1ECF"
+    description: "Th\xE2n d\xE0i t\u1EEB \u0111\xE1y, n\u1EDF hoa th\u1ECB l\xE1
+      h\xECnh thoi nh\u01B0 tranh kh\u1EA3m g\u1EA7n m\u1EB7t n\u01B0\u1EDBc \xB7
+      1 \u0111i\u1EC3m"
+    category: 0
+    price: 190
+    prefab: {fileID: 4747179248264388062, guid: d12ca7038d38749d9be6428a695a831c, type: 3}
+    portrait: {fileID: 21300000, guid: 438d8f52b30ba4798b089408828104b9, type: 3}
   giftPacks:
   - id: starter_v1
     gifts:
@@ -796,4 +961,4 @@ MonoBehaviour:
     - id: starter-wood
       slot: 
       count: 2
-  serverCatalogVersion: 98b6edf4d410a937
+  serverCatalogVersion: 3d536bab65dd8ca4

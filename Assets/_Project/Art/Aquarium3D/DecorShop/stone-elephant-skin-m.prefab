@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AquariumDecorItem
   kind: 68
-  footprint: 0.4003893
+  footprint: 0.4063776
   foliage: {fileID: 0}
   phase: 0
   instanceId: 
@@ -55,9 +55,9 @@ MonoBehaviour:
   attachable: 0
   supportsPlants: 1
   plantMounts:
-  - {x: -0.21601467, y: 0.48526943, z: -0.011148737}
-  - {x: -0.25420213, y: 0.4848718, z: -0.06115487}
-  - {x: -0.27569765, y: 0.47909325, z: -0.0014003544}
+  - {x: -0.256945, y: 0.48944113, z: -0.018339513}
+  - {x: -0.19671063, y: 0.48676598, z: -0.0078974925}
+  - {x: -0.28652194, y: 0.48501557, z: -0.07863907}
   wallMounted: 0
   wallSize: {x: 0, y: 0}
   points: 2
@@ -82,8 +82,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.8257785, y: 0.5202694, z: 0.5625894}
-  m_Center: {x: -0.000000059604645, y: 0.2376347, z: 0}
+  m_Size: {x: 0.8377552, y: 0.5244411, z: 0.605021}
+  m_Center: {x: 0, y: 0.23972055, z: 0}
 --- !u!1 &2752035366228887400
 GameObject:
   m_ObjectHideFlags: 0

@@ -61,6 +61,95 @@ MonoBehaviour:
     tint: {r: 1, g: 1, b: 1, a: 1}
     tiling: 1.2
     portrait: {fileID: 21300000, guid: cde01150a9724437e844206a9ca587e3, type: 3}
+  - id: wall_basalt
+    displayName: "\u0110\xE1 n\xFAi l\u1EEDa \u0111en"
+    description: "V\xE1ch \u0111\xE1 n\xFAi l\u1EEDa \u0111en v\u1EDBi khe n\u1EE9t
+      t\u1EF1 nhi\xEAn"
+    price: 400
+    albedo: {fileID: 2800000, guid: 869f5a571646e463dbc6e0d24837bce4, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 0.65
+    portrait: {fileID: 21300000, guid: c9e6ce3a62c0c4b659358848f1933dfa, type: 3}
+  - id: wall_limestone
+    displayName: "\u0110\xE1 v\xF4i tr\u1EAFng"
+    description: "V\xE1ch \u0111\xE1 v\xF4i tr\u1EAFng ng\xE0 v\u1EDBi h\u1ED1c \u0111\xE1
+      m\u1EC1m m\u1EA1i"
+    price: 400
+    albedo: {fileID: 2800000, guid: 6da0f703c62954358bdbcda081b8e5c9, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 0.55
+    portrait: {fileID: 21300000, guid: f9bb0bfa6a8034f2799aee8dd0c19533, type: 3}
+  - id: wall_sandstone
+    displayName: "Sa th\u1EA1ch ph\xE2n t\u1EA7ng"
+    description: "V\xE1ch sa th\u1EA1ch v\xE0ng cam v\u1EDBi v\xE2n \u0111\xE1 u\u1ED1n
+      l\u01B0\u1EE3n"
+    price: 450
+    albedo: {fileID: 2800000, guid: 9b0bf6aa18613406b9ddc52dcf40e5f1, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 0.5
+    portrait: {fileID: 21300000, guid: f2d2c4bd5362a47d88e42d71a99679b2, type: 3}
+  - id: wall_amazon_roots
+    displayName: "R\u1EC5 c\xE2y Amazon"
+    description: "V\xE1ch r\u1EC5 c\xE2y n\xE2u \u0111an xen nh\u01B0 r\u1EEBng ng\u1EADp
+      n\u01B0\u1EDBc"
+    price: 550
+    albedo: {fileID: 2800000, guid: 03317f15526854460988e4534c93bf92, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 0.45
+    portrait: {fileID: 21300000, guid: aabbf48f9a4f84962a8e3351f892d395, type: 3}
+  - id: wall_frosted_aqua
+    displayName: "K\xEDnh m\u1EDD xanh s\u01B0\u01A1ng"
+    description: "V\xE1ch k\xEDnh m\u1EDD xanh ng\u1ECDc nh\u1EA1t d\u1ECBu m\u1EAFt"
+    price: 350
+    albedo: {fileID: 2800000, guid: d9fdd18b7a5dc42ff89773a403692e50, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 0.4
+    portrait: {fileID: 21300000, guid: 027657a9bafdd49b8989346c45425ebf, type: 3}
+  - id: wall_matte_black
+    displayName: "\u0110en nh\xE1m"
+    description: "V\xE1ch \u0111en nh\xE1m t\u1ED1i gi\u1EA3n l\xE0m n\u1ED5i b\u1EADt
+      m\xE0u c\xE1"
+    price: 300
+    albedo: {fileID: 2800000, guid: e0367ebd3420b438eae18b96e4b05dd9, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 0.5
+    portrait: {fileID: 21300000, guid: ca4f5eac93442453995b4a4fdb7d9381, type: 3}
+  - id: wall_dragon_stone
+    displayName: "\u0110\xE1 r\u1ED3ng"
+    description: "V\xE1ch \u0111\xE1 r\u1ED3ng m\xE0u \u0111\u1EA5t v\u1EDBi nhi\u1EC1u
+      h\u1ED1c phong h\xF3a"
+    price: 500
+    albedo: {fileID: 2800000, guid: 4aa077a59ccb549d9b7ba104fcb2e2f3, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 0.55
+    portrait: {fileID: 21300000, guid: 0a2053570112f47619db617caa446180, type: 3}
+  - id: wall_pearl_marble
+    displayName: "C\u1EA9m th\u1EA1ch ng\u1ECDc trai"
+    description: "V\xE1ch c\u1EA9m th\u1EA1ch tr\u1EAFng kem v\u1EDBi \u0111\u01B0\u1EDDng
+      v\xE2n thanh m\u1EA3nh"
+    price: 550
+    albedo: {fileID: 2800000, guid: 68f823994dbda437c88703af9e3624e9, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 0.5
+    portrait: {fileID: 21300000, guid: 1a8645cf0f7274269b16fac87dca0695, type: 3}
+  - id: wall_turquoise_mosaic
+    displayName: "Mosaic xanh ng\u1ECDc"
+    description: "V\xE1ch g\u1EA1ch mosaic xanh ng\u1ECDc v\u1EDBi m\u1EA1ch g\u1EA1ch
+      m\xE0u kem"
+    price: 600
+    albedo: {fileID: 2800000, guid: e89137e54c1e24a22bc45b447caf079a, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 0.6
+    portrait: {fileID: 21300000, guid: 4fff38ba21d424805afe041d43aaebd1, type: 3}
+  - id: wall_sunken_relic
+    displayName: "Di t\xEDch ch\xECm"
+    description: "V\xE1ch \u0111\xE1 c\u1ED5 ch\u1EA1m kh\u1EAFc h\xECnh h\u1ECDc
+      ph\u1EE7 r\xEAu nh\u1EB9"
+    price: 650
+    albedo: {fileID: 2800000, guid: cdd59e7f6899a44c0a03a4e1d3e361d6, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    tiling: 0.45
+    portrait: {fileID: 21300000, guid: d66072f85ae264dddbd4ff45582970f5, type: 3}
   substrates:
   - id: sand_river
     displayName: "C\xE1t v\xE0ng"

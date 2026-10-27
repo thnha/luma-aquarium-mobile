@@ -58,6 +58,38 @@ public static class DecorShopScreenBuilder
         Debug.Log($"[Lumaquarium] {catalog.offers.Length} decoration offers installed with stock, shared wallet and wood planting.");
     }
 
+    // Refresh only decoration-dependent views; leave the aquarium art and other HUD panels alone.
+    public static void RefreshCatalogViews(AquariumDecorCatalog catalog)
+    {
+        var aquarium=UnityEngine.Object.FindFirstObjectByType<MainAquariumScreen>();
+        if(aquarium==null)throw new InvalidOperationException("Main Aquarium is required.");
+        Ui3D.LoadFonts();ApplyCatalog(aquarium.decoration,catalog);
+        string environment="Assets/_Project/Art/Aquarium3D/AquariumEnvironment.prefab";
+        var environmentRoot=PrefabUtility.LoadPrefabContents(environment);
+        try
+        {
+            ApplyCatalog(environmentRoot.GetComponentInChildren<AquariumDecoration>(true),catalog);
+            PrefabUtility.SaveAsPrefabAsset(environmentRoot,environment);
+        }
+        finally{PrefabUtility.UnloadPrefabContents(environmentRoot);}
+        var unified=UnityEngine.Object.FindFirstObjectByType<ShopScreen>(FindObjectsInactive.Include);
+        if(unified!=null)
+        {
+            MainAquariumScreenBuilder.RefreshDecoratePanel(aquarium);
+            ShopScreenBuilder.Connect(aquarium);
+            return;
+        }
+        var built=Create(catalog);
+        try{PrefabUtility.SaveAsPrefabAsset(built.gameObject,PrefabPath);}
+        finally{UnityEngine.Object.DestroyImmediate(built.gameObject);}
+        var old=UnityEngine.Object.FindFirstObjectByType<DecorShopScreen>(FindObjectsInactive.Include);
+        if(old!=null)UnityEngine.Object.DestroyImmediate(old.gameObject);
+        PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath),SceneManager.GetActiveScene());
+        MainAquariumScreenBuilder.RefreshDecoratePanel(aquarium);
+        Connect(aquarium);
+        if(UnityEngine.Object.FindFirstObjectByType<ShopScreen>(FindObjectsInactive.Include)!=null)ShopScreenBuilder.Connect(aquarium);
+    }
+
     private static void ApplyCatalog(AquariumDecoration decoration,AquariumDecorCatalog catalog)
     {
         if(decoration==null)throw new InvalidOperationException("Environment has no placement component.");

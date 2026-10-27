@@ -208,6 +208,26 @@ Hoa văn vàng	Gold pattern
 Hoa văn vàng nổi trên nền xanh đậm	Raised gold pattern on deep blue
 Hoa văn xanh ngọc	Jade pattern
 Hoa văn xanh ngọc trên nền sáng	Jade pattern on a light background
+Đá núi lửa đen	Black basalt
+Vách đá núi lửa đen với khe nứt tự nhiên	Black volcanic rock wall with natural fractures
+Đá vôi trắng	White limestone
+Vách đá vôi trắng ngà với hốc đá mềm mại	Ivory limestone wall with softly eroded pockets
+Sa thạch phân tầng	Layered sandstone
+Vách sa thạch vàng cam với vân đá uốn lượn	Warm amber sandstone wall with flowing strata
+Rễ cây Amazon	Amazon roots
+Vách rễ cây nâu đan xen như rừng ngập nước	Interwoven brown roots inspired by a flooded forest
+Kính mờ xanh sương	Frosted aqua
+Vách kính mờ xanh ngọc nhạt dịu mắt	Soft pale aqua frosted-glass wall
+Đen nhám	Matte black
+Vách đen nhám tối giản làm nổi bật màu cá	Minimal matte black wall that highlights fish colours
+Đá rồng	Dragon stone
+Vách đá rồng màu đất với nhiều hốc phong hóa	Earth-toned dragon stone wall with weathered cavities
+Cẩm thạch ngọc trai	Pearl marble
+Vách cẩm thạch trắng kem với đường vân thanh mảnh	Creamy pearl marble wall with delicate veins
+Mosaic xanh ngọc	Turquoise mosaic
+Vách gạch mosaic xanh ngọc với mạch gạch màu kem	Turquoise ceramic mosaic wall with cream grout
+Di tích chìm	Sunken relic
+Vách đá cổ chạm khắc hình học phủ rêu nhẹ	Ancient stone relief with geometric carvings and subtle moss
 Cát vàng	Golden sand
 Cát sông vàng kèm sỏi nhỏ	Golden river sand with small pebbles
 Cát trắng	White sand
@@ -245,13 +265,9 @@ Rêu Flame	Flame moss
 Rêu Mini Taiwan	Mini Taiwan moss
 Rêu Weeping	Weeping moss
 Rêu mini fiss	Mini fissidens moss
-Tường rêu Mini Taiwan	Mini Taiwan moss wall
-Tường rêu Weeping	Weeping moss wall
 Taxiphyllum 'Flame' · Nhánh vươn thẳng, xoắn như ngọn lửa xanh · Gắn lên đá, lũa hoặc nền	Taxiphyllum 'Flame' · Upright twisting shoots like a green flame · Attach to stone, wood or the substrate
 Taxiphyllum alternans · Lá li ti mọc thành thảm dày · Gắn lên đá, lũa hoặc trải nền	Taxiphyllum alternans · Tiny leaves form a dense mat · Attach to stone or wood, or spread on the substrate
 Vesicularia ferriei · Nhánh rủ như liễu, đẹp nhất trên lũa cao · Gắn lên đá, lũa hoặc nền	Vesicularia ferriei · Drooping willow-like shoots, best on tall wood · Attach to stone, wood or the substrate
-Tấm rêu dán kính sau hồ, nhánh rủ xuống như thác · Ghép nhiều tấm thành tường rêu	Moss panel for the back glass with cascading shoots · Join panels into a moss wall
-Tấm rêu dán kính sau hồ, phủ thảm dày · Ghép nhiều tấm thành tường rêu	Moss panel for the back glass with a dense mat · Join panels into a moss wall
 Bèo Nhật	Japanese frogbit
 Bèo ong	Salvinia
 Bèo tấm	Duckweed
@@ -474,3 +490,59 @@ Hồ được lưu theo tài khoản	Your tank is saved to your account
 Đang đăng xuất…	Signing out…
 Hồ của bạn	Your tank
 Chung	General
+Phổ biến	Most popular
+Lợi nhất	Best value
+Nhỏ	Small
+Vừa	Medium
+Lớn	Big
+Gói xu	Coins Pack
+Kéo trên cát, lũa, đá hoặc kính sau để xoá thảm • Chọn Trải để trải tiếp	Drag on the sand, wood, stone or back glass to erase carpet • Tap Spread to keep spreading
+Kéo trên cát, lũa, đá hoặc kính sau để trải thảm • Còn {0} ô • Chọn Xong để lưu	Drag on the sand, wood, stone or back glass to spread carpet • {0} tiles left • Tap Done to save
+Thảm Trân châu Cuba	Cuban pearlweed carpet
+Thảm rêu Java	Java moss carpet
+Thảm rêu Riccia	Riccia carpet
+Thảm tảo Marimo	Marimo algae carpet
+Lá li ti xanh non phủ kín như nhung · Gói 10 ô · Kéo trên cát, lũa, đá hoặc kính sau để trải, Tẩy để xoá · Không tính điểm	Tiny bright leaves that cover like velvet · Pack of 10 tiles · Drag on the sand, wood, stone or back glass to spread, Erase to remove · Uses no points
+Rêu lông vũ xanh đậm bò sát mặt lũa, đá · Gói 10 ô · Kéo trên cát, lũa, đá hoặc kính sau để trải, Tẩy để xoá · Không tính điểm	Dark feathery moss that creeps over wood and stone · Pack of 10 tiles · Drag on the sand, wood, stone or back glass to spread, Erase to remove · Uses no points
+Tản rêu chẻ nhánh xanh chanh, bám đá thành đệm · Gói 10 ô · Kéo trên cát, lũa, đá hoặc kính sau để trải, Tẩy để xoá · Không tính điểm	Forked lime-green liverwort that cushions stone · Pack of 10 tiles · Drag on the sand, wood, stone or back glass to spread, Erase to remove · Uses no points
+Tảo cầu xanh thẫm mọc thành đệm tròn mịn · Gói 10 ô · Kéo trên cát, lũa, đá hoặc kính sau để trải, Tẩy để xoá · Không tính điểm	Deep green algae balls in soft round cushions · Pack of 10 tiles · Drag on the sand, wood, stone or back glass to spread, Erase to remove · Uses no points
+Rau mương đỏ Super Red	Ludwigia Super Red
+Bụi thân đứng, lá tròn chuyển từ xanh sang đỏ rượu ở ngọn · Trồng hậu cảnh · 1 điểm	Upright stems with round leaves turning from green to wine red at the tips · Background plant · 1 point
+Thuỷ cúc	Water wisteria
+Lá xẻ thuỳ như ren, xanh non · Trồng hậu cảnh · 1 điểm	Lacy, deeply cut light green leaves · Background plant · 1 point
+Ráy lá võng	Betta hammock anubias
+Một lá to nằm ngang gần mặt nước cho betta nghỉ · Hậu, trung cảnh · 1 điểm	One broad leaf held flat near the surface for your betta to rest on · Back or midground · 1 point
+Súng hổ đỏ	Red tiger lotus
+Bụi lá đỏ tía có vân, thêm lá súng vươn lên gần mặt nước · Điểm nhấn trung cảnh · 2 điểm	Mottled purple-red leaves, with lily pads reaching up near the surface · Midground centerpiece · 2 points
+Lưới Madagascar	Madagascar lace
+Lá dài như tấm lưới đan, nhìn xuyên qua được · Cây hiếm cho trung cảnh · 2 điểm	Long leaves woven like see-through lace · Rare midground plant · 2 points
+Ráy Crypt nâu	Brown Cryptocoryne
+Bụi lá thuôn mép gợn sóng màu đồng nâu · Trung cảnh · 1 điểm	Slender bronze-brown leaves with rippled edges · Midground · 1 point
+Huyết tâm lan mini	Alternanthera mini
+Bụi rậm lá nhỏ hồng đỏ · Thêm màu ấm giữa hồ · 1 điểm	Dense bush of small pink-red leaves · Adds warm colour mid-tank · 1 point
+Ráy Buce xanh ánh kim	Bucephalandra Brownie Blue
+Lá nhỏ xanh thẫm ánh xanh dương, lá non đỏ nâu · Trồng trên nền hoặc kéo lên lũa, đá để gắn	Small dark leaves with a blue sheen, young leaves red-brown · Plant on the sand or drag onto wood or stone to attach
+Downoi lá xoăn	Curly Downoi
+Các cụm hoa thị nhỏ lá xoăn xanh tươi · Trồng tiền cảnh	Small rosettes of curly bright green leaves · Foreground plant
+Bèo rễ đỏ	Red root floater
+Lá tròn nhỏ đỏ, rễ đỏ buông xuống nước · Kéo để sắp xếp từng cụm	Small round red leaves with red roots hanging below · Drag to arrange each cluster
+Bèo cái mini	Dwarf water lettuce
+Hoa thị lá nhung có gân, rễ tua dài, tạo bóng râm cho betta · Kéo để sắp xếp từng cụm	Velvety ribbed rosettes with long trailing roots that shade your betta · Drag to arrange each cluster
+Bèo khảm đỏ	Red mosaic plant
+Thân dài từ đáy, nở hoa thị lá hình thoi như tranh khảm gần mặt nước · 1 điểm	A long stem from the sand opens into a mosaic rosette of diamond leaves near the surface · 1 point
+San hô não xanh vàng	Teal and gold brain coral
+Khối xanh ngọc với gân nổi uốn lượn màu vàng · Điểm nhấn tiền cảnh	Teal dome with raised, winding gold ridges · Foreground accent
+San hô nấm xanh viền tím	Teal mushroom coral with purple rims
+Năm đĩa thịt xanh ngọc xếp cụm, gân tỏa và viền tím gợn sóng	Five fleshy teal discs in a cluster, with radiating ridges and wavy purple rims
+San hô đồng tiền đa sắc	Rainbow zoanthids
+Thảm polyp tâm cam, vòng xanh và tua tím · Phủ đá tiền cảnh	A carpet of polyps with orange centres, green rings and purple tentacles · Covers foreground rocks
+San hô sừng hươu hồng	Pink staghorn coral
+Tán nhánh hồng đào dày, đầu kem · Đế đá sống tự nhiên	Dense peach-pink branches with cream tips · Natural live-rock base
+Quạt biển đỏ	Red sea fan
+Quạt đỏ mảnh với mạng nhánh đan như ren · Điểm nhấn hậu cảnh	Delicate red fan with a lacy web of branches · Background accent
+San hô đĩa tầng xanh ngọc	Teal plating coral
+Tiểu cảnh san hô 3D · Bộ mẫu đã duyệt	3D coral piece · Approved collection
+San hô nhánh tím	Purple branch coral
+San hô đuốc vàng	Yellow torch coral
+San hô ống xanh	Blue tube coral
+San hô thịt hồng cam	Peach-pink fleshy coral

@@ -20,13 +20,12 @@ namespace Lumaquarium
 
         public static event Action Changed;
 
-        // A device set to Vietnamese starts in Vietnamese, any other in English, until the player picks one.
+        // English until the player picks a language in Settings.
         public static Language Current
         {
             get
             {
-                current ??= PlayerPrefs.HasKey(PrefsKey) ? (Language)PlayerPrefs.GetInt(PrefsKey)
-                    : Application.systemLanguage == SystemLanguage.Vietnamese ? Language.Vietnamese : Language.English;
+                current ??= PlayerPrefs.HasKey(PrefsKey) ? (Language)PlayerPrefs.GetInt(PrefsKey) : Language.English;
                 return current.Value;
             }
         }

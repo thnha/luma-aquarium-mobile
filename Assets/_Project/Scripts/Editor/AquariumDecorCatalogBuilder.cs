@@ -107,33 +107,11 @@ public static partial class AquariumDecorCatalogBuilder
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }
-        // Moss walls for the back glass come last among the new kinds.
-        for (int i = 0; i < MossSpeciesBuilder.Walls.Length; i++)
-        {
-            var wall = MossSpeciesBuilder.Walls[i];
-            var root = new GameObject(wall.id);
-            try
-            {
-                root.layer = 8;
-                var item = root.AddComponent<AquariumDecorItem>();
-                item.kind = Ids.Length + 3 + DriftwoodSpeciesBuilder.All.Length + MossSpeciesBuilder.All.Length + i;
-                item.wallMounted = true;
-                item.wallSize = wall.size;
-                item.footprint = wall.size.x*.5f;
-                var mesh = Store(MossSpeciesBuilder.BuildWall(wall),wall.id);
-                Model("Moss",root.transform,mesh,Nature("MossSpecies",Color.white));
-                var bounds = mesh.bounds;
-                var collider = root.AddComponent<BoxCollider>(); collider.isTrigger=true;
-                collider.center=bounds.center; collider.size=bounds.size + Vector3.one*.025f;
-                var prefab = PrefabUtility.SaveAsPrefabAsset(root, Root + "/" + wall.id + ".prefab").GetComponent<AquariumDecorItem>();
-                offers.Add(new AquariumDecorOffer { id=wall.id, displayName=wall.name, price=wall.price, prefab=prefab,
-                    category=AquariumDecorCategory.Moss, description=wall.description, portrait=Portrait(prefab.gameObject,wall.id) });
-            }
-            finally { UnityEngine.Object.DestroyImmediate(root); }
-        }
-        // Named stones and corals follow the moss walls on kinds 40+; corals get their own San hô tab.
+        // Named stones and corals follow on kinds 40+; corals get their own San hô tab. Kinds 38 and 39 were
+        // the retired moss walls and stay unused, so released stones keep their kinds.
         var speciesStone = SpeciesStone(); var smoothCoral = SmoothCoral();
-        int firstStoneKind = Ids.Length + 3 + DriftwoodSpeciesBuilder.All.Length + MossSpeciesBuilder.All.Length + MossSpeciesBuilder.Walls.Length;
+        const int retiredWallKinds = 2;
+        int firstStoneKind = Ids.Length + 3 + DriftwoodSpeciesBuilder.All.Length + MossSpeciesBuilder.All.Length + retiredWallKinds;
         for (int i = 0; i < StoneCoralBuilder.All.Length; i++)
         {
             var piece = StoneCoralBuilder.All[i];
@@ -170,7 +148,7 @@ public static partial class AquariumDecorCatalogBuilder
                 item.attachable = i == 0;
                 item.supportsPlants = i != 0;
                 if (i == 1) item.plantMounts = TopMounts(root);
-                if (i == 2) item.plantMounts = new[] { new Vector3(-.075f,.18f,.02f), new Vector3(.02f,.40f,.025f), new Vector3(.13f,.47f,-.05f) };
+                if (i == 2) ApplyStarterWood(root);
                 PrefabUtility.SaveAsPrefabAsset(root,prefabPath);
             }
             finally { PrefabUtility.UnloadPrefabContents(root); }
@@ -181,6 +159,9 @@ public static partial class AquariumDecorCatalogBuilder
         }
         // Large pieces come after the starters so every earlier offer keeps its place in built sheets.
         AddLarge(offers,firstStoneKind+StoneCoralBuilder.All.Length,speciesWood,speciesStone);
+        AddCoralCollection(offers);
+        AddClimbingCarpets(offers);
+        AddNewPlants(offers);
         // Names and prices edited in decor_catalog.csv (or the Google Sheet) win over the defaults above.
         DecorCatalogSheet.ApplyIfPresent(offers);
         catalog.offers=offers.ToArray(); EditorUtility.SetDirty(catalog); AssetDatabase.SaveAssets(); return catalog;
@@ -292,60 +273,14 @@ public static partial class AquariumDecorCatalogBuilder
 
     private static void BuildWood(AquariumDecorItem item,int style)
     {
-        var mesh=new Geometry();
-        if(style==0 || style==1)
-        {
-            float length=style==0?.28f:.55f;
-            mesh.Tube(new Vector3(-length*.5f,.055f,0),new Vector3(0,.09f,.035f),new Vector3(length*.5f,.055f,0),.047f,.035f,20,12);
-            mesh.Tube(new Vector3(0,.065f,0),new Vector3(.04f,.18f,.015f),new Vector3(.07f,.24f,.03f),.024f,.003f,12,9);
-            item.plantMounts=new[]{new Vector3(-length*.28f,.102f,0),new Vector3(0,.12f,.02f),new Vector3(length*.28f,.10f,0)};
-        }
-        else if(style==2)
-        {
-            mesh.Tube(new Vector3(-.19f,.025f,0),new Vector3(0,.62f,0),new Vector3(.19f,.025f,0),.043f,.032f,26,12);
-            item.plantMounts=new[]{new Vector3(-.105f,.25f,0),new Vector3(0,.35f,0),new Vector3(.105f,.25f,0)};
-        }
-        else
-        {
-            float height=style==5?.27f:.46f;
-            mesh.Tube(new Vector3(0,.02f,0),new Vector3(-.04f,height*.55f,0),new Vector3(.035f,height,0),style==5?.085f:.047f,style==5?.064f:.008f,20,12);
-            for(int n=0;n<(style==4?8:5);n++)
-            {
-                float a=n*2.39996f;
-                Vector3 end=new Vector3(Mathf.Cos(a)*.18f,style==4?.012f:.15f+(n%3)*.09f,Mathf.Sin(a)*.15f);
-                Vector3 start=new Vector3(0,style==4?.13f:.08f+n*.045f,0);
-                mesh.Tube(start,(start+end)*.5f+Vector3.up*.04f,end,style==4?.028f:.022f,.003f,14,8);
-            }
-            item.plantMounts=new[]{new Vector3(0,.12f,0),new Vector3(-.015f,height*.62f,0),new Vector3(.035f,height+.01f,0)};
-        }
-        Model("Wood",item.transform,mesh.Save(Ids[style+12]),AssetDatabase.LoadAssetAtPath<Material>(Art+"Driftwood-v3.mat"));
+        var species=DriftwoodSpeciesBuilder.Classic[style];
+        Model("Wood",item.transform,Store(DriftwoodSpeciesBuilder.Build(species,1,out item.plantMounts,out item.footprint),Ids[style+12]),SpeciesWood());
     }
 
     private static void BuildRock(AquariumDecorItem item,int style)
     {
-        var mesh=new Geometry();
-        int count=style==0?5:style>=4?5:1;
-        for(int n=0;n<count;n++)
-        {
-            float a=n*2.39996f;
-            Vector3 position=count==1?Vector3.zero:new Vector3(Mathf.Cos(a)*.105f,0,Mathf.Sin(a)*.085f);
-            Vector3 scale=style==0?new Vector3(.11f,.07f,.09f):style==1?new Vector3(.15f,.34f,.15f):
-                style==2?new Vector3(.23f,.19f,.22f):style==3?new Vector3(.22f,.27f,.19f):
-                style==4?new Vector3(.15f,.14f+(n%3)*.06f,.14f):new Vector3(.12f,.13f+(n%3)*.085f,.12f);
-            if(style==5)
-            {
-                position=new Vector3((n-2)*.07f,0,Mathf.Sin(n*2.4f)*.065f);
-                if(n==2)position.z=.06f;
-            }
-            mesh.Rock(position,scale,style,n);
-        }
-        Color tint=style==1?new Color(.63f,.47f,.28f):style==2?new Color(.32f,.24f,.22f):style==3?new Color(.59f,.65f,.67f):new Color(.77f,.79f,.69f);
-        var source=AssetDatabase.LoadAssetAtPath<Material>(Art+"RiverStone-v3.mat");
-        string path=Root+"/Stone"+style+".mat";
-        var material=AssetDatabase.LoadAssetAtPath<Material>(path);
-        if(material==null){material=new Material(source);AssetDatabase.CreateAsset(material,path);}
-        material.SetColor("_BaseColor",tint);material.SetFloat("_Tiling",style==2?7:3);EditorUtility.SetDirty(material);
-        Model("Stone",item.transform,mesh.Save(Ids[style+18]),material);
+        string id=Ids[style+18];
+        Model("Stone",item.transform,Store(StoneCoralBuilder.Build(Piece(id),1,out _),id),SpeciesStone());
         item.plantMounts=TopMounts(item.gameObject);
     }
 
@@ -426,12 +361,15 @@ public static partial class AquariumDecorCatalogBuilder
         go.GetComponent<MeshFilter>().sharedMesh=mesh;go.GetComponent<MeshRenderer>().sharedMaterial=material;
     }
 
-    private sealed class Geometry
+    private sealed partial class Geometry
     {
         private readonly List<Vector3> vertices=new List<Vector3>();
         private readonly List<Vector2> uvs=new List<Vector2>();
         private readonly List<int> triangles=new List<int>();
-        private void Vertex(Vector3 p,Vector2 uv){vertices.Add(p);uvs.Add(uv);}
+        private readonly List<Color> colors=new List<Color>();
+        // Vertex colour for what is added next; white keeps the material colour as is.
+        public Color paint=Color.white;
+        private void Vertex(Vector3 p,Vector2 uv){vertices.Add(p);uvs.Add(uv);colors.Add(paint);}
         public void Tube(Vector3 a,Vector3 b,Vector3 end,float r0,float r1,int rings,int sides)
         {
             int start=vertices.Count;
@@ -466,26 +404,10 @@ public static partial class AquariumDecorCatalogBuilder
                 if(row<rows){int i=start+row*2;triangles.AddRange(new[]{i,i+2,i+1,i+1,i+2,i+3,i+1,i+2,i,i+3,i+2,i+1});}
             }
         }
-        public void Rock(Vector3 position,Vector3 scale,int style,int seed)
-        {
-            int start=vertices.Count;int rows=style==0?10:14,columns=style==0?14:20;
-            for(int row=0;row<=rows;row++) for(int col=0;col<=columns;col++)
-            {
-                float phi=row*Mathf.PI/rows, theta=col*Mathf.PI*2/columns;
-                Vector3 p=new Vector3(Mathf.Sin(phi)*Mathf.Cos(theta),Mathf.Cos(phi),Mathf.Sin(phi)*Mathf.Sin(theta));
-                float noise=Mathf.PerlinNoise(p.x*4+seed*8+3,p.y*5+p.z*3+7);
-                float shape=style==0?.48f+noise*.025f:.37f+noise*.20f;
-                if(style==1)shape-=.055f*Mathf.Pow(Mathf.Sin(theta*4+phi*9),4);
-                if(style==2)shape-=.09f*Mathf.Pow(Mathf.Sin(theta*9)*Mathf.Sin(phi*11),6);
-                Vector3 q=Vector3.Scale(p*shape,scale*2);q.y+=scale.y*.9f;
-                Vertex(position+q,new Vector2(col/(float)columns,row/(float)rows));
-                if(row<rows&&col<columns){int i=start+row*(columns+1)+col;triangles.AddRange(new[]{i,i+1,i+columns+1,i+1,i+columns+2,i+columns+1});}
-            }
-        }
         public Mesh Save(string name)
         {
             var mesh=new Mesh();mesh.SetVertices(vertices);mesh.SetUVs(0,uvs);
-            var colors=new Color[vertices.Count];for(int i=0;i<colors.Length;i++)colors[i]=Color.white;mesh.colors=colors;
+            mesh.SetColors(colors);
             mesh.SetTriangles(triangles,0);mesh.RecalculateNormals();mesh.RecalculateBounds();
             return Store(mesh,name);
         }

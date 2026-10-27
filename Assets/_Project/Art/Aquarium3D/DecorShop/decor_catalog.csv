@@ -34,8 +34,6 @@ wood-bonsai,Lũa,Lũa Bonsai,"Dáng cổ thụ thu nhỏ: thân uốn chữ S, t
 moss-mini-taiwan,Rêu,Rêu Mini Taiwan,"Taxiphyllum alternans · Lá li ti mọc thành thảm dày · Gắn lên đá, lũa hoặc trải nền",1
 moss-weeping,Rêu,Rêu Weeping,"Vesicularia ferriei · Nhánh rủ như liễu, đẹp nhất trên lũa cao · Gắn lên đá, lũa hoặc nền",1
 moss-flame,Rêu,Rêu Flame,"Taxiphyllum 'Flame' · Nhánh vươn thẳng, xoắn như ngọn lửa xanh · Gắn lên đá, lũa hoặc nền",1
-moss-wall-taiwan,Rêu,Tường rêu Mini Taiwan,"Tấm rêu dán kính sau hồ, phủ thảm dày · Ghép nhiều tấm thành tường rêu",1
-moss-wall-weeping,Rêu,Tường rêu Weeping,"Tấm rêu dán kính sau hồ, nhánh rủ xuống như thác · Ghép nhiều tấm thành tường rêu",1
 stone-elephant-skin,Đá,Đá da voi,"Mặt đá sần nhăn như da voi, xếp tầng tạo khe núi · Hợp hồ thủy sinh và hồ Koi",1
 stone-coral-rock,Đá,Đá san hô,"Xốp, nhẹ, nhiều lỗ; vừa làm nền vừa lọc, giữ pH cao ổn định · Hợp bể cá biển",1
 stone-lava-red,Đá,Đá nham thạch đỏ,"Xốp, lỗ li ti cho vi sinh trú ngụ và lọc nước · Lót nền hoặc phân tầng",1
@@ -43,11 +41,11 @@ stone-sea-pebbles,Đá,Đá cuội biển,"Cuội tròn mượt nhiều màu, v�
 stone-co-thach,Đá,Đá cổ thạch,"Góc cạnh, vân sọc trắng vàng · Điểm nhấn cao cấp cho hòn non bộ",1
 stone-tuyet-son,Đá,Đá tuyết sơn,Nền đen vân trắng như tuyết phủ đỉnh núi · Điểm nhấn cao cấp cho hòn non bộ,1
 coral-rubble,San hô,San hô vụn,San hô thật dạng vụn · Lót nền hoặc làm vật liệu lọc tăng pH cho bể nước mặn,1
-coral-block,San hô,San hô khối,"Khối san hô thật vân não · Dùng cho bể nước mặn, giúp ổn định pH",1
-coral-mushroom,San hô,San hô nấm,"San hô sống bể biển, đĩa màu rực rỡ · Cần ánh sáng và dòng chảy chuyên dụng",1
-coral-zoanthid,San hô,San hô đồng tiền,"Cụm polyp tròn như đồng xu nhiều màu · San hô sống, cần ánh sáng và dòng chảy",1
-coral-artificial-branch,San hô,San hô nhân tạo nhánh,"Silicon an toàn, màu tươi, dễ vệ sinh · Mang phong cách biển vào hồ nước ngọt",1
-coral-artificial-fan,San hô,San hô nhân tạo quạt,"Quạt biển silicon mềm, màu tươi, dễ vệ sinh · Hợp người mới chơi và hồ nước ngọt",1
+coral-block,San hô,San hô não xanh vàng,Khối xanh ngọc với gân nổi uốn lượn màu vàng · Điểm nhấn tiền cảnh,1
+coral-mushroom,San hô,San hô nấm xanh viền tím,"Năm đĩa thịt xanh ngọc xếp cụm, gân tỏa và viền tím gợn sóng",1
+coral-zoanthid,San hô,San hô đồng tiền đa sắc,"Thảm polyp tâm cam, vòng xanh và tua tím · Phủ đá tiền cảnh",1
+coral-artificial-branch,San hô,San hô sừng hươu hồng,"Tán nhánh hồng đào dày, đầu kem · Đế đá sống tự nhiên",1
+coral-artificial-fan,San hô,Quạt biển đỏ,Quạt đỏ mảnh với mạng nhánh đan như ren · Điểm nhấn hậu cảnh,1
 starter-anubias,Cây,Ráy Anubias,"Cây lá rộng · Trồng nền hoặc gắn lên lũa, đá",1
 starter-stone,Đá,Đá suối tròn,Đá cuội tròn · Gắn rêu hoặc ráy lên mặt đá,80
 starter-wood,Lũa,Lũa nhánh cổ thụ,Lũa phân nhánh cao · Gắn cây hoặc rêu tại 3 vị trí,1
@@ -88,3 +86,12 @@ amazon-sword,Cây,Kiếm Amazon,"Bụi lá to hình lưỡi kiếm, làm điểm
 stone-cliff,Đá,Đá vách núi,"Khối đá dài nhiều tầng dựng sát kính sau, che phần hồ phía sau và tạo chiều sâu · 3 điểm",800
 carpet-hairgrass,Rêu,Thảm Ngưu mao chiên,"Gói 10 ô thảm tiền cảnh · Chọn rồi kéo trên cát để trải, Tẩy để xoá · Không tính điểm",1
 carpet-monte-carlo,Rêu,Thảm Trân châu Nhật,"Gói 10 ô thảm tiền cảnh · Chọn rồi kéo trên cát để trải, Tẩy để xoá · Không tính điểm",1
+coral-plating,San hô,San hô đĩa tầng xanh ngọc,Tiểu cảnh san hô 3D · Bộ mẫu đã duyệt,280
+coral-purple-branch,San hô,San hô nhánh tím,Tiểu cảnh san hô 3D · Bộ mẫu đã duyệt,260
+coral-torch,San hô,San hô đuốc vàng,Tiểu cảnh san hô 3D · Bộ mẫu đã duyệt,300
+coral-blue-tube,San hô,San hô ống xanh,Tiểu cảnh san hô 3D · Bộ mẫu đã duyệt,270
+coral-lobophyllia,San hô,San hô thịt hồng cam,Tiểu cảnh san hô 3D · Bộ mẫu đã duyệt,290
+carpet-hc-cuba,Rêu,Thảm Trân châu Cuba,"Lá li ti xanh non phủ kín như nhung · Gói 10 ô · Kéo trên cát, lũa, đá hoặc kính sau để trải, Tẩy để xoá · Không tính điểm",80
+carpet-java-moss,Rêu,Thảm rêu Java,"Rêu lông vũ xanh đậm bò sát mặt lũa, đá · Gói 10 ô · Kéo trên cát, lũa, đá hoặc kính sau để trải, Tẩy để xoá · Không tính điểm",70
+carpet-riccia,Rêu,Thảm rêu Riccia,"Tản rêu chẻ nhánh xanh chanh, bám đá thành đệm · Gói 10 ô · Kéo trên cát, lũa, đá hoặc kính sau để trải, Tẩy để xoá · Không tính điểm",75
+carpet-marimo,Rêu,Thảm tảo Marimo,"Tảo cầu xanh thẫm mọc thành đệm tròn mịn · Gói 10 ô · Kéo trên cát, lũa, đá hoặc kính sau để trải, Tẩy để xoá · Không tính điểm",90
