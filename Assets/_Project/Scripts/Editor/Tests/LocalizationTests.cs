@@ -39,6 +39,14 @@ public sealed class LocalizationTests
     }
 
     [Test]
+    public void ShopWalletLabelsAreTranslated()
+    {
+        AssertTranslated(new[] { "Nạp xu", "Ví xu", "Mua xu", "Nhận miễn phí", "Chưa đủ xu · Nạp xu",
+            "Mua xu chưa khả dụng trên thiết bị này.", "Quảng cáo nhận xu chưa khả dụng trên thiết bị này.",
+            "Đang kết nối cửa hàng..." });
+    }
+
+    [Test]
     public void FormatsKeepTheirPlaceholders()
     {
         var wrong = Table().Where(p => Placeholders(p.Key) != Placeholders(p.Value)).Select(p => p.Key).ToList();

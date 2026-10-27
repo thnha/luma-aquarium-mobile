@@ -461,3 +461,16 @@ Chỉ dùng tài khoản để lưu hồ của bạn	Your account is only used t
 Không có mạng. Vui lòng thử lại.	No connection. Please try again.
 Cách đăng nhập này chưa dùng được trên máy này.	This sign-in option isn't available on this device yet.
 Đăng nhập không thành công. Vui lòng thử lại.	Sign-in failed. Please try again.
+Nạp xu	Get coins
+Ví xu	Coin wallet
+Mua xu	Buy coins
+Nhận miễn phí	Earn free coins
+Mua xu chưa khả dụng trên thiết bị này.	Coin purchases are not available on this device.
+Quảng cáo nhận xu chưa khả dụng trên thiết bị này.	Rewarded ads are not available on this device.
+Đang kết nối cửa hàng...	Connecting to the store...
+Chưa đủ xu · Nạp xu	Need coins · Get coins
+Đăng xuất	Sign out
+Hồ được lưu theo tài khoản	Your tank is saved to your account
+Đang đăng xuất…	Signing out…
+Hồ của bạn	Your tank
+Chung	General

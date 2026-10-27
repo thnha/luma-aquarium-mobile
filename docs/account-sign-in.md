@@ -11,18 +11,21 @@ Code: `Scripts/Account/AccountSignIn.cs`, `Scripts/UI/LoginGameScreen.cs`, `Scri
 
 SDK native chỉ được biên dịch khi có define **`LUMA_SOCIAL_SIGNIN`**. Chưa bật thì nút vẫn hiện nhưng báo "Cách đăng nhập này chưa dùng được trên máy này".
 
+## Đã cài (2026-10-27)
+
+- `Packages/com.google.firebase.app`, `com.google.firebase.auth` 13.17.1 (nhúng từ .tgz; 14.x bắt buộc Swift Packages nên chưa lên).
+- `Packages/com.google.signin`: fork Thaina/google-signin-unity nhánh `newmigration` commit d5ab541 (Android Credential Manager, iOS GoogleSignIn 9). Plugin tự ghi GIDClientID + URL scheme vào Info.plist.
+- AppleAuth `com.lupidan.apple-signin-unity` v1.5.0 (git).
+- Ba gói nhúng đã bỏ phụ thuộc `com.google.external-dependency-manager`: dự án dùng `com.unity.external-dependency-manager` (cùng `Assets/MobileDependencyResolver` của AdMob).
+- Define `LUMA_SOCIAL_SIGNIN` bật cho iOS + Android; `GoogleWebClientId` lấy từ google-services.json (Firebase project `betta-fish-aquarium-3d`).
+
 ## Còn phải làm
 
-1. **Gói** (Packages/manifest.json):
-   - Firebase App + Firebase Auth (.tgz từ developers.google.com/unity/archive). Dự án đã có `com.unity.external-dependency-manager`; nếu trùng với `com.google.external-dependency-manager` của Firebase thì giữ một bản.
-   - AppleAuth: `"com.lupidan.apple-signin-unity": "https://github.com/lupidan/apple-signin-unity.git?path=Source#v1.4.3"`.
-   - Google Sign-In Unity plugin (API `Google.GoogleSignIn`, `GoogleSignInConfiguration`).
-2. **Firebase config**: `GoogleService-Info.plist` và `google-services.json` đặt trong `Assets/`. Bundle id `com.thnha.bettafishaquarium`. Android cần SHA-1 của keystore trong Firebase console.
-3. **`AccountSignIn.GoogleWebClientId`**: client_id loại 3 (Web client) trong `google-services.json`.
-4. **Firebase console → Authentication**: bật provider Apple và Google.
-5. **Apple Developer**: bật capability Sign in with Apple cho App ID (postprocessor thêm entitlement vào Xcode).
-6. **Unity Dashboard → Authentication → Identity providers → OpenID Connect**: tên `oidc-firebase`, Issuer `https://securetoken.google.com/<firebase project id>`. Lỗi "invalid audience" thường do project id không khớp.
-7. Player Settings → Scripting Define Symbols (iOS + Android): thêm `LUMA_SOCIAL_SIGNIN`.
-8. Thử trên máy thật: khách mua/nhận xu → đăng nhập → xoá app, cài lại → đăng nhập → xu còn.
+1. ~~Tải lại `GoogleService-Info.plist`~~: xong 2026-10-27, đã có `CLIENT_ID`/`REVERSED_CLIENT_ID` (Web client ID lấy từ `GoogleWebClientId` trong code).
+2. **Android SHA-1**: thêm SHA-1 (debug + release keystore, và Play App Signing) vào app Android trong Firebase, rồi tải lại `google-services.json`. Thiếu thì Google sign-in báo DEVELOPER_ERROR.
+3. **Firebase console → Authentication**: bật provider Apple và Google.
+4. **Apple Developer**: bật capability Sign in with Apple cho App ID (postprocessor thêm entitlement vào Xcode).
+5. **Unity Dashboard → Authentication → Identity providers → OpenID Connect**: tên `oidc-firebase`, Issuer `https://securetoken.google.com/betta-fish-aquarium-3d`.
+6. Thử trên máy thật: khách nhận xu → đăng nhập → xoá app, cài lại → đăng nhập → xu còn.
 
 Chưa có: nút đăng xuất, hiển thị trạng thái "đã đăng nhập" ở StartGame/MainAquarium (badge "Đăng nhập · Sắp có" vẫn còn).

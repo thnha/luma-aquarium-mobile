@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -56,7 +55,6 @@ namespace Lumaquarium.UI
         public UnityEngine.UI.Button[] decorTabs;
         public int layoutVersion;
 
-        private static readonly CultureInfo Vietnamese = CultureInfo.GetCultureInfo("vi-VN");
         private FishShopInventory inventory;
         private int selectedIndex;
         private int pendingIndex = -1;
@@ -260,7 +258,7 @@ namespace Lumaquarium.UI
             feedback.text = "Chưa lưu được giao dịch. Vui lòng thử lại.";
         }
 
-        private static string Money(int amount) => amount.ToString("N0", Vietnamese);
+        private static string Money(int amount) => Loc.Money(amount);
         private static string PriceText(int price) => price == 0 ? "Miễn phí" : Money(price) + " xu";
         private static void Focus(GameObject target)
         {

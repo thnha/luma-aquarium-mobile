@@ -108,12 +108,15 @@ public static class FrontEndScreenBuilder
         Stretch(controls);
         var reveal = controls.gameObject.AddComponent<CanvasGroup>();
         var start = Ui3D.Button("StartButton", controls, "Chơi ngay", Ui3D.Style.Primary, 56);
-        At((RectTransform)start.transform, new Vector2(.5f, .15f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(820, 150));
+        At((RectTransform)start.transform, new Vector2(.5f, .215f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(820, 150));
+        var account = Ui3D.Button("AccountButton", controls, "Đăng nhập tài khoản", Ui3D.Style.Secondary, 44);
+        At((RectTransform)account.transform, new Vector2(.5f, .13f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(820, 124));
         var note = Ui3D.Text("LocalSaveNote", controls, "Tiến trình lưu trên thiết bị này", 30, Cream);
-        At(note.rectTransform, new Vector2(.5f, .075f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(960, 64));
-        var feedback = Text("Feedback", controls, "", 31, Cream);
-        At(feedback.rectTransform, new Vector2(.5f, .24f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(940, 80));
+        At(note.rectTransform, new Vector2(.5f, .065f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(960, 64));
+        var feedback = Text("Feedback", controls, "", 32, Cream);
+        At(feedback.rectTransform, new Vector2(.5f, .295f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(940, 80));
         Assign(controller, "startButton", start);
+        Assign(controller, "accountButton", account);
         Assign(controller, "startLabel", start.GetComponentInChildren<TMP_Text>());
         Assign(controller, "feedback", feedback);
         Assign(controller, "startControls", reveal);
@@ -165,8 +168,11 @@ public static class FrontEndScreenBuilder
 
     private static void BuildLogin()
     {
-        var canvas = NewScreen(FrontEndScenes.Login);
+        // Same launch artwork as StartGame and LoadingGame, with the start screen's scrim.
+        var canvas = NewScreen(FrontEndScenes.Login, "AquariumLaunch");
         var controller = canvas.gameObject.AddComponent<LoginGameScreen>();
+        var scrim = Picture("ControlsScrim", canvas, "FrontEndScrim");
+        Stretch(scrim.rectTransform);
         var safe = SafeRoot(canvas);
         var back = Ui3D.RoundButton("BackButton", safe, "utility_back");
         At((RectTransform)back.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(44, -40), new Vector2(122, 122));
@@ -175,15 +181,21 @@ public static class FrontEndScreenBuilder
 
         var form = Ui3D.Panel("AccountPanel", safe);
         Ui3D.At(form.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 88), new Vector2(1000, 1010));
-        var title = Ui3D.Text("AccountTitle", form.transform, "Đăng nhập tài khoản", 60, Ui3D.Ink, true);
+        var title = Ui3D.Text("AccountTitle", form.transform, "Đăng nhập tài khoản", 58, Ui3D.Ink, true);
         Ui3D.TopStrip(title.rectTransform, 50, 50, 60, 80);
         var description = Ui3D.Text("AccountAvailability", form.transform, "Giữ xu và cá khi đổi máy hoặc cài lại game", 38, Ui3D.Muted);
         Ui3D.TopStrip(description.rectTransform, 50, 50, 145, 100);
-        // LoginGameScreen hides Apple off iOS and moves Google into its slot.
-        var apple = Ui3D.Button("AppleSignInButton", form.transform, "Đăng nhập bằng Apple", Ui3D.Style.Primary);
+        // LoginGameScreen hides Apple off iOS and moves the rows below it up.
+        // Guest is the one primary button; Apple uses its black style (Apple HIG), Google the light secondary one.
+        var apple = Ui3D.Button("AppleSignInButton", form.transform, "Đăng nhập bằng Apple", Ui3D.Style.Secondary);
         Ui3D.TopStrip((RectTransform)apple.transform, 70, 70, 280, 150);
+        apple.GetComponent<UnityEngine.UI.Image>().color = Color.black;
+        var appleLabel = apple.GetComponent<Ui3DButtonLabel>();
+        appleLabel.normal = appleLabel.label.color = Color.white;
+        BrandLogo(apple, "brand_apple");
         var google = Ui3D.Button("GoogleSignInButton", form.transform, "Đăng nhập bằng Google", Ui3D.Style.Secondary);
         Ui3D.TopStrip((RectTransform)google.transform, 70, 70, 455, 150);
+        BrandLogo(google, "brand_google");
         var divider = Ui3D.Solid("Divider", form.transform, Ui3D.Divider);
         Ui3D.TopStrip(divider.rectTransform, 70, 70, 635, 4);
         var guest = Ui3D.Button("ReturnToGuestButton", form.transform, "Chơi với tư cách khách", Ui3D.Style.Primary);
@@ -191,7 +203,7 @@ public static class FrontEndScreenBuilder
         var note = Ui3D.Text("PrivacyNote", form.transform, "Chỉ dùng tài khoản để lưu hồ của bạn", 32, Ui3D.Muted);
         Ui3D.TopStrip(note.rectTransform, 50, 50, 840, 50);
 
-        var feedback = Text("Feedback", safe, "", 30, Cream);
+        var feedback = Text("Feedback", safe, "", 32, Cream);
         At(feedback.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 1120), new Vector2(960, 80));
         Assign(controller, "accountPanel", form.gameObject);
         Assign(controller, "appleButton", apple);
@@ -200,6 +212,17 @@ public static class FrontEndScreenBuilder
         Assign(controller, "backButton", back);
         Assign(controller, "feedback", feedback);
         SaveScreen(canvas, FrontEndScenes.Login);
+    }
+
+    // Official sign-in logo left of the label, when the brand artwork has been added to UI/Icons (brand_apple.png,
+    // brand_google.png from Apple's and Google's sign-in branding kits); without it the button keeps its text only.
+    private static void BrandLogo(UnityEngine.UI.Button button, string sprite)
+    {
+        if (Ui3D.Sprite(sprite) == null) return;
+        var logo = Ui3D.Icon("Logo", button.transform, sprite);
+        Ui3D.At(logo.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(64, 4), new Vector2(64, 64));
+        var label = button.GetComponentInChildren<TMP_Text>().rectTransform;
+        label.offsetMin = new Vector2(label.offsetMin.x + 80, label.offsetMin.y);
     }
 
     private static void BuildLoading()

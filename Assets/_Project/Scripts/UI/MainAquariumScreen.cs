@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.IO;
+using Lumaquarium.Account;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Lumaquarium.UI
 {
@@ -28,6 +30,10 @@ namespace Lumaquarium.UI
         public TMP_Text muteLabel;
         // Settings row that switches between Vietnamese and English; older scenes have none.
         public TMP_Text languageLabel;
+        // Settings row for the account: "Đăng nhập" opens LoginGame, "Đăng xuất" signs out; older scenes have none.
+        public TMP_Text accountTitle;
+        public TMP_Text accountDetail;
+        public TMP_Text accountLabel;
         public CanvasGroup hud;
         public AquariumDecoration decoration;
         // Redesigned HUD (docs/ui-redesign.md). All optional so older scenes keep working.
@@ -64,6 +70,8 @@ namespace Lumaquarium.UI
         private bool hidden;
         private bool capturing;
         private float walletRefreshAt;
+        private bool signedIn;
+        private bool leaving;
 
         private void Start()
         {
@@ -89,6 +97,7 @@ namespace Lumaquarium.UI
             UpdateMuteLabel();
             UpdateLanguageLabel();
             UpdateTiles();
+            RefreshAccount();
         }
 
         private void Update()
@@ -183,12 +192,12 @@ namespace Lumaquarium.UI
             else if (fishShop != null) fishShop.Open();
         }
 
-        // Đổi cá: the shop on the Cá tab with the active fish selected.
+        // Đổi cá: the shop on the Cá tab with the active fish selected, details sheet closed.
         public void OpenFishShop()
         {
             if (shop == null) { OpenShop(); return; }
             string key = decoration != null ? decoration.inventoryStorageKey : FishShopInventory.DefaultStorageKey;
-            shop.OpenTab(ShopTab.Fish, new FishShopInventory(key).ActiveId);
+            shop.OpenTab(ShopTab.Fish, new FishShopInventory(key).ActiveId, false);
         }
 
         // Toggles feed mode: while it is on a tap on the tank drops food, otherwise the fish swims to the tap.
@@ -288,6 +297,36 @@ namespace Lumaquarium.UI
         private void UpdateLanguageLabel()
         {
             if (languageLabel != null) languageLabel.text = Loc.Current == Language.English ? "English" : "Tiếng Việt";
+        }
+
+        private async void RefreshAccount()
+        {
+            if (accountLabel == null) return;
+            signedIn = AccountSignIn.IsLinked;
+            UpdateAccountRow();
+            signedIn = await AccountSignIn.RefreshLinked();
+            if (this != null) UpdateAccountRow();
+        }
+
+        private void UpdateAccountRow()
+        {
+            if (accountLabel == null) return;
+            accountLabel.text = Loc.T(signedIn ? "Đăng xuất" : "Đăng nhập");
+            if (accountTitle != null) accountTitle.text = Loc.T(signedIn ? "Tài khoản" : "Hồ sơ khách");
+            if (accountDetail != null) accountDetail.text = Loc.T(signedIn ? "Hồ được lưu theo tài khoản" : "Lưu trên thiết bị này");
+        }
+
+        public async void AccountAction()
+        {
+            if (leaving) return;
+            leaving = true;
+            if (signedIn)
+            {
+                Notify("Đang đăng xuất…");
+                await AccountSignIn.SignOut();
+                SceneManager.LoadSceneAsync(FrontEndScenes.Start);
+            }
+            else SceneManager.LoadSceneAsync(FrontEndScenes.Login);
         }
 
         public void ResetView()

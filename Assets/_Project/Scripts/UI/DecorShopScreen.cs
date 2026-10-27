@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -167,7 +166,7 @@ namespace Lumaquarium.UI
         public void Refresh()
         {
             RefreshInventory();
-            balanceLabel.text = inventory.Balance.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) + (layoutVersion >= 2 ? "" : " xu");
+            balanceLabel.text = Money(inventory.Balance) + (layoutVersion >= 2 ? "" : " xu");
             stockButtonLabel.text = stockOnly ? "Hiện tất cả" : "Chỉ món trong kho";
             for (int i = 0; i < catalog.offers.Length; i++)
             {
@@ -207,7 +206,7 @@ namespace Lumaquarium.UI
                 : (remaining > 0 ? "Đặt vào hồ" : "Chưa có trong kho");
         }
 
-        private static string Money(int amount) => amount.ToString("N0", CultureInfo.GetCultureInfo("vi-VN"));
+        private static string Money(int amount) => Loc.Money(amount);
 
         private void OnDisable() { if (IsOpen) Close(); }
     }

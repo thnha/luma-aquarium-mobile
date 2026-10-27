@@ -1,5 +1,34 @@
 {
   "dependencies": {
+    "com.google.firebase.app": {
+      "version": "file:com.google.firebase.app",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.google.firebase.auth": {
+      "version": "file:com.google.firebase.auth",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.google.firebase.app": "13.17.1"
+      }
+    },
+    "com.google.signin": {
+      "version": "file:com.google.signin",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.1"
+      }
+    },
+    "com.lupidan.apple-signin-unity": {
+      "version": "https://github.com/lupidan/apple-signin-unity.git?path=Source#v1.5.0",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "1a2622d90f7bb8cd256b235e9a07eb270262a89a"
+    },
     "com.unity.addressables": {
       "version": "2.10.3",
       "depth": 0,

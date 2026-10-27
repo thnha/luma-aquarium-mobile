@@ -1,0 +1,12 @@
+{
+  "output": null,
+  "diagnostics": [],
+  "success": true,
+  "result": {
+    "passed": 21,
+    "balance": 950,
+    "packs": 3,
+    "adsAvailable": false,
+    "catalogReady": true
+  }
+}

@@ -9,7 +9,6 @@ namespace Lumaquarium.Ads
     // Built from the shop's existing sprites/fonts at runtime, including already-published shop prefabs.
     public sealed class RewardedAdShopPanel : MonoBehaviour
     {
-        public const float RowHeight = 104;
         private ShopScreen shop;
         private AdMobRewardedAds ads;
         private CoinRewardEffect coinEffect;
@@ -18,46 +17,47 @@ namespace Lumaquarium.Ads
         private bool wasOpen;
         private float refreshStatusAt;
         public bool Active => ads != null;
+        public bool Busy => ads != null && ads.Busy;
 
         public void Initialize(ShopScreen screen)
         {
             shop = screen;
             if (!AdMobRewardedAds.Supported || !ShopService.UsesServer) return;
             ads = AdMobRewardedAds.Get();
+            shop.rewardedAdArea.Find("Unavailable").gameObject.SetActive(false);
             var row = new GameObject("RewardedAds", typeof(RectTransform)).GetComponent<RectTransform>();
-            row.SetParent(shop.searchRow.parent, false);
-            row.anchorMin = new Vector2(0, 1);
+            row.SetParent(shop.rewardedAdArea, false);
+            row.anchorMin = Vector2.zero;
             row.anchorMax = Vector2.one;
-            row.pivot = new Vector2(.5f, 1);
-            row.offsetMin = new Vector2(44, -286);
-            row.offsetMax = new Vector2(-44, -194);
+            row.offsetMin = row.offsetMax = Vector2.zero;
             watch = CreateButton("WatchRewarded", row, out label);
             var rect = (RectTransform)watch.transform;
-            rect.anchorMin = Vector2.zero;
+            rect.anchorMin = new Vector2(0, 1);
             rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
+            rect.offsetMin = new Vector2(0, -190);
+            rect.offsetMax = new Vector2(0, -40);
+            label.fontSizeMin = 34;
+            label.fontSizeMax = 46;
             privacy = CreateButton("AdPrivacy", row, out privacyLabel);
             privacyLabel.text = Loc.T("Quyền riêng tư");
             var privacyRect = (RectTransform)privacy.transform;
-            privacyRect.anchorMin = new Vector2(1, 0);
+            privacyRect.anchorMin = new Vector2(0, 1);
             privacyRect.anchorMax = Vector2.one;
-            privacyRect.offsetMin = new Vector2(-260, 0);
-            privacyRect.offsetMax = Vector2.zero;
+            privacyRect.offsetMin = new Vector2(0, -336);
+            privacyRect.offsetMax = new Vector2(0, -220);
+            privacyLabel.fontSizeMin = 28;
+            privacyLabel.fontSizeMax = 38;
             watch.onClick.AddListener(Watch);
             privacy.onClick.AddListener(ads.ShowPrivacyOptions);
-            var groups = (RectTransform)shop.groupButtons[0].transform.parent.parent;
-            groups.anchoredPosition -= new Vector2(0, RowHeight);
-            shop.categoryTray.anchoredPosition -= new Vector2(0, RowHeight);
             ads.Changed += Refresh;
             Loc.Changed += Refresh;
             ads.Feedback += ShowFeedback;
-            var walletChip = (RectTransform)shop.balanceLabel.transform.parent;
+            var walletChip = (RectTransform)shop.walletBalanceLabel.transform.parent;
             var walletCoin = walletChip.Find("Coin")?.GetComponent<Image>();
             if (walletCoin != null)
             {
                 coinEffect = gameObject.AddComponent<CoinRewardEffect>();
-                coinEffect.Setup(walletChip, shop.balanceLabel, walletCoin.sprite);
+                coinEffect.Setup(walletChip, shop.walletBalanceLabel, walletCoin.sprite);
                 ads.RewardGranted += PlayReward;
             }
             ads.Prepare();
@@ -111,14 +111,14 @@ namespace Lumaquarium.Ads
                 }
                 RefreshLabel();
             }
-            else if (coinEffect != null && coinEffect.Playing) coinEffect.Finish();
+            if (!shop.WalletOpen && coinEffect != null && coinEffect.Playing) coinEffect.Finish();
             wasOpen = shop.IsOpen;
         }
 
         // A reward claimed again on launch, with the shop closed, only updates the numbers.
         private void PlayReward(int coins)
         {
-            if (!shop.IsOpen || coins <= 0) return;
+            if (coinEffect == null || !shop.WalletOpen || !shop.rewardedAdArea.gameObject.activeInHierarchy || coins <= 0) return;
             int balance = shop.Balance;
             coinEffect.Play((RectTransform)watch.transform, balance - coins, balance);
         }
@@ -128,7 +128,6 @@ namespace Lumaquarium.Ads
             if (this == null || shop == null) return;
             privacyLabel.text = Loc.T("Quyền riêng tư");
             privacy.gameObject.SetActive(ads.PrivacyRequired);
-            ((RectTransform)watch.transform).offsetMax = new Vector2(ads.PrivacyRequired ? -276 : 0, 0);
             privacy.interactable = !ads.Busy && !shop.TransactionBusy;
             if (shop.IsOpen) { shop.aquarium.RefreshWallet(); shop.Refresh(); }
             RefreshLabel();
@@ -151,14 +150,14 @@ namespace Lumaquarium.Ads
 
         private async void Watch()
         {
-            if (shop.TransactionBusy) return;
+            if (!shop.WalletOpen || !shop.rewardedAdArea.gameObject.activeInHierarchy || shop.TransactionBusy) return;
             if (ads.HasPendingClaim) { await ads.SyncStatus(); return; }
             ads.Show();
         }
 
         private void ShowFeedback(string message)
         {
-            if (shop != null && shop.IsOpen) shop.feedback.text = Loc.T(message);
+            if (shop != null) shop.ShowWalletFeedback(Loc.T(message));
         }
 
         private void OnDestroy()

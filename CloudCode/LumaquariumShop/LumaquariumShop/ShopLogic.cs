@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using Lumaquarium.Shop;
 
@@ -16,23 +17,39 @@ public sealed partial class ShopLogic
     private readonly ShopCatalog catalog;
     private readonly Func<DateTimeOffset> utcNow;
     private readonly IAppStore? appStore;
+    private readonly IPurchaseStats? stats;
 
-    public ShopLogic(IShopStore store, ShopCatalog catalog, Func<DateTimeOffset>? utcNow = null, IAppStore? appStore = null)
+    public ShopLogic(IShopStore store, ShopCatalog catalog, Func<DateTimeOffset>? utcNow = null, IAppStore? appStore = null,
+        IPurchaseStats? stats = null)
     {
         this.store = store;
         this.catalog = catalog;
         this.utcNow = utcNow ?? (() => DateTimeOffset.UtcNow);
         this.appStore = appStore;
+        this.stats = stats;
     }
 
     public Task<ShopReply> GetState() => Change(_ => ShopError.None);
 
     // The price is the catalog's: the game only names the item and the catalog version it shows.
-    public Task<ShopReply> Buy(string id, string catalogVersion)
+    public async Task<ShopReply> Buy(string id, string catalogVersion)
     {
-        if (catalogVersion != catalog.version) return Change(_ => ShopError.PriceChanged);
+        if (catalogVersion != catalog.version) return await Change(_ => ShopError.PriceChanged);
         var item = catalog.Find(id);
-        return item == null ? Change(_ => ShopError.Rejected) : Change(save => ShopRules.Buy(save, item.id, item.price, item.slot));
+        if (item == null) return await Change(_ => ShopError.Rejected);
+        var reply = await Change(save => ShopRules.Buy(save, item.id, item.price, item.slot));
+        if (reply.Error == ShopError.None) await Count(item.id, 1);
+        return reply;
+    }
+
+    // Counted after the save is written, in the month as it is in Vietnam (UTC+7, like the ad day). The count is
+    // only for knowing what sells, so it failing never changes what the player gets.
+    private async Task Count(string itemId, int count)
+    {
+        if (stats == null) return;
+        string month = utcNow().ToOffset(TimeSpan.FromHours(7)).ToString("yyyy-MM", CultureInfo.InvariantCulture);
+        try { await stats.Add(month, itemId, count); }
+        catch (Exception) { }
     }
 
     // An id the catalog or a gift knows can only go into its own slot.

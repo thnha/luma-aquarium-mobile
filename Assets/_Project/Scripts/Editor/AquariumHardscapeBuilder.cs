@@ -179,22 +179,25 @@ public static class AquariumHardscapeBuilder
         Undo.RecordObject(lighting,"Configure aquarium lighting");
         lighting.sun=UnityEngine.Object.FindObjectsByType<Light>(FindObjectsSortMode.None).First(x=>x.type==LightType.Directional);
         lighting.nightBackdrop=image;
-        // The redesigned HUD keeps this switch in Cài đặt; only older HUDs get one in the header.
+        // The redesigned HUD switches day/night from its Đèn hồ sheet; only older HUDs get a switch in the header.
         var header=d.screen.header.transform;var button=d.screen.GetComponentsInChildren<Transform>(true).FirstOrDefault(t=>t.name=="DayNightButton");
-        if(button==null)
+        if(button!=null||d.screen.settingsPanel==null)
         {
-            var go=new GameObject("DayNightButton",typeof(RectTransform),typeof(Image),typeof(Button));go.transform.SetParent(header,false);button=go.transform;
-            Undo.RegisterCreatedObjectUndo(go,"Lighting switch");
-            var rect=(RectTransform)button;rect.anchorMin=rect.anchorMax=new Vector2(.5f,1);rect.pivot=new Vector2(.5f,1);rect.sizeDelta=new Vector2(210,80);rect.anchoredPosition=new Vector2(30,-12);
-            var surface=go.GetComponent<Image>();surface.sprite=AssetDatabase.FindAssets("button_primary t:Sprite").Select(x=>AssetDatabase.LoadAssetAtPath<Sprite>(AssetDatabase.GUIDToAssetPath(x))).FirstOrDefault();surface.type=Image.Type.Sliced;
-            var textGo=new GameObject("Label",typeof(RectTransform),typeof(TextMeshProUGUI));textGo.transform.SetParent(button,false);
-            var tr=(RectTransform)textGo.transform;tr.anchorMin=Vector2.zero;tr.anchorMax=Vector2.one;tr.sizeDelta=Vector2.zero;
-            var text=textGo.GetComponent<TextMeshProUGUI>();text.font=AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/_Project/UI/Fonts/Nunito-SemiBold SDF.asset");text.fontSize=26;text.alignment=TextAlignmentOptions.Center;text.color=new Color(.2f,.15f,.08f);text.raycastTarget=false;text.text="Ban ngày";
+            if(button==null)
+            {
+                var go=new GameObject("DayNightButton",typeof(RectTransform),typeof(Image),typeof(Button));go.transform.SetParent(header,false);button=go.transform;
+                Undo.RegisterCreatedObjectUndo(go,"Lighting switch");
+                var rect=(RectTransform)button;rect.anchorMin=rect.anchorMax=new Vector2(.5f,1);rect.pivot=new Vector2(.5f,1);rect.sizeDelta=new Vector2(210,80);rect.anchoredPosition=new Vector2(30,-12);
+                var surface=go.GetComponent<Image>();surface.sprite=AssetDatabase.FindAssets("button_primary t:Sprite").Select(x=>AssetDatabase.LoadAssetAtPath<Sprite>(AssetDatabase.GUIDToAssetPath(x))).FirstOrDefault();surface.type=Image.Type.Sliced;
+                var textGo=new GameObject("Label",typeof(RectTransform),typeof(TextMeshProUGUI));textGo.transform.SetParent(button,false);
+                var tr=(RectTransform)textGo.transform;tr.anchorMin=Vector2.zero;tr.anchorMax=Vector2.one;tr.sizeDelta=Vector2.zero;
+                var text=textGo.GetComponent<TextMeshProUGUI>();text.font=AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/_Project/UI/Fonts/Nunito-SemiBold SDF.asset");text.fontSize=26;text.alignment=TextAlignmentOptions.Center;text.color=new Color(.2f,.15f,.08f);text.raycastTarget=false;text.text="Ban ngày";
+            }
+            lighting.label=button.GetComponentInChildren<TMP_Text>();
+            var control=button.GetComponent<Button>();control.targetGraphic=button.GetComponent<Image>();
+            while(control.onClick.GetPersistentEventCount()>0)UnityEventTools.RemovePersistentListener(control.onClick,0);
+            UnityEventTools.AddPersistentListener(control.onClick,lighting.Toggle);
         }
-        lighting.label=button.GetComponentInChildren<TMP_Text>();
-        var control=button.GetComponent<Button>();control.targetGraphic=button.GetComponent<Image>();
-        while(control.onClick.GetPersistentEventCount()>0)UnityEventTools.RemovePersistentListener(control.onClick,0);
-        UnityEventTools.AddPersistentListener(control.onClick,lighting.Toggle);
         foreach(var mat in new[]{d.water.surface.sharedMaterial,d.water.bubbles.GetComponent<ParticleSystemRenderer>().sharedMaterial})
         {mat.SetTexture("_NightEnvironmentTex",AssetDatabase.LoadAssetAtPath<Texture2D>(NightPath));EditorUtility.SetDirty(mat);}
     }

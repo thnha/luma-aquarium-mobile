@@ -76,7 +76,7 @@ public static class MainAquariumScreenBuilder
         BuildHeader(controller, safe);
         BuildDock(controller, safe);
         BuildCare(controller, safe);
-        var dayNight = BuildSettings(controller, safe);
+        BuildSettings(controller, safe);
         var lightingSheet = BuildLighting(controller, safe);
         BuildTanks(controller, safe);
         BuildDecorate(controller, safe, decoration);
@@ -113,13 +113,10 @@ public static class MainAquariumScreenBuilder
         if (lighting != null)
         {
             Undo.RecordObject(lighting, "Wire lighting switch");
-            lighting.label = dayNight.GetComponentInChildren<TMP_Text>();
-            Wire(dayNight, lighting.Toggle);
             lighting.glowShader = Shader.Find("Lumaquarium/Aquarium Glow");
             Saved(lighting);
             lightingSheet.lighting = lighting;
         }
-        else dayNight.interactable = false;
         controller.ClosePanels();
         FishShopScreenBuilder.Connect(controller);
         ShopScreenBuilder.Connect(controller);
@@ -255,27 +252,104 @@ public static class MainAquariumScreenBuilder
         Wire(feed, controller.Feed);
     }
 
-    // Returns the day/night button so the lighting component can drive its label.
-    private static UnityEngine.UI.Button BuildSettings(MainAquariumScreen controller, RectTransform safe)
+    // No day/night or hide-HUD rows: the Đèn hồ sheet and the eye button already cover them.
+    private static void BuildSettings(MainAquariumScreen controller, RectTransform safe)
     {
         var panel = Sheet("SettingsPanel", safe, "Cài đặt", SettingsHeight, controller);
         controller.settingsPanel = panel.gameObject;
         var mute = Row(panel, 0, "Âm thanh", "Bật hoặc tắt tiếng hồ", "MuteButton", "Đang bật");
         controller.muteLabel = mute.GetComponentInChildren<TMP_Text>();
         Wire(mute, controller.ToggleMute);
-        var dayNight = Row(panel, 1, "Ánh sáng hồ", "Đổi ngày và đêm cho hồ", "DayNightButton", "Ban ngày");
-        Wire(Row(panel, 2, "Góc nhìn", "Đưa camera về vị trí đầu", "ResetViewButton", "Đặt lại"), controller.ResetView);
-        Wire(Row(panel, 3, "Ẩn giao diện", "Chỉ giữ nút hiện lại ở góc", "HideUiButton", "Ẩn"), controller.ToggleHud);
         Wire(Row(panel, 4, "Đèn hồ", "Đèn trên, đèn nền và màu đèn", "LightingButton", "Tùy chỉnh"), controller.ToggleLighting);
-        var profile = RowFrame(panel, 5, "Hồ sơ khách", "Lưu trên thiết bị này", false);
-        var soon = Ui3D.Badge("Soon", profile, "Đăng nhập · Sắp có", true, out _);
-        Ui3D.At(soon.rectTransform, new Vector2(1, .5f), new Vector2(1, .5f), Vector2.zero, new Vector2(340, 66));
+        AccountRow(controller, panel);
         TankRow(controller, panel);
         LanguageRow(controller, panel);
-        return dayNight;
+        GroupSettings(panel);
     }
 
-    private const float SettingsHeight = 1320;
+    // Rows keep their Row0–7 names (the single-row builders find them by it) and are only moved under headings.
+    private static readonly (string heading, int[] rows)[] SettingsGroups =
+    {
+        ("Hồ của bạn", new[] { 6, 4 }),
+        ("Chung", new[] { 0, 7 }),
+        ("Tài khoản", new[] { 5 }),
+    };
+    private const float SettingsRowHeight = 124, SettingsHeadingHeight = 84;
+
+    // A forest chip that hugs the (localized) heading.
+    private static RectTransform SettingsHeading(RectTransform settings, string name, string heading)
+    {
+        var group = Ui3D.Rect(name, settings);
+        var chip = Ui3D.Badge("Chip", group, heading, false, out var label);
+        chip.rectTransform.anchorMin = chip.rectTransform.anchorMax = chip.rectTransform.pivot = new Vector2(0, .5f);
+        chip.rectTransform.anchoredPosition = Vector2.zero;
+        var layout = chip.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>();
+        layout.padding = new RectOffset(30, 30, 8, 10);
+        layout.childControlWidth = layout.childControlHeight = true;
+        var fit = chip.gameObject.AddComponent<UnityEngine.UI.ContentSizeFitter>();
+        fit.horizontalFit = fit.verticalFit = UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize;
+        label.enableAutoSizing = false;
+        label.fontSize = 32;
+        label.textWrappingMode = TextWrappingModes.NoWrap;
+        return group;
+    }
+    private const float SettingsHeight = 150 + 5 * SettingsRowHeight + 3 * SettingsHeadingHeight + 40;
+
+    private static void GroupSettings(RectTransform settings)
+    {
+        Undo.RecordObject(settings, "Fit settings groups");
+        settings.sizeDelta = new Vector2(settings.sizeDelta.x, SettingsHeight);
+        // Rows dropped from the sheet (day/night, view reset, hide HUD) are removed from older HUDs.
+        foreach (int index in new[] { 1, 2, 3 })
+        {
+            var dropped = settings.Find("Row" + index);
+            if (dropped != null) Undo.DestroyObjectImmediate(dropped.gameObject);
+        }
+        float top = 140;
+        for (int g = 0; g < SettingsGroups.Length; g++)
+        {
+            var (heading, rows) = SettingsGroups[g];
+            var existing = settings.Find("Group" + g);
+            if (existing != null) Undo.DestroyObjectImmediate(existing.gameObject);
+            var group = SettingsHeading(settings, "Group" + g, heading);
+            Undo.RegisterCreatedObjectUndo(group.gameObject, "Create settings heading");
+            Ui3D.TopStrip(group, 56, 56, top + 24, SettingsHeadingHeight - 36);
+            top += SettingsHeadingHeight;
+            for (int r = 0; r < rows.Length; r++)
+            {
+                var row = (RectTransform)settings.Find("Row" + rows[r]);
+                if (row == null) continue;
+                Undo.RecordObject(row, "Move settings row");
+                Ui3D.TopStrip(row, 56, 56, top, SettingsRowHeight);
+                top += SettingsRowHeight;
+                // Lines only between rows of a group; the next heading already separates groups.
+                var divider = row.Find("Divider");
+                if (divider == null) continue;
+                Undo.RecordObject(divider.gameObject, "Toggle settings divider");
+                divider.gameObject.SetActive(r < rows.Length - 1);
+            }
+        }
+    }
+
+    // Groups the rows of an already built Settings sheet without rebuilding the HUD.
+    [MenuItem("Lumaquarium/UI/Group Settings Rows")]
+    public static void BuildSettingsGroups()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            throw new InvalidOperationException("Exit Play mode before grouping the settings rows.");
+        var scene = SceneManager.GetActiveScene();
+        var controller = UnityEngine.Object.FindFirstObjectByType<MainAquariumScreen>(FindObjectsInactive.Include);
+        if (scene.path != ScenePath || controller == null || controller.settingsPanel == null)
+            throw new InvalidOperationException("Open MainAquarium with its built HUD first.");
+        Ui3D.LoadFonts();
+        Undo.IncrementCurrentGroup();
+        int group = Undo.GetCurrentGroup();
+        GroupSettings((RectTransform)controller.settingsPanel.transform);
+        Undo.CollapseUndoOperations(group);
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        Debug.Log("[Lumaquarium] Settings rows grouped.");
+    }
 
     // The label is replaced at runtime by the language in use (MainAquariumScreen.ToggleLanguage).
     private static void LanguageRow(MainAquariumScreen controller, RectTransform settings)
@@ -306,11 +380,53 @@ public static class MainAquariumScreenBuilder
         Undo.RecordObject(controller, "Wire language row");
         LanguageRow(controller, settings);
         Undo.RegisterCreatedObjectUndo(settings.Find("Row7").gameObject, "Create language row");
+        GroupSettings(settings);
         Undo.CollapseUndoOperations(group);
         EditorUtility.SetDirty(controller);
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
         Debug.Log("[Lumaquarium] Language row built.");
+    }
+
+    // Texts are swapped at runtime when the player is signed in (MainAquariumScreen.UpdateAccountRow).
+    private static void AccountRow(MainAquariumScreen controller, RectTransform settings)
+    {
+        var account = Row(settings, 5, "Hồ sơ khách", "Lưu trên thiết bị này", "AccountButton", "Đăng nhập");
+        var row = account.transform.parent;
+        controller.accountTitle = row.Find("Title").GetComponent<TMP_Text>();
+        controller.accountDetail = row.Find("Detail").GetComponent<TMP_Text>();
+        controller.accountLabel = account.GetComponentInChildren<TMP_Text>();
+        Wire(account, controller.AccountAction);
+    }
+
+    // Replaces the "Đăng nhập · Sắp có" profile row of an existing HUD with the sign-in / sign-out row.
+    [MenuItem("Lumaquarium/UI/Build Account Row")]
+    public static void BuildAccountRow()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            throw new InvalidOperationException("Exit Play mode before building the account row.");
+        var scene = SceneManager.GetActiveScene();
+        var controller = UnityEngine.Object.FindFirstObjectByType<MainAquariumScreen>(FindObjectsInactive.Include);
+        if (scene.path != ScenePath || controller == null || controller.settingsPanel == null)
+            throw new InvalidOperationException("Open MainAquarium with its built HUD first.");
+        Ui3D.LoadFonts();
+        Undo.IncrementCurrentGroup();
+        int group = Undo.GetCurrentGroup();
+        var settings = (RectTransform)controller.settingsPanel.transform;
+        var oldRow = settings.Find("Row5");
+        int sibling = oldRow != null ? oldRow.GetSiblingIndex() : -1;
+        if (oldRow != null) Undo.DestroyObjectImmediate(oldRow.gameObject);
+        Undo.RecordObject(controller, "Wire account row");
+        AccountRow(controller, settings);
+        var row = settings.Find("Row5");
+        if (sibling >= 0) row.SetSiblingIndex(sibling);
+        Undo.RegisterCreatedObjectUndo(row.gameObject, "Create account row");
+        GroupSettings(settings);
+        Undo.CollapseUndoOperations(group);
+        EditorUtility.SetDirty(controller);
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        Debug.Log("[Lumaquarium] Account row built.");
     }
 
     private static void TankRow(MainAquariumScreen controller, RectTransform settings) =>
@@ -339,6 +455,7 @@ public static class MainAquariumScreenBuilder
         if (oldRow != null) Undo.DestroyObjectImmediate(oldRow.gameObject);
         TankRow(controller, settings);
         Undo.RegisterCreatedObjectUndo(settings.Find("Row6").gameObject, "Create tank row");
+        GroupSettings(settings);
         Undo.RecordObject(controller, "Wire tank sheet");
         BuildTanks(controller, safe);
         Undo.RegisterCreatedObjectUndo(controller.tankPanel, "Create tank sheet");
@@ -404,7 +521,7 @@ public static class MainAquariumScreenBuilder
             var button = tab.gameObject.AddComponent<UnityEngine.UI.Button>();
             button.targetGraphic = tab;
             button.transition = UnityEngine.UI.Selectable.Transition.None;
-            var label = Ui3D.Text("Label", tab.transform, labels[i], 36, Ui3D.Ink, true);
+            var label = Ui3D.Text("Label", tab.transform, labels[i], 40, Ui3D.Hex("4A503F"), true);
             Ui3D.Edges(label.rectTransform, Vector2.zero, Vector2.one, new Vector2(6, 12), new Vector2(-6, -4));
             buttons[i] = button;
         }
@@ -473,7 +590,7 @@ public static class MainAquariumScreenBuilder
             button.transition = UnityEngine.UI.Selectable.Transition.None;
             inventory.tabButtons[i] = button;
             inventory.tabSurfaces[i] = tab;
-            inventory.tabLabels[i] = Ui3D.Text("Label", tab.transform, groups[i], 36, i == 0 ? Ui3D.Cream : Ui3D.Ink, true);
+            inventory.tabLabels[i] = Ui3D.Text("Label", tab.transform, groups[i], 40, i == 0 ? Ui3D.Cream : Ui3D.Hex("4A503F"), true);
             Ui3D.Edges(inventory.tabLabels[i].rectTransform, Vector2.zero, Vector2.one, new Vector2(6, 12), new Vector2(-6, -4));
         }
         inventory.tabLabelOn = Ui3D.Cream;

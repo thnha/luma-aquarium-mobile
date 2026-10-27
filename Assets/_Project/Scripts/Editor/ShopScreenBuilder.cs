@@ -102,6 +102,11 @@ public static class ShopScreenBuilder
         shop.fishOffers = offers;
         shop.cardNormal = Ui3D.Require("ui3d_tile");
         shop.cardSelected = Ui3D.Require("ui3d_tile_selected");
+        // Selected tabs and chips look like the decorate and lighting sheets: forest surface, cream label.
+        shop.chipNormal = Ui3D.Require("ui3d_button_secondary");
+        shop.chipSelected = Ui3D.Require("ui3d_button_primary");
+        shop.tabLabelOn = Ui3D.Cream;
+        shop.tabLabelOff = SegmentInk;
         var content = Ui3D.Rect("ShopScreen", root);
         Ui3D.Stretch(content);
         shop.content = content.gameObject;
@@ -113,6 +118,9 @@ public static class ShopScreenBuilder
         var scrim = Ui3D.Solid("Scrim", content, new Color(.04f, .09f, .06f, .45f));
         scrim.raycastTarget = true;
         Ui3D.Stretch(scrim.rectTransform);
+        // Paint behind the notch and home indicator; only controls belong to SafeArea.
+        var paper = Ui3D.Solid("Paper", content, Ui3D.Hex("FAF3DC"));
+        Ui3D.Stretch(paper.rectTransform);
         var safe = Ui3D.Rect("SafeArea", content);
         Ui3D.Stretch(safe);
         safe.gameObject.AddComponent<SafeArea>();
@@ -121,7 +129,8 @@ public static class ShopScreenBuilder
         Tabs(shop, safe);
         Search(shop, safe);
         Grid(shop, safe);
-        Details(shop, safe);
+        Details(shop, content);
+        Wallet(shop, content);
         Confirmation(shop, content);
         content.gameObject.SetActive(false);
         return shop;
@@ -130,17 +139,24 @@ public static class ShopScreenBuilder
     private static void Header(ShopScreen shop, RectTransform safe)
     {
         var header = Ui3D.Rect("Header", safe);
-        Ui3D.TopStrip(header, 44, 44, 40, 132);
+        Ui3D.TopStrip(header, 44, 44, 24, 116);
+        // Same back button and title size as the account screen (FrontEndScreenBuilder.BuildLogin).
         shop.backButton = Ui3D.RoundButton("BackButton", header, "utility_back");
         Ui3D.At((RectTransform)shop.backButton.transform, new Vector2(0, .5f), new Vector2(0, .5f), Vector2.zero, new Vector2(122, 122));
-        var title = Ui3D.Text("Title", header, "Cửa hàng", 62, Ui3D.Cream, true, TextAlignmentOptions.MidlineLeft);
-        Ui3D.Edges(title.rectTransform, Vector2.zero, Vector2.one, new Vector2(150, 0), new Vector2(-320, 0));
+        var title = Ui3D.Text("Title", header, "Cửa hàng", 56, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        title.textWrappingMode = TextWrappingModes.NoWrap;
+        Ui3D.Edges(title.rectTransform, Vector2.zero, Vector2.one, new Vector2(146, 0), new Vector2(-564, 0));
+        // Same chip, coin and balance size as the aquarium HUD wallet (MainAquariumScreenBuilder).
         var wallet = Ui3D.Image("Wallet", header, "ui3d_chip");
-        Ui3D.At(wallet.rectTransform, new Vector2(1, .5f), new Vector2(1, .5f), Vector2.zero, new Vector2(300, 122));
+        Ui3D.At(wallet.rectTransform, new Vector2(1, .5f), new Vector2(1, .5f), new Vector2(-236, 0), new Vector2(290, 122));
         var coin = Ui3D.Icon("Coin", wallet.transform, "utility_coin");
-        Ui3D.At(coin.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(18, 3), new Vector2(84, 84));
+        Ui3D.At(coin.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(16, 3), new Vector2(84, 84));
         shop.balanceLabel = Ui3D.Text("Balance", wallet.transform, "1.250", 46, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
-        Ui3D.Edges(shop.balanceLabel.rectTransform, Vector2.zero, Vector2.one, new Vector2(110, 12), new Vector2(-20, -6));
+        shop.balanceLabel.textWrappingMode = TextWrappingModes.NoWrap;
+        Ui3D.Edges(shop.balanceLabel.rectTransform, Vector2.zero, Vector2.one, new Vector2(106, 12), new Vector2(-22, -6));
+        shop.topUpButton = Ui3D.Button("TopUp", header, "Nạp xu", Ui3D.Style.Primary, 38);
+        Ui3D.At((RectTransform)shop.topUpButton.transform, new Vector2(1, .5f), new Vector2(1, .5f), Vector2.zero, new Vector2(220, 116));
+        shop.topUpButton.GetComponentInChildren<TMP_Text>().textWrappingMode = TextWrappingModes.NoWrap;
     }
 
     private static void Search(ShopScreen shop, RectTransform safe)
@@ -148,7 +164,7 @@ public static class ShopScreenBuilder
         var row = Ui3D.Rect("SearchRow", safe);
         Ui3D.TopStrip(row, 44, 44, 330, 116);
         shop.searchRow = row;
-        var field = Ui3D.Image("Search", row, "ui3d_chip");
+        var field = Ui3D.Image("Search", row, "ui3d_button_secondary");
         field.raycastTarget = true;
         Ui3D.Edges(field.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, new Vector2(-142, 0));
         var area = Ui3D.Rect("TextArea", field.transform);
@@ -190,34 +206,20 @@ public static class ShopScreenBuilder
 
     private static void Tabs(ShopScreen shop, RectTransform safe)
     {
-        var tray = Ui3D.Image("Groups", safe, "ui3d_tab_tray");
-        Ui3D.TopStrip(tray.rectTransform, 44, 44, 194, 116);
-        var row = Ui3D.Rect("Row", tray.transform);
-        Ui3D.Stretch(row, 12);
-        var layout = row.gameObject.AddComponent<HorizontalLayoutGroup>();
-        layout.spacing = 8;
-        layout.childControlWidth = layout.childControlHeight = true;
-        layout.childForceExpandWidth = layout.childForceExpandHeight = true;
+        var tray = SegmentTray("Groups", safe);
+        Ui3D.TopStrip(tray, 44, 44, 164, 116);
         shop.groupButtons = new Button[3];
         shop.groupSurfaces = new Image[3];
         shop.groupLabels = new TMP_Text[3];
         for (int i = 0; i < 3; i++)
         {
-            var surface = Ui3D.Image("Group" + i, row, "ui3d_tab_on");
-            surface.color = i == 0 ? Color.white : Color.clear;
-            surface.raycastTarget = true;
-            surface.gameObject.AddComponent<LayoutElement>().preferredWidth = 300;
-            var button = surface.gameObject.AddComponent<Button>();
-            button.targetGraphic = surface;
-            button.transition = Selectable.Transition.None;
-            var label = Ui3D.Text("Label", surface.transform, TabNames[i], 42, i == 0 ? Ui3D.Ink : Ui3D.Cream, true);
-            Ui3D.Edges(label.rectTransform, Vector2.zero, Vector2.one, new Vector2(8, 10), new Vector2(-8, 0));
-            shop.groupButtons[i] = button;
-            shop.groupSurfaces[i] = surface;
-            shop.groupLabels[i] = label;
+            shop.groupButtons[i] = SegmentTab("Group" + i, tray, TabNames[i], 40, i == 0);
+            shop.groupButtons[i].gameObject.AddComponent<LayoutElement>().preferredWidth = 300;
+            shop.groupSurfaces[i] = shop.groupButtons[i].GetComponent<Image>();
+            shop.groupLabels[i] = shop.groupButtons[i].GetComponentInChildren<TMP_Text>();
         }
         var categories = Ui3D.Rect("Categories", safe);
-        Ui3D.TopStrip(categories, 44, 44, 330, 88);
+        Ui3D.TopStrip(categories, 44, 44, 302, 88);
         shop.categoryTray = categories;
         var categoryLayout = categories.gameObject.AddComponent<HorizontalLayoutGroup>();
         categoryLayout.spacing = 10;
@@ -238,10 +240,51 @@ public static class ShopScreenBuilder
         }
     }
 
+    // Label of an unselected segment tab, matching MainAquariumScreenBuilder's decorate and lighting tabs.
+    private static readonly Color SegmentInk = Ui3D.Hex("4A503F");
+
+    // Light tray of equal-width tabs, laid out like the decorate sheet's tray.
+    private static RectTransform SegmentTray(string name, Transform parent)
+    {
+        var tray = Ui3D.Image(name, parent, "ui3d_tab_tray_light");
+        var layout = tray.gameObject.AddComponent<HorizontalLayoutGroup>();
+        layout.padding = new RectOffset(10, 10, 10, 16);
+        layout.spacing = 6;
+        layout.childControlWidth = layout.childControlHeight = true;
+        layout.childForceExpandWidth = layout.childForceExpandHeight = true;
+        return tray.rectTransform;
+    }
+
+    // One tab in a SegmentTray; ShopScreen shows the forest surface and a cream label on the selected one.
+    private static Button SegmentTab(string name, Transform tray, string label, float size, bool on)
+    {
+        var surface = Ui3D.Image(name, tray, "ui3d_button_primary");
+        surface.color = on ? Color.white : Color.clear;
+        surface.raycastTarget = true;
+        var button = surface.gameObject.AddComponent<Button>();
+        button.targetGraphic = surface;
+        button.transition = Selectable.Transition.None;
+        var text = Ui3D.Text("Label", surface.transform, label, size, on ? Ui3D.Cream : SegmentInk, true);
+        Ui3D.Edges(text.rectTransform, Vector2.zero, Vector2.one, new Vector2(6, 12), new Vector2(-6, -4));
+        return button;
+    }
+
+    // A dimmed full-screen modal whose sheet stays inside the safe area, so the dim also covers the notch band.
+    private static Image Modal(string name, RectTransform content, out RectTransform safe)
+    {
+        var modal = Ui3D.Solid(name, content, new Color(.05f, .09f, .06f, .62f));
+        modal.raycastTarget = true;
+        Ui3D.Stretch(modal.rectTransform);
+        safe = Ui3D.Rect("SafeArea", modal.transform);
+        Ui3D.Stretch(safe);
+        safe.gameObject.AddComponent<SafeArea>();
+        return modal;
+    }
+
     private static void Grid(ShopScreen shop, RectTransform safe)
     {
         var area = Ui3D.Rect("Grid", safe);
-        Ui3D.Edges(area, Vector2.zero, Vector2.one, new Vector2(44, 480), new Vector2(-44, -474));
+        Ui3D.Edges(area, Vector2.zero, Vector2.one, new Vector2(44, 44), new Vector2(-44, -446));
         area.gameObject.AddComponent<RectMask2D>();
         var hit = area.gameObject.AddComponent<Image>();
         hit.color = Color.clear; // drags between cards still scroll
@@ -265,7 +308,7 @@ public static class ShopScreenBuilder
         scroll.vertical = true;
         shop.scroll = scroll;
         shop.cardTemplate = Card(cells);
-        var empty = Ui3D.Text("Empty", area, "Không tìm thấy vật phẩm", 42, Ui3D.Cream, true);
+        var empty = Ui3D.Text("Empty", area, "Không tìm thấy vật phẩm", 42, Ui3D.Ink, true);
         Ui3D.TopStrip(empty.rectTransform, 0, 0, 80, 80);
         shop.emptyLabel = empty.gameObject;
     }
@@ -329,26 +372,32 @@ public static class ShopScreenBuilder
         return card;
     }
 
-    private static void Details(ShopScreen shop, RectTransform safe)
+    private static void Details(ShopScreen shop, RectTransform content)
     {
-        var panel = Ui3D.Panel("Details", safe);
-        Ui3D.BottomStrip(panel.rectTransform, 24, 24, 24, 430);
-        shop.details = panel.gameObject;
+        var modal = Modal("Details", content, out var safe);
+        shop.details = modal.gameObject;
+        var panel = Ui3D.Panel("Panel", safe);
+        Ui3D.BottomStrip(panel.rectTransform, 24, 24, 24, 940);
+        shop.detailsCloseButton = Ui3D.RoundButton("Close", panel.transform, "utility_close", true);
+        Ui3D.At((RectTransform)shop.detailsCloseButton.transform, Vector2.one, Vector2.one, new Vector2(-30, -28), new Vector2(116, 116));
         shop.portrait = Ui3D.Rect("Portrait", panel.transform).gameObject.AddComponent<Image>();
-        shop.portrait.gameObject.SetActive(false);
-        shop.title = Ui3D.Text("Title", panel.transform, "", 48, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
-        Ui3D.TopStrip(shop.title.rectTransform, 48, 280, 30, 68);
+        shop.portrait.preserveAspect = true;
+        shop.portrait.raycastTarget = false;
+        Ui3D.TopStrip(shop.portrait.rectTransform, 100, 100, 132, 300);
+        shop.title = Ui3D.Text("Title", panel.transform, "", 58, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.TopStrip(shop.title.rectTransform, 48, 170, 40, 90);
         var coin = Ui3D.Icon("Coin", panel.transform, "utility_coin");
-        Ui3D.At(coin.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-190, -38), new Vector2(56, 56));
+        Ui3D.At(coin.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(48, -604), new Vector2(62, 62));
         shop.priceCoin = coin.gameObject;
         shop.priceLabel = Ui3D.Text("Price", panel.transform, "", 42, Ui3D.PriceInk, true, TextAlignmentOptions.MidlineRight);
-        Ui3D.At(shop.priceLabel.rectTransform, Vector2.one, Vector2.one, new Vector2(-48, -36), new Vector2(220, 60));
+        Ui3D.TopStrip(shop.priceLabel.rectTransform, 126, 48, 604, 70);
+        shop.priceLabel.alignment = TextAlignmentOptions.MidlineLeft;
         shop.description = Ui3D.Text("Description", panel.transform, "", 34, Ui3D.Muted, false, TextAlignmentOptions.TopLeft);
         shop.description.enableAutoSizing = false;
         shop.description.overflowMode = TextOverflowModes.Ellipsis;
-        Ui3D.TopStrip(shop.description.rectTransform, 48, 48, 108, 100);
-        shop.feedback = Ui3D.Text("Feedback", panel.transform, "", 30, Ui3D.Forest, false, TextAlignmentOptions.MidlineLeft);
-        Ui3D.TopStrip(shop.feedback.rectTransform, 48, 48, 212, 44);
+        Ui3D.TopStrip(shop.description.rectTransform, 48, 48, 450, 132);
+        shop.feedback = Ui3D.Text("Feedback", panel.transform, "", 32, Ui3D.Forest, false, TextAlignmentOptions.MidlineLeft);
+        Ui3D.TopStrip(shop.feedback.rectTransform, 48, 48, 688, 74);
         var actions = Ui3D.Rect("Actions", panel.transform);
         Ui3D.BottomStrip(actions, 48, 48, 32, 132);
         var layout = actions.gameObject.AddComponent<HorizontalLayoutGroup>();
@@ -361,6 +410,41 @@ public static class ShopScreenBuilder
         shop.primaryButton = Ui3D.Button("Action", actions, "Mua", Ui3D.Style.Primary, 42);
         shop.primaryButton.gameObject.AddComponent<LayoutElement>().preferredWidth = 440;
         shop.primaryLabel = shop.primaryButton.GetComponentInChildren<TMP_Text>();
+        modal.gameObject.SetActive(false);
+    }
+
+    private static void Wallet(ShopScreen shop, RectTransform content)
+    {
+        var modal = Modal("WalletSheet", content, out var safe);
+        shop.walletContent = modal.gameObject;
+        var panel = Ui3D.Panel("Panel", safe);
+        Ui3D.BottomStrip(panel.rectTransform, 24, 24, 24, 1120);
+        var heading = Ui3D.Text("Title", panel.transform, "Ví xu", 58, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.TopStrip(heading.rectTransform, 48, 170, 40, 80);
+        shop.walletCloseButton = Ui3D.RoundButton("Close", panel.transform, "utility_close", true);
+        Ui3D.At((RectTransform)shop.walletCloseButton.transform, Vector2.one, Vector2.one, new Vector2(-30, -28), new Vector2(116, 116));
+        var balance = Ui3D.Rect("WalletBalance", panel.transform);
+        Ui3D.TopStrip(balance, 48, 48, 142, 90);
+        var coin = Ui3D.Icon("Coin", balance, "utility_coin");
+        Ui3D.At(coin.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), Vector2.zero, new Vector2(80, 80));
+        shop.walletBalanceLabel = Ui3D.Text("Balance", balance, "", 64, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.Edges(shop.walletBalanceLabel.rectTransform, Vector2.zero, Vector2.one, new Vector2(104, 0), Vector2.zero);
+        var tabs = SegmentTray("Tabs", panel.transform);
+        Ui3D.TopStrip(tabs, 48, 48, 260, 116);
+        shop.buyCoinsTab = SegmentTab("BuyCoins", tabs, "Mua xu", 40, true);
+        shop.rewardCoinsTab = SegmentTab("RewardCoins", tabs, "Nhận miễn phí", 40, false);
+        shop.coinPackArea = Ui3D.Rect("CoinPacks", panel.transform);
+        Ui3D.TopStrip(shop.coinPackArea, 48, 48, 410, 540);
+        var storeUnavailable = Ui3D.Text("Unavailable", shop.coinPackArea, "Mua xu chưa khả dụng trên thiết bị này.", 38, Ui3D.Muted);
+        Ui3D.Stretch(storeUnavailable.rectTransform, 20);
+        shop.rewardedAdArea = Ui3D.Rect("RewardedAds", panel.transform);
+        Ui3D.TopStrip(shop.rewardedAdArea, 48, 48, 410, 540);
+        var rewardUnavailable = Ui3D.Text("Unavailable", shop.rewardedAdArea, "Quảng cáo nhận xu chưa khả dụng trên thiết bị này.", 38, Ui3D.Muted);
+        Ui3D.Stretch(rewardUnavailable.rectTransform, 20);
+        shop.rewardedAdArea.gameObject.SetActive(false);
+        shop.walletFeedback = Ui3D.Text("Feedback", panel.transform, "", 32, Ui3D.Forest);
+        Ui3D.BottomStrip(shop.walletFeedback.rectTransform, 48, 48, 44, 100);
+        modal.gameObject.SetActive(false);
     }
 
     private static void Confirmation(ShopScreen shop, RectTransform content)
@@ -369,15 +453,15 @@ public static class ShopScreenBuilder
         modal.raycastTarget = true;
         Ui3D.Stretch(modal.rectTransform);
         var dialog = Ui3D.Panel("Dialog", modal.transform);
-        Ui3D.At(dialog.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(900, 560));
-        var heading = Ui3D.Text("Heading", dialog.transform, "Xác nhận mua", 52, Ui3D.Ink, true);
+        Ui3D.At(dialog.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(900, 580));
+        var heading = Ui3D.Text("Heading", dialog.transform, "Xác nhận mua", 58, Ui3D.Ink, true);
         Ui3D.TopStrip(heading.rectTransform, 40, 40, 44, 70);
-        shop.confirmationText = Ui3D.Text("Text", dialog.transform, "", 44, Ui3D.Ink);
+        shop.confirmationText = Ui3D.Text("Text", dialog.transform, "", 38, Ui3D.Ink);
         Ui3D.TopStrip(shop.confirmationText.rectTransform, 40, 40, 130, 200);
-        shop.cancelButton = Ui3D.Button("Cancel", dialog.transform, "Huỷ", Ui3D.Style.Secondary);
-        Ui3D.At((RectTransform)shop.cancelButton.transform, Vector2.zero, Vector2.zero, new Vector2(50, 44), new Vector2(370, 128));
+        shop.cancelButton = Ui3D.Button("Cancel", dialog.transform, "Hủy", Ui3D.Style.Secondary);
+        Ui3D.At((RectTransform)shop.cancelButton.transform, Vector2.zero, Vector2.zero, new Vector2(50, 44), new Vector2(370, 150));
         shop.confirmButton = Ui3D.Button("Confirm", dialog.transform, "Mua", Ui3D.Style.Primary);
-        Ui3D.At((RectTransform)shop.confirmButton.transform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-50, 44), new Vector2(370, 128));
+        Ui3D.At((RectTransform)shop.confirmButton.transform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-50, 44), new Vector2(370, 150));
         shop.confirmation = modal.gameObject;
         modal.gameObject.SetActive(false);
     }

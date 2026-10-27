@@ -6,34 +6,33 @@ using UnityEngine.UI;
 
 namespace Lumaquarium.UI
 {
-    // The App Store coin packs as a row of buttons under the ad row, built at runtime like RewardedAdShopPanel.
+    // Real store packs live in the wallet sheet, leaving the catalog free of payment controls.
     // Each shows its coins and Apple's price in the player's currency; a pack Apple has not sent yet stays off.
     public sealed class CoinPackShopPanel : MonoBehaviour
     {
-        public const float RowHeight = 104;
         private ShopScreen shop;
         private IAPManager iap;
         private CoinRewardEffect coinEffect;
         private Button[] buttons;
         private TMP_Text[] labels;
         private bool wasOpen;
+        private bool wasWalletOpen;
         public bool Active => iap != null;
+        public bool Busy => iap != null && iap.Busy;
 
-        // below: how far down the rows added before this one reach.
-        public void Initialize(ShopScreen screen, float below)
+        public void Initialize(ShopScreen screen)
         {
             shop = screen;
             iap = IAPManager.Get();
             if (iap == null) return;
-            var row = new GameObject("CoinPacks", typeof(RectTransform), typeof(HorizontalLayoutGroup)).GetComponent<RectTransform>();
-            row.SetParent(shop.searchRow.parent, false);
-            row.anchorMin = new Vector2(0, 1);
+            shop.coinPackArea.Find("Unavailable").gameObject.SetActive(false);
+            var row = new GameObject("Packs", typeof(RectTransform), typeof(VerticalLayoutGroup)).GetComponent<RectTransform>();
+            row.SetParent(shop.coinPackArea, false);
+            row.anchorMin = Vector2.zero;
             row.anchorMax = Vector2.one;
-            row.pivot = new Vector2(.5f, 1);
-            row.offsetMin = new Vector2(44, -286 - below);
-            row.offsetMax = new Vector2(-44, -194 - below);
-            var layout = row.GetComponent<HorizontalLayoutGroup>();
-            layout.spacing = 12;
+            row.offsetMin = row.offsetMax = Vector2.zero;
+            var layout = row.GetComponent<VerticalLayoutGroup>();
+            layout.spacing = 20;
             layout.childControlWidth = layout.childControlHeight = true;
             layout.childForceExpandWidth = layout.childForceExpandHeight = true;
             var packs = IAPManager.Packs;
@@ -43,21 +42,24 @@ namespace Lumaquarium.UI
             {
                 string productId = packs[i].productId;
                 buttons[i] = RewardedAdShopPanel.CreateButton(shop, "CoinPack" + packs[i].coins, row, out labels[i]);
-                buttons[i].onClick.AddListener(() => { if (!shop.TransactionBusy) iap.Buy(productId); });
+                labels[i].fontSizeMin = 34;
+                labels[i].fontSizeMax = 46;
+                buttons[i].onClick.AddListener(() =>
+                {
+                    if (shop.WalletOpen && shop.coinPackArea.gameObject.activeInHierarchy && !shop.TransactionBusy)
+                        iap.Buy(productId);
+                });
             }
-            var groups = (RectTransform)shop.groupButtons[0].transform.parent.parent;
-            groups.anchoredPosition -= new Vector2(0, RowHeight);
-            shop.categoryTray.anchoredPosition -= new Vector2(0, RowHeight);
             iap.Changed += Refresh;
             iap.Feedback += ShowFeedback;
             iap.CoinsGranted += PlayReward;
             Loc.Changed += Refresh;
-            var walletChip = (RectTransform)shop.balanceLabel.transform.parent;
+            var walletChip = (RectTransform)shop.walletBalanceLabel.transform.parent;
             var walletCoin = walletChip.Find("Coin")?.GetComponent<Image>();
             if (walletCoin != null)
             {
                 coinEffect = gameObject.AddComponent<CoinRewardEffect>();
-                coinEffect.Setup(walletChip, shop.balanceLabel, walletCoin.sprite);
+                coinEffect.Setup(walletChip, shop.walletBalanceLabel, walletCoin.sprite);
             }
             iap.Prepare();
             Refresh();
@@ -67,7 +69,10 @@ namespace Lumaquarium.UI
         {
             if (iap == null) return;
             if (shop.IsOpen && !wasOpen) iap.Prepare(); // reconnects, or sends again a purchase the server has not taken
+            if (shop.WalletOpen && !wasWalletOpen) Refresh();
+            if (!shop.WalletOpen && coinEffect != null && coinEffect.Playing) coinEffect.Finish();
             wasOpen = shop.IsOpen;
+            wasWalletOpen = shop.WalletOpen;
         }
 
         private void Refresh()
@@ -77,7 +82,7 @@ namespace Lumaquarium.UI
             for (int i = 0; i < packs.Count; i++)
             {
                 string price = iap.Price(packs[i].productId);
-                labels[i].text = Loc.F("{0} xu", Loc.Money(packs[i].coins)) + "\n<size=80%>" + (price ?? "…") + "</size>";
+                labels[i].text = Loc.F("{0} xu", Loc.Money(packs[i].coins)) + "\n<size=80%>" + (price ?? Loc.T("Đang kết nối cửa hàng...")) + "</size>";
                 buttons[i].interactable = price != null && !iap.Busy && !shop.TransactionBusy;
             }
             if (shop.IsOpen) { shop.aquarium.RefreshWallet(); shop.Refresh(); }
@@ -85,7 +90,7 @@ namespace Lumaquarium.UI
 
         private void PlayReward(string productId, int coins)
         {
-            if (coinEffect == null || !shop.IsOpen || coins <= 0) return;
+            if (coinEffect == null || !shop.WalletOpen || !shop.coinPackArea.gameObject.activeInHierarchy || coins <= 0) return;
             int index = IAPManager.Packs.FindIndex(p => p.productId == productId);
             int balance = shop.Balance;
             coinEffect.Play((RectTransform)buttons[Mathf.Max(0, index)].transform, balance - coins, balance);
@@ -93,7 +98,7 @@ namespace Lumaquarium.UI
 
         private void ShowFeedback(string message)
         {
-            if (shop != null && shop.IsOpen) shop.feedback.text = message;
+            if (shop != null) shop.ShowWalletFeedback(message);
         }
 
         private void OnDestroy()

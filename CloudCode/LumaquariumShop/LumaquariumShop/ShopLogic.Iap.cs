@@ -25,12 +25,17 @@ public sealed partial class ShopLogic
             return await Change(_ => ShopError.PurchaseInvalid);
 
         int coins = (int)Math.Min(int.MaxValue, (long)pack.coins * Math.Max(1, transaction.quantity));
-        return await Change(save =>
+        bool paid = false;
+        var reply = await Change(save =>
         {
+            paid = false;
             if (save.purchases.Contains(key)) return ShopError.None;
             save.purchases.Add(key);
             ShopSave.Add(save.wallet, ShopSave.Coins, coins);
+            paid = true;
             return ShopError.None;
         });
+        if (paid && reply.Error == ShopError.None) await Count("coinpack:" + productId, Math.Max(1, transaction.quantity));
+        return reply;
     }
 }

@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "740629253921",
+    "project_id": "betta-fish-aquarium-3d",
+    "storage_bucket": "betta-fish-aquarium-3d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:740629253921:android:f109ea42322d0110d7f860",
+        "android_client_info": {
+          "package_name": "com.thnha.bettafishaquarium"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "740629253921-rdqjsol281u7ev91pporq994fnbe4ohu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMJsf-g5o3hEqb4imdc5rvpCdioj4kLKI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "740629253921-rdqjsol281u7ev91pporq994fnbe4ohu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "740629253921-v4hj0tbt67a9uknfk7ho92ceb7cqslcf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.thnha.bettafishaquarium"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

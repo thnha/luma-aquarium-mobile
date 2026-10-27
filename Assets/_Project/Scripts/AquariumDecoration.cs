@@ -371,6 +371,8 @@ public sealed class AquariumDecoration : MonoBehaviour
         surfaceCache.Clear();
         screen.ClosePanels();
         screen.toolbar.SetActive(false);
+        // The fish chip, wallet and settings leave too, so arranging gets the whole screen.
+        if (screen.header != null) screen.header.SetActive(false);
         dock.SetActive(true);
         orbit.enabled = false;
         FramePlacementArea();
@@ -754,6 +756,7 @@ public sealed class AquariumDecoration : MonoBehaviour
         // Xong stays tappable under the Thêm sheet; leaving closes the sheet too.
         if (inventory != null && inventory.gameObject.activeInHierarchy) screen.ClosePanels();
         screen.toolbar.SetActive(true);
+        if (screen.header != null) screen.header.SetActive(true);
         viewCamera.transform.SetPositionAndRotation(cameraPosition, cameraRotation);
         if (reactions != null) reactions.enabled = reactionsEnabled;
         orbit.enabled = true;

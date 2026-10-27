@@ -2,12 +2,15 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Lumaquarium.Shop;
+using Lumaquarium.UI;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using UnityEngine;
 #if LUMA_SOCIAL_SIGNIN
 using AppleAuth;
 using AppleAuth.Enums;
+using AppleAuth.Extensions;
 using AppleAuth.Interfaces;
 using AppleAuth.Native;
 using Firebase;
@@ -30,7 +33,7 @@ namespace Lumaquarium.Account
     {
         public const string UnityOidcProvider = "oidc-firebase";
         // OAuth client of type 3 ("Web client") in google-services.json / the Google Cloud console.
-        public const string GoogleWebClientId = "";
+        public const string GoogleWebClientId = "740629253921-rdqjsol281u7ev91pporq994fnbe4ohu.apps.googleusercontent.com";
 
         public static bool AppleSupported =>
 #if LUMA_SOCIAL_SIGNIN
@@ -61,6 +64,56 @@ namespace Lumaquarium.Account
 #if LUMA_SOCIAL_SIGNIN
             apple?.Update();
 #endif
+        }
+
+        // PlayerInfo from a cached-session sign-in may lack identities, so ask the server once; offline keeps the cache.
+        public static async Task<bool> RefreshLinked()
+        {
+            if (UnityServices.State != ServicesInitializationState.Initialized || !AuthenticationService.Instance.IsSignedIn) return false;
+            try { await AuthenticationService.Instance.GetPlayerInfoAsync(); }
+            catch (Exception e) { Debug.LogWarning($"[Account] Player info unavailable: {e.Message}"); }
+            return IsLinked;
+        }
+
+        // Leaves the account on the server; the next launch starts a new guest. The local shop save (the signed-out
+        // player's coins and items) and the guest marker go too, so StartGame offers "Chơi ngay" again.
+        public static async Task SignOut()
+        {
+#if LUMA_SOCIAL_SIGNIN
+            try { FirebaseAuth.DefaultInstance.SignOut(); }
+            catch (Exception e) { Debug.LogWarning($"[Account] Firebase sign-out: {e.Message}"); }
+            try
+            {
+                if (GoogleSupported)
+                {
+                    ConfigureGoogle();
+                    GoogleSignIn.DefaultInstance.SignOut();
+                }
+            }
+            catch (Exception e) { Debug.LogWarning($"[Account] Google sign-out: {e.Message}"); }
+#endif
+            try
+            {
+                if (UnityServices.State != ServicesInitializationState.Initialized) await UnityServices.InitializeAsync();
+                var auth = AuthenticationService.Instance;
+                if (auth.IsSignedIn) auth.SignOut(true);
+                else if (auth.SessionTokenExists) auth.ClearSessionToken();
+            }
+            catch (Exception e) { Debug.LogError($"[Account] Sign-out failed: {e}"); }
+            ForgetPlayer();
+            PlayerPrefs.DeleteKey(FrontEndScenes.GuestIdKey);
+            PlayerPrefs.Save();
+        }
+
+        // The shop save belongs to one player; the next server reply refills it for the player now signed in.
+        // The ".imported" flag stays set so this save is never imported into another player.
+        // A save not yet imported to the server is the only copy, so it stays.
+        private static void ForgetPlayer()
+        {
+            if (PlayerPrefs.GetInt(FishShopInventory.DefaultStorageKey + ".imported", 0) == 1)
+                PlayerPrefs.DeleteKey(FishShopInventory.DefaultStorageKey);
+            PlayerPrefs.Save();
+            ShopService.Use(null);
         }
 
         public static Task<SignInResult> SignInWithApple() => SignIn(true);
@@ -124,6 +177,7 @@ namespace Lumaquarium.Account
 
             if (auth.IsSignedIn) auth.SignOut(true);
             await auth.SignInWithOpenIdConnectAsync(UnityOidcProvider, firebaseIdToken);
+            ForgetPlayer();
         }
 
 #if LUMA_SOCIAL_SIGNIN
@@ -153,20 +207,23 @@ namespace Lumaquarium.Account
             return done.Task;
         }
 
-        private static async Task<Credential> GoogleCredential()
-        {
+        private static void ConfigureGoogle() =>
             GoogleSignIn.Configuration ??= new GoogleSignInConfiguration
             {
                 WebClientId = GoogleWebClientId,
                 RequestIdToken = true,
                 UseGameSignIn = false,
             };
+
+        private static async Task<Credential> GoogleCredential()
+        {
+            ConfigureGoogle();
             try
             {
                 var user = await GoogleSignIn.DefaultInstance.SignIn();
                 return GoogleAuthProvider.GetCredential(user.IdToken, null);
             }
-            catch (GoogleSignIn.SignInException e) when (e.Status == GoogleSignInStatusCode.Canceled)
+            catch (GoogleSignIn.SignInException e) when (e.Status == GoogleSignInStatusCode.CANCELED)
             {
                 return null;
             }

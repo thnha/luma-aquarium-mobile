@@ -91,7 +91,7 @@ public sealed class LaunchBrandingBuilder : IPreprocessBuildWithReport
         }
         var controller = prefab.GetComponent<StartGameScreen>();
         var serialized = new SerializedObject(controller);
-        foreach (string field in new[] { "startButton", "startLabel", "feedback", "startControls" })
+        foreach (string field in new[] { "startButton", "accountButton", "startLabel", "feedback", "startControls" })
             if (serialized.FindProperty(field).objectReferenceValue == null)
                 throw new BuildFailedException("StartGame is missing " + field);
         if (!prefab.GetComponent<Canvas>() || !prefab.GetComponent<UnityEngine.UI.GraphicRaycaster>())

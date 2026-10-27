@@ -47,14 +47,20 @@ namespace Lumaquarium.UI
             backButton.onClick.RemoveListener(Back);
         }
 
-        // Apple only exists on iOS; when it is hidden, Google moves up into its slot.
+        // Apple only exists on iOS; when it is hidden, every row below it moves up by one slot and the panel
+        // shrinks by the same amount, so no gap is left where the button was.
         private void ShowProviders()
         {
             if (appleButton == null || googleButton == null) return;
             if (AccountSignIn.AppleSupported) return;
-            var google = (RectTransform)googleButton.transform;
-            google.anchoredPosition = ((RectTransform)appleButton.transform).anchoredPosition;
+            var apple = (RectTransform)appleButton.transform;
+            float slot = apple.anchoredPosition.y - ((RectTransform)googleButton.transform).anchoredPosition.y;
             appleButton.gameObject.SetActive(false);
+            var panel = apple.parent as RectTransform;
+            if (panel == null || slot <= 0) return;
+            foreach (RectTransform row in panel)
+                if (row != apple && row.anchoredPosition.y < apple.anchoredPosition.y) row.anchoredPosition += new Vector2(0, slot);
+            panel.sizeDelta -= new Vector2(0, slot);
         }
 
         public void ShowAccount()

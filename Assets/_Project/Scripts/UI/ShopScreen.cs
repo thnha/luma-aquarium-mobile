@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 namespace Lumaquarium.UI
 {
     // The grouped shop: compact text tabs, contextual categories, search/sort and two-column cards
-    // made from a template. A tapped card shows in the details bar, whose buttons buy, place a decoration,
+    // made from a template. A tapped card opens a details sheet, whose buttons buy, place a decoration,
     // or put a fish, wall or floor style into use. Purchases with a price ask for confirmation.
     public sealed class ShopScreen : MonoBehaviour
     {
@@ -19,6 +19,10 @@ namespace Lumaquarium.UI
         public GameObject content, confirmation, details, emptyLabel, priceCoin;
         public TMP_InputField search;
         public UnityEngine.UI.Button clearSearch, backButton, sortButton, primaryButton, secondaryButton, confirmButton, cancelButton;
+        public UnityEngine.UI.Button topUpButton, walletCloseButton, detailsCloseButton, buyCoinsTab, rewardCoinsTab;
+        public GameObject walletContent;
+        public RectTransform coinPackArea, rewardedAdArea;
+        public TMP_Text walletBalanceLabel, walletFeedback;
         public TMP_Text balanceLabel, sortLabel, title, description, priceLabel, feedback, confirmationText, primaryLabel, secondaryLabel;
         public UnityEngine.UI.Image portrait;
         public UnityEngine.UI.Button[] groupButtons;
@@ -32,6 +36,9 @@ namespace Lumaquarium.UI
         public ShopCard cardTemplate;
         public UnityEngine.UI.ScrollRect scroll;
         public Sprite cardNormal, cardSelected;
+        // Category chips: secondary / primary button surfaces. Shops built before these were set light the chip with
+        // the card sprites and keep one label colour.
+        public Sprite chipNormal, chipSelected;
         public Color tabLabelOn = new Color32(52, 60, 45, 255);
         public Color tabLabelOff = new Color32(255, 248, 230, 255);
 
@@ -61,12 +68,15 @@ namespace Lumaquarium.UI
         private float previousAlpha;
         private bool previousInteractable, previousRaycasts, previousOrbit;
         private bool busy; // waiting for the server: buying and using are locked
+        private bool detailsVisible;
 
         private RewardedAdShopPanel rewardedPanel;
         private CoinPackShopPanel coinPanel;
-        public bool TransactionBusy => busy || confirmation.activeSelf;
+        public bool TransactionBusy => busy || confirmation.activeSelf || (coinPanel != null && coinPanel.Busy)
+            || (rewardedPanel != null && rewardedPanel.Busy);
 
         public bool IsOpen => content != null && content.activeSelf;
+        public bool WalletOpen => IsOpen && walletContent != null && walletContent.activeSelf;
         public int Balance { get { inventory.Reload(); return inventory.Balance; } }
         private AquariumDecoration Decoration => aquarium != null ? aquarium.decoration : null;
         private List<ShopEntry> Entries => entries ??= ShopEntry.Build(fishOffers,
@@ -87,7 +97,12 @@ namespace Lumaquarium.UI
             }
             search.onValueChanged.AddListener(_ => Rebuild(true));
             clearSearch.onClick.AddListener(() => search.text = "");
-            backButton.onClick.AddListener(Close);
+            backButton.onClick.AddListener(GoBack);
+            topUpButton.onClick.AddListener(OpenWallet);
+            walletCloseButton.onClick.AddListener(CloseWallet);
+            detailsCloseButton.onClick.AddListener(CloseDetails);
+            buyCoinsTab.onClick.AddListener(() => SelectWalletTab(false));
+            rewardCoinsTab.onClick.AddListener(() => SelectWalletTab(true));
             sortButton.onClick.AddListener(() => { if (!confirmation.activeSelf) { sort = (ShopSort)(((int)sort + 1) % 3); Rebuild(true); } });
             primaryButton.onClick.AddListener(Primary);
             secondaryButton.onClick.AddListener(() => { if (selected != null && selected.kind == ShopKind.Decor) RequestPurchase(selected); });
@@ -107,15 +122,14 @@ namespace Lumaquarium.UI
             rewardedPanel = gameObject.AddComponent<RewardedAdShopPanel>();
             rewardedPanel.Initialize(this);
             coinPanel = gameObject.AddComponent<CoinPackShopPanel>();
-            coinPanel.Initialize(this, rewardedPanel.Active ? RewardedAdShopPanel.RowHeight : 0);
+            coinPanel.Initialize(this);
         }
 
         private void ShowActiveTab()
         {
             bool hasCategories = group != ShopGroup.Fish;
             categoryTray.gameObject.SetActive(hasCategories);
-            float top = (hasCategories ? 438 : 330) + (rewardedPanel != null && rewardedPanel.Active ? RewardedAdShopPanel.RowHeight : 0)
-                + (coinPanel != null && coinPanel.Active ? CoinPackShopPanel.RowHeight : 0);
+            float top = hasCategories ? 410 : 302;
             searchRow.offsetMin = new Vector2(searchRow.offsetMin.x, -top - 116);
             searchRow.offsetMax = new Vector2(searchRow.offsetMax.x, -top);
             var grid = (RectTransform)scroll.transform;
@@ -127,8 +141,66 @@ namespace Lumaquarium.UI
         private void Update()
         {
             if (!IsOpen || Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
+            GoBack();
+        }
+
+        public void GoBack()
+        {
             if (confirmation.activeSelf) CancelPurchase();
+            else if (WalletOpen) CloseWallet();
+            else if (detailsVisible) CloseDetails();
             else Close();
+        }
+
+        public void OpenWallet()
+        {
+            if (!IsOpen || TransactionBusy) return;
+            walletFeedback.text = "";
+            walletContent.SetActive(true);
+            SelectWalletTab(false);
+            Refresh();
+        }
+
+        public void CloseWallet()
+        {
+            walletContent.SetActive(false);
+            walletFeedback.text = "";
+            Refresh();
+        }
+
+        public void SelectWalletTab(bool rewards)
+        {
+            coinPackArea.gameObject.SetActive(!rewards);
+            rewardedAdArea.gameObject.SetActive(rewards);
+            var buttons = new[] { buyCoinsTab, rewardCoinsTab };
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                bool active = rewards == (i == 1);
+                var label = buttons[i].GetComponent<Ui3DButtonLabel>();
+                if (label == null)
+                {
+                    // Segment tab, as in the shop groups: the selected tab shows its primary surface.
+                    buttons[i].GetComponent<UnityEngine.UI.Image>().color = active ? Color.white : Color.clear;
+                    buttons[i].GetComponentInChildren<TMP_Text>().color = active ? tabLabelOn : tabLabelOff;
+                    continue;
+                }
+                buttons[i].GetComponent<UnityEngine.UI.Image>().color = active ? new Color32(69, 93, 63, 255) : Color.white;
+                label.normal = active ? tabLabelOff : tabLabelOn;
+                label.label.color = label.normal;
+            }
+            walletFeedback.text = "";
+        }
+
+        public void ShowWalletFeedback(string message)
+        {
+            if (IsOpen) walletFeedback.text = message;
+        }
+
+        public void CloseDetails()
+        {
+            if (TransactionBusy) return;
+            detailsVisible = false;
+            details.SetActive(false);
         }
 
         public void Open()
@@ -146,6 +218,8 @@ namespace Lumaquarium.UI
             content.SetActive(true);
             AquariumAudio.Muffle(true);
             confirmation.SetActive(false);
+            walletContent.SetActive(false);
+            detailsVisible = false;
             pending = null;
             feedback.text = "";
             group = ShopGroup.Fish;
@@ -170,13 +244,15 @@ namespace Lumaquarium.UI
             Refresh();
         }
 
-        // Opens on one tab, and on one item when its id is given (the Trang trí sheet's Mua thêm).
-        public void OpenTab(ShopTab target, string id = null)
+        // Opens on one tab, and on one item when its id is given (the Trang trí sheet's Mua thêm); showDetails false
+        // only selects it, without the details sheet (Đổi cá).
+        public void OpenTab(ShopTab target, string id = null, bool showDetails = true)
         {
             Open();
             group = ShopQuery.GroupOf(target);
             tab = target;
             selected = id != null ? Entries.Find(e => e.id == id) : null;
+            detailsVisible = showDetails && selected != null;
             Rebuild(true);
             ShowActiveTab();
         }
@@ -185,6 +261,8 @@ namespace Lumaquarium.UI
         {
             if (!IsOpen) return;
             CancelPurchase();
+            walletContent.SetActive(false);
+            detailsVisible = false;
             content.SetActive(false);
             AquariumAudio.Muffle(false);
             if (aquarium == null) return;
@@ -201,6 +279,7 @@ namespace Lumaquarium.UI
         {
             if (confirmation.activeSelf) return;
             tab = target;
+            detailsVisible = false;
             Rebuild(true);
             ShowActiveTab();
         }
@@ -209,6 +288,7 @@ namespace Lumaquarium.UI
         {
             if (confirmation.activeSelf) return;
             group = target;
+            detailsVisible = false;
             tab = CategoryTabs[(int)group][0];
             search.SetTextWithoutNotify("");
             feedback.text = "";
@@ -220,6 +300,7 @@ namespace Lumaquarium.UI
         {
             if (confirmation.activeSelf || index >= visible.Count) return;
             selected = visible[index];
+            detailsVisible = true;
             feedback.text = "";
             Refresh();
         }
@@ -245,6 +326,8 @@ namespace Lumaquarium.UI
             inventory.Reload();
             placed = Decoration != null ? Decoration.PlacedCounts() : placed;
             balanceLabel.text = Money(inventory.Balance);
+            walletBalanceLabel.text = Money(inventory.Balance);
+            topUpButton.interactable = !TransactionBusy;
             if (sortLabel != null) sortLabel.text = Loc.T(SortNames[(int)sort]);
             RefreshSortIcon();
             clearSearch.gameObject.SetActive(!string.IsNullOrEmpty(search.text));
@@ -260,9 +343,21 @@ namespace Lumaquarium.UI
                 tabButtons[i].gameObject.SetActive(shown);
                 if (!shown) continue;
                 bool on = CategoryTabs[(int)group][i] == tab || (tab == ShopTab.Floating && CategoryTabs[(int)group][i] == ShopTab.Moss);
-                tabSurfaces[i].sprite = on ? cardSelected : cardNormal;
                 tabLabels[i].text = Loc.T(CategoryNames[(int)group][i]);
-                tabLabels[i].color = tabLabelOn;
+                if (chipSelected != null)
+                {
+                    tabSurfaces[i].sprite = on ? chipSelected : chipNormal;
+                    // Ui3DButtonLabel repaints the label every frame, so the chip colour goes through it.
+                    var tint = tabButtons[i].GetComponent<Ui3DButtonLabel>();
+                    var color = on ? tabLabelOn : tabLabelOff;
+                    if (tint != null) tint.normal = color;
+                    tabLabels[i].color = color;
+                }
+                else
+                {
+                    tabSurfaces[i].sprite = on ? cardSelected : cardNormal;
+                    tabLabels[i].color = tabLabelOn;
+                }
                 float[] widths = group == ShopGroup.Decor ? DecorCategoryWidths : AquariumCategoryWidths;
                 tabButtons[i].GetComponent<UnityEngine.UI.LayoutElement>().preferredWidth = widths[i];
             }
@@ -272,12 +367,12 @@ namespace Lumaquarium.UI
                 cards[i].gameObject.SetActive(shown);
                 if (!shown) continue;
                 var entry = visible[i];
-                cards[i].Show(entry.portrait, Loc.T(entry.name), Money(entry.price), true,
-                    Status(entry), entry == selected ? cardSelected : cardNormal, Active(entry),
+                cards[i].Show(entry.portrait, Loc.T(entry.name), entry.price == 0 ? Loc.T("Miễn phí") : Money(entry.price), entry.price > 0,
+                    Status(entry), detailsVisible && entry == selected ? cardSelected : cardNormal, Active(entry),
                     entry.kind == ShopKind.Tank ? AquariumTank.Find(entry.id) : null);
             }
             emptyLabel.SetActive(visible.Count == 0);
-            details.SetActive(selected != null);
+            details.SetActive(detailsVisible && selected != null);
             if (selected != null) ShowDetails(selected);
             if (busy) primaryButton.interactable = secondaryButton.interactable = false;
         }
@@ -313,16 +408,16 @@ namespace Lumaquarium.UI
             {
                 int stock = Stock(entry);
                 secondaryButton.gameObject.SetActive(true);
-                secondaryButton.interactable = afford;
-                secondaryLabel.text = Loc.T(afford ? "Mua 1" : "Chưa đủ xu");
+                secondaryButton.interactable = true;
+                secondaryLabel.text = Loc.T(afford ? "Mua 1" : "Chưa đủ xu · Nạp xu");
                 primaryButton.interactable = stock > 0;
                 primaryLabel.text = stock > 0 ? Loc.F("Đặt ({0})", stock) : Loc.T("Kho trống");
                 return;
             }
             secondaryButton.gameObject.SetActive(false);
             bool active = Active(entry);
-            primaryButton.interactable = !active && (owned || afford);
-            primaryLabel.text = Loc.T(active ? "Đang dùng" : owned ? "Dùng" : entry.price == 0 ? "Nhận" : afford ? "Mua" : "Chưa đủ xu");
+            primaryButton.interactable = !active;
+            primaryLabel.text = Loc.T(active ? "Đang dùng" : owned ? "Dùng" : entry.price == 0 ? "Nhận" : afford ? "Mua" : "Chưa đủ xu · Nạp xu");
         }
 
         private string Status(ShopEntry entry)
@@ -357,7 +452,7 @@ namespace Lumaquarium.UI
 
         private void Primary()
         {
-            if (selected == null || confirmation.activeSelf || busy) return;
+            if (selected == null || TransactionBusy || WalletOpen) return;
             if (selected.kind == ShopKind.Decor) Place(selected);
             else if (Owned(selected)) Use(selected);
             else RequestPurchase(selected);
@@ -365,9 +460,9 @@ namespace Lumaquarium.UI
 
         private void RequestPurchase(ShopEntry entry)
         {
-            if (busy) return;
+            if (TransactionBusy || WalletOpen) return;
             inventory.Reload();
-            if (inventory.Balance < entry.price) return;
+            if (inventory.Balance < entry.price) { OpenWallet(); return; }
             pending = entry;
             if (entry.price == 0) { ConfirmPurchase(); return; } // free gifts need no confirmation
             confirmationText.text = (entry.kind == ShopKind.Decor ? "1 × " : "") + Loc.T(entry.name) + "\n" + Loc.F("{0} xu", Money(entry.price));

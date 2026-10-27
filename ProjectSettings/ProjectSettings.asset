@@ -176,7 +176,7 @@ PlayerSettings:
   buildNumber:
     Standalone: 0
     VisionOS: 0
-    iPhone: 17
+    iPhone: 20
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
   AndroidBundleVersionCode: 2
@@ -849,8 +849,8 @@ PlayerSettings:
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
   scriptingDefineSymbols:
-    Android: LEVELPLAY_DEPENDENCIES_INSTALLED
-    iPhone: LEVELPLAY_DEPENDENCIES_INSTALLED
+    Android: LEVELPLAY_DEPENDENCIES_INSTALLED;LUMA_SOCIAL_SIGNIN
+    iPhone: LEVELPLAY_DEPENDENCIES_INSTALLED;LUMA_SOCIAL_SIGNIN
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:

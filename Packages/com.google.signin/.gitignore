@@ -1,0 +1,34 @@
+**/.DS_Store
+
+.gradle/
+.idea/
+bin/
+build/
+*.iml
+local.properties
+local.settings
+.externalNativeBuild/
+*.apk
+
+*.sln
+*.userprefs
+Library/
+ProjectSettings/
+Temp/
+obj/
+
+# Don't check in the resolver
+GoogleSignInPlugin/Assets/PlayServicesResolver/
+
+# don't checkin client plists
+GoogleSignInPlugin/Assets/Plugins/iOS/client*.plist*
+
+Assembly-CSharp-Editor.csproj
+Assembly-CSharp.csproj
+
+# don't check in the binaries that are built (for now)
+staging/native/google-signin-cpp
+
+# don't check in iOS pod generated content
+contents.xcworkspacedata
+staging/native/testapp/testapp.xcodeproj/project.xcworkspace/xcuserdata

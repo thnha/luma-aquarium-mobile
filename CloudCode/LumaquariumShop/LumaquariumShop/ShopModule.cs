@@ -24,12 +24,15 @@ public sealed class ShopModule
 
     [CloudCodeFunction("ClaimAppStorePurchase")]
     public Task<ShopReply> ClaimAppStorePurchase(IExecutionContext context, IGameApiClient gameApiClient, string productId, string transactionId) =>
-        new ShopLogic(new CloudSaveShopStore(context, gameApiClient), CatalogResource.Catalog, appStore: new AppStoreApi(context, gameApiClient))
+        new ShopLogic(new CloudSaveShopStore(context, gameApiClient), CatalogResource.Catalog, appStore: new AppStoreApi(context, gameApiClient),
+                stats: new CloudSavePurchaseStats(context, gameApiClient))
             .ClaimAppStorePurchase(productId, transactionId);
 
     [CloudCodeFunction("BuyItem")]
     public Task<ShopReply> BuyItem(IExecutionContext context, IGameApiClient gameApiClient, string id, string catalogVersion) =>
-        Logic(context, gameApiClient).Buy(id, catalogVersion);
+        new ShopLogic(new CloudSaveShopStore(context, gameApiClient), CatalogResource.Catalog,
+                stats: new CloudSavePurchaseStats(context, gameApiClient))
+            .Buy(id, catalogVersion);
 
     [CloudCodeFunction("SelectItem")]
     public Task<ShopReply> SelectItem(IExecutionContext context, IGameApiClient gameApiClient, string slot, string id) =>

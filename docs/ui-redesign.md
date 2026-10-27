@@ -83,3 +83,37 @@ Thứ tự dựng lại: chạy `python3 Tools/UI/make_ui3d_sprites.py`, `python
 Play Mode ở Game View 1080 × 1920: Khởi động hiện *Tiếp tục hồ của bạn* (đã có hồ sơ khách) → Đang tải → Hồ cá. Đã mở Chăm sóc, Trang trí, Cài đặt và Cửa hàng (tab Cá, 8 cá), console không có lỗi. Chưa thử mua cá, đặt đồ, màn lỗi của Loading, màn dài và thiết bị thật.
 
 Các builder vẫn ghi bản sao scene vào `Assets/_Project/Scenes/Backups/`. Thư mục này đã được dọn và đưa vào `.gitignore`; có thể xóa bất cứ lúc nào.
+
+### Đồng nhất sau review iOS (27/10/2026)
+
+- **Tab:** mọi thanh tab dùng chung một kiểu segment: khay sáng `ui3d_tab_tray_light`, tab đang chọn là `ui3d_button_primary` với chữ kem, tab còn lại chữ `#4A503F`. Áp dụng cho nhóm Cá / Tiểu cảnh / Hồ và tab Ví xu, giống Trang trí và Ánh sáng. Chip danh mục khi được chọn dùng nút chính, còn lại dùng nút phụ (`ShopScreen.chipNormal/chipSelected`).
+- **Số xu:** mọi màn định dạng qua `Loc.Money` (1.250 tiếng Việt, 1,250 tiếng Anh), kể cả `FishShopScreen` và `DecorShopScreen` cũ.
+- **Đăng nhập:** chỉ có một nút chính là *Chơi với tư cách khách*. Apple dùng kiểu đen chữ trắng, Google là nút phụ. Khi không có Apple (ngoài iOS), các dòng bên dưới dồn lên và thẻ ngắn lại. Logo chính thức sẽ được gắn nếu có `UI/Icons/brand_apple.png` / `brand_google.png` (lấy từ bộ nhận diện của Apple và Google).
+- **Header cửa hàng:** nút ← 122 px và tiêu đề 56 px, cùng cỡ với màn Tài khoản. Lớp mờ của Chi tiết món và Ví xu phủ toàn màn, còn sheet vẫn nằm trong safe area.
+
+Dựng lại: `Lumaquarium > UI > Build Shop Screen` (mở MainAquarium trước) và `Lumaquarium > UI > Build Login Screen`.
+
+## Thang chuẩn component (27/10/2026)
+
+Kiểm kê toàn bộ Button / Text / Input trong LoginGame, LoadingGame, MainAquarium và Shop; các builder dùng thang sau:
+
+| Loại | Kích thước (canvas 1080×1920) | Chữ |
+|---|---|---|
+| Nút chính / phụ (sheet, hộp thoại, đăng nhập) | cao 150 | 46 ExtraBold |
+| Nút gọn (dock đặt vật, hàng Mua 1 / Mua) | theo dock | 42–44 |
+| Nút hàng (Cài đặt, Hồ cá) | cao 116 | 38 |
+| Nạp xu (header cửa hàng) | Primary 220×116, chỉ chữ Cream | 38 |
+| Chip ví (HUD và header cửa hàng) | `ui3d_chip` 290×122, xu 84 | 46 |
+| Tab segment (cửa hàng, ví, trang trí, ánh sáng) | khay `ui3d_tab_tray_light` | 40, bật Cream / tắt #4A503F |
+| Chip danh mục | `ui3d_button_secondary` / `primary` | 32 |
+| Nút tròn đóng sheet | 116×116, lề (-30, -28) | — |
+| Nút tròn quay lại | 122×122 | — |
+| Tiêu đề sheet / hộp thoại | — | 58 ExtraBold |
+| Tiêu đề màn (trên nền tối hoặc header) | — | 56 ExtraBold |
+| Tiêu đề hàng | — | 40 ExtraBold |
+| Thân bài hộp thoại / thông báo | — | 38 SemiBold |
+| Mô tả hàng | — | 30 SemiBold Muted |
+| Feedback | — | 32 SemiBold |
+| Ô tìm kiếm | cao 116, `ui3d_button_secondary` (viền giống nút phụ) | 40 |
+
+Nút tạo lúc chạy (`RewardedAdShopPanel`, `CoinPackShopPanel`) dùng cùng thang: nút xem quảng cáo cao 150 / chữ 46, gói xu chữ 46, Quyền riêng tư cao 116 / chữ 38. Chữ "Huỷ" thống nhất thành "Hủy".

@@ -1,0 +1,55 @@
+{
+  "status": "completed",
+  "duration": 0.12,
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "inconclusive": 0
+  },
+  "results": [
+    {
+      "FullName": "ShopScreenVisualTests.BalanceAndTopUpAreSeparateControls",
+      "Status": "Passed",
+      "Duration": 0.0940907,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopScreenVisualTests.CatalogDoesNotReserveSpaceForClosedDetails",
+      "Status": "Passed",
+      "Duration": 0.0020156,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopScreenVisualTests.ShopBackgroundCoversScreenOutsideSafeArea",
+      "Status": "Passed",
+      "Duration": 0.0011009,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopScreenVisualTests.SortButtonUsesCoinAndSeparateDirectionImages",
+      "Status": "Passed",
+      "Duration": 0.0012475,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopScreenVisualTests.TitleBalanceAndTopUpShareOneHeaderRow",
+      "Status": "Passed",
+      "Duration": 0.0008811,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopScreenVisualTests.WalletAndDetailsAreDismissibleAndHiddenInPrefab",
+      "Status": "Passed",
+      "Duration": 0.0002586,
+      "Message": null,
+      "StackTrace": null
+    }
+  ]
+}

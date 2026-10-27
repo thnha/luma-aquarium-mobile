@@ -1,0 +1,1049 @@
+{
+  "status": "completed",
+  "duration": 0.9,
+  "summary": {
+    "total": 148,
+    "passed": 148,
+    "failed": 0,
+    "skipped": 0,
+    "inconclusive": 0
+  },
+  "results": [
+    {
+      "FullName": "CoinRewardEffectTests.CountClampsOutsideTheRun",
+      "Status": "Passed",
+      "Duration": 0.0073088,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CoinRewardEffectTests.CountEasesOutSoMostOfItShowsEarly",
+      "Status": "Passed",
+      "Duration": 0.0020462,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CoinRewardEffectTests.CountNeverGoesBackOrPastTheEnd",
+      "Status": "Passed",
+      "Duration": 0.0008711,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CoinRewardEffectTests.CountStartsAtOldBalanceAndEndsAtNew",
+      "Status": "Passed",
+      "Duration": 0.0001056,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.APackListWithoutTheStarterIsRefused",
+      "Status": "Passed",
+      "Duration": 0.005499,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.ApplyUpdatesByIdAndKeepsEmptyCells",
+      "Status": "Passed",
+      "Duration": 0.0037695,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.BadGiftRowsKeepTheOldPacks",
+      "Status": "Passed",
+      "Duration": 0.0007784,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.BadPriceKeepsTheOldOne",
+      "Status": "Passed",
+      "Duration": 0.0003326,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.ExcelHasOneTabPerGroupAndReadsBack",
+      "Status": "Passed",
+      "Duration": 0.0212407,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.ExportThenApplyChangesNothing",
+      "Status": "Passed",
+      "Duration": 0.0006994,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.FishJsonKeepsEverythingButTheShopText",
+      "Status": "Passed",
+      "Duration": 0.0016295,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.FishMayBeFreeButDecorMayNot",
+      "Status": "Passed",
+      "Duration": 0.0007495,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.GiftPacksGoToTheSheetAndComeBack",
+      "Status": "Passed",
+      "Duration": 0.0061702,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.ItemTabsIgnoreTheGiftTab",
+      "Status": "Passed",
+      "Duration": 0.0003595,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.QuotedFieldsKeepCommasQuotesAndLineBreaks",
+      "Status": "Passed",
+      "Duration": 0.0001942,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.ReadOnlyColumnsAreShownButNeverApplied",
+      "Status": "Passed",
+      "Duration": 0.0057234,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.SheetLinksBecomeExportLinks(\"https://docs.google.com/spreadsheets/d/AbC-12_x/edit#gid=42\",\"https://docs.google.com/spreadsheets/d/AbC-12_x/export?format=xlsx\")",
+      "Status": "Passed",
+      "Duration": 0.0007056,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.SheetLinksBecomeExportLinks(\"https://docs.google.com/spreadsheets/d/AbC/edit?usp=sharing\",\"https://docs.google.com/spreadsheets/d/AbC/export?format=xlsx\")",
+      "Status": "Passed",
+      "Duration": 0.000105,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.SheetLinksBecomeExportLinks(\"https://docs.google.com/spreadsheets/d/e/2PACX-1v/pubhtml\",\"https://docs.google.com/spreadsheets/d/e/2PACX-1v/pub?output=xlsx\")",
+      "Status": "Passed",
+      "Duration": 0.0002173,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.SheetLinksBecomeExportLinks(\"https://example.com/sheet\",null)",
+      "Status": "Passed",
+      "Duration": 0.0003443,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.TabsMayHaveAnyNumberOfReadOnlyColumns",
+      "Status": "Passed",
+      "Duration": 0.0057623,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.TabsMergeSkipNotesAndCatchDuplicates",
+      "Status": "Passed",
+      "Duration": 0.0006766,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorCatalogSheetTests.TankCatalogOverridesBuiltInText",
+      "Status": "Passed",
+      "Duration": 0.0011452,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.InventorySheetFoldsMossAndFloatingIntoPlants(Plants,Plants)",
+      "Status": "Passed",
+      "Duration": 0.0005883,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.InventorySheetFoldsMossAndFloatingIntoPlants(Wood,Wood)",
+      "Status": "Passed",
+      "Duration": 0.000202,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.InventorySheetFoldsMossAndFloatingIntoPlants(Coral,Coral)",
+      "Status": "Passed",
+      "Duration": 0.0001793,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.InventorySheetFoldsMossAndFloatingIntoPlants(Moss,Plants)",
+      "Status": "Passed",
+      "Duration": 0.0001517,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.InventorySheetFoldsMossAndFloatingIntoPlants(Floating,Plants)",
+      "Status": "Passed",
+      "Duration": 0.0001431,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.MountOn(Moss,Rock,True)",
+      "Status": "Passed",
+      "Duration": 0.0004791,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.MountOn(Moss,Wood,True)",
+      "Status": "Passed",
+      "Duration": 0.0002247,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.MountOn(Moss,Coral,False)",
+      "Status": "Passed",
+      "Duration": 0.0001718,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.MountOn(Plant,Rock,True)",
+      "Status": "Passed",
+      "Duration": 0.0001959,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.MountOn(Plant,Wood,False)",
+      "Status": "Passed",
+      "Duration": 0.0002322,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.MountOn(Plant,Coral,False)",
+      "Status": "Passed",
+      "Duration": 0.000134,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.MountOn(Rock,Rock,False)",
+      "Status": "Passed",
+      "Duration": 0.0001097,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.MountOn(Floating,Wood,False)",
+      "Status": "Passed",
+      "Duration": 8.58E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.PlantsMossAndFloatingAreSoft(Plants,True)",
+      "Status": "Passed",
+      "Duration": 0.0002839,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.PlantsMossAndFloatingAreSoft(Moss,True)",
+      "Status": "Passed",
+      "Duration": 0.0001603,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.PlantsMossAndFloatingAreSoft(Floating,True)",
+      "Status": "Passed",
+      "Duration": 4.62E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.PlantsMossAndFloatingAreSoft(Wood,False)",
+      "Status": "Passed",
+      "Duration": 0.0001874,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.PlantsMossAndFloatingAreSoft(Rocks,False)",
+      "Status": "Passed",
+      "Duration": 0.0001385,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.PlantsMossAndFloatingAreSoft(Coral,False)",
+      "Status": "Passed",
+      "Duration": 7.88E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.PlantsTuckIntoWoodOnly",
+      "Status": "Passed",
+      "Duration": 0.000623,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.RoleFromCatalogCategory",
+      "Status": "Passed",
+      "Duration": 0.0006546,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.RoleFromFlags",
+      "Status": "Passed",
+      "Duration": 0.0003905,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.StandOn(Rock,Rock,True)",
+      "Status": "Passed",
+      "Duration": 0.0002964,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.StandOn(Wood,Rock,True)",
+      "Status": "Passed",
+      "Duration": 0.0001734,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.StandOn(Coral,Rock,True)",
+      "Status": "Passed",
+      "Duration": 0.0002077,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.StandOn(Rock,Wood,False)",
+      "Status": "Passed",
+      "Duration": 0.0001696,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.StandOn(Wood,Wood,False)",
+      "Status": "Passed",
+      "Duration": 0.000169,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.StandOn(Coral,Wood,False)",
+      "Status": "Passed",
+      "Duration": 0.0001583,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.StandOn(Rock,Coral,False)",
+      "Status": "Passed",
+      "Duration": 0.0001543,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.StandOn(Coral,Coral,False)",
+      "Status": "Passed",
+      "Duration": 0.0002252,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "DecorPlacementRulesTests.StandOn(Plant,Rock,False)",
+      "Status": "Passed",
+      "Duration": 0.0002705,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishLookSheetTests.AFishCannotUseAMissingTemplate",
+      "Status": "Passed",
+      "Duration": 0.055418,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishLookSheetTests.AMissingBlockIsAdded",
+      "Status": "Passed",
+      "Duration": 0.004015,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishLookSheetTests.ANewTemplateRowMakesATemplateAndFishMayUseIt",
+      "Status": "Passed",
+      "Duration": 0.0159668,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishLookSheetTests.BadCellsKeepTheOldValue",
+      "Status": "Passed",
+      "Duration": 0.0066757,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishLookSheetTests.EditsSetAddAndRemoveKeysOnlyInTheirBlock",
+      "Status": "Passed",
+      "Duration": 0.0075715,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishLookSheetTests.ExportThenPullChangesNothing",
+      "Status": "Passed",
+      "Duration": 0.0062857,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishLookSheetTests.TabsShowTheFileValuesAndLeaveTheRestEmpty",
+      "Status": "Passed",
+      "Duration": 0.0051916,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishShopInventoryTests.AFreeItemInUseInVersion1IsOwnedAfterwards",
+      "Status": "Passed",
+      "Duration": 0.0057105,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishShopInventoryTests.AMovedOverSaveGetsNoSecondStarterButItsEmptySlotsFilled",
+      "Status": "Passed",
+      "Duration": 0.0041456,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishShopInventoryTests.ANewPlayerGetsTheStarterPackInUse",
+      "Status": "Passed",
+      "Duration": 0.0019584,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishShopInventoryTests.ASaveThatCannotBeReadIsNeverWrittenOver(\"{not json\")",
+      "Status": "Passed",
+      "Duration": 0.0032209,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishShopInventoryTests.ASaveThatCannotBeReadIsNeverWrittenOver(\"{\\\"version\\\":3,\\\"wallet\\\":[]}\")",
+      "Status": "Passed",
+      "Duration": 0.0011094,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishShopInventoryTests.ASaveThatCannotBeReadIsNeverWrittenOver(\"{\\\"version\\\":1,\\\"balance\\\":-5,\\\"ownedIds\\\":[]}\")",
+      "Status": "Passed",
+      "Duration": 0.0010946,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishShopInventoryTests.ASaveThatCannotBeReadIsNeverWrittenOver(\"{\\\"version\\\":2,\\\"items\\\":[{\\\"id\\\":\\\"a\\\",\\\"count\\\":1},{\\\"id\\\":\\\"a\\\",\\\"count\\\":2}]}\")",
+      "Status": "Passed",
+      "Duration": 0.0010892,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishShopInventoryTests.AVersion1SaveIsMovedOverWithNothingLost",
+      "Status": "Passed",
+      "Duration": 0.0014603,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishShopInventoryTests.BuyAndSelectSayWhyNot",
+      "Status": "Passed",
+      "Duration": 0.0020881,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishShopInventoryTests.BuyingAWallSpendsCoinsAndPutsItInUse",
+      "Status": "Passed",
+      "Duration": 0.0017857,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishShopInventoryTests.CannotBuyTwiceOrWithoutCoins",
+      "Status": "Passed",
+      "Duration": 0.0016826,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishShopInventoryTests.EachPackIsGivenOnceAndNeverReplacesWhatIsInUse",
+      "Status": "Passed",
+      "Duration": 0.0024895,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishShopInventoryTests.OnlyOwnedItemsGoIntoUseAndFreeOnesAreTakenFirst",
+      "Status": "Passed",
+      "Duration": 0.0031058,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishShopInventoryTests.PlacedPiecesAreKeptInStock",
+      "Status": "Passed",
+      "Duration": 0.002283,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "FishShopInventoryTests.TheServersAnswerReplacesTheSaveUnlessItIsNotASave",
+      "Status": "Passed",
+      "Duration": 0.0020262,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "LocalizationTests.DecorCatalogIsTranslated",
+      "Status": "Passed",
+      "Duration": 0.2994124,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "LocalizationTests.FormatsKeepTheirPlaceholders",
+      "Status": "Passed",
+      "Duration": 0.0039952,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "LocalizationTests.GroupedShopLabelsAreTranslated",
+      "Status": "Passed",
+      "Duration": 0.0006882,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "LocalizationTests.ParseSkipsCommentsAndReadsLineBreaks",
+      "Status": "Passed",
+      "Duration": 0.0001248,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "LocalizationTests.ShopWalletLabelsAreTranslated",
+      "Status": "Passed",
+      "Duration": 0.0006651,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "LocalizationTests.SurfaceCatalogIsTranslated",
+      "Status": "Passed",
+      "Duration": 0.014583,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ServerCatalogWriterTests.EveryItemHasItsPriceAndSlotAndThePacksComeAlong",
+      "Status": "Passed",
+      "Duration": 0.0033212,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ServerCatalogWriterTests.TheVersionFollowsThePrices",
+      "Status": "Passed",
+      "Duration": 0.0004935,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopEconomyTests.ANewPlayerStartsWithEverythingInUseAndCanAffordSomething",
+      "Status": "Passed",
+      "Duration": 0.0010207,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopEconomyTests.EveryDecorationCanBeSold",
+      "Status": "Passed",
+      "Duration": 0.0004986,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopEconomyTests.FishInTheShopHaveIdsAndPrices",
+      "Status": "Passed",
+      "Duration": 0.0081061,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopEconomyTests.GiftPacksNameRealItems",
+      "Status": "Passed",
+      "Duration": 0.0019279,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopEconomyTests.IdsAreUniqueAcrossTheWholeSheet",
+      "Status": "Passed",
+      "Duration": 0.0019484,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopEconomyTests.SurfacePricesAreNotNegative",
+      "Status": "Passed",
+      "Duration": 0.0004587,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopEconomyTests.TankOffersMatchTheTankSizes",
+      "Status": "Passed",
+      "Duration": 0.0002715,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopEconomyTests.TheServerCatalogIsUpToDate",
+      "Status": "Passed",
+      "Duration": 0.0020938,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.AllTabShowsEverythingInDefaultOrder",
+      "Status": "Passed",
+      "Duration": 0.002249,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.BuildIncludesTankOffersWithCatalogPrices",
+      "Status": "Passed",
+      "Duration": 0.0011506,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.BuildListsWallsThenFloors",
+      "Status": "Passed",
+      "Duration": 0.0022007,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.DecorCategoryPicksTab(Plants,Plants)",
+      "Status": "Passed",
+      "Duration": 0.0001933,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.DecorCategoryPicksTab(Wood,Wood)",
+      "Status": "Passed",
+      "Duration": 6.19E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.DecorCategoryPicksTab(Rocks,Rocks)",
+      "Status": "Passed",
+      "Duration": 5.34E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.DecorCategoryPicksTab(Coral,Coral)",
+      "Status": "Passed",
+      "Duration": 5.37E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.DecorCategoryPicksTab(Moss,Moss)",
+      "Status": "Passed",
+      "Duration": 5.57E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.DecorCategoryPicksTab(Floating,Floating)",
+      "Status": "Passed",
+      "Duration": 5.17E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.DecorGroupAllNeverLeaksFishOrAquariumItems",
+      "Status": "Passed",
+      "Duration": 0.0014691,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.DirectTabLinksPickTheirGroup(Fish,Fish)",
+      "Status": "Passed",
+      "Duration": 0.0001935,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.DirectTabLinksPickTheirGroup(Wood,Decor)",
+      "Status": "Passed",
+      "Duration": 5.65E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.DirectTabLinksPickTheirGroup(Floating,Decor)",
+      "Status": "Passed",
+      "Duration": 5.78E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.DirectTabLinksPickTheirGroup(Tanks,Aquarium)",
+      "Status": "Passed",
+      "Duration": 5.09E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.DirectTabLinksPickTheirGroup(Walls,Aquarium)",
+      "Status": "Passed",
+      "Duration": 5.29E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.DirectTabLinksPickTheirGroup(Substrates,Aquarium)",
+      "Status": "Passed",
+      "Duration": 5.12E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.EmptyEntryListFiltersToEmpty",
+      "Status": "Passed",
+      "Duration": 9.29E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.EmptyTankCatalogKeepsBuiltInSizes",
+      "Status": "Passed",
+      "Duration": 0.0004264,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.MissingTankCatalogKeepsBuiltInSizes",
+      "Status": "Passed",
+      "Duration": 0.0001598,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.MossCategoryIncludesFloatingAndKeepsSearchAndPriceOrder",
+      "Status": "Passed",
+      "Duration": 0.0004548,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.NormalizeDropsVietnameseMarks(\"Lũa\",\"lua\")",
+      "Status": "Passed",
+      "Duration": 9.87E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.NormalizeDropsVietnameseMarks(\"Đá núi\",\"da nui\")",
+      "Status": "Passed",
+      "Duration": 3.95E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.NormalizeDropsVietnameseMarks(\"  San hô đỏ \",\"san ho do\")",
+      "Status": "Passed",
+      "Duration": 3.59E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.NormalizeDropsVietnameseMarks(\"ĐÁ\",\"da\")",
+      "Status": "Passed",
+      "Duration": 3.43E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.NormalizeDropsVietnameseMarks(\"Rêu Christmas\",\"reu christmas\")",
+      "Status": "Passed",
+      "Duration": 3.3E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.NormalizeDropsVietnameseMarks(null,\"\")",
+      "Status": "Passed",
+      "Duration": 3.29E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.PriceSortIsStable",
+      "Status": "Passed",
+      "Duration": 0.0002299,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.SearchIgnoresMarksAndStaysInTab",
+      "Status": "Passed",
+      "Duration": 0.0001742,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.SearchWithNoMatchIsEmpty",
+      "Status": "Passed",
+      "Duration": 8.14E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopQueryTests.TabKeepsOnlyItsItems",
+      "Status": "Passed",
+      "Duration": 6.92E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopScreenVisualTests.BalanceAndTopUpAreSeparateControls",
+      "Status": "Passed",
+      "Duration": 0.1146298,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopScreenVisualTests.CatalogDoesNotReserveSpaceForClosedDetails",
+      "Status": "Passed",
+      "Duration": 0.0005451,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopScreenVisualTests.SortButtonUsesCoinAndSeparateDirectionImages",
+      "Status": "Passed",
+      "Duration": 0.0006285,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopScreenVisualTests.WalletAndDetailsAreDismissibleAndHiddenInPrefab",
+      "Status": "Passed",
+      "Duration": 0.0002277,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.AfterTheImportBuyingAndSelectingGoThrough",
+      "Status": "Passed",
+      "Duration": 0.0083377,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.ALocalSaveIsSentOnceThenOnlyTheGifts",
+      "Status": "Passed",
+      "Duration": 0.003397,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.AnAnswerThatIsNotASaveIsRefused",
+      "Status": "Passed",
+      "Duration": 0.0011852,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.ANewPlayerCanBuyBeforeAnyImport",
+      "Status": "Passed",
+      "Duration": 0.001285,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.ANewPlayerHasNothingToSend",
+      "Status": "Passed",
+      "Duration": 0.0018381,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.ARefusalStillBringsTheServersSave",
+      "Status": "Passed",
+      "Duration": 0.0010402,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.ARejectedImportKeepsTheLocalSaveAndWaitsForNextTime",
+      "Status": "Passed",
+      "Duration": 0.0004678,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.ARejectedImportWithASaveKeepsTheOriginalBackup",
+      "Status": "Passed",
+      "Duration": 0.0020586,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.ASaveTheServerAlreadyHasReplacesTheLocalOne",
+      "Status": "Passed",
+      "Duration": 0.0027405,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.ASaveTheServerCannotReadIsKeptAndTheGiftsFollow",
+      "Status": "Passed",
+      "Duration": 0.0019066,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.BuyingAndSelectingWaitForTheImport",
+      "Status": "Passed",
+      "Duration": 0.0004266,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.EveryRefusalHasAMessage(\"NotEnoughCoins\",\"Chưa đủ xu để mua món này.\")",
+      "Status": "Passed",
+      "Duration": 0.0005344,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.EveryRefusalHasAMessage(\"Offline\",\"Cần kết nối mạng để mua và đổi đồ.\")",
+      "Status": "Passed",
+      "Duration": 7.37E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.EveryRefusalHasAMessage(\"Rejected\",\"Chưa lưu được giao dịch. Vui lòng thử lại.\")",
+      "Status": "Passed",
+      "Duration": 6.41E-05,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.OfflineTheImportWaitsForNextTime",
+      "Status": "Passed",
+      "Duration": 0.0018968,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.OfflineTheSaveStaysAsItIs",
+      "Status": "Passed",
+      "Duration": 0.0002646,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.RewardClaimsSendOnlyTheRequestIdAndApplyTheServerWallet",
+      "Status": "Passed",
+      "Duration": 0.0011619,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.RewardClaimsWaitForTheOldSaveImport",
+      "Status": "Passed",
+      "Duration": 0.000207,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.TheLocalBackendRunsTheRulesOnTheDevice",
+      "Status": "Passed",
+      "Duration": 0.000937,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.TheServerGetsTheIdAndCatalogVersionAndItsAnswerIsKept",
+      "Status": "Passed",
+      "Duration": 0.0009806,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "ShopServiceTests.TwoPreparesAtOnceSendTheSaveOnce",
+      "Status": "Passed",
+      "Duration": 0.0039573,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "AddressableAssets.DocExampleCode.TestStub.RequiredTest",
+      "Status": "Passed",
+      "Duration": 9.61E-05,
+      "Message": null,
+      "StackTrace": null
+    }
+  ]
+}
