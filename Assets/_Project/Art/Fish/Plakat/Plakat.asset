@@ -16,7 +16,7 @@ MonoBehaviour:
   inShop: 1
   shopId: plakat
   description: "\u0110\u1ECF, cam, xanh \xB7 Plakat \u0111u\xF4i ng\u1EAFn"
-  price: 0
+  price: 700
   size: 1.5
   pattern: {fileID: 11400000, guid: 737877a7fe28740c4b7618b6fdd694cc, type: 2}
   primary: {r: 1, g: 0.8196, b: 0.2, a: 1}

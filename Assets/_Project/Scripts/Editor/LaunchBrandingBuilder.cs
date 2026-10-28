@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using Lumaquarium.UI;
 using TMPro;
 using UnityEditor;
@@ -11,7 +12,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 // One source image for the native launch, Unity splash and interactive start screen.
-public sealed class LaunchBrandingBuilder : IPreprocessBuildWithReport
+public sealed class LaunchBrandingBuilder : IPreprocessBuildWithReport, IPostprocessBuildWithReport
 {
     public const string ArtworkPath = "Assets/_Project/UI/Backgrounds/AquariumLaunch.png";
     const string StartPrefab = "Assets/_Project/UI/Prefabs/StartGame.prefab";
@@ -34,6 +35,49 @@ public sealed class LaunchBrandingBuilder : IPreprocessBuildWithReport
     {
         ApplyPlatformSettings();
         Verify();
+    }
+
+    public void OnPostprocessBuild(BuildReport report)
+    {
+        if (report.summary.platform != BuildTarget.iOS) return;
+        ConfigureIosLaunchScreens(report.summary.outputPath);
+    }
+
+    public static void ConfigureIosLaunchScreens(string outputPath)
+    {
+        FillIosLaunchStoryboard(Path.Combine(outputPath, "LaunchScreen-iPhone.storyboard"), "LaunchScreen-iPhonePortrait.png");
+        FillIosLaunchStoryboard(Path.Combine(outputPath, "LaunchScreen-iPad.storyboard"), "LaunchScreen-iPad.png");
+    }
+
+    static void FillIosLaunchStoryboard(string path, string imageName)
+    {
+        var document = XDocument.Load(path);
+        var root = document.Descendants("view").Single(view => (string)view.Attribute("key") == "view");
+        var rootId = (string)root.Attribute("id");
+        const string imageId = "Lumaquarium-LaunchArtwork";
+        var image = new XElement("imageView",
+            new XAttribute("id", imageId),
+            new XAttribute("image", imageName),
+            new XAttribute("contentMode", "scaleAspectFill"),
+            new XAttribute("clipsSubviews", "YES"),
+            new XAttribute("userInteractionEnabled", "NO"),
+            new XAttribute("translatesAutoresizingMaskIntoConstraints", "NO"),
+            new XElement(root.Element("rect")));
+
+        // Unity's relative-image template uses aspect-fit inside oversized scale views.
+        // Pin the artwork directly to the root (including notch/home indicator areas)
+        // so it fills every aspect ratio, matching StartGame's EnvelopeParent background.
+        root.Element("subviews").ReplaceNodes(image);
+        root.Elements("variation").Remove();
+        root.SetAttributeValue("clipsSubviews", "YES");
+        var constraints = new XElement("constraints");
+        foreach (string edge in new[] { "leading", "trailing", "top", "bottom" })
+            constraints.Add(new XElement("constraint",
+                new XAttribute("firstItem", imageId), new XAttribute("firstAttribute", edge),
+                new XAttribute("secondItem", rootId), new XAttribute("secondAttribute", edge),
+                new XAttribute("id", "Lumaquarium-Launch-" + edge)));
+        root.Element("constraints").ReplaceWith(constraints);
+        document.Save(path);
     }
 
     public static void ApplyPlatformSettings()

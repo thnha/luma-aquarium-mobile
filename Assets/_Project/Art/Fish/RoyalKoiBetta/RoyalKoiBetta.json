@@ -1,7 +1,7 @@
 {
   "base": "MeshyColour",
   "build": {
-    "input": "input/Betta1024e/straight/RoyalKoiBetta_straight.fbx",
+    "input": "input/Betta1024e/fixed/RoyalKoiBetta_fixed.fbx",
     "flip": false,
     "faces": 30000,
     "depth": 1,
@@ -15,6 +15,7 @@
     "baseTexture": true,
     "whitenPaleBlue": 0,
     "pelvicSplay": -6,
+    "pelvicMaxTurn": 0,
     "colourReference": "input/Betta1024e/reference"
   },
   "shop": {
@@ -22,6 +23,6 @@
     "inShop": true,
     "shopId": "royal-koi-betta",
     "description": "Koi xanh hoàng gia, đỏ, vàng · màu gốc theo mô hình",
-    "price": 0
+    "price": 2200
   }
 }

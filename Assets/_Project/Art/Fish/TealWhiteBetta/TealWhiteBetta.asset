@@ -17,7 +17,7 @@ MonoBehaviour:
   shopId: teal-white-betta
   description: "Th\xE2n tr\u1EAFng, \u0111u\xF4i xanh ng\u1ECDc lam, v\xE2y b\u1EE5ng
     cam \xB7 m\xE0u g\u1ED1c theo m\xF4 h\xECnh"
-  price: 0
+  price: 1300
   size: 1.5
   pattern: {fileID: 11400000, guid: 2f17b3cb6629e4981bf03dd0ac306bfb, type: 2}
   primary: {r: 1, g: 1, b: 1, a: 1}

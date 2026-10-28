@@ -12,11 +12,11 @@
     "body": "meshy"
   },
   "shop": {
-    "displayName": "Plakat Galaxy",
+    "displayName": "Koi Galaxy Betta",
     "inShop": true,
     "shopId": "plakat-galaxy",
-    "description": "Koi Galaxy: thân trắng ngọc mảng đỏ tươi, lưng vảy đen, mang trắng viền đỏ, vây vàng nghệ",
-    "price": 0
+    "description": "Thân trắng ngọc mảng đỏ tươi, lưng vảy đen, mang trắng viền đỏ, vây vàng nghệ",
+    "price": 600
   },
   "model": {
     "size": 1.5,

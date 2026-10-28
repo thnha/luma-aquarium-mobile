@@ -1,0 +1,32 @@
+{
+  "base": "MeshyColour",
+  "build": {
+    "input": "input/Betta1028b/fixed/Betta1028b_ventrals.fbx",
+    "flip": false,
+    "faces": 30000,
+    "depth": 1,
+    "width": 1,
+    "fins": {},
+    "finThickness": 0.2,
+    "landmarks": "input/Betta1028b/fixed/landmarks.json",
+    "bake": true,
+    "body": "meshy",
+    "baseTexture": true,
+    "colourReference": "input/Betta1028b/reference",
+    "whitenPaleBlue": 0,
+    "pelvicMaxTurn": 0,
+    "lowPectorals": true
+  },
+  "look": {
+    "iridescence": 0.5,
+    "envReflection": 0.4,
+    "gloss": 1.2
+  },
+  "shop": {
+    "displayName": "Betta Trăng Tím",
+    "inShop": true,
+    "shopId": "purple-moon-betta",
+    "description": "Thân vảy bạc ánh kim, vây tím crôm, đuôi bán nguyệt viền trắng · màu gốc theo mô hình",
+    "price": 1
+  }
+}

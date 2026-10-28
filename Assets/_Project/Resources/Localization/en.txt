@@ -194,7 +194,7 @@ Thêm một món vào kho?	Add one to storage?
 Đón bạn mới về hồ?	Welcome a new friend to your tank?
 Đỏ, cam, xanh · Plakat đuôi ngắn	Red, orange, blue · short-tailed Plakat
 Xanh dương, trắng, đen · Koi Nemo đuôi tròn	Blue, white, black · round-tailed Koi Nemo
-Koi Galaxy: thân trắng ngọc mảng đỏ tươi, lưng vảy đen, mang trắng viền đỏ, vây vàng nghệ	Koi Galaxy: pearl-white body with bright red patches, black-scaled back, white gills edged in red, saffron fins
+Thân trắng ngọc mảng đỏ tươi, lưng vảy đen, mang trắng viền đỏ, vây vàng nghệ	Pearl-white body with bright red patches, black-scaled back, white gills edged in red, saffron fins
 Xanh da trời, đỏ, cam · màu gốc theo mô hình	Sky blue, red, orange · original model colours
 Đá sỏi	Pebble stone
 Vách đá sỏi tự nhiên của hồ	The tank's natural pebble-stone wall
@@ -442,6 +442,10 @@ Betta Gấu Trúc Xanh	Blue Panda Betta
 Thân trắng hồng đốm đen, đuôi trắng mảng xanh dương đậm · màu gốc theo mô hình	Pink-white body with black spots, white tail with deep blue patches · original model colours
 Betta Koi Vàng	Yellow Koi Betta
 Thân vàng cam đốm xanh, đuôi vàng chuyển trắng xanh · màu gốc theo mô hình	Yellow-orange body with blue spots, yellow tail fading to blue-white · original model colours
+Betta Lục Bảo Đỏ	Emerald Red Betta
+Thân vảy xanh lục bảo, vây đỏ viền sẫm, đuôi bán nguyệt · màu gốc theo mô hình	Emerald-scaled body, red fins with dark edges, half-moon tail · original model colours
+Betta Trăng Tím	Purple Moon Betta
+Thân vảy bạc ánh kim, vây tím crôm, đuôi bán nguyệt viền trắng · màu gốc theo mô hình	Shimmering silver scales, chrome-purple fins, white-rimmed half-moon tail · original model colours
 
 Tiến trình lưu trên thiết bị này	Progress is saved on this device
 

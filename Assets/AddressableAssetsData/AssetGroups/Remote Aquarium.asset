@@ -50,6 +50,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 70059244c1ead400e903d027c53dcf17
+    m_Address: Fish/PurpleMoonBetta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7184446ca16664c5ca76628fa519d02f
     m_Address: Fish/BluePandaBetta
     m_ReadOnly: 0
@@ -107,6 +112,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b1cb17311c3b84001a45d9d9e89ca589
     m_Address: Fish/NemoKoiBetta
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c319c84ec7e2d44f9b883dbc0573beb7
+    m_Address: Fish/EmeraldRedBetta
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

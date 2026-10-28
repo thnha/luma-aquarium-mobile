@@ -16,7 +16,7 @@ MonoBehaviour:
   - id: wall_river
     displayName: "\u0110\xE1 s\u1ECFi"
     description: "V\xE1ch \u0111\xE1 s\u1ECFi t\u1EF1 nhi\xEAn c\u1EE7a h\u1ED3"
-    price: 1
+    price: 150
     albedo: {fileID: 0}
     tint: {r: 1, g: 1, b: 1, a: 1}
     tiling: 3
@@ -24,7 +24,7 @@ MonoBehaviour:
   - id: wall_slate
     displayName: "\u0110\xE1 x\xE1m"
     description: "V\xE1ch \u0111\xE1 phi\u1EBFn x\xE1m c\xF3 v\xE2n n\u1EE9t"
-    price: 1
+    price: 150
     albedo: {fileID: 2800000, guid: 2b544e256dd9a46e38cfda096636a5d2, type: 3}
     tint: {r: 1, g: 1, b: 1, a: 1}
     tiling: 1.5
@@ -32,7 +32,7 @@ MonoBehaviour:
   - id: wall_brick
     displayName: "G\u1EA1ch nung"
     description: "V\xE1ch g\u1EA1ch \u0111\u1ECF x\u1EBFp so le"
-    price: 1
+    price: 200
     albedo: {fileID: 2800000, guid: fa2f69d2bef5346768d74bf126c48a3c, type: 3}
     tint: {r: 1, g: 1, b: 1, a: 1}
     tiling: 1.2
@@ -40,7 +40,7 @@ MonoBehaviour:
   - id: wall_planks
     displayName: "V\xE1n g\u1ED7"
     description: "V\xE1ch v\xE1n g\u1ED7 d\u1ECDc \u1EA5m \xE1p"
-    price: 1
+    price: 200
     albedo: {fileID: 2800000, guid: 65277ba49e1af4beb996b31345e25ab2, type: 3}
     tint: {r: 1, g: 1, b: 1, a: 1}
     tiling: 1
@@ -48,7 +48,7 @@ MonoBehaviour:
   - id: wall_gold
     displayName: "Hoa v\u0103n v\xE0ng"
     description: "Hoa v\u0103n v\xE0ng n\u1ED5i tr\xEAn n\u1EC1n xanh \u0111\u1EADm"
-    price: 1
+    price: 250
     albedo: {fileID: 2800000, guid: c676dea9a32664ef19e940d914c7a044, type: 3}
     tint: {r: 1, g: 1, b: 1, a: 1}
     tiling: 1.2
@@ -56,7 +56,7 @@ MonoBehaviour:
   - id: wall_jade
     displayName: "Hoa v\u0103n xanh ng\u1ECDc"
     description: "Hoa v\u0103n xanh ng\u1ECDc tr\xEAn n\u1EC1n s\xE1ng"
-    price: 1
+    price: 250
     albedo: {fileID: 2800000, guid: 63040a02d4e5740639657ffc3a11c77c, type: 3}
     tint: {r: 1, g: 1, b: 1, a: 1}
     tiling: 1.2
@@ -154,7 +154,7 @@ MonoBehaviour:
   - id: sand_river
     displayName: "C\xE1t v\xE0ng"
     description: "C\xE1t s\xF4ng v\xE0ng k\xE8m s\u1ECFi nh\u1ECF"
-    price: 1
+    price: 100
     albedo: {fileID: 0}
     tint: {r: 1, g: 1, b: 1, a: 1}
     tiling: 5
@@ -164,7 +164,7 @@ MonoBehaviour:
   - id: sand_white
     displayName: "C\xE1t tr\u1EAFng"
     description: "C\xE1t tr\u1EAFng m\u1ECBn, h\u1ED3 s\xE1ng h\u01A1n"
-    price: 1
+    price: 150
     albedo: {fileID: 2800000, guid: 66415abc14cf443baa5bdae4208593ec, type: 3}
     tint: {r: 1, g: 1, b: 1, a: 1}
     tiling: 5
@@ -174,7 +174,7 @@ MonoBehaviour:
   - id: sand_black
     displayName: "C\xE1t \u0111en"
     description: "C\xE1t \u0111en l\xE0m n\u1ED5i m\xE0u c\xE1"
-    price: 1
+    price: 150
     albedo: {fileID: 2800000, guid: a1bf7721c28a14eb39f778993fb5812d, type: 3}
     tint: {r: 1, g: 1, b: 1, a: 1}
     tiling: 5
@@ -184,7 +184,7 @@ MonoBehaviour:
   - id: sand_pink
     displayName: "C\xE1t h\u1ED3ng"
     description: "C\xE1t h\u1ED3ng san h\xF4 m\u1ECBn"
-    price: 1
+    price: 200
     albedo: {fileID: 2800000, guid: f53ba037351fe4943bdeb3229f73d9d6, type: 3}
     tint: {r: 1, g: 1, b: 1, a: 1}
     tiling: 5
@@ -194,7 +194,7 @@ MonoBehaviour:
   - id: gravel_river
     displayName: "S\u1ECFi su\u1ED1i"
     description: "S\u1ECFi su\u1ED1i tr\xF2n nhi\u1EC1u m\xE0u"
-    price: 1
+    price: 150
     albedo: {fileID: 2800000, guid: 57b2712a678d14a0c91f72b4ae4a27a6, type: 3}
     tint: {r: 1, g: 1, b: 1, a: 1}
     tiling: 3
@@ -204,7 +204,7 @@ MonoBehaviour:
   - id: gravel_black
     displayName: "S\u1ECFi \u0111en"
     description: "S\u1ECFi \u0111en b\xF3ng"
-    price: 1
+    price: 200
     albedo: {fileID: 2800000, guid: 0ebca023ac56b42089933fee87a4f9a7, type: 3}
     tint: {r: 1, g: 1, b: 1, a: 1}
     tiling: 3
@@ -215,13 +215,13 @@ MonoBehaviour:
   - id: tank_square
     displayName: "H\u1ED3 vu\xF4ng"
     description: "R\u1ED9ng 1 m\xE0n h\xECnh \xB7 \u0111\xE1y vu\xF4ng"
-    price: 1
+    price: 0
   - id: tank_deep
     displayName: "H\u1ED3 s\xE2u"
     description: "R\u1ED9ng 1 m\xE0n h\xECnh \xB7 s\xE2u g\u1EA5p \u0111\xF4i"
-    price: 1
+    price: 1500
   - id: tank_wide
     displayName: "H\u1ED3 r\u1ED9ng"
     description: "R\u1ED9ng 1,5 m\xE0n h\xECnh \xB7 vu\u1ED1t ngang \u0111\u1EC3
       xem"
-    price: 1
+    price: 2500

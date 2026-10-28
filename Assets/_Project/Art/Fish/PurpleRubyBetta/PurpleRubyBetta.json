@@ -11,6 +11,7 @@
     "landmarks": "",
     "bake": true,
     "body": "meshy",
+    "pelvicMaxTurn": 0,
     "baseTexture": true,
     "whitenPaleBlue": 0,
     "colourReference": "input/2610_1937/reference"
@@ -20,6 +21,6 @@
     "inShop": true,
     "shopId": "purple-ruby-betta",
     "description": "Thân tím hồng, đầu và vây đỏ hồng ngọc viền trắng · màu gốc theo mô hình",
-    "price": 0
+    "price": 1500
   }
 }

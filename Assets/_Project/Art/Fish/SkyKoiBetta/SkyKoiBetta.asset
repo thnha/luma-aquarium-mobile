@@ -17,7 +17,7 @@ MonoBehaviour:
   shopId: sky-koi-betta
   description: "Xanh da tr\u1EDDi, \u0111\u1ECF, cam \xB7 m\xE0u g\u1ED1c theo m\xF4
     h\xECnh"
-  price: 0
+  price: 1000
   size: 1.5
   pattern: {fileID: 11400000, guid: 2f17b3cb6629e4981bf03dd0ac306bfb, type: 2}
   primary: {r: 1, g: 1, b: 1, a: 1}

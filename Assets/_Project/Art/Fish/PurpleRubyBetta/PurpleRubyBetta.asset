@@ -17,7 +17,7 @@ MonoBehaviour:
   shopId: purple-ruby-betta
   description: "Th\xE2n t\xEDm h\u1ED3ng, \u0111\u1EA7u v\xE0 v\xE2y \u0111\u1ECF
     h\u1ED3ng ng\u1ECDc vi\u1EC1n tr\u1EAFng \xB7 m\xE0u g\u1ED1c theo m\xF4 h\xECnh"
-  price: 0
+  price: 1500
   size: 1.5
   pattern: {fileID: 11400000, guid: 2f17b3cb6629e4981bf03dd0ac306bfb, type: 2}
   primary: {r: 1, g: 1, b: 1, a: 1}

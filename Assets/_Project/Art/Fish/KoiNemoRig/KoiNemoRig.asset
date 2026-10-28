@@ -17,7 +17,7 @@ MonoBehaviour:
   shopId: koi-nemo
   description: "Xanh d\u01B0\u01A1ng, tr\u1EAFng, \u0111en \xB7 Koi Nemo \u0111u\xF4i
     tr\xF2n"
-  price: 0
+  price: 1300
   size: 1.5
   pattern: {fileID: 11400000, guid: 47ac8245d7a894d6abe1a3763c256013, type: 2}
   primary: {r: 0.1216, g: 0.3098, b: 0.8196, a: 1}

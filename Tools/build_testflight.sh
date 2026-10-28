@@ -37,6 +37,11 @@ if [[ -z "$TEAM_ID" ]]; then
   echo "Signing Team ID is empty in Player Settings > iOS." >&2
   exit 1
 fi
+IOS_DEPLOYMENT_TARGET="$(sed -n 's/^  iOSTargetOSVersionString: *//p' "$PROJECT_DIR/ProjectSettings/ProjectSettings.asset")"
+if [[ -z "$IOS_DEPLOYMENT_TARGET" ]]; then
+  echo "Minimum iOS Version is empty in Player Settings > iOS." >&2
+  exit 1
+fi
 
 if [[ $SKIP_UNITY -eq 0 ]]; then
   UNITY_VERSION="$(sed -n 's/^m_EditorVersion: //p' "$PROJECT_DIR/ProjectSettings/ProjectVersion.txt")"
@@ -75,8 +80,11 @@ fi
 
 echo "==> Xcode: archiving (log: $LOG_DIR/archive.log)"
 rm -rf "$ARCHIVE"
+# Pods can retain older minimum versions despite the Podfile's platform setting.
+# A command-line setting applies the app's minimum to every target in the workspace.
 xcodebuild archive "${XC_TARGET[@]}" -scheme Unity-iPhone -configuration Release \
   -destination "generic/platform=iOS" -archivePath "$ARCHIVE" \
+  IPHONEOS_DEPLOYMENT_TARGET="$IOS_DEPLOYMENT_TARGET" \
   DEVELOPMENT_TEAM="$TEAM_ID" CODE_SIGN_STYLE=Automatic "${AUTH[@]}" \
   >"$LOG_DIR/archive.log" 2>&1 || { tail -30 "$LOG_DIR/archive.log" >&2; exit 1; }
 

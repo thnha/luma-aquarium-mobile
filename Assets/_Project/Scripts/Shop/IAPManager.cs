@@ -19,7 +19,7 @@ namespace Lumaquarium.Shop
         private StoreController store;
         private readonly List<PendingOrder> unclaimed = new List<PendingOrder>();
         private readonly HashSet<string> claiming = new HashSet<string>();
-        private bool connecting, purchasing;
+        private bool connecting, purchasing, fetchingProducts;
         public event Action Changed;
         public event Action<string> Feedback;
         public event Action<string, int> CoinsGranted; // product id, coins the server just added
@@ -55,7 +55,11 @@ namespace Lumaquarium.Shop
         public void Prepare()
         {
             if (!Connected) Connect();
-            else RetryUnclaimed();
+            else
+            {
+                if (Packs.Any(p => string.IsNullOrEmpty(Price(p.productId)))) FetchProducts();
+                RetryUnclaimed();
+            }
         }
 
         // The App Store price in the player's currency, or null before the products arrive.
@@ -82,9 +86,9 @@ namespace Lumaquarium.Shop
                 store = UnityIAPServices.StoreController();
                 // Every event before Connect: a purchase left pending last session can arrive at once.
                 store.OnStoreConnected += OnConnected;
-                store.OnStoreDisconnected += failure => { Connected = false; Debug.LogWarning($"[IAP] Store disconnected: {failure.Message}"); Changed?.Invoke(); };
-                store.OnProductsFetched += products => { Debug.Log($"[IAP] {products.Count} products"); Changed?.Invoke(); };
-                store.OnProductsFetchFailed += failure => Debug.LogWarning($"[IAP] Products not fetched: {failure.FailureReason}");
+                store.OnStoreDisconnected += failure => { Connected = false; fetchingProducts = false; Debug.LogWarning($"[IAP] Store disconnected: {failure.Message}"); Changed?.Invoke(); };
+                store.OnProductsFetched += OnProductsFetched;
+                store.OnProductsFetchFailed += OnProductsFetchFailed;
                 store.OnPurchasesFetched += orders => Debug.Log($"[IAP] {orders.PendingOrders.Count} pending purchases");
                 store.OnPurchasesFetchFailed += failure => Debug.LogWarning($"[IAP] Purchases not fetched: {failure.Message}");
                 store.OnPurchasePending += order => _ = Claim(order);
@@ -100,8 +104,38 @@ namespace Lumaquarium.Shop
         private void OnConnected()
         {
             Connected = true;
-            store.FetchProducts(Packs.Select(p => new ProductDefinition(p.productId, ProductType.Consumable)).ToList());
+            FetchProducts();
             store.FetchPurchases();
+            Changed?.Invoke();
+        }
+
+        private void FetchProducts()
+        {
+            if (fetchingProducts) return;
+            fetchingProducts = true;
+            try
+            {
+                store.FetchProducts(Packs.Select(p => new ProductDefinition(p.productId, ProductType.Consumable)).ToList());
+            }
+            catch (Exception e)
+            {
+                fetchingProducts = false;
+                Debug.LogWarning($"[IAP] Products not fetched: {e.Message}");
+                Changed?.Invoke();
+            }
+        }
+
+        private void OnProductsFetched(List<Product> products)
+        {
+            fetchingProducts = false;
+            Debug.Log($"[IAP] {products.Count} products");
+            Changed?.Invoke();
+        }
+
+        private void OnProductsFetchFailed(ProductFetchFailed failure)
+        {
+            fetchingProducts = false;
+            Debug.LogWarning($"[IAP] Products not fetched: {failure.FailureReason}");
             Changed?.Invoke();
         }
 

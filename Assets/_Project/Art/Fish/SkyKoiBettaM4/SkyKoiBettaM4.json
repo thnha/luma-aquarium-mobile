@@ -1,14 +1,14 @@
 {
   "base": "MeshyColour",
   "build": {
-    "input": "input/Betta1023b/meshy_zip/Meshy_AI_Betta_Fish_1023163534_image-to-3d-texture_fbx/Meshy_AI_Betta_Fish_1023163534_image-to-3d-texture.fbx",
+    "input": "input/Betta1023b/fixed/Meshy_neck_fixed.fbx",
     "flip": false,
     "faces": 30000,
     "depth": 1,
     "width": 1,
     "fins": {},
     "finThickness": 0.2,
-    "landmarks": "",
+    "landmarks": "input/Betta1023b/fixed/SkyKoiBettaM4_landmarks.json",
     "bake": true,
     "body": "master",
     "baseTexture": true,
@@ -19,6 +19,6 @@
     "inShop": true,
     "shopId": "sky-koi-betta-m4",
     "description": "Xanh da trời, đỏ, cam · màu gốc theo mô hình",
-    "price": 0
+    "price": 1000
   }
 }

@@ -1,11 +1,12 @@
 {
   "build": {
-    "input": "input/KoiNemo/meshy_zip/Meshy_AI_Koi_Betta_Fish_1021050451_image-to-3d-texture_fbx/Meshy_AI_Koi_Betta_Fish_1021050451_image-to-3d-texture.fbx",
+    "input": "input/KoiNemo/fixed/KoiNemo_fixed.fbx",
+    "tailBase": [0.125, 0.42, 0.0],
     "flip": false,
     "faces": 30000,
     "depth": 1,
     "width": 1,
-    "fins": {"pectoral": 1.1, "pectoralFan": 1.0},
+    "fins": {"pectoral": 0.8, "pectoralFan": 1.0},
     "finThickness": 0.2,
     "landmarks": "",
     "bake": true,
@@ -16,7 +17,7 @@
     "inShop": true,
     "shopId": "koi-nemo",
     "description": "Xanh dương, trắng, đen · Koi Nemo đuôi tròn",
-    "price": 0
+    "price": 1300
   },
   "model": {
     "size": 1.5,

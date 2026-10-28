@@ -1,0 +1,32 @@
+{
+  "base": "MeshyColour",
+  "build": {
+    "input": "input/Betta1028/straight50/Betta1028_straight50.fbx",
+    "flip": false,
+    "faces": 30000,
+    "depth": 1,
+    "width": 1,
+    "fins": {},
+    "finThickness": 0.2,
+    "landmarks": "",
+    "bake": true,
+    "body": "meshy",
+    "baseTexture": true,
+    "whitenPaleBlue": 0,
+    "colourReference": "input/Betta1028/reference",
+    "hueShift": [182, 135, 0.65, 40, 0.3]
+  },
+  "shop": {
+    "displayName": "Betta Lục Bảo Đỏ",
+    "inShop": true,
+    "shopId": "emerald-red-betta",
+    "description": "Thân vảy xanh lục bảo, vây đỏ viền sẫm, đuôi bán nguyệt · màu gốc theo mô hình",
+    "price": 1
+  },
+  "look": {
+    "vibrance": 1.5,
+    "brightness": 1.35,
+    "iridescence": 0.25,
+    "gloss": 1.4
+  }
+}

@@ -274,38 +274,37 @@ public static class MainAquariumScreenBuilder
         ("Chung", new[] { 0, 7 }),
         ("Tài khoản", new[] { 5 }),
     };
-    private const float SettingsRowHeight = 124, SettingsHeadingHeight = 84;
+    private const float SettingsRowHeight = 184, SettingsGroupPadding = 64, SettingsGroupGap = 48;
 
-    // A forest chip that hugs the (localized) heading.
+    // A fieldset legend sits on the outline; its preferred width also controls the border gap.
     private static RectTransform SettingsHeading(RectTransform settings, string name, string heading)
     {
         var group = Ui3D.Rect(name, settings);
-        var chip = Ui3D.Badge("Chip", group, heading, false, out var label);
-        chip.rectTransform.anchorMin = chip.rectTransform.anchorMax = chip.rectTransform.pivot = new Vector2(0, .5f);
-        chip.rectTransform.anchoredPosition = Vector2.zero;
-        var layout = chip.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>();
-        layout.padding = new RectOffset(30, 30, 8, 10);
-        layout.childControlWidth = layout.childControlHeight = true;
-        var fit = chip.gameObject.AddComponent<UnityEngine.UI.ContentSizeFitter>();
-        fit.horizontalFit = fit.verticalFit = UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize;
+        var frame = group.gameObject.AddComponent<SettingsGroupFrame>();
+        frame.color = Ui3D.Hex("B0C99B");
+        frame.raycastTarget = false;
+        var label = Ui3D.Text("Legend", group, heading, 44, Ui3D.Ink, true, TextAlignmentOptions.MidlineLeft);
+        Ui3D.At(label.rectTransform, new Vector2(0, 1), new Vector2(0, .5f), new Vector2(48, -2), new Vector2(400, 64));
+        var fit = label.gameObject.AddComponent<UnityEngine.UI.ContentSizeFitter>();
+        fit.horizontalFit = UnityEngine.UI.ContentSizeFitter.FitMode.PreferredSize;
         label.enableAutoSizing = false;
-        label.fontSize = 32;
         label.textWrappingMode = TextWrappingModes.NoWrap;
+        frame.legend = label;
         return group;
     }
-    private const float SettingsHeight = 150 + 5 * SettingsRowHeight + 3 * SettingsHeadingHeight + 40;
+    private const float SettingsHeight = 180 + 5 * SettingsRowHeight + 3 * SettingsGroupPadding + 2 * SettingsGroupGap + 40;
 
     private static void GroupSettings(RectTransform settings)
     {
         Undo.RecordObject(settings, "Fit settings groups");
-        settings.sizeDelta = new Vector2(settings.sizeDelta.x, SettingsHeight);
+        Ui3D.BottomStrip(settings, Side, Side, SheetBottom, SettingsHeight);
         // Rows dropped from the sheet (day/night, view reset, hide HUD) are removed from older HUDs.
         foreach (int index in new[] { 1, 2, 3 })
         {
             var dropped = settings.Find("Row" + index);
             if (dropped != null) Undo.DestroyObjectImmediate(dropped.gameObject);
         }
-        float top = 140;
+        float top = 180;
         for (int g = 0; g < SettingsGroups.Length; g++)
         {
             var (heading, rows) = SettingsGroups[g];
@@ -313,14 +312,16 @@ public static class MainAquariumScreenBuilder
             if (existing != null) Undo.DestroyObjectImmediate(existing.gameObject);
             var group = SettingsHeading(settings, "Group" + g, heading);
             Undo.RegisterCreatedObjectUndo(group.gameObject, "Create settings heading");
-            Ui3D.TopStrip(group, 56, 56, top + 24, SettingsHeadingHeight - 36);
-            top += SettingsHeadingHeight;
+            Ui3D.TopStrip(group, 44, 44, top, SettingsGroupPadding + rows.Length * SettingsRowHeight);
+            group.SetSiblingIndex(0);
+            top += 40;
             for (int r = 0; r < rows.Length; r++)
             {
                 var row = (RectTransform)settings.Find("Row" + rows[r]);
                 if (row == null) continue;
                 Undo.RecordObject(row, "Move settings row");
-                Ui3D.TopStrip(row, 56, 56, top, SettingsRowHeight);
+                Ui3D.TopStrip(row, 76, 76, top, SettingsRowHeight);
+                StyleSettingsRow(row);
                 top += SettingsRowHeight;
                 // Lines only between rows of a group; the next heading already separates groups.
                 var divider = row.Find("Divider");
@@ -328,7 +329,33 @@ public static class MainAquariumScreenBuilder
                 Undo.RecordObject(divider.gameObject, "Toggle settings divider");
                 divider.gameObject.SetActive(r < rows.Length - 1);
             }
+            top += SettingsGroupPadding - 40 + SettingsGroupGap;
         }
+    }
+
+    private static void StyleSettingsRow(RectTransform row)
+    {
+        var title = row.Find("Title").GetComponent<TMP_Text>();
+        var detail = row.Find("Detail").GetComponent<TMP_Text>();
+        Undo.RecordObject(title, "Resize settings title");
+        Undo.RecordObject(detail, "Resize settings description");
+        Undo.RecordObject(title.rectTransform, "Fit settings title");
+        Undo.RecordObject(detail.rectTransform, "Fit settings description");
+        title.fontSize = 40;
+        title.enableAutoSizing = false;
+        detail.fontSize = 36;
+        detail.enableAutoSizing = false;
+        detail.textWrappingMode = TextWrappingModes.Normal;
+        Ui3D.TopStrip(title.rectTransform, 0, 348, 8, 56);
+        Ui3D.TopStrip(detail.rectTransform, 0, 348, 64, 104);
+        var button = row.GetComponentInChildren<UnityEngine.UI.Button>(true);
+        if (button == null) return;
+        Undo.RecordObject(button.transform, "Fit settings button");
+        Ui3D.At((RectTransform)button.transform, new Vector2(1, .5f), new Vector2(1, .5f), Vector2.zero, new Vector2(316, 124));
+        var label = button.GetComponentInChildren<TMP_Text>(true);
+        Undo.RecordObject(label, "Resize settings button text");
+        label.fontSize = label.fontSizeMax = 42;
+        label.fontSizeMin = 36;
     }
 
     // Groups the rows of an already built Settings sheet without rebuilding the HUD.
@@ -342,6 +369,7 @@ public static class MainAquariumScreenBuilder
         if (scene.path != ScenePath || controller == null || controller.settingsPanel == null)
             throw new InvalidOperationException("Open MainAquarium with its built HUD first.");
         Ui3D.LoadFonts();
+        SceneBackups.SaveCopy(scene, "MainAquarium-before-settings-" + SceneBackups.Stamp());
         Undo.IncrementCurrentGroup();
         int group = Undo.GetCurrentGroup();
         GroupSettings((RectTransform)controller.settingsPanel.transform);
