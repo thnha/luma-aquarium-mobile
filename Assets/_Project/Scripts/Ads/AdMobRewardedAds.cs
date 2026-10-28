@@ -32,6 +32,7 @@ namespace Lumaquarium.Ads
         public bool CanShow => !Busy && Status != null && Status.Remaining > 0 && WaitSeconds == 0
             && ConsentInformation.CanRequestAds() && ad != null && ad.CanShowAd();
         private string PendingKey => UnityServices.State == ServicesInitializationState.Initialized && AuthenticationService.Instance.IsSignedIn
+            && !Account.AccountSignIn.ProgressBlocked
             ? "Lumaquarium.Ads.Pending." + AuthenticationService.Instance.PlayerId : null;
         public bool HasPendingClaim => PendingKey != null && PlayerPrefs.HasKey(PendingKey);
 
@@ -39,7 +40,7 @@ namespace Lumaquarium.Ads
         {
             get
             {
-#if UNITY_IOS || UNITY_EDITOR
+#if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR
                 return true;
 #else
                 return false;

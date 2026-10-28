@@ -262,6 +262,7 @@ public static class MainAquariumScreenBuilder
         Wire(mute, controller.ToggleMute);
         Wire(Row(panel, 4, "Đèn hồ", "Đèn trên, đèn nền và màu đèn", "LightingButton", "Tùy chỉnh"), controller.ToggleLighting);
         AccountRow(controller, panel);
+        DeleteAccountRow(controller, panel);
         TankRow(controller, panel);
         LanguageRow(controller, panel);
         GroupSettings(panel);
@@ -272,7 +273,7 @@ public static class MainAquariumScreenBuilder
     {
         ("Hồ của bạn", new[] { 6, 4 }),
         ("Chung", new[] { 0, 7 }),
-        ("Tài khoản", new[] { 5 }),
+        ("Tài khoản", new[] { 5, 8 }),
     };
     private const float SettingsRowHeight = 184, SettingsGroupPadding = 64, SettingsGroupGap = 48;
 
@@ -292,7 +293,7 @@ public static class MainAquariumScreenBuilder
         frame.legend = label;
         return group;
     }
-    private const float SettingsHeight = 180 + 5 * SettingsRowHeight + 3 * SettingsGroupPadding + 2 * SettingsGroupGap + 40;
+    private const float SettingsHeight = 180 + 6 * SettingsRowHeight + 3 * SettingsGroupPadding + 2 * SettingsGroupGap + 40;
 
     private static void GroupSettings(RectTransform settings)
     {
@@ -425,6 +426,42 @@ public static class MainAquariumScreenBuilder
         controller.accountDetail = row.Find("Detail").GetComponent<TMP_Text>();
         controller.accountLabel = account.GetComponentInChildren<TMP_Text>();
         Wire(account, controller.AccountAction);
+    }
+
+    private static void DeleteAccountRow(MainAquariumScreen controller, RectTransform settings)
+    {
+        var button = Row(settings, 8, "Xóa vĩnh viễn", "Tài khoản và mọi tiến trình", "DeleteAccountButton", "Xóa tài khoản");
+        controller.deleteAccountRow = button.transform.parent.gameObject;
+        controller.deleteAccountRow.transform.Find("Title").GetComponent<TMP_Text>().color = Ui3D.Hex("A73F36");
+        DeleteAccountDialogBuilder.StyleDanger(button, false);
+        Wire(button, controller.DeleteAccountAction);
+    }
+
+    [MenuItem("Lumaquarium/UI/Build Delete Account Row")]
+    public static void BuildDeleteAccountRow()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Exit Play mode first.");
+        var scene = SceneManager.GetActiveScene();
+        var controller = UnityEngine.Object.FindFirstObjectByType<MainAquariumScreen>(FindObjectsInactive.Include);
+        if (scene.path != ScenePath || controller == null || controller.settingsPanel == null)
+            throw new InvalidOperationException("Open the built MainAquarium scene first.");
+        string backup = "MainAquarium-before-delete-account-" + SceneBackups.Stamp();
+        Directory.CreateDirectory(SceneBackups.Dir);
+        EditorSceneManager.SaveScene(scene, SceneBackups.Dir + "/" + backup + ".unity", true);
+        Ui3D.LoadFonts();
+        Undo.RecordObject(controller, "Wire delete account row");
+        var settings = (RectTransform)controller.settingsPanel.transform;
+        if (settings.Find("Row8") == null)
+        {
+            DeleteAccountRow(controller, settings);
+            Undo.RegisterCreatedObjectUndo(controller.deleteAccountRow, "Create delete account row");
+        }
+        else controller.deleteAccountRow = settings.Find("Row8").gameObject;
+        GroupSettings(settings);
+        DeleteAccountDialogBuilder.Build();
+        EditorUtility.SetDirty(controller);
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
     }
 
     // Replaces the "Đăng nhập · Sắp có" profile row of an existing HUD with the sign-in / sign-out row.

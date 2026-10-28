@@ -118,6 +118,7 @@ public sealed class BettaMood : MonoBehaviour
 
     void Save()
     {
+        if (Lumaquarium.Account.AccountSignIn.ProgressBlocked) return;
         if (fishId == null) return;
         record.lastSeenTicks = DateTime.UtcNow.Ticks;
         PlayerPrefs.SetString(StoragePrefix + fishId, JsonUtility.ToJson(record));

@@ -1,4 +1,4 @@
-Branding verified: 2026-10-27T17:02:44.7958320Z
+Branding verified: 2026-10-28T15:09:17.5713680Z
 Product: Betta Fish Aquarium 3D
 Shared artwork: Assets/_Project/UI/Backgrounds/AquariumLaunch.png
 Unity splash: enabled, static, no Unity logo, no blur/overlay

@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "740629253921-6s7gmor4m40v9a5195vtm7g2ck6gasje.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thnha.bettafishaquarium",
+            "certificate_hash": "0ad64ff11c24e378f1ea29666050933e50e0d434"
+          }
+        },
+        {
+          "client_id": "740629253921-jhma9tbfj0nvfbi64q3jfugjtulm0g5t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thnha.bettafishaquarium",
+            "certificate_hash": "e8dd4f8933bb0a9b794741f9c31aeca9f0963d5c"
+          }
+        },
+        {
           "client_id": "740629253921-rdqjsol281u7ev91pporq994fnbe4ohu.apps.googleusercontent.com",
           "client_type": 3
         }

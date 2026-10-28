@@ -29,7 +29,7 @@ namespace Lumaquarium.Account
     // Unity Authentication caches the session token, so CloudCodeShopCloud's SignInAnonymouslyAsync keeps
     // restoring the signed-in player on later launches.
     // The native SDKs (Firebase Auth, AppleAuth, Google Sign-In) compile in only with LUMA_SOCIAL_SIGNIN.
-    public static class AccountSignIn
+    public static partial class AccountSignIn
     {
         public const string UnityOidcProvider = "oidc-firebase";
         // OAuth client of type 3 ("Web client") in google-services.json / the Google Cloud console.
@@ -79,6 +79,7 @@ namespace Lumaquarium.Account
         // player's coins and items) and the guest marker go too, so StartGame offers "Chơi ngay" again.
         public static async Task SignOut()
         {
+            if (DeletionPending) return;
 #if LUMA_SOCIAL_SIGNIN
             try { FirebaseAuth.DefaultInstance.SignOut(); }
             catch (Exception e) { Debug.LogWarning($"[Account] Firebase sign-out: {e.Message}"); }
@@ -121,6 +122,8 @@ namespace Lumaquarium.Account
 
         private static async Task<SignInResult> SignIn(bool withApple)
         {
+            if (DeletionPending) return SignInResult.Failed;
+            BeginNewSession();
             if (withApple ? !AppleSupported : !GoogleSupported) return SignInResult.Unavailable;
             if (Application.internetReachability == NetworkReachability.NotReachable) return SignInResult.Offline;
 #if LUMA_SOCIAL_SIGNIN
@@ -137,6 +140,8 @@ namespace Lumaquarium.Account
                 if (credential == null) return SignInResult.Canceled;
                 var user = await FirebaseAuth.DefaultInstance.SignInWithCredentialAsync(credential);
                 await SignInUnity(await user.TokenAsync(false));
+                PlayerPrefs.SetString(DeletionProviderKey, withApple ? "apple.com" : "google.com");
+                PlayerPrefs.Save();
                 return SignInResult.Success;
             }
             catch (RequestFailedException e) when (e.ErrorCode == CommonErrorCodes.TransportError)
@@ -184,6 +189,7 @@ namespace Lumaquarium.Account
         // Apple gets the SHA-256 of the nonce, Firebase the raw nonce, so a stolen Apple token cannot be replayed.
         private static Task<Credential> AppleCredential()
         {
+            appleAuthorizationCode = null;
             apple ??= new AppleAuthManager(new PayloadDeserializer());
             var rawNonce = Nonce();
             var done = new TaskCompletionSource<Credential>();
@@ -195,6 +201,7 @@ namespace Lumaquarium.Account
                     {
                         var idToken = Encoding.UTF8.GetString(id.IdentityToken);
                         var code = id.AuthorizationCode != null ? Encoding.UTF8.GetString(id.AuthorizationCode) : null;
+                        appleAuthorizationCode = code;
                         done.TrySetResult(OAuthProvider.GetCredential("apple.com", idToken, rawNonce, code));
                     }
                     else done.TrySetException(new InvalidOperationException("Apple returned no identity token"));

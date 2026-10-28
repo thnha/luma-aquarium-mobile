@@ -7,29 +7,55 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:740629253921:ios:b5c95f9b8a316703d7f860",
+        "mobilesdk_app_id": "1:740629253921:android:f109ea42322d0110d7f860",
         "android_client_info": {
           "package_name": "com.thnha.bettafishaquarium"
         }
       },
+      "oauth_client": [
+        {
+          "client_id": "740629253921-6s7gmor4m40v9a5195vtm7g2ck6gasje.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thnha.bettafishaquarium",
+            "certificate_hash": "0ad64ff11c24e378f1ea29666050933e50e0d434"
+          }
+        },
+        {
+          "client_id": "740629253921-jhma9tbfj0nvfbi64q3jfugjtulm0g5t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thnha.bettafishaquarium",
+            "certificate_hash": "e8dd4f8933bb0a9b794741f9c31aeca9f0963d5c"
+          }
+        },
+        {
+          "client_id": "740629253921-rdqjsol281u7ev91pporq994fnbe4ohu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyB6ndB6LPlPwMGTlkXqjCq-Bj5869Om7UY"
+          "current_key": "AIzaSyDMJsf-g5o3hEqb4imdc5rvpCdioj4kLKI"
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 0
-        },
         "appinvite_service": {
-          "status": 1
+          "other_platform_oauth_client": [
+            {
+              "client_id": "740629253921-rdqjsol281u7ev91pporq994fnbe4ohu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "740629253921-v4hj0tbt67a9uknfk7ho92ceb7cqslcf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.thnha.bettafishaquarium"
+              }
+            }
+          ]
         }
-      },
-      "oauth_client": [
-        {
-          "client_id": "740629253921-v4hj0tbt67a9uknfk7ho92ceb7cqslcf.apps.googleusercontent.com"
-        }
-      ]
+      }
     }
   ],
   "configuration_version": "1"

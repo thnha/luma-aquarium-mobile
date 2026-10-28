@@ -34,6 +34,7 @@ namespace Lumaquarium.UI
         public TMP_Text accountTitle;
         public TMP_Text accountDetail;
         public TMP_Text accountLabel;
+        public GameObject deleteAccountRow;
         public CanvasGroup hud;
         public AquariumDecoration decoration;
         // Redesigned HUD (docs/ui-redesign.md). All optional so older scenes keep working.
@@ -98,6 +99,7 @@ namespace Lumaquarium.UI
             UpdateLanguageLabel();
             UpdateTiles();
             RefreshAccount();
+            if (AccountSignIn.DeletionPending) DeleteAccountDialog.Show();
         }
 
         private void Update()
@@ -314,10 +316,72 @@ namespace Lumaquarium.UI
             accountLabel.text = Loc.T(signedIn ? "Đăng xuất" : "Đăng nhập");
             if (accountTitle != null) accountTitle.text = Loc.T(signedIn ? "Tài khoản" : "Hồ sơ khách");
             if (accountDetail != null) accountDetail.text = Loc.T(signedIn ? "Hồ được lưu theo tài khoản" : "Lưu trên thiết bị này");
+            if (deleteAccountRow != null)
+            {
+                bool visible = signedIn || AccountSignIn.DeletionPending;
+                if (deleteAccountRow.activeSelf != visible)
+                {
+                    float delta = ((RectTransform)deleteAccountRow.transform).rect.height * (visible ? 1 : -1);
+                    var settings = (RectTransform)settingsPanel.transform;
+                    settings.offsetMax += new Vector2(0, delta);
+                    var group = settings.Find("Group2") as RectTransform;
+                    if (group != null) group.offsetMin -= new Vector2(0, delta);
+                    deleteAccountRow.SetActive(visible);
+                    var divider = settings.Find("Row5/Divider");
+                    if (divider != null) divider.gameObject.SetActive(visible);
+                }
+            }
+            FitAccountSettings();
+        }
+
+        // The extra account action still fits a short phone without shrinking its text or touch targets.
+        private void FitAccountSettings()
+        {
+            if (deleteAccountRow == null || settingsPanel == null) return;
+            var settings = (RectTransform)settingsPanel.transform;
+            float available = ((RectTransform)settings.parent).rect.height - settings.offsetMin.y - 32;
+            if (available <= 0) return;
+            int count = deleteAccountRow.activeSelf ? 6 : 5;
+            bool compact = available < 508 + count * 184;
+            float top = compact ? 148 : 180, gap = compact ? 24 : 48;
+            float rowHeight = Mathf.Clamp((available - top - 3 * 64 - 2 * gap - 40) / count, 160, 184);
+            float height = top + count * rowHeight + 3 * 64 + 2 * gap + 40;
+            settings.offsetMax = new Vector2(settings.offsetMax.x, settings.offsetMin.y + height);
+            int[][] rows = { new[] { 6, 4 }, new[] { 0, 7 }, deleteAccountRow.activeSelf ? new[] { 5, 8 } : new[] { 5 } };
+            for (int g = 0; g < rows.Length; g++)
+            {
+                var group = settings.Find("Group" + g) as RectTransform;
+                if (group != null) Top(group, 44, top, 64 + rows[g].Length * rowHeight);
+                top += 40;
+                foreach (int index in rows[g])
+                {
+                    var row = settings.Find("Row" + index) as RectTransform;
+                    if (row == null) continue;
+                    Top(row, 76, top, rowHeight);
+                    var detail = row.Find("Detail") as RectTransform;
+                    if (detail != null) detail.offsetMin = new Vector2(detail.offsetMin.x, -rowHeight + 6);
+                    top += rowHeight;
+                }
+                top += 64 - 40 + gap;
+            }
+        }
+
+        private static void Top(RectTransform rect, float inset, float top, float height)
+        {
+            rect.anchorMin = new Vector2(0, 1);
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(inset, -top - height);
+            rect.offsetMax = new Vector2(-inset, -top);
+        }
+
+        public void DeleteAccountAction()
+        {
+            if (!leaving && (signedIn || AccountSignIn.DeletionPending)) DeleteAccountDialog.Show();
         }
 
         public async void AccountAction()
         {
+            if (AccountSignIn.DeletionPending) { DeleteAccountDialog.Show(); return; }
             if (leaving) return;
             leaving = true;
             if (signedIn)

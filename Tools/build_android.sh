@@ -7,10 +7,18 @@
 # The Unity editor must be closed; with it open, use Lumaquarium > Build > Android ... instead.
 # Env:
 #   BUILD_NUMBER  versionCode to use (default: current version code + 1)
-#   ANDROID_KEYSTORE, ANDROID_KEYSTORE_PASS, ANDROID_KEY_ALIAS, ANDROID_KEY_PASS  upload key (required for Google Play)
+#   ANDROID_KEYSTORE, ANDROID_KEYSTORE_PASS, ANDROID_KEY_ALIAS, ANDROID_KEY_PASS  upload key (required for Google Play),
+#   read from Tools/android.env (gitignored) when present
 set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+ENV_FILE="$PROJECT_DIR/Tools/android.env"
+if [[ -f "$ENV_FILE" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$ENV_FILE"
+  set +a
+fi
 OUT_DIR="$PROJECT_DIR/Builds/Android"
 LOG_DIR="$PROJECT_DIR/Builds/logs"
 FORMAT="aab"

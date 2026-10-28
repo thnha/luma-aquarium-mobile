@@ -31,6 +31,7 @@ public class BettaAppearance : MonoBehaviour
     static readonly int GlossId = Shader.PropertyToID("_Gloss");
     static readonly int BlackGlossId = Shader.PropertyToID("_BlackGloss");
     static readonly int WhiteScalesId = Shader.PropertyToID("_WhiteScales");
+    static readonly int HeadPatchId = Shader.PropertyToID("_HeadPatch");
     static readonly int FinReliefId = Shader.PropertyToID("_FinRelief");
     static readonly int FinTranslucencyId = Shader.PropertyToID("_FinTranslucency");
     static readonly int ScaleReliefId = Shader.PropertyToID("_ScaleRelief");
@@ -178,6 +179,7 @@ public class BettaAppearance : MonoBehaviour
             block.SetFloat(GlossId, variant.gloss);
             block.SetFloat(BlackGlossId, variant.blackGloss);
             block.SetFloat(WhiteScalesId, variant.whiteScales);
+            block.SetFloat(HeadPatchId, variant.headPatch);
             block.SetFloat(FinReliefId, variant.finRelief);
             block.SetFloat(FinTranslucencyId, variant.finTranslucency);
             block.SetFloat(ScaleReliefId, variant.scaleRelief);

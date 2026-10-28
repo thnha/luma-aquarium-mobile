@@ -8,7 +8,7 @@ using UnityEngine.Purchasing;
 
 namespace Lumaquarium.Shop
 {
-    // The App Store coin packs (ShopCatalog.DefaultCoinPacks), one store session across aquarium scenes. A paid
+    // The App Store / Google Play coin packs (ShopCatalog.DefaultCoinPacks), one store session across aquarium scenes. A paid
     // purchase is only finished (ConfirmPurchase) once the server has added its coins or said Apple denies it;
     // offline or refused, it stays pending: retried when the shop opens, and Apple delivers it again next launch.
     // In the Editor (Unity IAP Fake Store) with the local rules the coins are added on this device instead, to try
@@ -31,7 +31,7 @@ namespace Lumaquarium.Shop
         {
             get
             {
-#if UNITY_IOS || UNITY_EDITOR
+#if UNITY_IOS || UNITY_ANDROID || UNITY_EDITOR
                 return true;
 #else
                 return false;
@@ -62,7 +62,7 @@ namespace Lumaquarium.Shop
             }
         }
 
-        // The App Store price in the player's currency, or null before the products arrive.
+        // The store's price in the player's currency, or null before the products arrive.
         public string Price(string productId)
         {
             var product = Connected ? store.GetProductById(productId) : null;

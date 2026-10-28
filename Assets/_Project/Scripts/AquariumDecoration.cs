@@ -1081,6 +1081,7 @@ public sealed class AquariumDecoration : MonoBehaviour
 
     private void SaveLayout()
     {
+        if (Lumaquarium.Account.AccountSignIn.ProgressBlocked) return;
         if (!persistLayout) return;
         PlayerPrefs.SetString(storageKey, JsonUtility.ToJson(Capture()));
         PlayerPrefs.Save();

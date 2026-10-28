@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25c23ed5e6b1645669af9d8c4c327d31, type: 3}
   m_Name: PlakatGalaxy
   m_EditorClassIdentifier: Assembly-CSharp-Editor::PipelineFish
-  displayName: Plakat Galaxy
+  displayName: Koi Galaxy Betta
   inShop: 1
   shopId: plakat-galaxy
-  description: "Koi Galaxy: th\xE2n tr\u1EAFng ng\u1ECDc m\u1EA3ng \u0111\u1ECF t\u01B0\u01A1i,
+  description: "Th\xE2n tr\u1EAFng ng\u1ECDc m\u1EA3ng \u0111\u1ECF t\u01B0\u01A1i,
     l\u01B0ng v\u1EA3y \u0111en, mang tr\u1EAFng vi\u1EC1n \u0111\u1ECF, v\xE2y v\xE0ng
     ngh\u1EC7"
   price: 600

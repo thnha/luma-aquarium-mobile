@@ -16,6 +16,8 @@ namespace Lumaquarium.UI
         // A local guest profile, not an authenticated account. An existing ID is kept.
         public static void EnsureGuestProfile()
         {
+            if (Account.AccountSignIn.DeletionPending) return;
+            Account.AccountSignIn.BeginNewSession();
             if (HasGuestProfile) return;
             PlayerPrefs.SetString(GuestIdKey, Guid.NewGuid().ToString("N"));
             PlayerPrefs.Save();

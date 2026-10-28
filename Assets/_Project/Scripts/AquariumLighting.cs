@@ -257,6 +257,7 @@ public sealed class AquariumLighting : MonoBehaviour
 
     private void Save()
     {
+        if (Lumaquarium.Account.AccountSignIn.ProgressBlocked) return;
         if (!persist) return;
         PlayerPrefs.SetString(storageKey, $"{(int)Top}{(int)TopColor}{(Backlight ? 1 : 0)}{(int)BackColor}");
         PlayerPrefs.Save();

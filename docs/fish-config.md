@@ -118,6 +118,7 @@ một màu tối pha 40% màu sáng vẫn trông khá xám.
 | `gloss` | `1` | Nhân độ bóng (0–1.5). Dưới 1 làm vệt sáng bớt kiểu sứ. |
 | `blackGloss` | `0` | Chỉ cho `KoiGalaxy`: vảy đen và viền vây đen thành **đen tuyền** (từ 0.25 trở lên: đen hơn, bỏ ánh bạc, bỏ ánh ngũ sắc), số càng cao càng bóng: `0.25` satin, `0.5` bóng nhẹ, `1` sơn mài. Không bị ảnh hưởng bởi `gloss`. PlakatGalaxy dùng `0.15` (dưới 0.25 bóng giảm thêm nhưng mảng đen cũng ngả xám than, có ánh bạc mờ), kèm `secondary` đen than `[0.22, 0.225, 0.24]`. |
 | `whiteScales` | `0` | Chỉ cho `KoiGalaxy`: tỉ lệ vảy đen hoá thành **vảy trắng** ngọc trai, rải lẻ tẻ từng vảy (0–0.5). `0.04` = rất thưa, `0.08` thấy rõ, `0.15` khá dày. PlakatGalaxy dùng `0.04`. |
+| `headPatch` | `0` | Chỉ cho `KoiGalaxy`: **mảng đỏ** (màu `accent`) hình ngẫu nhiên trên trán và đỉnh đầu (0–1); hình đổi theo `seed`. `0.45` = một mảng trên trán và mỏ, `0.6` thêm vài đốm trên đỉnh đầu và gáy, `0.75` đỏ gần hết đầu. PlakatGalaxy dùng `0.6`. |
 | `pigmentDepth` | `0` | Sắc tố đậm ở đầu, nhạt dần về đuôi (0–1). `0` = đều màu. |
 | `finEdgeClear` | `0` | Mép vây trong và sáng hơn (0–2). |
 | `finRelief` | `1` | Độ sâu rãnh giữa các tia vây (0–1). `1` = như bản bake, thấp hơn = vây phẳng, trông **mỏng** hơn. 3 cá hiện tại dùng `0.5`. |

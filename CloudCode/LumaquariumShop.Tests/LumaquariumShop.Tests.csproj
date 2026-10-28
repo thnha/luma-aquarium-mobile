@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../LumaquariumShop/LumaquariumShop/LumaquariumShop.csproj" />
+    <Compile Include="../../Assets/_Project/Scripts/Account/AccountDeletionFlow.cs" Link="AccountDeletionFlow.cs" />
   </ItemGroup>
 
 </Project>

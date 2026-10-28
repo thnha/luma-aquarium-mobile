@@ -132,6 +132,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _HeadPatch: 0
     - _IridescenceShift: 1.6
     - _Metallic: 0
     - _OcclusionStrength: 1

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f782e909e6f4416e97ca931601db3a05, type: 3}
   m_Name: PlakatGalaxy
   m_EditorClassIdentifier: Assembly-CSharp::BettaVariant
-  displayName: Plakat Galaxy
+  displayName: Koi Galaxy Betta
   modelPrefab: {fileID: 6207462310338228702, guid: df6d58eb0393f4763869fe41c19b115b, type: 3}
   pattern: {fileID: 11400000, guid: 9c31507e348de46669991b4d0d773ea2, type: 2}
   primary: {r: 0.88, g: 0.88, b: 0.88, a: 1}
@@ -25,11 +25,12 @@ MonoBehaviour:
   gloss: 0.5
   blackGloss: 0.15
   whiteScales: 0.04
+  headPatch: 0.6
   pigmentDepth: 0.35
   finEdgeClear: 1
   finRelief: 0.5
   finTranslucency: 1.2
-  scaleRelief: 0
+  scaleRelief: 0.5
   scaleEdge: 1
   scaleEdgeWidth: 0.35
   scaleEdgeDark: {r: 0.62, g: 0.42, b: 0.22, a: 1}

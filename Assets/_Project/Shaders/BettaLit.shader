@@ -98,6 +98,8 @@ Shader "Lumaquarium/Betta Lit"
         _BlackGloss("Black Gloss", Range(0.0, 1.0)) = 0.0
         // Koi Galaxy: share of the dark scales that are white instead (0 = none)
         _WhiteScales("White Scales", Range(0.0, 0.5)) = 0.0
+        // Koi Galaxy: irregular red patches on the forehead and top of the head (0 = none)
+        _HeadPatch("Head Patch", Range(0.0, 1.0)) = 0.0
         // Koi Galaxy black lacquer detail: per-scale polish, dull seams, steel-blue sheen (0 = flat coat)
         _BlackDetail("Black Detail", Range(0.0, 1.0)) = 1.0
         // Strength of the steel-blue sheen on black scales (1 = faint, 2 = clear steel blue)

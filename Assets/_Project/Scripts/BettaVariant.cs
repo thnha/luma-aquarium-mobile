@@ -31,6 +31,8 @@ public class BettaVariant : ScriptableObject
     [Range(0f, 1f)] public float blackGloss;
     [Tooltip("Koi Galaxy: share of the dark scales that are white instead, scattered one by one. 0 = none.")]
     [Range(0f, 0.5f)] public float whiteScales;
+    [Tooltip("Koi Galaxy: how much of the forehead and top of the head carries irregular red patches. 0 = none.")]
+    [Range(0f, 1f)] public float headPatch;
     [Tooltip("Pigment is thickest on the head and gills and thins out towards the tail: darker, deeper head; clearer, brighter tail. 0 = even.")]
     [Range(0f, 1f)] public float pigmentDepth;
     [Tooltip("How much clearer and brighter the fin edges are (new growth, thin pigment). 0 = off.")]

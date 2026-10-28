@@ -428,8 +428,6 @@ Tìm tiểu cảnh...	Search aquascape...
 Tìm hồ, thành, nền...	Search tanks and surfaces...
 Betta Samurai Đen	Black Samurai Betta
 Samurai đen, vảy trắng bạc · màu gốc theo mô hình	Black samurai, silver-white scales · original model colours
-Betta Ong Xanh	Blue Bee Betta
-Đen xanh dương, khoang vàng · màu gốc theo mô hình	Black and blue with a yellow band · original model colours
 Betta Trắng Ngọc Lam	Teal White Betta
 Thân trắng, đuôi xanh ngọc lam, vây bụng cam · màu gốc theo mô hình	White body, teal tail, orange pelvic fins · original model colours
 Betta Hồng Ngọc Tím	Purple Ruby Betta
@@ -467,6 +465,7 @@ Không mở được quảng cáo. Vui lòng thử lại.	Could not show the ad.
 Vui lòng chờ trước khi xem quảng cáo tiếp theo.	Please wait before watching another ad.
 Bạn đã nhận đủ thưởng quảng cáo hôm nay.	You have received all ad rewards for today.
 App Store không xác nhận giao dịch này.	The App Store did not confirm this purchase.
+Google Play không xác nhận giao dịch này.	Google Play did not confirm this purchase.
 Đang chờ phụ huynh duyệt giao dịch.	Waiting for a parent to approve the purchase.
 Đã nhận xu. Cảm ơn bạn!	Coins received. Thank you!
 Đã thanh toán. Xu sẽ được cộng khi có mạng.	Paid. Your coins will be added when you are back online.
@@ -550,3 +549,24 @@ San hô nhánh tím	Purple branch coral
 San hô đuốc vàng	Yellow torch coral
 San hô ống xanh	Blue tube coral
 San hô thịt hồng cam	Peach-pink fleshy coral
+# Account deletion
+Xóa tài khoản	Delete account
+Xóa vĩnh viễn	Delete permanently
+Tài khoản và mọi tiến trình	Account and all progress
+Xóa tài khoản?	Delete account?
+Giữ tài khoản	Keep account
+Để sau	Later
+Đang xóa tài khoản…	Deleting account…
+Đã xóa tài khoản	Account deleted
+Chưa xóa xong	Deletion incomplete
+Về màn hình bắt đầu	Back to start
+Không thể khôi phục sau khi xóa.	This cannot be undone.
+Việc xóa đã bắt đầu. Cần hoàn tất trước khi chơi tiếp.	Deletion has started. Complete it before playing again.
+Tài khoản và toàn bộ tiến trình của bạn sẽ bị xóa vĩnh viễn:\n\n• Hồ cá, cá và đồ trang trí\n• Xu và vật phẩm đã mua\n• Dữ liệu trên thiết bị này và cloud	Your account and all progress will be permanently deleted:\n\n• Your tank, fish and decorations\n• Coins and purchased items\n• Data on this device and in the cloud
+Vui lòng chờ trong khi xóa dữ liệu trên máy và cloud.	Please wait while your device and cloud data are deleted.
+Tài khoản và toàn bộ tiến trình trên thiết bị này và cloud đã được xóa.	Your account and all progress on this device and in the cloud have been deleted.
+Yêu cầu xóa chưa hoàn tất. Vui lòng thử lại để hoàn tất việc xóa.	Your deletion request is incomplete. Please retry to finish deleting your account.
+Cần kết nối mạng để xóa tài khoản. Vui lòng kết nối và thử lại.	Connect to the internet to delete your account, then try again.
+Vui lòng xác thực bằng đúng tài khoản Apple hoặc Google đã đăng nhập.	Please verify using the same Apple or Google account you signed in with.
+Chưa thể xóa tài khoản trên thiết bị này. Vui lòng thử lại trên thiết bị đã đăng nhập.	Account deletion is unavailable on this device. Please try on the device you signed in with.
+Không thể hoàn tất việc xóa. Vui lòng kiểm tra kết nối và thử lại.	Couldn't complete deletion. Please check your connection and try again.

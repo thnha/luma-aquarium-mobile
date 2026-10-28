@@ -214,13 +214,14 @@ public static class FrontEndScreenBuilder
         SaveScreen(canvas, FrontEndScenes.Login);
     }
 
-    // Official sign-in logo left of the label, when the brand artwork has been added to UI/Icons (brand_apple.png,
-    // brand_google.png from Apple's and Google's sign-in branding kits); without it the button keeps its text only.
+    // Official sign-in artwork in UI/Icons. Apple's logo-only image includes padding on a black tile;
+    // display that tile larger so the visible mark has a similar height to Google's G.
     private static void BrandLogo(UnityEngine.UI.Button button, string sprite)
     {
         if (Ui3D.Sprite(sprite) == null) return;
         var logo = Ui3D.Icon("Logo", button.transform, sprite);
-        Ui3D.At(logo.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(64, 4), new Vector2(64, 64));
+        float size = sprite == "brand_apple" ? 128 : 64;
+        Ui3D.At(logo.rectTransform, new Vector2(0, .5f), new Vector2(.5f, .5f), new Vector2(96, 4), new Vector2(size, size));
         var label = button.GetComponentInChildren<TMP_Text>().rectTransform;
         label.offsetMin = new Vector2(label.offsetMin.x + 80, label.offsetMin.y);
     }

@@ -7,6 +7,8 @@
 # Remote content built by RemoteContent (uploaded to R2) and its upload keys
 /ServerData/
 /Tools/r2.env
+# Google Play upload key passwords (keystore itself lives in ~/.lumaquarium)
+/Tools/android.env
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 /[Mm]emoryCaptures/

@@ -157,6 +157,7 @@ public sealed class AquariumCarpet : MonoBehaviour
     // Grid size, then one digit per cell.
     public void Save()
     {
+        if (Lumaquarium.Account.AccountSignIn.ProgressBlocked) return;
         if (!decoration.persistLayout) return;
         var text = new StringBuilder(columns + "x" + rows + ":");
         foreach (byte cell in cells) text.Append((char)('0' + cell));

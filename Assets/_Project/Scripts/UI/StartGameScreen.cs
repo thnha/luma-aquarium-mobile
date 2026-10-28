@@ -33,6 +33,7 @@ namespace Lumaquarium.UI
 
         private IEnumerator Start()
         {
+            if (Account.AccountSignIn.DeletionPending) DeleteAccountDialog.Show();
             if (startControls == null) yield break;
             // Continue directly from the static splash, revealing only the controls.
             float elapsed = 0;
@@ -68,6 +69,7 @@ namespace Lumaquarium.UI
 
         private bool TryLoad(string scene, string error)
         {
+            if (Account.AccountSignIn.DeletionPending) { DeleteAccountDialog.Show(); return false; }
             if (transitioning) return false;
             if (!Application.CanStreamedLevelBeLoaded(scene))
             {

@@ -9,7 +9,8 @@
     "finThickness": 0.2,
     "landmarks": "",
     "bake": true,
-    "body": "meshy"
+    "body": "meshy",
+    "headDetail": 2.2
   },
   "shop": {
     "displayName": "Koi Galaxy Betta",
@@ -35,11 +36,12 @@
     "gloss": 0.5,
     "blackGloss": 0.15,
     "whiteScales": 0.04,
+    "headPatch": 0.6,
     "pigmentDepth": 0.35,
     "finEdgeClear": 1,
     "finRelief": 0.5,
     "finTranslucency": 1.2,
-    "scaleRelief": 0,
+    "scaleRelief": 0.5,
     "scaleEdge": 1,
     "scaleEdgeWidth": 0.35,
     "scaleEdgeDark": [0.62, 0.42, 0.22],

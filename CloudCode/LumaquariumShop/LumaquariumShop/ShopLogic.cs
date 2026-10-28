@@ -18,15 +18,17 @@ public sealed partial class ShopLogic
     private readonly Func<DateTimeOffset> utcNow;
     private readonly IAppStore? appStore;
     private readonly IPurchaseStats? stats;
+    private readonly IGooglePlay? googlePlay;
 
     public ShopLogic(IShopStore store, ShopCatalog catalog, Func<DateTimeOffset>? utcNow = null, IAppStore? appStore = null,
-        IPurchaseStats? stats = null)
+        IPurchaseStats? stats = null, IGooglePlay? googlePlay = null)
     {
         this.store = store;
         this.catalog = catalog;
         this.utcNow = utcNow ?? (() => DateTimeOffset.UtcNow);
         this.appStore = appStore;
         this.stats = stats;
+        this.googlePlay = googlePlay;
     }
 
     public Task<ShopReply> GetState() => Change(_ => ShopError.None);

@@ -154,6 +154,7 @@ namespace Lumaquarium.UI
         // <key>.unreadable.bak first, as the server's copy is the one that counts. False when the answer is not a save.
         public bool ReplaceWith(string json)
         {
+            if (Account.AccountSignIn.ProgressBlocked) return false;
             ShopSave next = null;
             try { next = ShopSave.Checked(JsonUtility.FromJson<ShopSave>(json)); }
             catch (ArgumentException) { }
@@ -192,6 +193,7 @@ namespace Lumaquarium.UI
         // Runs one rule on a copy and saves the copy when the rule allows the change.
         private string Change(Func<ShopSave, string> rule)
         {
+            if (Account.AccountSignIn.ProgressBlocked) return ShopError.Rejected;
             Reload();
             if (LoadFailed) return ShopError.SaveUnreadable;
             var next = data.Copy();
@@ -202,6 +204,7 @@ namespace Lumaquarium.UI
 
         private void Save(ShopSave next)
         {
+            if (Account.AccountSignIn.ProgressBlocked) return;
             if (LoadFailed) throw new InvalidOperationException("The save could not be read; it is not written over.");
             string previous = PlayerPrefs.GetString(storageKey, "");
             bool existed = PlayerPrefs.HasKey(storageKey);

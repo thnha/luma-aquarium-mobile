@@ -51,6 +51,7 @@ public class PipelineFishConfig
         public float gloss = 1f;
         public float blackGloss;
         public float whiteScales;
+        public float headPatch;
         public float pigmentDepth;
         public float finEdgeClear;
         public float finRelief = 1f;
@@ -141,6 +142,7 @@ public class PipelineFishConfig
         variant.gloss = look.gloss;
         variant.blackGloss = look.blackGloss;
         variant.whiteScales = look.whiteScales;
+        variant.headPatch = look.headPatch;
         variant.pigmentDepth = look.pigmentDepth;
         variant.finEdgeClear = look.finEdgeClear;
         variant.finRelief = look.finRelief;

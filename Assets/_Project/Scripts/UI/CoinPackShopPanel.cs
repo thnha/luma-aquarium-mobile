@@ -25,7 +25,7 @@ namespace Lumaquarium.UI
         private Image[] pills;
         private Sprite coinSprite;
         private bool wasOpen;
-        private bool wasWalletOpen;
+        private bool wasWalletOpen, wasBlocked;
         public bool Active => iap != null;
         public bool Busy => iap != null && iap.Busy;
 
@@ -83,10 +83,15 @@ namespace Lumaquarium.UI
         {
             if (iap == null) return;
             if (shop.IsOpen && !wasOpen) iap.Prepare(); // reconnects, or sends again a purchase the server has not taken
-            if (shop.WalletOpen && !wasWalletOpen) Refresh();
+            if (shop.WalletOpen && !wasWalletOpen) { iap.Prepare(); Refresh(); }
+            // The cards lock while anything in the shop waits (an ad status sync too), which iap.Changed alone
+            // does not report: open them again as soon as nothing waits.
+            bool blocked = shop.TransactionBusy;
+            if (shop.WalletOpen && blocked != wasBlocked) Refresh();
             if (!shop.WalletOpen && coinEffect != null && coinEffect.Playing) coinEffect.Finish();
             wasOpen = shop.IsOpen;
             wasWalletOpen = shop.WalletOpen;
+            wasBlocked = blocked;
         }
 
         private void Refresh()

@@ -58,9 +58,14 @@ namespace Lumaquarium.Shop
         public Task<string> ClaimAdReward(string requestId) => ImportPending ? Task.FromResult(ShopError.Offline)
             : Send("ClaimAdReward", new Dictionary<string, object> { ["requestId"] = requestId });
 
-        // An App Store coin pack: the server asks Apple about the transaction and adds the pack's coins once.
+        // A coin pack: the server asks Apple (transaction id) or Google Play (purchase token, Unity IAP's transaction id
+        // there) about the purchase and adds the pack's coins once.
         public Task<string> ClaimPurchase(string productId, string transactionId) => ImportPending ? Task.FromResult(ShopError.Offline)
+#if UNITY_ANDROID
+            : Send("ClaimGooglePlayPurchase", new Dictionary<string, object> { ["productId"] = productId, ["purchaseToken"] = transactionId });
+#else
             : Send("ClaimAppStorePurchase", new Dictionary<string, object> { ["productId"] = productId, ["transactionId"] = transactionId });
+#endif
 
         public Task<string> Import(string save) => Send("ImportLocalSave", new Dictionary<string, object> { ["save"] = save });
 
@@ -74,6 +79,7 @@ namespace Lumaquarium.Shop
 
         private async Task<string> SendOnce(string function, Dictionary<string, object> args)
         {
+            if (Account.AccountSignIn.ProgressBlocked) return ShopError.Rejected;
             ShopReply reply;
             try { reply = await cloud.Call(function, args); }
             catch (ShopOfflineException e)
@@ -81,10 +87,16 @@ namespace Lumaquarium.Shop
                 Debug.LogWarning($"[Shop] {function}: offline ({e.Message}).");
                 return ShopError.Offline;
             }
-            if (reply == null) return ShopError.Rejected;
+            if (reply == null || Account.AccountSignIn.ProgressBlocked) return ShopError.Rejected;
             if (!string.IsNullOrEmpty(reply.State) && !new FishShopInventory(StorageKey).ReplaceWith(reply.State)) return ShopError.Rejected;
             if (reply.Ads != null) AdStatus = reply.Ads;
             return reply.Error ?? ShopError.None;
+        }
+
+        public async Task WaitForPendingRequests()
+        {
+            await requests.WaitAsync();
+            requests.Release();
         }
     }
 }

@@ -12,7 +12,9 @@
     "bake": true,
     "body": "meshy",
     "baseTexture": true,
-    "whitenPaleBlue": 0
+    "whitenPaleBlue": 0,
+    "pectoralBack": 40,
+    "creasePatch": 0.008
   },
   "shop": {
     "displayName": "Red Steel Betta",

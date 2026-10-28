@@ -1,15 +1,10 @@
 {
-    "version": "9776692469d78f94",
+    "version": "a8602f3d67d960e1",
     "items": [
         {
             "id": "black-samurai-betta",
             "slot": "fish",
             "price": 1800
-        },
-        {
-            "id": "blue-bee-betta",
-            "slot": "fish",
-            "price": 1400
         },
         {
             "id": "blue-flame-betta",
@@ -30,6 +25,11 @@
             "id": "colorful-betta",
             "slot": "fish",
             "price": 800
+        },
+        {
+            "id": "emerald-red-betta",
+            "slot": "fish",
+            "price": 1600
         },
         {
             "id": "galaxy-betta",
@@ -65,6 +65,11 @@
             "id": "plakat-galaxy",
             "slot": "fish",
             "price": 600
+        },
+        {
+            "id": "purple-moon-betta",
+            "slot": "fish",
+            "price": 1800
         },
         {
             "id": "purple-ruby-betta",

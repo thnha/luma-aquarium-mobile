@@ -1,0 +1,26 @@
+[
+  {
+    "file": "header-3840x1646.png",
+    "sha256": "bd1ff2e2522208332b8023a1b3f0b018fed4406232721d7e5f2451022865b8b8"
+  },
+  {
+    "file": "screenshots/01-your-aquarium.png",
+    "sha256": "0d6f6b87eb8f43b9a1da6a55a1d63a34218cf778cf5a1ffa2b10aa62f3c81e69"
+  },
+  {
+    "file": "screenshots/02-feed-your-betta.png",
+    "sha256": "9d687c1b1e91d43c4844b5f7892d1784c3a83144b644fc8e3e643b4a19ff1309"
+  },
+  {
+    "file": "screenshots/03-decorate-your-tank.png",
+    "sha256": "227f77bbf59cbc34fc99c78c19aa29a87ec105604c399d0c27de580d1d7ce20c"
+  },
+  {
+    "file": "screenshots/04-choose-your-betta.png",
+    "sha256": "e893015609eb55dedc15f9a112f6d4cf7713e53e37d1f05b22436919db391e0a"
+  },
+  {
+    "file": "screenshots/05-aquarium-at-night.png",
+    "sha256": "45324de2938145a702cfd1207b7bcb5f0c9945324ee6553037b68a42a6434a3c"
+  }
+]

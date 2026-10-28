@@ -14,14 +14,15 @@
     "baseTexture": true,
     "whitenPaleBlue": 0,
     "colourReference": "input/Betta1028/reference",
-    "hueShift": [182, 135, 0.65, 40, 0.3]
+    "hueShift": [182, 135, 0.65, 40, 0.3],
+    "pectoralBack": 40
   },
   "shop": {
     "displayName": "Betta Lục Bảo Đỏ",
     "inShop": true,
     "shopId": "emerald-red-betta",
     "description": "Thân vảy xanh lục bảo, vây đỏ viền sẫm, đuôi bán nguyệt · màu gốc theo mô hình",
-    "price": 1
+    "price": 1600
   },
   "look": {
     "vibrance": 1.5,

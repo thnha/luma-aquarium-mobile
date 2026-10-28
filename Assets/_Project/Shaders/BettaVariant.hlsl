@@ -54,6 +54,8 @@ half _Gloss;
 half _BlackGloss;
 // Koi Galaxy: share of the dark scales that are white instead, scattered one by one (0 = none).
 half _WhiteScales;
+// Koi Galaxy: how much of the forehead and top of the head carries irregular red patches (0 = none).
+half _HeadPatch;
 // Black lacquer detail (0 = one flat coat, 1 = per-scale polish, dull seams, extra tilt, steel-blue
 // grazing sheen on some scales, glossier back than belly).
 half _BlackDetail;
@@ -335,6 +337,14 @@ half3 BettaVariantAlbedo(half3 original, float2 uv)
         // A koi's head is smooth white with a pink blush, not a mosaic: one even tint, no per-scale variety.
         half3 headPearl = P * lerp(half3(1.0h, 1.0h, 1.0h), half3(1.0h, 0.86h, 0.88h), 0.7h * body);
         skin = lerp(skin, lerp(headPearl, A, underGill * head), headAll);
+        // Red patches on the forehead and top of the head, shaped by the texel's own spot noises read at a
+        // third angle (each seed its own shape), leaning to the top of the head; the eyes keep their colour.
+        half nh = saturate(0.5h + ((m.b - 0.5h) * (c - s) + (m.a - 0.5h) * (c + s)) * 0.7071h
+                           + (m.b - 0.5h) * (m.a - 0.5h) * 3.0h);
+        half headCut = lerp(1.05h, 0.3h, _HeadPatch);
+        half headRed = smoothstep(headCut - 0.025h, headCut + 0.025h, nh + (g.b - 0.6h) * 0.6h)
+                       * smoothstep(0.7h, 0.95h, headAll) * (1.0h - step(0.2h, edge) * body);   // not in the head/body fade: a pink smear on the back
+        skin = lerp(skin, A, headRed);   // solid red: a red -> orange ramp inside read as a clownfish
         // Dark metallic scales gathered in solid clusters on the back and towards the tail, their borders
         // stepping scale by scale; none on the head. Near black, a few scales glint cool silver (in linear
         // colour even a small share reads bright); _VariantSpeckle.y scales the glint (0 = plain dark).

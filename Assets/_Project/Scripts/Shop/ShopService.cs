@@ -48,6 +48,7 @@ namespace Lumaquarium.Shop
         // again next time. One Prepare runs at a time: a call made meanwhile gets the same task.
         public static Task Prepare()
         {
+            if (Account.AccountSignIn.ProgressBlocked) return Task.CompletedTask;
             if (preparing != null) return preparing;
             var task = PrepareOnce();
             // One that finished without waiting has already cleared itself, before this line.
@@ -70,12 +71,13 @@ namespace Lumaquarium.Shop
                         string backupKey = server.StorageKey + ".imported.bak";
                         if (!PlayerPrefs.HasKey(backupKey)) PlayerPrefs.SetString(backupKey, local);
                         string result = await server.Import(local);
+                        if (Account.AccountSignIn.ProgressBlocked) return;
                         if (result != ShopError.None && result != ShopError.AlreadyImported && result != ShopError.SaveUnreadable) return;
                     }
                     PlayerPrefs.SetInt(importedKey, 1);
                     PlayerPrefs.Save();
                 }
-                await server.ApplyGifts();
+                if (!Account.AccountSignIn.ProgressBlocked) await server.ApplyGifts();
             }
             finally { preparing = null; }
         }
@@ -89,7 +91,8 @@ namespace Lumaquarium.Shop
             ShopError.PriceChanged => Loc.T("Giá vừa được cập nhật. Mở lại game để xem giá mới."),
             ShopError.AdCooldown => Loc.T("Vui lòng chờ trước khi xem quảng cáo tiếp theo."),
             ShopError.AdDailyLimit => Loc.T("Bạn đã nhận đủ thưởng quảng cáo hôm nay."),
-            ShopError.PurchaseInvalid => Loc.T("App Store không xác nhận giao dịch này."),
+            ShopError.PurchaseInvalid => Application.platform == RuntimePlatform.Android
+                ? Loc.T("Google Play không xác nhận giao dịch này.") : Loc.T("App Store không xác nhận giao dịch này."),
             _ => Loc.T("Chưa lưu được giao dịch. Vui lòng thử lại.")
         };
     }
