@@ -35,6 +35,8 @@ public class PipelineFishConfig
         public float size = 2f;
         public float bodySwimAmplitude = 3f;
         public float strokeSwimAmplitude = 8f;
+        public float caudalForwardHold;   // BettaFinPhysics.caudalForwardHold
+        public float caudalEdgeCalm;      // BettaFinPhysics.caudalEdgeCalm
     }
 
     [Serializable]
@@ -124,6 +126,8 @@ public class PipelineFishConfig
         fish.size = model.size;
         fish.bodySwimAmplitude = model.bodySwimAmplitude;
         fish.strokeSwimAmplitude = model.strokeSwimAmplitude;
+        fish.caudalForwardHold = model.caudalForwardHold;
+        fish.caudalEdgeCalm = model.caudalEdgeCalm;
         fish.pattern = Pattern(path);
         fish.primary = Colour(look.primary, "primary", path);
         fish.secondary = Colour(look.secondary, "secondary", path);

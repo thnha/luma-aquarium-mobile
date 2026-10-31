@@ -1,35 +1,61 @@
 {
   "build": {
-    "input": "input/KoiNemo/fixed/KoiNemo_fixed.fbx",
-    "tailBase": [0.125, 0.42, 0.0],
+    "input": "input/KoiNemo/split/KoiNemoRig_split.blend",
+    "tailBase": [
+      0.125,
+      0.39,
+      -0.05
+    ],
     "flip": false,
     "faces": 30000,
     "depth": 1,
     "width": 1,
-    "fins": {"pectoral": 0.8, "pectoralFan": 1.0},
+    "fins": {
+      "pectoral": 0.8,
+      "pectoralFan": 1.0
+    },
     "finThickness": 0.2,
     "landmarks": "",
     "bake": true,
-    "body": "master"
+    "body": "master",
+    "finLayerTop": "right"
   },
   "shop": {
     "displayName": "Koi Nemo Betta",
     "inShop": true,
     "shopId": "koi-nemo",
-    "description": "Xanh dương, trắng, đen · Koi Nemo đuôi tròn",
+    "description": "Xanh d\u01b0\u01a1ng, tr\u1eafng, \u0111en \u00b7 Koi Nemo \u0111u\u00f4i tr\u00f2n",
     "price": 1300
   },
   "model": {
     "size": 1.5,
     "bodySwimAmplitude": 3,
-    "strokeSwimAmplitude": 8
+    "strokeSwimAmplitude": 8,
+    "caudalForwardHold": 1,
+    "caudalEdgeCalm": 0.7
   },
   "look": {
     "pattern": "Butterfly",
-    "primary": [0.1216, 0.3098, 0.8196],
-    "secondary": [1, 1, 1],
-    "accent": [0.09, 0.09, 0.09],
-    "finEdge": [1.0, 0.82, 0.2],
+    "primary": [
+      0.1216,
+      0.3098,
+      0.8196
+    ],
+    "secondary": [
+      1,
+      1,
+      1
+    ],
+    "accent": [
+      0.09,
+      0.09,
+      0.09
+    ],
+    "finEdge": [
+      1.0,
+      0.82,
+      0.2
+    ],
     "iridescence": 0.4,
     "textureDetail": 0.6,
     "silverSheen": 1,
@@ -42,8 +68,14 @@
     "finTranslucency": 1.2,
     "scaleRelief": 0.55,
     "finRimAlpha": 0.6,
-    "finRim": [0.55, 1.0],
-    "caudalRim": [0.3, 0.8],
+    "finRim": [
+      0.55,
+      1.0
+    ],
+    "caudalRim": [
+      0.3,
+      0.8
+    ],
     "caudalStart": 0.55,
     "seed": 3
   }

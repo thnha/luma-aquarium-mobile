@@ -1,7 +1,8 @@
 {
   "build": {
-    "input": "input/2610_1905/fixed/2610_1905_fixed.fbx",
+    "input": "input/2610_1905/split/PlakatGalaxy_split.blend",
     "flip": false,
+    "tailBase": [0, 0.4856, 0.0898],
     "faces": 30000,
     "depth": 1,
     "width": 1,
@@ -22,7 +23,9 @@
   "model": {
     "size": 1.5,
     "bodySwimAmplitude": 3,
-    "strokeSwimAmplitude": 8
+    "strokeSwimAmplitude": 8,
+    "caudalForwardHold": 1,
+    "caudalEdgeCalm": 0.85
   },
   "look": {
     "pattern": "KoiGalaxy",

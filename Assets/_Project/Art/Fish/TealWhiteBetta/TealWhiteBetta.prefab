@@ -151,6 +151,8 @@ MonoBehaviour:
   - Dorsal_Crown_09_01
   caudalCoupling: 0.6
   dorsalAnalCoupling: 0.9
+  caudalForwardHold: 1
+  caudalEdgeCalm: 0.85
 --- !u!114 &2571960447173069528
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,15 +1,24 @@
 {
   "build": {
-    "input": "input/Plakat/Meshy_AI_Plakat_Betta_Straight_1021072128_generate.fbx",
+    "input": "input/Plakat/split/Plakat_split.blend",
     "flip": false,
     "faces": 30000,
     "depth": 1,
     "width": 1,
-    "fins": {"pectoral": 1.15, "pectoralFan": 1.0},
+    "fins": {
+      "pectoral": 1.15,
+      "pectoralFan": 1.0
+    },
     "finThickness": 0.2,
     "landmarks": "",
     "bake": true,
-    "body": "master"
+    "body": "master",
+    "tailBase": [
+      0,
+      0.5,
+      0.05
+    ],
+    "finLayerTop": "off"
   },
   "shop": {
     "displayName": "Plakat Koi",
@@ -21,14 +30,32 @@
   "model": {
     "size": 1.5,
     "bodySwimAmplitude": 3,
-    "strokeSwimAmplitude": 8
+    "strokeSwimAmplitude": 8,
+    "caudalForwardHold": 1,
+    "caudalEdgeCalm": 0.7
   },
   "look": {
     "pattern": "Koi",
-    "primary": [1, 0.8196, 0.2],
-    "secondary": [0.0902, 0.0902, 0.0902],
-    "accent": [1, 1, 1],
-    "finEdge": [1.0, 0.82, 0.2],
+    "primary": [
+      1,
+      0.8196,
+      0.2
+    ],
+    "secondary": [
+      0.0902,
+      0.0902,
+      0.0902
+    ],
+    "accent": [
+      1,
+      1,
+      1
+    ],
+    "finEdge": [
+      1.0,
+      0.82,
+      0.2
+    ],
     "iridescence": 0.4,
     "textureDetail": 0.6,
     "silverSheen": 1,
@@ -41,8 +68,14 @@
     "finTranslucency": 1.2,
     "scaleRelief": 0.55,
     "finRimAlpha": 0.6,
-    "finRim": [0.55, 1.0],
-    "caudalRim": [0.3, 0.8],
+    "finRim": [
+      0.55,
+      1.0
+    ],
+    "caudalRim": [
+      0.3,
+      0.8
+    ],
     "caudalStart": 0.55,
     "seed": 3
   }

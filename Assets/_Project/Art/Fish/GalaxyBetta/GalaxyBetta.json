@@ -1,7 +1,7 @@
 {
   "base": "MeshyColour",
   "build": {
-    "input": "input/Betta1023/meshy_zip/Meshy_AI_Betta_Fish_Model_1023150839_image-to-3d-texture_fbx/Meshy_AI_Betta_Fish_Model_1023150839_image-to-3d-texture.fbx",
+    "input": "input/Betta1023/split/GalaxyBetta_split.blend",
     "flip": true,
     "faces": 30000,
     "depth": 1,
@@ -11,7 +11,13 @@
     "landmarks": "",
     "bake": true,
     "body": "meshy",
-    "baseTexture": true
+    "baseTexture": true,
+    "tailBase": [
+      0,
+      0.3702,
+      0.1586
+    ],
+    "finLayerTop": "left"
   },
   "shop": {
     "displayName": "Galaxy Betta",
@@ -19,5 +25,9 @@
     "shopId": "galaxy-betta",
     "description": "Xanh ngọc, xanh dương, đen · màu gốc theo mô hình",
     "price": 1200
+  },
+  "model": {
+    "caudalForwardHold": 1,
+    "caudalEdgeCalm": 0.7
   }
 }

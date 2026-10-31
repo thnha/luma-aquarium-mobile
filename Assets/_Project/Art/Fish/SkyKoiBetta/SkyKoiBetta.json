@@ -1,7 +1,7 @@
 {
   "base": "MeshyColour",
   "build": {
-    "input": "input/Betta1023b/fixed/Meshy_neck_fixed.fbx",
+    "input": "input/Betta1023b/split/SkyKoiBetta_split_v2.blend",
     "flip": false,
     "faces": 30000,
     "depth": 1,
@@ -12,7 +12,13 @@
     "bake": true,
     "body": "meshy",
     "baseTexture": true,
-    "whitenPaleBlue": 0.44
+    "whitenPaleBlue": 0.44,
+    "tailBase": [
+      0,
+      0.45,
+      0.09
+    ],
+    "finLayerTop": "right"
   },
   "shop": {
     "displayName": "Sky Koi Betta",
@@ -20,5 +26,9 @@
     "shopId": "sky-koi-betta",
     "description": "Xanh da trời, đỏ, cam · màu gốc theo mô hình",
     "price": 1000
+  },
+  "model": {
+    "caudalForwardHold": 1,
+    "caudalEdgeCalm": 0.7
   }
 }

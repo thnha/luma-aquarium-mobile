@@ -1,7 +1,7 @@
 {
   "base": "MeshyColour",
   "build": {
-    "input": "input/2610_2026/fixed/2610_2026_fixed.fbx",
+    "input": "input/2610_2026/split/BluePandaBetta_split.blend",
     "flip": true,
     "faces": 30000,
     "depth": 1,
@@ -13,7 +13,13 @@
     "body": "meshy",
     "baseTexture": true,
     "whitenPaleBlue": 0,
-    "colourReference": "input/2610_2026/reference"
+    "colourReference": "input/2610_2026/reference",
+    "tailBase": [
+      0,
+      0.465,
+      0.0651
+    ],
+    "finLayerTop": "off"
   },
   "shop": {
     "displayName": "Betta Gấu Trúc Xanh",
@@ -21,5 +27,9 @@
     "shopId": "blue-panda-betta",
     "description": "Thân trắng hồng đốm đen, đuôi trắng mảng xanh dương đậm · màu gốc theo mô hình",
     "price": 1800
+  },
+  "model": {
+    "caudalForwardHold": 1,
+    "caudalEdgeCalm": 0.7
   }
 }

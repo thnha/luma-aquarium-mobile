@@ -70,6 +70,9 @@ Shader "Lumaquarium/Betta Lit"
         [NoScaleOffset] _PatternMask("Pattern Mask (Galaxy: R head, G fin streaks, B height, A pelvic)", 2D) = "black" {}
         // Scale cells: RG = scale centre UV, B = 1 inside a scale (pipeline/scale_edges.py); black = off
         [NoScaleOffset] _ScaleCellMap("Scale Cells", 2D) = "black" {}
+        // Overlapping split fins: R dorsal, G caudal skin drawn on top from the fish's right / left (split_parts.layers)
+        [NoScaleOffset] _FinLayerMap("Fin Layer", 2D) = "black" {}
+        _FinLayerBias("Fin Layer Bias", Float) = 0.0
         _VariantOn("Variant On", Float) = 0.0
         _VariantPrimary("Variant Primary", Color) = (1,1,1,1)
         _VariantSecondary("Variant Secondary", Color) = (1,1,1,1)
@@ -189,7 +192,7 @@ Shader "Lumaquarium/Betta Lit"
 
             // -------------------------------------
             // Shader Stages
-            #pragma vertex LitPassVertex
+            #pragma vertex BettaLitPassVertex
             #pragma fragment BettaPassFragment
 
             // -------------------------------------
@@ -253,6 +256,13 @@ Shader "Lumaquarium/Betta Lit"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include "BettaVariant.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl"
+
+            Varyings BettaLitPassVertex(Attributes input)
+            {
+                Varyings output = LitPassVertex(input);
+                output.positionCS = BettaFinLayerCS(input.positionOS.xyz, input.texcoord, output.positionCS);
+                return output;
+            }
 
             // Light through a fin from its far side: the main light (strongest looking into it) plus
             // ambient from behind, tinted by the fin colour and stronger where the membrane thins out.
@@ -449,7 +459,7 @@ Shader "Lumaquarium/Betta Lit"
 
             // -------------------------------------
             // Shader Stages
-            #pragma vertex LitGBufferPassVertex
+            #pragma vertex BettaGBufferPassVertex
             #pragma fragment LitGBufferPassFragment
 
             // -------------------------------------
@@ -510,6 +520,13 @@ Shader "Lumaquarium/Betta Lit"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include "BettaVariant.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitGBufferPass.hlsl"
+
+            Varyings BettaGBufferPassVertex(Attributes input)
+            {
+                Varyings output = LitGBufferPassVertex(input);
+                output.positionCS = BettaFinLayerCS(input.positionOS.xyz, input.texcoord, output.positionCS);
+                return output;
+            }
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/GBufferOutputFormat.hlsl"
             ENDHLSL
         }
@@ -533,7 +550,7 @@ Shader "Lumaquarium/Betta Lit"
 
             // -------------------------------------
             // Shader Stages
-            #pragma vertex DepthOnlyVertex
+            #pragma vertex BettaDepthOnlyVertex
             #pragma fragment BettaDepthOnlyFragment
 
             // -------------------------------------
@@ -555,6 +572,13 @@ Shader "Lumaquarium/Betta Lit"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
             #include "BettaVariant.hlsl"
+
+            Varyings BettaDepthOnlyVertex(Attributes input)
+            {
+                Varyings output = DepthOnlyVertex(input);
+                output.positionCS = BettaFinLayerCS(input.position.xyz, input.texcoord, output.positionCS);
+                return output;
+            }
 
             // Clear fin edges write no depth (the uv is only there with alpha test on).
             half BettaDepthOnlyFragment(Varyings input) : SV_TARGET
@@ -586,7 +610,7 @@ Shader "Lumaquarium/Betta Lit"
 
             // -------------------------------------
             // Shader Stages
-            #pragma vertex DepthNormalsVertex
+            #pragma vertex BettaDepthNormalsVertex
             #pragma fragment BettaDepthNormalsFragment
 
             // -------------------------------------
@@ -615,6 +639,13 @@ Shader "Lumaquarium/Betta Lit"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitDepthNormalsPass.hlsl"
             #include "BettaVariant.hlsl"
+
+            Varyings BettaDepthNormalsVertex(Attributes input)
+            {
+                Varyings output = DepthNormalsVertex(input);
+                output.positionCS = BettaFinLayerCS(input.positionOS.xyz, input.texcoord, output.positionCS);
+                return output;
+            }
 
             // Back faces of the fins write the flipped normal too, so SSAO sees the side facing the camera.
             void BettaDepthNormalsFragment(

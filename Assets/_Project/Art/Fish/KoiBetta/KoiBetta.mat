@@ -50,6 +50,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _FinLayerMap:
+        m_Texture: {fileID: 2800000, guid: 4798097188ed34a08b5827dd487b0f42, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: cce17d8c912134d64a7228ead8f225ae, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -126,6 +130,7 @@ Material:
     - _FinBlack: 0
     - _FinBrightness: 1
     - _FinEdgePass: 0
+    - _FinLayerBias: 0.025
     - _FinRelief: 1
     - _FinTranslucency: 0.8
     - _Gloss: 1

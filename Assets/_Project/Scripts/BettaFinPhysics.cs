@@ -57,6 +57,15 @@ public class BettaFinPhysics : MonoBehaviour
     [Range(0f, 1f)] public float caudalCoupling = 0.6f;
     [Tooltip("The same for the ray chains of the dorsal fin (A front, B back; most clips hold them ~20 deg apart) and of the anal fin.")]
     [Range(0f, 1f)] public float dorsalAnalCoupling = 0.9f;
+    [Tooltip("Share of the caudal spread (flare, caudalSpread, fold) held back on rays that point forward over the back in the " +
+             "model pose (set per fish by PipelineFishImporter). A wide fan whose front rays lie under the dorsal fin (EmeraldRed) " +
+             "otherwise swings them forward while the dorsal rises, and the two fins pass through each other. 0 = off.")]
+    [Range(0f, 1f)] public float caudalForwardHold;
+    [Tooltip("Share of the side-to-side swing taken out of the caudal's outer rays (the top edge under the dorsal and the bottom " +
+             "edge near the anal / pelvic fins), fading in from mid-fan to the outermost ray (set per fish by PipelineFishImporter). " +
+             "A real betta's tail edges barely flap sideways when it swims and turns; the soft tips here lag behind and slap " +
+             "left and right. 0 = off.")]
+    [Range(0f, 1f)] public float caudalEdgeCalm;
 
     enum Group { Caudal, DorsalAnal, Pelvic, Pectoral }
 
@@ -123,6 +132,9 @@ public class BettaFinPhysics : MonoBehaviour
         public float bendShare;
         public float raise;                  // dorsal root +1, anal roots -0.65 front .. -0.5 back, else 0 (+ about the side axis tips a ray forward)
         public float fanAngle;               // caudal roots: degrees from the fan's centre about the side axis (model pose), else 0
+        public float fanHold;                // caudal roots: share of the spread held back (caudalForwardHold on forward rays), else 0
+        public float edgeCalm;               // caudal bones: share of the sideways bend removed (caudalEdgeCalm on outer rays), else 0
+        public Vector3 normalLocal;          // caudal roots: the body's side axis in the parent's space (model pose)
         public bool caudalRoot;
         public Quaternion restLocal;         // model pose, the reference CoupleRays measures bends from
         public float intent;                 // degrees about the side axis this frame (raise + caudal droop/spread), roots only
@@ -233,11 +245,24 @@ public class BettaFinPhysics : MonoBehaviour
             Node[][] fin = fins[f];
             if (finGroup[f] == Group.Caudal)
             {
-                Vector3 first = Vector3.ProjectOnPlane(Tip(fin[0]) - fin[0][0].t.position, lateral);
-                float[] angle = fin.Select(c => Vector3.SignedAngle(first, Vector3.ProjectOnPlane(Tip(c) - c[0].t.position, lateral), lateral)).ToArray();
+                // Summed neighbour to neighbour, so a fan wider than 180 deg (EmeraldRed ~250) doesn't wrap around.
+                Vector3[] ray = fin.Select(c => Vector3.ProjectOnPlane(Tip(c) - c[0].t.position, lateral)).ToArray();
+                float[] angle = new float[fin.Length];
+                for (int c = 1; c < fin.Length; c++) angle[c] = angle[c - 1] + Vector3.SignedAngle(ray[c - 1], ray[c], lateral);
                 float centre = (angle[0] + angle[angle.Length - 1]) * 0.5f;
                 for (int c = 0; c < fin.Length; c++) fin[c][0].fanAngle = angle[c] - centre;
                 caudalFanMax = Mathf.Max(1f, fin.Max(c => Mathf.Abs(c[0].fanAngle)));
+                // Head direction from the skeleton (Tail_Base -> Head), so the model's own rotation doesn't matter.
+                Transform headBone = FindDeep(skeletonRoot, "Head"), tailBase = FindDeep(skeletonRoot, "Tail_Base");
+                Vector3 forward = headBone && tailBase ? Vector3.ProjectOnPlane(headBone.position - tailBase.position, lateral).normalized : Vector3.zero;
+                foreach (var c in fin)
+                {
+                    float ahead = Vector3.Dot(Vector3.ProjectOnPlane(Tip(c) - c[0].t.position, lateral).normalized, forward);
+                    c[0].fanHold = caudalForwardHold * Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(-0.25f, 0.35f, ahead));
+                    float edge = caudalEdgeCalm * Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.4f, 1f, Mathf.Abs(c[0].fanAngle) / caudalFanMax));
+                    foreach (Node n in c) n.edgeCalm = edge;
+                    c[0].normalLocal = Quaternion.Inverse(c[0].t.parent.rotation) * lateral;
+                }
             }
             else if (fin[0][0].t.name.StartsWith("Anal"))
                 for (int c = 0; c < fin.Length; c++) fin[c][0].raise = -0.5f * (1f + 0.3f * (1f - (float)c / (fin.Length - 1)));
@@ -301,7 +326,7 @@ public class BettaFinPhysics : MonoBehaviour
             // Rotating about the body's side axis tips the fin rays up (raise) or back flat (fold).
             if (n.raise != 0f) n.t.rotation = Quaternion.AngleAxis(raiseAngle * n.raise, lateral) * n.t.rotation;
             // Tail form, relative to the Halfmoon model: scale the fan wider or narrower about its centre, hang the fin (Veiltail).
-            float fan = n.caudalRoot ? -caudalDroop + (fanScale - 1f) * n.fanAngle : 0f;
+            float fan = n.caudalRoot ? -caudalDroop + (fanScale - 1f) * n.fanAngle * (1f - n.fanHold) : 0f;
             if (n.caudalRoot) n.t.rotation = Quaternion.AngleAxis(fan, lateral) * n.t.rotation;
             n.intent = raiseAngle * n.raise + fan;
 
@@ -342,7 +367,35 @@ public class BettaFinPhysics : MonoBehaviour
             n.lastWritten = n.t.localRotation;
         }
         CoupleRays(lateral);
+        CalmEdges(lateral);
         Pleat(lateral);
+    }
+
+    // The swim clips wave the caudal's top rays left and right (Tail_R01 tip +-11% of its length with the simulation
+    // off) and the soft tips add their own lag, so the edges by the dorsal and the anal fin flapped sideways. Each bone
+    // of an outer chain loses edgeCalm of its tip's offset across the fin from the reference pose (model pose under the
+    // chain's parent, plus this frame's intended fan), root first; the bend within the fin plane stays.
+    void CalmEdges(Vector3 lateral)
+    {
+        if (fins == null || caudalEdgeCalm <= 0f) return;
+        for (int f = 0; f < fins.Length; f++)
+        {
+            if (finGroup[f] != Group.Caudal) continue;
+            foreach (Node[] chain in fins[f])
+            {
+                if (chain[0].edgeCalm <= 0f) continue;
+                Quaternion reference = Quaternion.AngleAxis(chain[0].intent, lateral) * chain[0].t.parent.rotation;
+                Vector3 normal = chain[0].t.parent.rotation * chain[0].normalLocal;
+                foreach (Node n in chain)
+                {
+                    reference *= n.restLocal;
+                    Vector3 now = n.t.rotation * n.tipLocal, rest = reference * n.tipLocal;
+                    Vector3 calm = now - normal * (Vector3.Dot(now - rest, normal) * n.edgeCalm);
+                    n.t.rotation = Quaternion.FromToRotation(now, calm) * n.t.rotation;
+                    n.lastWritten = n.t.localRotation;
+                }
+            }
+        }
     }
 
     // Neighbouring ray chains of a fin share one membrane, but the clips bend them apart (Dorsal_A vs Dorsal_B up to

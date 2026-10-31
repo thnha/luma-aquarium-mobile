@@ -28,3 +28,5 @@ MonoBehaviour:
   seed: 3
   bodySwimAmplitude: 3
   strokeSwimAmplitude: 8
+  caudalForwardHold: 1
+  caudalEdgeCalm: 0.85

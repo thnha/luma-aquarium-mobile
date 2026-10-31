@@ -1,8 +1,9 @@
 {
   "base": "MeshyColour",
   "build": {
-    "input": "input/Betta1028/straight50/Betta1028_straight50.fbx",
-    "flip": false,
+    "input": "input/Betta1028/split/EmeraldRed_split.blend",
+    "flip": true,
+    "tailBase": [0.0, 0.35, 0.0],
     "faces": 30000,
     "depth": 1,
     "width": 1,
@@ -16,6 +17,9 @@
     "colourReference": "input/Betta1028/reference",
     "hueShift": [182, 135, 0.65, 40, 0.3],
     "pectoralBack": 40
+  },
+  "model": {
+    "caudalForwardHold": 1, "caudalEdgeCalm": 0.7
   },
   "shop": {
     "displayName": "Betta Lục Bảo Đỏ",

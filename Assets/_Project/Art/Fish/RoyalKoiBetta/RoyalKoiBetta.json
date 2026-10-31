@@ -1,7 +1,7 @@
 {
   "base": "MeshyColour",
   "build": {
-    "input": "input/Betta1024e/fixed/RoyalKoiBetta_fixed.fbx",
+    "input": "input/Betta1024e/split/RoyalKoiBetta_split_v3.blend",
     "flip": false,
     "faces": 30000,
     "depth": 1,
@@ -16,7 +16,13 @@
     "whitenPaleBlue": 0,
     "pelvicSplay": -6,
     "pelvicMaxTurn": 0,
-    "colourReference": "input/Betta1024e/reference"
+    "colourReference": "input/Betta1024e/reference",
+    "tailBase": [
+      -0.043,
+      0.47,
+      0.0714
+    ],
+    "finLayerTop": "right"
   },
   "shop": {
     "displayName": "Royal Koi",
@@ -24,5 +30,9 @@
     "shopId": "royal-koi-betta",
     "description": "Koi xanh hoàng gia, đỏ, vàng · màu gốc theo mô hình",
     "price": 2200
+  },
+  "model": {
+    "caudalForwardHold": 1,
+    "caudalEdgeCalm": 0.7
   }
 }

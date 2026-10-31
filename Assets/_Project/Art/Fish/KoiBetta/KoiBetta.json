@@ -1,7 +1,7 @@
 {
   "base": "MeshyColour",
   "build": {
-    "input": "input/Betta1024d/meshy_zip/Meshy_AI_Koi_Betta_Multiview_1024051637_image-to-3d-texture_fbx/Meshy_AI_Koi_Betta_Multiview_1024051637_image-to-3d-texture.fbx",
+    "input": "input/Betta1024d/split/KoiBetta_split.blend",
     "flip": false,
     "faces": 30000,
     "depth": 1,
@@ -13,7 +13,13 @@
     "bake": true,
     "body": "meshy",
     "baseTexture": true,
-    "whitenPaleBlue": 0
+    "whitenPaleBlue": 0,
+    "tailBase": [
+      0.085,
+      0.31,
+      0.03
+    ],
+    "finLayerTop": "left"
   },
   "shop": {
     "displayName": "Koi Betta",
@@ -24,5 +30,9 @@
   },
   "look": {
     "silverSheen": 0
+  },
+  "model": {
+    "caudalForwardHold": 1,
+    "caudalEdgeCalm": 0.7
   }
 }

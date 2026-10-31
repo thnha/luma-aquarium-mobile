@@ -1,7 +1,7 @@
 {
   "base": "MeshyColour",
   "build": {
-    "input": "input/2610_1937/fixed/2610_1937_fixed.fbx",
+    "input": "input/2610_1937/split/PurpleRubyBetta_split.blend",
     "flip": true,
     "faces": 30000,
     "depth": 1,
@@ -14,7 +14,13 @@
     "pelvicMaxTurn": 0,
     "baseTexture": true,
     "whitenPaleBlue": 0,
-    "colourReference": "input/2610_1937/reference"
+    "colourReference": "input/2610_1937/reference",
+    "tailBase": [
+      0,
+      0.4217,
+      0.0786
+    ],
+    "finLayerTop": "right"
   },
   "shop": {
     "displayName": "Betta Hồng Ngọc Tím",
@@ -22,5 +28,9 @@
     "shopId": "purple-ruby-betta",
     "description": "Thân tím hồng, đầu và vây đỏ hồng ngọc viền trắng · màu gốc theo mô hình",
     "price": 1500
+  },
+  "model": {
+    "caudalForwardHold": 1,
+    "caudalEdgeCalm": 0.7
   }
 }

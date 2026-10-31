@@ -1,7 +1,7 @@
 {
   "base": "MeshyColour",
   "build": {
-    "input": "input/Betta1028b/fixed/Betta1028b_ventrals.fbx",
+    "input": "input/Betta1028b/split/PurpleMoonBetta_split.blend",
     "flip": false,
     "faces": 30000,
     "depth": 1,
@@ -15,7 +15,13 @@
     "colourReference": "input/Betta1028b/reference",
     "whitenPaleBlue": 0,
     "pelvicMaxTurn": 0,
-    "lowPectorals": true
+    "lowPectorals": true,
+    "tailBase": [
+      0,
+      0.4013,
+      -0.0717
+    ],
+    "finLayerTop": "off"
   },
   "look": {
     "iridescence": 0.5,
@@ -28,5 +34,9 @@
     "shopId": "purple-moon-betta",
     "description": "Thân vảy bạc ánh kim, vây tím crôm, đuôi bán nguyệt viền trắng · màu gốc theo mô hình",
     "price": 1800
+  },
+  "model": {
+    "caudalForwardHold": 1,
+    "caudalEdgeCalm": 0.7
   }
 }

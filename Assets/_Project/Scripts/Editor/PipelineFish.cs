@@ -31,4 +31,8 @@ public class PipelineFish : ScriptableObject
     [Tooltip("Short-finned, stocky fish (Plakat) need less body bend than the long-finned shared Betta.")]
     public float bodySwimAmplitude = 3f;
     public float strokeSwimAmplitude = 8f;
+    [Tooltip("BettaFinPhysics.caudalForwardHold: caudal rays lying forward under the dorsal don't fan forward (EmeraldRed).")]
+    [Range(0f, 1f)] public float caudalForwardHold;
+    [Tooltip("BettaFinPhysics.caudalEdgeCalm: the caudal's top and bottom edges swing less side to side (EmeraldRed).")]
+    [Range(0f, 1f)] public float caudalEdgeCalm;
 }

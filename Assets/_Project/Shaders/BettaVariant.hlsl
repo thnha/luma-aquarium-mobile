@@ -98,6 +98,25 @@ half4 _FinEdgeCaudal;
 // Set on the material: 0 = the fish's opaque material (cuts the clear part out), 1 = its second,
 // transparent material (draws only the clear part, blended).
 half _FinEdgePass;
+// Split fins that overlap (pipeline split_parts.layers, EmeraldRed's dorsal over the caudal): R marks the dorsal's
+// overlapping skin, G the caudal's. Their bones part in motion and the two thin membranes cut through each other, so
+// the layer on top for this view is drawn nearer the camera: the dorsal seen from the fish's right (+X, object space),
+// the caudal from its left. Moved along the view ray, so only the depth changes, not where it shows.
+TEXTURE2D(_FinLayerMap);     SAMPLER(sampler_FinLayerMap);
+float _FinLayerBias;   // object units the top layer moves toward the camera (0 = off, also without the map)
+
+float4 BettaFinLayerCS(float3 positionOS, float2 uv, float4 positionCS)
+{
+    if (_FinLayerBias <= 0.0)
+        return positionCS;
+    half2 m = SAMPLE_TEXTURE2D_LOD(_FinLayerMap, sampler_FinLayerMap, uv, 0).rg;
+    if (m.r + m.g < 0.01h)
+        return positionCS;
+    float3 toCamera = normalize(TransformWorldToObject(_WorldSpaceCameraPos) - positionOS);
+    half right = smoothstep(-0.15h, 0.15h, (half)toCamera.x);
+    half top = m.r * right + m.g * (1.0h - right);
+    return TransformWorldToHClip(TransformObjectToWorld(positionOS + toCamera * (_FinLayerBias * top)));
+}
 // Set by BettaPassFragment (forward pass) before the surface is built: the view direction and the
 // tangent frame, so the scale sheen can follow the normal-mapped surface. Zero in other passes.
 static half gBettaHasView = 0.0h;

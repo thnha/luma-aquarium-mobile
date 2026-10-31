@@ -1,7 +1,7 @@
 {
   "base": "MeshyColour",
   "build": {
-    "input": "input/YellowKoi/fixed/YellowKoi_fixed.fbx",
+    "input": "input/YellowKoi/split/YellowKoiBetta_split.blend",
     "flip": false,
     "faces": 30000,
     "depth": 1,
@@ -16,7 +16,13 @@
     "body": "meshy",
     "baseTexture": true,
     "whitenPaleBlue": 0,
-    "colourReference": "input/YellowKoi/reference"
+    "colourReference": "input/YellowKoi/reference",
+    "tailBase": [
+      0,
+      0.38,
+      0.085
+    ],
+    "finLayerTop": "off"
   },
   "shop": {
     "displayName": "Betta Koi Vàng",
@@ -24,5 +30,9 @@
     "shopId": "yellow-koi-betta",
     "description": "Thân vàng cam đốm xanh, đuôi vàng chuyển trắng xanh · màu gốc theo mô hình",
     "price": 1400
+  },
+  "model": {
+    "caudalForwardHold": 1,
+    "caudalEdgeCalm": 0.7
   }
 }

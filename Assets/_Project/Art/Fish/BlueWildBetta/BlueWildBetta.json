@@ -1,9 +1,13 @@
 {
   "base": "MeshyColour",
   "build": {
-    "input": "input/2610_2022/fixed/2610_2022_fixed.fbx",
+    "input": "input/2610_2022/split/BlueWildBetta_split.blend",
     "flip": true,
-    "tailBase": [0.02, 0.29, 0.08],
+    "tailBase": [
+      0.02,
+      0.29,
+      0.08
+    ],
     "faces": 30000,
     "depth": 1,
     "width": 1,
@@ -14,7 +18,8 @@
     "body": "meshy",
     "baseTexture": true,
     "whitenPaleBlue": 0,
-    "colourReference": "input/2610_2022/reference"
+    "colourReference": "input/2610_2022/reference",
+    "finLayerTop": "right"
   },
   "shop": {
     "displayName": "Betta Rồng Xanh",
@@ -22,5 +27,9 @@
     "shopId": "blue-wild-betta",
     "description": "Betta hoang dã xanh lam, đốm đen trên vây · màu gốc theo mô hình",
     "price": 2000
+  },
+  "model": {
+    "caudalForwardHold": 1,
+    "caudalEdgeCalm": 0.7
   }
 }

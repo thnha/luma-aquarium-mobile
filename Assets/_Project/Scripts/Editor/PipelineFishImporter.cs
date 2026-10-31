@@ -72,7 +72,8 @@ public static class PipelineFishImporter
             AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_PatternMask.png"),
             AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_Normal.png"),
             AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_Detail.png"),
-            AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_ScaleCells.png"));
+            AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_ScaleCells.png"),
+            AssetDatabase.LoadAssetAtPath<Texture2D>(source + "_FinLayer.png"));
         var controller = Controller(source, model);
 
         var root = new GameObject(fish.name);
@@ -101,6 +102,8 @@ public static class PipelineFishImporter
             var fins = root.AddComponent<BettaFinPhysics>();
             fins.skeletonRoot = instance.transform;
             fins.skippedChains = BettaFinPhysics.CrownChainRoots;
+            fins.caudalForwardHold = fish.caudalForwardHold;
+            fins.caudalEdgeCalm = fish.caudalEdgeCalm;
             var reactions = root.AddComponent<BettaReactions>();
             reactions.animator = animator;
             var mouth = root.AddComponent<BettaMouth>();
@@ -135,7 +138,12 @@ public static class PipelineFishImporter
         return variant;
     }
 
-    static Material FishMaterial(string source, Texture2D mask, Texture2D baseColor, Texture2D pattern, Texture2D normal, Texture2D detail, Texture2D cells)
+    // Object units (the fish's own scale) the top layer of two overlapping split fins is drawn toward the camera: about as
+    // deep as they cut through each other (EmeraldRed in Play: .004-.009 swimming, up to .029 flaring; .006 hardly showed),
+    // and the marks fade out at the roots so the fin doesn't pass in front of the body.
+    const float FinLayerBias = 0.025f;
+
+    static Material FishMaterial(string source, Texture2D mask, Texture2D baseColor, Texture2D pattern, Texture2D normal, Texture2D detail, Texture2D cells, Texture2D layer)
     {
         string path = source + ".mat";
         var shader = Shader.Find("Lumaquarium/Betta Lit");
@@ -159,6 +167,9 @@ public static class PipelineFishImporter
         SetKeyword(material, "_OCCLUSIONMAP", detail);
         // Optional: each scale's centre, so a scale takes one colour (pipeline/scale_edges.py).
         material.SetTexture("_ScaleCellMap", cells);
+        // Optional: split fins that overlap (pipeline split_parts.layers) keep their layering where they cut through each other.
+        material.SetTexture("_FinLayerMap", layer);
+        material.SetFloat("_FinLayerBias", layer ? FinLayerBias : 0f);
         // The ordered scale atlas follows the shared Betta's UVs; a transparent map turns it off.
         material.SetTexture("_ScaleMap", NoScales());
         // Meshy fins are thin shells: draw both faces.
